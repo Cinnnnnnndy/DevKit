@@ -402,18 +402,32 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#93a6c2 0%,#84b0a2 
    所有尺寸按 1920×1080 实际像素设计；整台舞台再等比缩放塞进当前视口，
    所以任意屏幕上看到的都是同一张 1080p 设计稿，不是响应式重排。 */
 html,body{height:100%;overflow:hidden;background:#050505}
-#stage{position:absolute;left:0;top:0;width:2422px;height:1282px;
+#stage{position:absolute;left:0;top:0;width:2562px;height:1420px;
   transform-origin:top left;background:var(--bg);
   display:flex;flex-direction:column;padding:26px 30px 22px;gap:14px}
 #stage .head{max-width:none;margin:0;padding:0;gap:14px;flex:none}
 #stage .rail{max-width:none;margin:0;padding:0;gap:6px;flex:none;height:74px}
-.stagebody{flex:1;min-height:0;display:grid;grid-template-columns:1920px 424px;gap:18px}
-.wrap{max-width:none;margin:0;padding:0;min-width:0;display:flex}
+.stagebody{flex:1;min-height:0;display:grid;grid-template-columns:2060px 424px;gap:18px}
+.wrap{max-width:none;margin:0;padding:0;min-width:0;display:flex;align-items:center}
 
-/* 终端本体撑满左栏 */
+/* ══ 无品牌笔记本外壳 —— 屏幕内仍是真实的 1920×1080 ══ */
+.laptop{width:2060px;flex:none;display:flex;flex-direction:column;align-items:center}
+.lid{position:relative;padding:30px 30px 56px;border-radius:20px 20px 4px 4px;
+  background:linear-gradient(#3b4046,#22252a 55%,#16181b);border:1px solid #52585f;
+  box-shadow:0 34px 90px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.14)}
+.lid .cam{position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:8px;height:8px;border-radius:50%;background:#090a0b;box-shadow:inset 0 0 0 1px #5b616a}
+.hinge{width:1760px;height:14px;background:linear-gradient(#0d0f11,#2c3036);
+  box-shadow:inset 1px 0 0 #52585f,inset -1px 0 0 #52585f}
+.base{position:relative;width:2060px;height:32px;border-radius:0 0 16px 16px;
+  background:linear-gradient(#41464d 0 2px,#2b2f35 2px,#15171a);
+  box-shadow:0 28px 64px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.16)}
+.base::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:240px;height:10px;border-radius:0 0 9px 9px;background:#0b0d0f}
+
 /* 终端窗口 = 1920×1080 实际像素 —— 这一台"屏幕"就是 1080p */
-.term{width:1920px;height:1080px;flex:none;display:flex;flex-direction:column;
-  box-shadow:0 26px 70px rgba(0,0,0,.6)}
+.term{width:1920px;height:1080px;flex:none;display:flex;flex-direction:column;border-radius:4px;
+  box-shadow:0 0 0 1px #0a0b0c,inset 0 0 60px rgba(0,0,0,.5)}
 .tbar{height:38px;flex:none}
 .screen{flex:1;min-height:0;font-size:16px;line-height:1.5}
 .sc{display:flex;flex-direction:column;height:100%}
@@ -425,17 +439,7 @@ html,body{height:100%;overflow:hidden;background:#050505}
 /* 右栏串讲卡片竖排 */
 #stage .cap{max-width:none;margin:0;padding:0;display:flex;flex-direction:column;
   gap:14px;min-height:0}
-#stage .capbox{overflow:auto}
-#stage .capbox:first-child{flex:none}
-#stage .capbox.jbox{flex:1;display:flex;flex-direction:column}
-.jlist{display:flex;flex-direction:column;gap:2px;margin-top:10px;flex:1}
-.jrow{flex:1;display:flex;align-items:center;gap:10px;padding:6px 9px;border-left:2px solid var(--bd2);
-  font-size:13px;color:var(--fg4);min-height:0}
-.jrow .jn{font-family:var(--mono);font-size:11px;width:14px;flex:none;text-align:right}
-.jrow.on{border-left-color:var(--pri);background:var(--sel);color:var(--pri-h)}
-.jrow.on .jn{color:var(--pri-h)}
-.jrow.dn{color:var(--fg3);border-left-color:var(--bd3)}
-.jrow .jm{margin-left:auto;font-family:var(--mono);font-size:10.5px;opacity:.7}
+#stage .capbox{overflow:auto;flex:none}
 
 /* 1080p 下的字号档 —— 终端单元格变大，不是把小终端放大 */
 .appbar{font-size:13px;padding:8px 15px}
@@ -525,7 +529,10 @@ pre.bgf{font-size:14px;line-height:1.5}
 
 <div class="stagebody">
 <div class="wrap">
-  <div class="term">
+  <div class="laptop">
+   <div class="lid">
+    <span class="cam"></span>
+    <div class="term">
     <div class="tbar">
       <span class="d" style="background:#ff5f57"></span>
       <span class="d" style="background:#febc2e"></span>
@@ -534,8 +541,11 @@ pre.bgf{font-size:14px;line-height:1.5}
       <span class="rt" id="tbr">116×34</span>
     </div>
     <div class="screen"><canvas id="pf"></canvas><div class="sc" id="sc"></div></div>
+    </div>
+   </div>
+   <div class="hinge"></div>
+   <div class="base"></div>
   </div>
-
 </div>
 
   <div class="cap">
@@ -546,10 +556,6 @@ pre.bgf{font-size:14px;line-height:1.5}
       <p>观众看到的哇点：<span class="wow" id="cw">—</span></p>
       <div class="pats" id="cp"></div>
       <div class="prog"><i id="pb" style="width:0"></i></div>
-    </div>
-    <div class="capbox jbox">
-      <div class="e">本幕在旅程中的位置</div>
-      <div class="jlist" id="cj"></div>
     </div>
     <div class="capbox">
       <div class="e">串讲节奏</div>
@@ -571,8 +577,8 @@ const E=s=>document.getElementById(s);
 /* 舞台按 1920×1080 设计，等比缩放塞进视口 —— 设计稿尺寸恒定，不做响应式重排 */
 function fitStage(){
   const st=E('stage'); if(!st) return;
-  const k=Math.min(innerWidth/2422, innerHeight/1282);
-  st.style.transform=`translate(${(innerWidth-2422*k)/2}px, ${(innerHeight-1282*k)/2}px) scale(${k})`;
+  const k=Math.min(innerWidth/2562, innerHeight/1420);
+  st.style.transform=`translate(${(innerWidth-2562*k)/2}px, ${(innerHeight-1420*k)/2}px) scale(${k})`;
 }
 addEventListener('resize',fitStage);
 /* 终端尺寸标签按真实字符网格算出来，不写死 */
@@ -1130,10 +1136,6 @@ function WAVE2(d,cols,rows,elig){
   return [L1.join('\n'),L2.join('\n')];
 }
 
-/* 幕 → 六阶段用户旅程的映射（见 JOURNEY.md）*/
-const STAGES=['初始化配置','代码迁移','验证编译','代码优化','参数优化','场景化调优'];
-const ACT2STAGE=[1,2,1,2,2,3,4,5,6,6];
-
 /* ══════ 运行时 ══════ */
 let cur=0, playing=true, timer=null, typeTimer=null;
 
@@ -1154,13 +1156,6 @@ function paint(){
   E('cp').innerHTML=a.pats.map((p,i)=>
     `<span class="pat ${(a.hi||[]).includes(i)?'hi':''}">${p}</span>`).join('');
   E('pb').style.width=((cur+1)/ACTS.length*100)+'%';
-  const st=ACT2STAGE[cur];
-  E('cj').innerHTML=STAGES.map((t,i)=>{
-    const n=i+1, cls = n===st?'on' : (n<st?'dn':'');
-    const acts=ACT2STAGE.map((x,j)=>x===n?j+1:0).filter(Boolean);
-    return `<div class="jrow ${cls}"><span class="jn">0${n}</span>${t}`+
-           `<span class="jm">${acts.map(x=>'⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽'[x-1]).join('')}</span></div>`;
-  }).join('');
   requestAnimationFrame(()=>{measureGrid();fillBG();});
   E('tbt').textContent = cur===0 ? 'user@localhost — devkitai' : 'user@localhost — devkitai · migrate nginx';
   PF.enabled = !!a.particles;
