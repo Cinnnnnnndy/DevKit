@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kunpeng DevKit AI · TUI 视觉风格分析</title>
+<style>
+:root{
+  --bg:#101010; --elev:#141414; --s1:#161616; --s2:#1c1c1c; --s3:#262626; --s4:#313131;
+  --fg:rgba(255,255,255,.90); --fg2:rgba(255,255,255,.60); --fg3:rgba(255,255,255,.40); --fg4:rgba(255,255,255,.25);
+  --bd1:rgba(255,255,255,.06); --bd2:rgba(255,255,255,.10); --bd3:rgba(255,255,255,.16);
+  --pri:#0077ff; --pri-h:#3d98ff; --acc:#7c8db8;
+  --ok:#04d793; --warn:#ffaa3b; --dgr:#ff4b7b;
+  --s2p:8px; --s3p:12px; --s4p:16px; --s5p:20px; --s6p:24px;
+  --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
+  --sans:'Inter','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:58px}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.65;
+  -webkit-font-smoothing:antialiased}
+::selection{background:rgba(0,119,255,.28)}
+a{color:var(--pri-h);text-decoration:none}
+.scan{position:fixed;inset:0;pointer-events:none;z-index:90;opacity:.3;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.013) 0 1px,transparent 1px 3px)}
+
+.top{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(20,20,20,.9);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--bd1);display:flex;align-items:center;gap:var(--s3p);padding:0 var(--s5p);z-index:60}
+.logo{width:22px;height:22px;border-radius:6px;background:var(--pri);display:grid;
+  grid-template-columns:1fr 1fr;gap:2px;padding:5px}
+.logo i{background:#fff;border-radius:1px}
+.logo i:nth-child(1){opacity:.95}.logo i:nth-child(2){opacity:.6}
+.logo i:nth-child(3){opacity:.6}.logo i:nth-child(4){opacity:.32}
+.top b{font-size:14px}
+.chip{font-family:var(--mono);font-size:11px;color:var(--fg3);background:var(--s2);
+  border:1px solid var(--bd1);border-radius:6px;padding:2px 7px}
+.top .r{margin-left:auto;font-size:11px;color:var(--fg3);font-family:var(--mono)}
+
+.hero{position:relative;min-height:76vh;display:flex;align-items:center;justify-content:center;
+  padding:110px var(--s6p) 64px;overflow:hidden;border-bottom:1px solid var(--bd1)}
+#pf{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.hero-in{position:relative;z-index:2;max-width:900px;text-align:center}
+.eyebrow{font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--pri-h);margin-bottom:var(--s4p);font-family:var(--mono)}
+.hero h1{font-size:50px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin-bottom:var(--s4p)}
+.hero h1 em{font-style:normal;color:var(--pri-h)}
+.hero p{color:var(--fg2);font-size:15px;max-width:62ch;margin:0 auto}
+.poles{display:flex;gap:6px;justify-content:center;margin-top:var(--s6p);flex-wrap:wrap}
+.pole{font-family:var(--mono);font-size:10.5px;padding:4px 11px;border-radius:999px;
+  border:1px solid var(--bd2);background:rgba(22,22,22,.7);backdrop-filter:blur(4px)}
+
+nav.fn{position:fixed;right:var(--s5p);top:50%;transform:translateY(-50%);z-index:50;
+  display:flex;flex-direction:column;gap:9px}
+nav.fn a{display:flex;align-items:center;gap:9px;justify-content:flex-end;
+  font-family:var(--mono);font-size:10px;color:var(--fg4)}
+nav.fn a i{width:14px;height:2px;background:var(--fg4);display:block;transition:all .2s}
+nav.fn a.on{color:var(--pri-h)} nav.fn a.on i{width:26px;background:var(--pri-h)}
+nav.fn a span{opacity:0;transition:opacity .1s}
+nav.fn a:hover span,nav.fn a.on span{opacity:1}
+
+.floor{max-width:1120px;margin:0 auto;padding:74px var(--s6p) 26px;position:relative;z-index:2}
+.fnum{font-family:var(--mono);font-size:11px;color:var(--fg4);letter-spacing:.18em;margin-bottom:var(--s2p)}
+.floor h2{font-size:29px;font-weight:700;letter-spacing:-.02em;margin-bottom:var(--s3p)}
+.lead{color:var(--fg2);max-width:78ch;margin-bottom:var(--s5p)}
+h3{font-size:16px;font-weight:600;margin:var(--s6p) 0 var(--s3p)}
+.sub{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);
+  margin:var(--s6p) 0 var(--s3p);display:flex;align-items:center;gap:var(--s3p)}
+.sub::after{content:'';flex:1;height:1px;background:var(--bd1)}
+p{margin:var(--s3p) 0;color:var(--fg2)}
+strong,b{color:var(--fg);font-weight:600}
+code{font-family:var(--mono);font-size:12px;background:var(--s2);border:1px solid var(--bd1);
+  padding:1px 6px;border-radius:6px;color:var(--fg);white-space:nowrap}
+
+/* ══ 流派卡 ══ */
+.school{border:1px solid var(--bd2);border-radius:12px;overflow:hidden;margin:var(--s4p) 0;background:var(--s1)}
+.school .hd{padding:var(--s4p) var(--s5p);border-bottom:1px solid var(--bd1);position:relative}
+.school .hd::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--tint)}
+.school .nm{display:flex;align-items:baseline;gap:var(--s3p);flex-wrap:wrap}
+.school .nm b{font-size:18px}
+.school .nm .en{font-family:var(--mono);font-size:11px;color:var(--fg4)}
+.school .nm .rep{margin-left:auto;font-size:11px;color:var(--fg3)}
+.school .bd{padding:var(--s4p) var(--s5p)}
+.demo{border-radius:8px;padding:var(--s4p);font-family:var(--mono);font-size:11.5px;line-height:1.5;
+  margin:var(--s3p) 0;overflow:hidden}
+.attr{display:grid;grid-template-columns:74px 1fr;gap:4px var(--s3p);font-size:12.5px;margin:var(--s3p) 0}
+.attr dt{color:var(--fg4);font-size:11px;padding-top:2px}
+.attr dd{color:var(--fg2)}
+.verdict{margin-top:var(--s3p);padding:var(--s3p) var(--s4p);border-radius:8px;font-size:12.5px;
+  background:rgba(255,255,255,.03);border:1px solid var(--bd1)}
+.verdict b{color:var(--tint)}
+
+table{width:100%;border-collapse:collapse;margin:var(--s3p) 0;font-size:12.5px}
+th{text-align:left;font-size:10.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--fg3);padding:var(--s2p) var(--s3p);border-bottom:1px solid var(--bd2);white-space:nowrap}
+td{padding:var(--s2p) var(--s3p);border-bottom:1px solid var(--bd1);vertical-align:top;color:var(--fg2)}
+tr:hover td{background:rgba(255,255,255,.02)}
+td:first-child{color:var(--fg);font-weight:500}
+.mono{font-family:var(--mono)}
+
+.grid{display:grid;gap:var(--s3p);margin:var(--s4p) 0}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.card{background:var(--s1);border:1px solid var(--bd2);border-radius:12px;padding:var(--s4p)}
+.card h4{font-size:13px;font-weight:600;margin-bottom:var(--s2p)}
+.card p{font-size:12.5px;margin:var(--s2p) 0}
+.note{background:rgba(0,119,255,.09);border:1px solid rgba(0,119,255,.26);border-radius:12px;
+  padding:var(--s3p) var(--s4p);margin:var(--s4p) 0;font-size:13px;color:var(--fg2)}
+.note b{color:var(--pri-h)}
+.note.w{background:rgba(255,170,59,.09);border-color:rgba(255,170,59,.26)} .note.w b{color:var(--warn)}
+.note.d{background:rgba(255,75,123,.08);border-color:rgba(255,75,123,.26)} .note.d b{color:var(--dgr)}
+.note.s{background:rgba(4,215,147,.08);border-color:rgba(4,215,147,.26)} .note.s b{color:var(--ok)}
+.rule{font-size:12.5px;color:var(--fg2);border-left:2px solid var(--bd3);padding-left:var(--s3p);margin:var(--s3p) 0}
+.b{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:999px;background:var(--s2);
+  border:1px solid var(--bd2);color:var(--fg2);margin:2px 3px 2px 0}
+.b.s{color:var(--ok);border-color:rgba(4,215,147,.3)}
+.b.w{color:var(--warn);border-color:rgba(255,170,59,.3)}
+.b.d{color:var(--dgr);border-color:rgba(255,75,123,.3)}
+.b.p{color:var(--pri-h);border-color:rgba(0,119,255,.32)}
+pre{font-family:var(--mono);background:#0b0b0b;border:1px solid var(--bd1);border-radius:12px;
+  padding:var(--s4p);overflow-x:auto;font-size:11.5px;line-height:1.5;color:#E8E8E8;margin:var(--s3p) 0}
+pre .cm{color:#707070}
+
+/* 浓度梯度 */
+.grad{display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--bd2);margin:var(--s4p) 0}
+.grad>div{flex:1;padding:var(--s4p) var(--s3p);text-align:center;font-size:11.5px;position:relative}
+.grad>div b{display:block;font-size:12.5px;color:var(--fg);margin-bottom:4px}
+.grad>div span{color:var(--fg4);font-size:10.5px;font-family:var(--mono)}
+
+/* 皮肤色板 */
+.skins{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:var(--s3p);margin:var(--s3p) 0}
+.skin{border:1px solid var(--bd2);border-radius:10px;overflow:hidden;background:var(--s1)}
+.skin .sw{display:flex;height:34px}
+.skin .sw i{flex:1}
+.skin .mt{padding:7px 11px}
+.skin .mt b{display:block;font-size:12px}
+.skin .mt span{font-size:10px;color:var(--fg4);font-family:var(--mono)}
+
+footer{max-width:1120px;margin:70px auto 0;padding:var(--s5p) var(--s6p) 70px;border-top:1px solid var(--bd1);
+  font-family:var(--mono);font-size:11px;color:var(--fg4);line-height:2}
+@media(max-width:900px){nav.fn{display:none}.hero h1{font-size:33px}.floor{padding:54px var(--s4p) 22px}}
+.kpmark{width:22px;height:22px;object-fit:contain;vertical-align:-6px;margin-right:9px;flex:none}
+.kplock{display:flex;align-items:center;gap:0;margin-bottom:14px}
+.kplock .nm{font-family:var(--mono,monospace);font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--fg2,#a4a4a4)}
+.kplock .sep{opacity:.35;margin:0 9px}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+
+<div class="top">
+  <img class="kpmark" alt="Kunpeng" src="data:image/png;base64,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">
+  <b>Kunpeng DevKit AI</b><span class="chip">TUI 视觉风格分析</span>
+  <span class="chip">五个审美流派 · 视觉原子 · 皮肤生态</span>
+  <span class="r">2026-08 · for Kunpeng DevKit AI</span>
+</div>
+
+<nav class="fn" id="fn">
+  <a href="#v1"><span>为什么单列</span><i></i></a>
+  <a href="#v2"><span>五个流派</span><i></i></a>
+  <a href="#v3"><span>视觉原子</span><i></i></a>
+  <a href="#v4"><span>皮肤生态</span><i></i></a>
+  <a href="#v5"><span>手法清单</span><i></i></a>
+  <a href="#v6"><span>工具链</span><i></i></a>
+  <a href="#v7"><span>我们的定位</span><i></i></a>
+</nav>
+
+<section class="hero">
+  <canvas id="pf"></canvas>
+  <div class="hero-in">
+    <div class="kplock"><img class="kpmark" alt="Kunpeng" src="data:image/png;base64,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"><span class="nm">Kunpeng DevKit AI</span><span class="nm sep">/</span><span class="nm">Visual Style Analysis</span></div>
+    <h1>终端也有<em>审美流派</em></h1>
+    <p>UX 分析回答"界面怎么组织"，视觉分析回答"它长什么样、给人什么气质"。
+       同样是 TUI，AwesomeTUI 的荧光粗野、Charm 的糖果友好、PTO 的技术克制——
+       是三种完全不同的产品人格。Kunpeng DevKit AI 该站在哪里，是一个需要明确回答的问题。</p>
+    <div class="poles">
+      <span class="pole" style="color:#8ea0c8;border-color:#3a4358">技术克制</span>
+      <span class="pole" style="color:#c3e938;border-color:#4a5a15">粗野荧光</span>
+      <span class="pole" style="color:#c39bff;border-color:#4a3a6a">糖果友好</span>
+      <span class="pole" style="color:#4ade80;border-color:#1a4a2a">复古磷光</span>
+      <span class="pole" style="color:#a78bfa;border-color:#3a2a6a">霓虹赛博</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ V1 ══════ -->
+<section class="floor" id="v1">
+  <div class="fnum">FLOOR 01</div>
+  <h2>为什么视觉要单独分析</h2>
+  <p class="lead">前一份竞品分析是 <strong>UX 视角</strong>——任务流、信息架构、交互模式。但那份分析里有个被跳过的问题：<strong>同样的框架结构，用两套视觉做出来是两个产品。</strong></p>
+
+  <div class="grid g3">
+    <div class="card"><h4>UX 分析回答</h4><p>面板怎么分？帮助提示放哪？diff 用什么粒度审？窄屏怎么降级？——<strong>结构与流程</strong>问题。</p></div>
+    <div class="card"><h4>视觉分析回答</h4><p>用几种颜色？边框圆不圆？字要不要发光？留白多少？——<strong>气质与可信度</strong>问题。</p></div>
+    <div class="card"><h4>为什么现在做</h4><p>规范已定到组件级，再往下就是视觉落地。而且<strong>选错气质的代价很高</strong>：工程诊断工具做成糖果色，用户会怀疑它的严肃性。</p></div>
+  </div>
+
+  <div class="note d"><b>先纠正一个更大的假设：TUI 的视觉表达力接近简化版 CSS。</b>调研 Lip Gloss 的 API 才发现——它支持<strong>渐变</strong>（<code>Blend1D()</code> / <code>Blend2D()</code>）、<strong>分层合成</strong>（<code>Compositor</code> + <code>Layer</code>）、<strong>透明度混合</strong>（<code>Alpha()</code>）、<strong>色彩运算</strong>（<code>Darken/Lighten/Complementary</code>）、<strong>五种下划线</strong>（single/double/curly/dotted/dashed）、<strong>超链接</strong>、<strong>自定义内外边距填充字符</strong>（<code>PaddingChar('·')</code>）。而 TUIStudio 的属性面板里甚至有 <strong>drop shadow 和 opacity 滑块</strong>。<br><br>
+  这意味着我此前在 VISUAL.md 里写的"终端无阴影、无 alpha、圆角只有两档"是<strong>基于最保守终端的假设</strong>——在支持真彩的现代终端 + Lip Gloss/Textual 这类框架下，可用的视觉手段比想象中多得多。<strong>纪律仍然要守（因为要降级），但天花板必须重新认识。</strong></div>
+</section>
+
+<!-- ══════ V2 五个流派 ══════ -->
+<section class="floor" id="v2">
+  <div class="fnum">FLOOR 02</div>
+  <h2>五个审美流派</h2>
+  <p class="lead">按<strong>色彩浓度 × 形状语言 × 情绪温度</strong>三个轴归纳。每派给出代表、视觉配方、气质判断，以及我们该取什么、该避什么。</p>
+
+  <!-- 1 技术克制 -->
+  <div class="school" style="--tint:#8ea0c8">
+    <div class="hd"><div class="nm"><b>① 技术克制派</b><span class="en">Technical / Restrained</span>
+      <span class="rep">代表：PTO Design System · Warp · Resend · Cursor · Linear</span></div></div>
+    <div class="bd">
+      <div class="demo" style="background:#101010;border:1px solid #2d2d2d">
+<span style="color:#777;font-size:9px;letter-spacing:.14em">K E R N E L S</span>
+<div style="margin-top:7px;color:#a4a4a4">attention_fwd &nbsp;1024 &nbsp;<span style="color:#e8e8e8">18.2ms</span> &nbsp;<span style="color:#ff4b7b">mem</span></div>
+<div style="color:#a4a4a4">matmul_4096 &nbsp;&nbsp;&nbsp;512 &nbsp;<span style="color:#e8e8e8">12.4ms</span> &nbsp;<span style="color:#ffaa3b">comp</span></div>
+<div style="margin-top:7px;color:#555">Compat <span style="color:#0077ff">████████</span><span style="color:#333">░░</span> 82%</div>
+      </div>
+      <dl class="attr">
+        <dt>色彩</dt><dd>6 级中性表面 + <strong>单一品牌色</strong> + 3 个语义色。强调色出现频率极低，所以每次出现都有分量</dd>
+        <dt>形状</dt><dd>直角为主，圆角只给浮层。边框细而弱（6–16% 白），靠<strong>表面层级</strong>而非描边分区</dd>
+        <dt>排版</dt><dd>层级靠<strong>字距 + 色阶 + 缩进</strong>，不靠字号。大写小字母间距标签</dd>
+        <dt>气质</dt><dd>专业、可信、久看不累。像仪表而非海报</dd>
+      </dl>
+      <div class="verdict"><b>判断：这是工作台的正确底色。</b>DevKit 是让人盯着看几小时做迁移和调优决策的工具，任何"抢注意力"的视觉都是负担。<span class="b s">主位置</span></div>
+    </div>
+  </div>
+
+  <!-- 2 粗野荧光 -->
+  <div class="school" style="--tint:#c3e938">
+    <div class="hd"><div class="nm"><b>② 粗野荧光派</b><span class="en">Brutalist / Acid</span>
+      <span class="rep">代表：AwesomeTUI · 部分 dev-tool 落地页</span></div></div>
+    <div class="bd">
+      <div class="demo" style="background:#000;border:1px solid #2a3a0a;position:relative">
+<div style="position:absolute;top:5px;left:6px;color:#c3e938;font-size:9px">+</div>
+<div style="position:absolute;top:5px;right:6px;color:#c3e938;font-size:9px">+</div>
+<div style="display:inline-flex;font-size:10px;font-weight:700;margin-bottom:9px">
+  <span style="background:#c3e938;color:#000;padding:1px 6px">›</span>
+  <span style="background:#c3e938;color:#000;padding:1px 7px;border-left:1px solid #000">AWESOME</span>
+  <span style="background:#000;color:#fff;padding:1px 7px;border:1px solid #c3e938">TUI</span></div>
+<div style="color:#fff;font-size:19px;font-weight:800;letter-spacing:-.5px;line-height:1.05">The terminal is</div>
+<div style="color:#c3e938;font-size:19px;font-weight:800;letter-spacing:-.5px;line-height:1.05">the frontend</div>
+<div style="color:#c3e938;font-size:8px;letter-spacing:3px;margin-top:6px">· · · · · · · · · · · · · · · ·</div>
+      </div>
+      <dl class="attr">
+        <dt>色彩</dt><dd><strong>黑 + 一个荧光色 + 白</strong>，三色见底。极高对比，没有中间灰阶</dd>
+        <dt>形状</dt><dd>方硬。<strong>角部裁切标记</strong>（四角 <code>+</code>）+ 细外框，像技术制图套准线</dd>
+        <dt>排版</dt><dd><strong>抖动像素字标</strong>（边缘点阵化）· 大字号等宽做主张 · <strong>点阵分隔线</strong>代替实线</dd>
+        <dt>气质</dt><dd>态度强烈、极客宣言感。<strong>看三秒很爽，看三小时会累</strong></dd>
+      </dl>
+      <div class="verdict"><b>判断：借手法，不借浓度。</b>它没有中性层级（只有黑白 + 荧光），承载不了密集工程信息。但<strong>抖动像素排版、角部裁切、反色分段标签、点阵分隔线、点阵尘埃图形</strong>五个手法可以直接拿——用在 splash 与宣传物料上。<span class="b w">手法可借</span></div>
+    </div>
+  </div>
+
+  <!-- 3 糖果友好 -->
+  <div class="school" style="--tint:#c39bff">
+    <div class="hd"><div class="nm"><b>③ 糖果友好派</b><span class="en">Playful / Candy</span>
+      <span class="rep">代表：Charm 全家桶（Bubble Tea · Lip Gloss · Huh · Glamour · Wish · Bubbles）</span></div></div>
+    <div class="bd">
+      <div class="demo" style="background:#141020;border:1px solid #3a2a5a">
+<div style="border:1px solid #8b5cf6;border-radius:6px;padding:7px 11px;display:inline-block;color:#e9d5ff">
+  Choose your burger <span style="color:#f0abfc">*</span></div>
+<div style="margin-top:8px;color:#c4b5fd">&nbsp;› <span style="color:#f0abfc">Charmburger Classic</span></div>
+<div style="color:#8b7ab8">&nbsp;&nbsp; Chickwich</div>
+<div style="color:#8b7ab8">&nbsp;&nbsp; Fishburger</div>
+<div style="margin-top:8px;display:inline-block;border:1px solid #a78bfa;border-radius:5px;
+  padding:2px 12px;color:#ddd6fe;box-shadow:0 0 14px rgba(167,139,250,.4)">Run Away</div>
+      </div>
+      <dl class="attr">
+        <dt>色彩</dt><dd>紫粉渐变主调 + 高饱和点缀。<strong>发光</strong>（box-shadow 式辉光）大量使用</dd>
+        <dt>形状</dt><dd><strong>圆角边框</strong>是标志性特征（Lip Gloss <code>RoundedBorder()</code>）· 按钮式元素 · 3D 吉祥物插画</dd>
+        <dt>排版</dt><dd>圆润无衬线标题 + 等宽正文混排 · 彩色 ASCII art</dd>
+        <dt>气质</dt><dd>亲和、活泼、有玩心。<strong>降低了终端的门槛感</strong>，这是它最大的贡献</dd>
+      </dl>
+      <div class="verdict"><b>判断：技术栈值得研究，视觉明确不借。</b>Charm 的<strong>工程能力极强</strong>（Lip Gloss 的样式 API 是 TUI 世界最完整的），但它的视觉人格与我们冲突——<strong>吉祥物与糖果色会削弱工程可信度</strong>，尤其在崩溃诊断、权限确认这类需要冷静的场景。用户看到粉紫色的"Root Cause 置信度 91%"会本能地打折。<span class="b d">视觉不借</span> <span class="b s">API 参考</span></div>
+    </div>
+  </div>
+
+  <!-- 4 复古磷光 -->
+  <div class="school" style="--tint:#4ade80">
+    <div class="hd"><div class="nm"><b>④ 复古磷光派</b><span class="en">Retro Phosphor / CRT</span>
+      <span class="rep">代表：cool-retro-term · 各类 splash · "Visually" 这类点阵字标</span></div></div>
+    <div class="bd">
+      <div class="demo" style="background:#0a140e;border:1px solid #1a3a26;
+        text-shadow:0 0 8px rgba(74,222,128,.55);position:relative">
+<div style="color:#4ade80;font-weight:700;font-size:17px;letter-spacing:1px">DEVKIT&nbsp;AI</div>
+<div style="color:#2a7a4a;font-size:10px;margin-top:3px">v26.0 · initializing…</div>
+<div style="color:#4ade80;margin-top:9px;font-size:11px">&gt; scan project<span style="opacity:.5">_</span></div>
+<div style="position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px)"></div>
+      </div>
+      <dl class="attr">
+        <dt>色彩</dt><dd>单色磷光（绿 / 琥珀 / 白）+ 深底。<strong>字符自带辉光</strong></dd>
+        <dt>形状</dt><dd>扫描线叠加 · CRT 桶形畸变（可选）· 点阵位图字</dd>
+        <dt>排版</dt><dd><strong>点阵/位图字体</strong>做标题 · 光标闪烁作为节奏</dd>
+        <dt>气质</dt><dd>怀旧、硬核、"这是给懂行的人用的"</dd>
+      </dl>
+      <div class="verdict"><b>判断：只用在 splash 的一瞬。</b>磷光辉光会让正文长时间阅读疲劳，扫描线在密集表格上会产生摩尔纹。但<strong>启动那 2 秒</strong>用它建立"这是终端原生工具"的身份认同，性价比极高。<span class="b w">限 splash</span></div>
+    </div>
+  </div>
+
+  <!-- 5 霓虹赛博 -->
+  <div class="school" style="--tint:#a78bfa">
+    <div class="hd"><div class="nm"><b>⑤ 霓虹赛博派</b><span class="en">Neon / Cyber</span>
+      <span class="rep">代表：Puku CLI · Dracula / Tokyo Night 系皮肤 · 当下 AI 产品的默认审美</span></div></div>
+    <div class="bd">
+      <div class="demo" style="background:linear-gradient(160deg,#150e2e,#0d0a1a);border:1px solid #3a2a6a">
+<div style="color:#c4b5fd;font-size:17px;font-weight:800;letter-spacing:1px;
+  text-shadow:0 0 18px rgba(167,139,250,.75)">DEVKIT CLI</div>
+<div style="color:#7c6aa8;font-size:10px;margin-top:4px">AI-Native Terminal, Supercharged</div>
+<div style="margin-top:9px;display:inline-block;background:#6d4aff;color:#fff;
+  padding:3px 14px;border-radius:6px;font-size:10.5px;
+  box-shadow:0 0 20px rgba(109,74,255,.6)">Download Now →</div>
+      </div>
+      <dl class="attr">
+        <dt>色彩</dt><dd>深紫蓝渐变底 + 霓虹紫/品红发光。<strong>渐变是主角</strong>而非点缀</dd>
+        <dt>形状</dt><dd>圆角 + 大量辉光 + 行星/球体等宇宙意象</dd>
+        <dt>排版</dt><dd>粗体无衬线标题 + 发光像素字标 · 终端窗口作为视觉主体嵌在渐变里</dd>
+        <dt>气质</dt><dd>未来感、AI 感、"这是新东西"。<strong>但正因太流行，辨识度反而低</strong></dd>
+      </dl>
+      <div class="verdict"><b>判断：这是 2026 年 AI 工具的"安全牌"，也正因如此没有记忆点。</b>Puku CLI 这类落地页放到一起几乎难以分辨。DevKit 的差异化在于<strong>它服务的是严肃工程决策，不是尝鲜</strong>——克制反而是更强的差异化。<span class="b d">整体不采</span> <span class="b w">演示过场可用</span></div>
+    </div>
+  </div>
+
+  <div class="sub">一张表看完五派</div>
+  <table>
+    <tr><th>流派</th><th>色彩浓度</th><th>形状</th><th>情绪温度</th><th>久看疲劳</th><th>工程可信度</th><th>我们的取舍</th></tr>
+    <tr><td style="color:#8ea0c8">技术克制</td><td>低</td><td>直角为主</td><td>冷</td><td class="mono" style="color:var(--ok)">低</td><td class="mono" style="color:var(--ok)">高</td><td><strong>主位置</strong></td></tr>
+    <tr><td style="color:#c3e938">粗野荧光</td><td>极高</td><td>方硬 + 裁切标记</td><td>中</td><td class="mono" style="color:var(--dgr)">高</td><td class="mono" style="color:var(--warn)">中</td><td>借手法，用于 splash / 宣传</td></tr>
+    <tr><td style="color:#c39bff">糖果友好</td><td>高</td><td>圆角 + 辉光</td><td>暖</td><td class="mono" style="color:var(--warn)">中</td><td class="mono" style="color:var(--dgr)">低</td><td>只参考 API，不采视觉</td></tr>
+    <tr><td style="color:#4ade80">复古磷光</td><td>低（单色）</td><td>扫描线</td><td>冷</td><td class="mono" style="color:var(--dgr)">高</td><td class="mono" style="color:var(--ok)">高</td><td>限 splash 2 秒</td></tr>
+    <tr><td style="color:#a78bfa">霓虹赛博</td><td>高</td><td>圆角 + 渐变辉光</td><td>中</td><td class="mono" style="color:var(--warn)">中</td><td class="mono" style="color:var(--warn)">中</td><td>仅演示过场</td></tr>
+  </table>
+</section>
+
+<!-- ══════ V3 视觉原子 ══════ -->
+<section class="floor" id="v3">
+  <div class="fnum">FLOOR 03</div>
+  <h2>视觉原子 —— TUI 到底能做多少</h2>
+  <p class="lead">由 <strong>Lip Gloss 的样式 API</strong> 与 <strong>TUIStudio 的属性面板</strong>反推出的能力边界。结论：<strong>比"字符画"多得多，接近一个简化版 CSS。</strong></p>
+
+  <table>
+    <tr><th>维度</th><th>可用手段</th><th>API / 证据</th><th>我们用不用</th></tr>
+    <tr><td>边框样式</td><td>Normal · <strong>Rounded</strong> · Thick · Double · Hidden · ASCII · Markdown，且<strong>可单边设置</strong></td><td class="mono">BorderStyle() · BorderTop(true)</td><td>用。直角=固定区，圆角=浮层</td></tr>
+    <tr><td>颜色深度</td><td>四层：ANSI 16 / 256 / <strong>TrueColor</strong> / <strong>自适应明暗</strong></td><td class="mono">LightDark() · Complete()</td><td>用。自适应档解决 light/dark 主题</td></tr>
+    <tr><td><strong>色彩运算</strong></td><td>变暗 · 变亮 · 取补色 · <strong>透明度混合</strong> · <strong>一维/二维渐变</strong></td><td class="mono">Darken/Lighten/Complementary<br>Alpha() · Blend1D() · Blend2D()</td><td><span class="b s">推翻旧假设</span>可用它<strong>生成域色阶</strong>，不必手写 11 档</td></tr>
+    <tr><td>文字装饰</td><td>bold · italic · <strong>五种下划线</strong>（single/double/curly/dotted/dashed）· strikethrough · blink · faint · reverse · <strong>超链接</strong></td><td class="mono">UnderlineStyle() · Hyperlink()</td><td>用。<strong>curly underline 标错误</strong>（IDE 语义，工程师认）</td></tr>
+    <tr><td>盒模型</td><td>padding / margin 四向 + <strong>自定义填充字符</strong></td><td class="mono">PaddingChar('·') · MarginChar('░')</td><td>慎用。填充字符适合分隔，不适合常规留白</td></tr>
+    <tr><td><strong>分层合成</strong></td><td>多图层叠加渲染</td><td class="mono">Compositor + Layer</td><td><span class="b s">推翻旧假设</span>这正是 <strong>P26 AI 标注层</strong>的实现路径——标注真的可以是独立图层</td></tr>
+    <tr><td>布局</td><td>水平/垂直拼接 · 绝对定位 · 尺寸测量</td><td class="mono">JoinHorizontal/Vertical · Place</td><td>用</td></tr>
+    <tr><td>数据渲染</td><td>Table（边框 + 逐单元格 StyleFunc）· List（<strong>Arabic/Alphabet/Roman/Bullet/Tree</strong> 五种枚举器）· Tree（Default/Rounded 枚举器，可递归）</td><td class="mono">table.New() · list.New() · tree.Root()</td><td>用。<strong>Tree 枚举器直接对应工程树的缩进引导线</strong></td></tr>
+    <tr><td>阴影与透明</td><td>TUIStudio 属性面板含 <strong>Drop Shadow 开关</strong>与 <strong>Opacity 滑块</strong></td><td>tui.studio 实拍</td><td><span class="b w">谨慎</span>阴影在终端里是"用字符模拟"，密集布局下会吃掉一整圈空间</td></tr>
+  </table>
+
+  <div class="note s"><b>两条要回改 VISUAL.md 的结论。</b><br>
+  ① <strong>渐变可用</strong>——<code>Blend1D()</code> 能程序化生成色阶，我们的域色映射（ub-green / l0a-violet / accum-orange / mte-amber 各 800→300）不必手写十几个 hex，可由品牌色与端点算出来，且能保证感知均匀。<br>
+  ② <strong>分层合成可用</strong>——P26「AI 标注层」原本只是概念表述（"把判断叠在数据之上"），现在有了字面意义上的实现：<code>Compositor</code> 让标注真的是一个独立 <code>Layer</code>，可以整层开关、整层调透明度。<strong>这条把一个设计概念变成了架构决策。</strong></div>
+</section>
+
+<!-- ══════ V4 皮肤生态 ══════ -->
+<section class="floor" id="v4">
+  <div class="fnum">FLOOR 04</div>
+  <h2>皮肤生态 —— 用户已经有偏好了</h2>
+  <p class="lead">终端世界有一批<strong>事实标准配色</strong>，用户往往已经在 vim / tmux / 终端模拟器上统一了一套。TUIStudio 的主题下拉里默认就是 Dracula；k9s / lazygit / btop 都支持换肤。<strong>这意味着"强推品牌色"会与用户既有环境打架。</strong></p>
+
+  <div class="skins">
+    <div class="skin"><div class="sw"><i style="background:#282a36"></i><i style="background:#bd93f9"></i><i style="background:#ff79c6"></i><i style="background:#50fa7b"></i><i style="background:#f1fa8c"></i></div>
+      <div class="mt"><b>Dracula</b><span>紫粉高饱和 · 最普及</span></div></div>
+    <div class="skin"><div class="sw"><i style="background:#1e1e2e"></i><i style="background:#89b4fa"></i><i style="background:#f5c2e7"></i><i style="background:#a6e3a1"></i><i style="background:#fab387"></i></div>
+      <div class="mt"><b>Catppuccin</b><span>柔和粉彩 · 四档明度</span></div></div>
+    <div class="skin"><div class="sw"><i style="background:#282828"></i><i style="background:#83a598"></i><i style="background:#fb4934"></i><i style="background:#b8bb26"></i><i style="background:#fabd2f"></i></div>
+      <div class="mt"><b>Gruvbox</b><span>复古暖褐 · 低蓝光</span></div></div>
+    <div class="skin"><div class="sw"><i style="background:#2e3440"></i><i style="background:#88c0d0"></i><i style="background:#bf616a"></i><i style="background:#a3be8c"></i><i style="background:#ebcb8b"></i></div>
+      <div class="mt"><b>Nord</b><span>冷灰蓝 · 低饱和</span></div></div>
+    <div class="skin"><div class="sw"><i style="background:#1a1b26"></i><i style="background:#7aa2f7"></i><i style="background:#bb9af7"></i><i style="background:#9ece6a"></i><i style="background:#e0af68"></i></div>
+      <div class="mt"><b>Tokyo Night</b><span>深蓝夜色 · 霓虹派</span></div></div>
+    <div class="skin"><div class="sw"><i style="background:#002b36"></i><i style="background:#268bd2"></i><i style="background:#d33682"></i><i style="background:#859900"></i><i style="background:#b58900"></i></div>
+      <div class="mt"><b>Solarized</b><span>科学配色 · 老牌</span></div></div>
+    <div class="skin"><div class="sw"><i style="background:#191724"></i><i style="background:#c4a7e7"></i><i style="background:#eb6f92"></i><i style="background:#9ccfd8"></i><i style="background:#f6c177"></i></div>
+      <div class="mt"><b>Rosé Pine</b><span>雅致暗紫</span></div></div>
+    <div class="skin" style="border-color:rgba(0,119,255,.4)"><div class="sw"><i style="background:#101010"></i><i style="background:#0077ff"></i><i style="background:#ff4b7b"></i><i style="background:#04d793"></i><i style="background:#ffaa3b"></i></div>
+      <div class="mt"><b style="color:var(--pri-h)">PTO / DevKit</b><span>中性 6 级 + 单强调</span></div></div>
+  </div>
+
+  <div class="sub">换肤策略：哪些能换，哪些不能</div>
+  <table>
+    <tr><th>token 类</th><th>能否换肤</th><th>理由</th></tr>
+    <tr><td>表面层级（6 级）</td><td style="color:var(--ok)"><strong>可换</strong></td><td>用户对底色的偏好最强烈，且换了不影响信息解读</td></tr>
+    <tr><td>前景色阶（4 级）</td><td style="color:var(--ok)"><strong>可换</strong></td><td>跟随表面走；用 <code>LightDark()</code> 自适应即可</td></tr>
+    <tr><td>品牌 / 焦点色</td><td style="color:var(--warn)"><strong>可换但保留默认</strong></td><td>焦点态是功能而非装饰，换肤时必须保证与表面的对比度仍达 AA</td></tr>
+    <tr><td>语义色（✓ ⚠ ✕）</td><td style="color:var(--warn)"><strong>受限换肤</strong></td><td>红=错、绿=通过是跨文化共识，可调色相但不能反转语义</td></tr>
+    <tr><td><strong>域色映射与数据色阶</strong></td><td style="color:var(--dgr)"><strong>不可换</strong></td><td><strong>这是最重要的一条</strong>：CPU=绿 / NPU=紫 / HBM=橙 是产品级约定，换肤会让"同一个观测对象在不同人屏幕上是不同颜色"，跨人沟通直接失效。热力图的顺序色阶更不能换——感知均匀性是算出来的，随便换会让"哪个更热"读错。</td></tr>
+  </table>
+
+  <div class="note"><b>落地形态：</b>提供 <code>--theme dracula|catppuccin|nord|pto</code>，但只作用于表面与前景层；数据可视化色板<strong>硬编码在产品里</strong>，并在主题文档里显式说明"数据色不随主题变化"。这与 k9s 的做法一致（skin 管 UI 色，资源状态语义色固定）。</div>
+</section>
+
+<!-- ══════ V5 手法清单 ══════ -->
+<section class="floor" id="v5">
+  <div class="fnum">FLOOR 05</div>
+  <h2>可直接取用的视觉手法</h2>
+  <p class="lead">从五个流派与实拍样本里提炼，按<strong>能不能用在工作台常态</strong>分三档。</p>
+
+  <div class="grid g2">
+    <div class="card" style="border-color:rgba(4,215,147,.3)"><h4 style="color:var(--ok)">A 档 · 工作台常态可用</h4>
+      <p><strong>反色分段标签</strong>——键位 chip、状态徽章（<code>FAILED</code> / <code>SUCCEEDED</code>），比纯文本易扫读一个量级</p>
+      <p><strong>左侧色轨 + 中性正文</strong>——语义靠徽章与轨色，正文不染色，长日志不变噪音</p>
+      <p><strong>Tree 枚举器缩进线</strong>——Lip Gloss <code>tree</code> 原生支持，工程树的标准形态</p>
+      <p><strong>curly underline 标错</strong>——沿用 IDE 语义，工程师零学习成本</p>
+      <p><strong>点阵分隔线</strong>——比实线轻、比留白明确，用于次级分组</p>
+      <p><strong>程序化色阶</strong>（<code>Blend1D</code>）——保证感知均匀，胜过手写 hex</p></div>
+
+    <div class="card" style="border-color:rgba(255,170,59,.3)"><h4 style="color:var(--warn)">B 档 · 限特定区域</h4>
+      <p><strong>角部裁切标记</strong>——仅演示模式画面边界、导出报告页角</p>
+      <p><strong>抖动像素字标</strong>——仅 splash 的 DevKit 字标</p>
+      <p><strong>点阵尘埃图形</strong>——仅 splash（可做鲲鹏芯片轮廓）与宣传页 hero</p>
+      <p><strong>描边块字</strong>——仅 splash 标题</p>
+      <p><strong>磷光辉光 + 扫描线</strong>——仅 splash 的 2 秒，之后立刻关闭</p>
+      <p><strong>分层合成透明度</strong>——AI 标注层可整层调透明，但底层数据必须始终清晰</p></div>
+
+    <div class="card" style="border-color:rgba(255,75,123,.3)"><h4 style="color:var(--dgr)">C 档 · 明确禁用</h4>
+      <p><strong>吉祥物插画</strong>——削弱工程可信度，诊断/审查场景尤其致命</p>
+      <p><strong>大面积渐变底</strong>——终端渲染成本高，且降低文字对比度</p>
+      <p><strong>常驻辉光</strong>——长时间阅读疲劳，且在密集表格上产生视觉粘连</p>
+      <p><strong>整行染色的日志</strong>——MobaXterm 的反面案例，颜色失去分层就是噪音</p>
+      <p><strong>数据区任何装饰</strong>——热力图、Trace、diff 上不加特效，一条都不例外</p>
+      <p><strong>圆角用在固定区域</strong>——圆角在本体系里等于"浮起"，滥用会让层级失效</p></div>
+
+    <div class="card"><h4>判断口诀</h4>
+      <p style="font-size:13px">装饰服务于<strong>「这是什么产品」</strong>的性格表达；<br>数据服务于<strong>「现在发生了什么」</strong>的判断。</p>
+      <p style="font-size:13px;color:var(--fg)">两者<strong>在空间上永不重叠</strong>——这条比任何具体参数都重要。</p>
+      <p class="rule" style="margin-top:12px">推论：任何一个视觉手法，先问它出现在哪个区域。同一个辉光效果，用在 splash 是加分，用在 Trace 泳道上就是错误。<strong>手法本身没有对错，位置才有。</strong></p></div>
+  </div>
+</section>
+
+<!-- ══════ V6 工具链 ══════ -->
+<section class="floor" id="v6">
+  <div class="fnum">FLOOR 06</div>
+  <h2>工具链与生态</h2>
+
+  <div class="grid g2">
+    <div class="card"><h4><a href="https://tui.studio/">TUIStudio</a> · 可视化 TUI 设计工具</h4>
+      <p>把 TUI 当界面设计对象来做：左侧<strong>组件库</strong>（Layout: Screen/Box/Grid/Spacer ｜ Input: Text Input/Button/Checkbox/Radio/Select/Toggle ｜ Display: Text/Spinner/Progress Bar ｜ Data: Table/List/Tree ｜ Navigation: Menu/Tabs/Breadcrumb），中间<strong>字符网格画布</strong>（带尺寸读数 163×57），右侧<strong>属性面板</strong>（尺寸/坐标/对齐/边框样式与单边控制/圆角/文字与背景色 + 不透明度/粗斜下删/Drop Shadow）。</p>
+      <p class="rule"><strong>对我们的意义有两层</strong>：① 它的组件分类可直接校验我们的组件清单是否有遗漏（我们缺 Breadcrumb 与 Radio）；② <strong>它证明 TUI 已经有"设计师可参与"的工作流</strong>——设计稿不必只能用 ASCII 画，可以像 Figma 一样出。</p></div>
+
+    <div class="card"><h4><a href="https://charm.land/">Charm</a> · Go 生态全家桶</h4>
+      <p><strong>Bubble Tea</strong> 框架 · <strong>Lip Gloss</strong> 样式与布局 · <strong>Bubbles</strong> 组件 · <strong>Huh</strong> 表单 · <strong>Glamour</strong> markdown 渲染 · <strong>Wish</strong> SSH 应用 · <strong>Gum</strong> shell 脚本美化 · <strong>Glow</strong> markdown 阅读 · <strong>Mods</strong> / <strong>Crush</strong> AI 终端。</p>
+      <p class="rule"><strong>我们选了 Textual（Python），但 Lip Gloss 的样式 API 是最完整的参考</strong>——它定义了 TUI 样式该有哪些维度。做 <code>pto.tcss</code> 时应对照它检查我们是否漏了能力（本次就补出了渐变与分层合成两项）。<strong>Wish</strong> 值得单独留意：把 TUI 直接做成 SSH 服务，与我们"跑在鲲鹏服务器上"的场景高度契合。</p></div>
+
+    <div class="card"><h4><a href="https://awesometui.com/system">AwesomeTUI</a> · 样本库</h4>
+      <p>开源 TUI 应用目录，20+ 分类，可按 star / 更新时间 / 发布排序。<strong>用途是持续找同类产品</strong>，不是设计规范。但站点自身视觉是粗野荧光派的高完成度样本。</p></div>
+
+    <div class="card"><h4>Textual（我们的选择）</h4>
+      <p>TCSS 是 CSS 子集，含变量/选择器/伪类；内置主题系统与模糊命令面板；<code>textual serve</code> 可把同一份代码跑进浏览器。</p>
+      <p class="rule">视觉侧要补的：<strong>braille 画布封装</strong>（T2）· <strong>热力网格 Widget</strong>（T3）· <strong>图形协议探测与降级</strong>（T5）。Lip Gloss 的 <code>Blend1D</code> 与 <code>Compositor</code> 对应能力需在 Python 侧自建或找等价库。</p></div>
+  </div>
+</section>
+
+<!-- ══════ V7 定位 ══════ -->
+<section class="floor" id="v7">
+  <div class="fnum">FLOOR 07</div>
+  <h2>Kunpeng DevKit AI 的视觉定位</h2>
+  <p class="lead">结论：<strong>主体站技术克制派，向外逐级放开浓度。</strong>不是"选一个流派"，而是<strong>按场景分配浓度</strong>。</p>
+
+  <div class="sub">浓度梯度 —— 越靠右越克制</div>
+  <div class="grad">
+    <div style="background:linear-gradient(180deg,#2a1a4a,#1a1030)">
+      <b style="color:#c4b5fd">宣传页</b><span>渐变 · 辉光<br>像素字标 · 粒子</span></div>
+    <div style="background:#0a140e">
+      <b style="color:#4ade80">Splash</b><span>磷光 · 扫描线<br>描边块字 · 2 秒</span></div>
+    <div style="background:#12120a">
+      <b style="color:#c3e938">空态 / 成就</b><span>反色标签<br>点阵分隔线</span></div>
+    <div style="background:#141414">
+      <b style="color:var(--pri-h)">工作台常态</b><span>中性 6 级<br>单强调色</span></div>
+    <div style="background:#101010">
+      <b style="color:var(--fg2)">审查 / 诊断</b><span>最克制<br>只有语义色</span></div>
+  </div>
+  <p class="rule">这条梯度不是妥协，而是<strong>把"性格表达"和"决策支持"分配到不同场景</strong>。用户在宣传页需要被打动，在审查界面需要被信任——两者要的视觉浓度天然相反。</p>
+
+  <div class="sub">五条落地准则</div>
+  <table>
+    <tr><th>#</th><th>准则</th><th>来自</th></tr>
+    <tr><td class="mono">1</td><td><strong>强调色出现频率越低越有力</strong>——品牌蓝只用于焦点、进度、当前项，不满屏铺</td><td>AwesomeTUI 的三色策略反推</td></tr>
+    <tr><td class="mono">2</td><td><strong>语义靠徽章与轨色，正文保持中性</strong>——长日志、长 diff 不整行染色</td><td>Specify CLI ↔ MobaXterm 正反案例</td></tr>
+    <tr><td class="mono">3</td><td><strong>圆角 = 浮起</strong>——固定区直角，浮层圆角，不可混用</td><td>Lip Gloss 边框体系 + PTO 层级规则</td></tr>
+    <tr><td class="mono">4</td><td><strong>数据色不随主题变化</strong>——表面与前景可换肤，域色映射硬编码</td><td>k9s skin 实践 + 跨人沟通需求</td></tr>
+    <tr><td class="mono">5</td><td><strong>装饰与数据在空间上永不重叠</strong>——手法本身没有对错，位置才有</td><td>本次分析的总纲</td></tr>
+  </table>
+
+  <div class="note s"><b>一句话定位：</b>Kunpeng DevKit AI 的视觉人格是<strong>「一台精密仪器，而不是一张海报」</strong>——它在启动那两秒可以有性格，在工作的几小时里必须退到背景里，把注意力全部让给数据和判断。<strong>在一个所有 AI 工具都在比谁更炫的时间点，克制本身就是差异化。</strong></div>
+</section>
+
+<footer>
+  TUI 视觉风格分析 · 2026-08 · for Kunpeng DevKit AI<br>
+  流派样本：AwesomeTUI（粗野荧光）· Charm 生态（糖果友好）· Puku CLI（霓虹赛博）· cool-retro-term（复古磷光）· PTO / Warp / Resend（技术克制）<br>
+  能力来源：<a href="https://github.com/charmbracelet/lipgloss">Lip Gloss API</a>（渐变 / 分层合成 / 五种下划线 / 色彩运算）· <a href="https://tui.studio/">TUIStudio</a>（组件分类 / 属性面板）<br>
+  皮肤生态：Dracula · Catppuccin · Gruvbox · Nord · Tokyo Night · Solarized · Rosé Pine<br>
+  配套文档：VISUAL.md（PTO → TUI token 翻译）· competitive-analysis.html（UX 视角竞品分析）
+</footer>
+
+<script>
+(function(){
+  const c=document.getElementById('pf'); if(!c) return;
+  const x=c.getContext('2d'); let W,H,dots=[],gl=[];
+  const G='01<>{}[]/|-_=+*#⣿⣷⣠⡀▁▂▃▅▇█'.split('');
+  function size(){const r=c.parentElement.getBoundingClientRect();
+    W=c.width=r.width*devicePixelRatio;H=c.height=r.height*devicePixelRatio;
+    c.style.width=r.width+'px';c.style.height=r.height+'px';}
+  function init(){dots=[];gl=[];
+    const n=Math.min(140,Math.floor(W*H/27000));
+    for(let i=0;i<n;i++)dots.push({x:Math.random()*W,y:Math.random()*H,
+      s:(Math.random()*1.5+.5)*devicePixelRatio,v:Math.random()*.22+.05,
+      a:Math.random()*.38+.07,c:Math.random()<.25?'0,119,255':'255,255,255'});
+    const m=Math.min(30,Math.floor(W/(70*devicePixelRatio)));
+    for(let i=0;i<m;i++)gl.push({x:Math.random()*W,y:Math.random()*H,
+      g:G[Math.floor(Math.random()*G.length)],v:Math.random()*.28+.06,
+      a:Math.random()*.15+.03,t:Math.random()*200});}
+  function draw(){
+    x.clearRect(0,0,W,H);
+    for(const d of dots){d.y+=d.v*devicePixelRatio;if(d.y>H){d.y=-4;d.x=Math.random()*W;}
+      x.fillStyle='rgba('+d.c+','+d.a+')';x.fillRect(Math.round(d.x),Math.round(d.y),d.s,d.s);}
+    x.font='500 '+Math.round(11*devicePixelRatio)+'px ui-monospace,monospace';
+    for(const g of gl){g.y+=g.v*devicePixelRatio;g.t++;
+      if(g.t>250){g.g=G[Math.floor(Math.random()*G.length)];g.t=0;}
+      if(g.y>H){g.y=-14;g.x=Math.random()*W;}
+      x.fillStyle='rgba(0,119,255,'+g.a+')';x.fillText(g.g,g.x,g.y);}
+    requestAnimationFrame(draw);}
+  size();init();draw();
+  addEventListener('resize',()=>{size();init();},{passive:true});
+})();
+(function(){
+  const links=[...document.querySelectorAll('nav.fn a')];
+  const secs=links.map(a=>document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+  const spy=()=>{let cur=null;
+    for(const s of secs){if(s.getBoundingClientRect().top<180)cur=s.id}
+    links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur));};
+  addEventListener('scroll',spy,{passive:true});spy();
+})();
+</script>
+</body>
+</html>

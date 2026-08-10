@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kunpeng DevKit AI · Demo 故事线</title>
+<style>
+:root{
+  --bg:#0b0b0b; --app:#101010; --elev:#141414;
+  --s1:#161616; --s2:#1c1c1c; --s3:#262626; --s4:#313131;
+  --fg:#e8e8e8; --fg2:#a4a4a4; --fg3:#777; --fg4:#555;
+  --bd1:#242424; --bd2:#2d2d2d; --bd3:#3b3b3b;
+  --pri:#0077ff; --pri-h:#3d98ff; --acc:#7c8db8;
+  --ok:#04d793; --warn:#ffaa3b; --dgr:#ff4b7b;
+  --o8:#773303;--o7:#A44604;--o6:#D15905;--o5:#F96A06;--o4:#FA8838;--o3:#FBAB74;
+  --v8:#3F0675;--v6:#6E0ACD;--v4:#9B3CF6;--v3:#B977F9;
+  --g8:#4D7209;--g6:#86C70F;--g4:#B3F141;--g3:#CAF57A;
+  --a8:#713F12;--a6:#CA8A04;--a4:#F4CB22;
+  --sel:#18293c;
+  /* Kunpeng 身份色：仅用于标识（splash 字标 / 顶栏迷你标）。
+     不做 UI 强调色、不做语义色、不做数据色 —— TUI 里红已被"失败 / Critical"占用。*/
+  --kp:#ED1C24; --kp2:#c9c9c9;
+  --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
+  --sans:'Inter','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+.scan{position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.3;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.013) 0 1px,transparent 1px 3px)}
+
+/* ═ head ═ */
+.head{max-width:1240px;margin:0 auto;padding:26px 24px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.lg{width:24px;height:24px;border-radius:0;background:var(--pri);display:grid;
+  grid-template-columns:1fr 1fr;gap:2px;padding:5px}
+.lg i{background:#fff;border-radius:1px}
+.lg i:nth-child(1){opacity:.95}.lg i:nth-child(2){opacity:.6}
+.lg i:nth-child(3){opacity:.6}.lg i:nth-child(4){opacity:.32}
+.head b{font-size:15px}
+.head .c{font-family:var(--mono);font-size:11px;color:var(--fg3);background:var(--s2);
+  border:1px solid var(--bd1);border-radius:2px;padding:2px 8px}
+.head .r{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn{font-family:var(--sans);font-size:12px;font-weight:500;color:var(--fg);background:var(--s2);
+  border:1px solid var(--bd2);border-radius:2px;padding:7px 14px;cursor:pointer;
+  transition:all .1s cubic-bezier(.4,0,.2,1)}
+.btn:hover{background:var(--s3);border-color:var(--bd3)}
+.btn.on{background:var(--pri);border-color:var(--pri);color:#fff}
+
+/* ═ act rail ═ */
+.rail{max-width:1240px;margin:0 auto;padding:0 24px 14px;display:flex;gap:5px;flex-wrap:wrap}
+.act{flex:1;min-width:88px;background:var(--s1);border:1px solid var(--bd1);border-radius:2px;
+  padding:8px 10px;cursor:pointer;transition:all .12s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+.act:hover{background:var(--s2);border-color:var(--bd3)}
+.act.on{background:var(--sel);border-color:var(--pri)}
+.act.done::after{content:'';position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--ok);opacity:.5}
+.act .n{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--fg4);line-height:1}
+.act.on .n{color:var(--pri-h);text-shadow:0 0 10px rgba(0,119,255,.5)}
+.act.done .n{color:var(--ok)}
+.act .t{font-size:11px;color:var(--fg3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act.on .t{color:var(--fg)}
+
+/* ═ terminal ═ */
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px 40px}
+.term{background:var(--app);border:1px solid var(--bd2);border-radius:5px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.55);position:relative}
+.tbar{height:34px;background:var(--s2);border-bottom:1px solid var(--bd1);display:flex;align-items:center;
+  padding:0 12px;gap:7px}
+.tbar .d{width:9px;height:9px;border-radius:1px}
+.tbar .t{margin-left:8px;font-family:var(--mono);font-size:11px;color:var(--fg3)}
+.tbar .rt{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--fg4)}
+.screen{position:relative;min-height:498px;font-family:var(--mono);font-size:12.5px;line-height:1.55}
+#pf{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.sc{position:relative;z-index:1;height:100%}
+
+/* app chrome */
+.appbar{display:flex;align-items:center;gap:10px;padding:6px 12px;background:var(--s2);
+  border-bottom:1px solid var(--bd1);font-size:11.5px}
+.appbar .k{color:var(--pri-h);font-weight:600}
+.appbar .rr{margin-left:auto;color:var(--fg3);font-size:11px}
+.body{display:grid;grid-template-columns:212px 1fr;min-height:396px}
+/* ══ Chrome 层：真 UI 组件（PTO design system）══ */
+.dockhd{display:flex;align-items:center;gap:9px;height:44px;flex:none;
+  padding:0 12px;border-bottom:1px solid var(--bd1);background:var(--s2)}
+.dockhd{white-space:nowrap;overflow:hidden}
+.dockhd .blogo{font-size:9.5px;letter-spacing:.10em}
+.dockhd .blogo span{padding:0 5px}
+.dockhd .kpi{width:22px;height:22px;margin-right:6px}
+.tabs .tbr .v{font-family:var(--mono);font-size:10.5px;color:var(--fg4);letter-spacing:.08em;margin-right:3px}
+.tabs .tbr{margin-left:auto;display:flex;gap:7px;align-items:center;padding-bottom:3px}
+.dock{background:var(--app);border-right:1px solid var(--bd1);padding:0 0 6px;font-size:11.5px;
+  display:flex;flex-direction:column;overflow:hidden}
+.dsec{padding:8px 0 6px}
+.dsec .h{display:flex;align-items:center;gap:6px;padding:3px 12px 5px;
+  font-size:9px;letter-spacing:.16em;color:var(--fg4)}
+.dsec .h .car{font-size:7px;opacity:.7}
+.dsec .h .cnt{margin-left:auto;background:var(--s3);border:1px solid var(--bd1);border-radius:2px;
+  padding:0 6px;font-size:8.5px;color:var(--fg3);letter-spacing:0;line-height:1.5}
+.dsep{height:1px;background:var(--bd1);margin:2px 10px}
+
+/* 列表项 = 组件，不是文本行 */
+.item{display:flex;align-items:center;gap:7px;padding:3.5px 10px;margin:0 5px;border-radius:0;
+  position:relative;color:var(--fg2);min-width:0}
+.item:hover{background:var(--s2)}
+.item.sel{background:var(--sel);color:var(--fg)}
+.item.sel::before{content:'';position:absolute;left:-3px;top:4px;bottom:4px;width:2px;
+  background:var(--pri-h);border-radius:0}
+.item .ico{width:10px;text-align:center;flex:none;font-size:10px}
+.item .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .meta{font-size:9px;color:var(--fg4);flex:none;letter-spacing:0}
+.item .pill{font-size:8.5px;padding:0 5px;border-radius:2px;background:var(--s3);
+  border:1px solid var(--bd1);color:var(--fg3);flex:none;line-height:1.6}
+.item .risk{height:4px;border-radius:0;flex:none}
+.item .gut{color:var(--fg4);opacity:.45;white-space:pre;flex:none;font-size:11px;letter-spacing:-1px}
+
+/* Tab bar = 真 tab */
+.tabs{display:flex;align-items:flex-end;gap:2px;background:var(--s2);
+  border-bottom:1px solid var(--bd1);padding:0 12px 0;height:44px}
+.tab{display:flex;align-items:center;gap:6px;padding:3.5px 11px;font-size:11px;color:var(--fg3);
+  border-radius:0;border:1px solid transparent;border-bottom:none;position:relative;
+  top:1px;white-space:nowrap}
+.tab.on{background:var(--app);border-color:var(--bd1);color:var(--fg)}
+.tab.on::after{content:'';position:absolute;left:-1px;right:-1px;top:-1px;height:2px;
+  background:var(--pri);border-radius:0}
+.tab .d{width:5px;height:5px;border-radius:1px;flex:none}
+.tab .x{color:var(--fg4);font-size:9px;opacity:.6}
+.tab.add{color:var(--fg4);padding:3.5px 8px}
+
+/* Header chip */
+.chip2{display:inline-flex;align-items:center;gap:5px;background:var(--s3);border:1px solid var(--bd1);
+  border-radius:2px;padding:1px 8px;font-size:10px;color:var(--fg2);line-height:1.6}
+.chip2 .d{width:5px;height:5px;border-radius:1px}
+
+/* Canvas 面板头 = 组件 */
+.cvh2{display:flex;align-items:center;gap:8px;font-size:9.5px;letter-spacing:.14em;color:var(--fg4);
+  padding-bottom:6px;border-bottom:1px solid var(--bd1);margin-bottom:9px}
+.cvh2 .r{margin-left:auto;letter-spacing:0}
+
+/* 结构化列表（Plan / Evidence / 下一步）= 组件 */
+.slist{display:flex;flex-direction:column;gap:2px}
+.srow{display:flex;align-items:flex-start;gap:9px;padding:4px 8px;border-radius:0;
+  border:1px solid transparent;min-width:0}
+.srow:hover{background:var(--s2)}
+.srow.on{background:var(--sel);border-color:rgba(0,119,255,.3)}
+.srow .n{font-size:10px;color:var(--fg4);flex:none;width:13px;text-align:right;padding-top:1px}
+.srow .bd{flex:1;min-width:0}
+.srow .t1{color:var(--fg);font-size:11.5px}
+.srow .t2{color:var(--fg4);font-size:10px;margin-top:1px}
+.srow .rt{flex:none;font-size:11px;color:var(--fg4);padding-top:1px;min-width:14px;text-align:right}
+.srow .tag{font-size:8.5px;padding:0 6px;border-radius:2px;background:var(--s3);
+  border:1px solid var(--bd1);color:var(--acc);line-height:1.7}
+
+/* 底栏分段 */
+.stat{border-top:1px solid var(--bd1);background:var(--s2);padding:0;font-size:10px;color:var(--fg4);
+  display:flex;align-items:stretch}
+.stat .sg{padding:4px 11px;border-right:1px solid var(--bd1);display:flex;align-items:center;gap:5px}
+.stat .sg.acc{background:rgba(0,119,255,.12);color:var(--pri-h)}
+.stat .sp{flex:1}
+.stat .sg:last-child{border-right:none}
+
+/* token 级 diff 高亮（源自 OpenCode 实拍）*/
+.dl{display:flex;gap:10px;padding:1px 0;font-size:12px}
+.dl .ln{color:var(--fg4);font-size:10.5px;min-width:34px;text-align:right;flex:none;padding-top:1px}
+.dl .sg{flex:none;width:8px;text-align:center}
+.dl.del{background:rgba(255,75,123,.06)}
+.dl.add{background:rgba(4,215,147,.06)}
+.tk{padding:0 3px;border-radius:0}
+.tk.d{background:#5a2330;color:#ff9db0}
+.tk.a{background:#12463a;color:#5ee7b7}
+
+/* 底部 keybar（源自 SysWatch / kanban 实拍）*/
+.keybar{border-top:1px solid var(--bd1);background:var(--app);padding:4px 12px;
+  display:flex;gap:11px;font-size:10px;color:var(--fg3);flex-wrap:wrap;align-items:center}
+.keybar b{background:var(--s4);color:var(--fg);font-weight:500;padding:0 5px;border-radius:2px;
+  margin-right:3px;font-family:var(--mono);font-size:9.5px;line-height:1.7;display:inline-block}
+
+/* 状态徽章：反色 chip + 色轨（源自 Specify CLI 实拍）*/
+.sb{display:inline-block;font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.06em;
+  padding:0 5px;border-radius:1px;flex:none;line-height:1.75}
+.sb.ok{background:var(--ok);color:#04231a}
+.sb.er{background:var(--dgr);color:#2b0710}
+.sb.wn{background:var(--warn);color:#2b1a03}
+.sb.in{background:var(--s4);color:var(--fg)}
+.rl{display:flex;align-items:baseline;gap:9px;padding:2.5px 0 2.5px 9px;
+  border-left:2px solid var(--bd2);margin:1px 0;font-size:11.5px}
+.rl.ok{border-color:var(--ok)} .rl.er{border-color:var(--dgr)}
+.rl.wn{border-color:var(--warn)} .rl.in{border-color:var(--bd3)}
+.rl .tx{color:var(--fg2);flex:1;min-width:0}
+
+/* Insights 条（源自 SysWatch 实拍）*/
+.ins{border-top:1px solid var(--bd1);background:var(--s1);padding:5px 12px;font-size:10.5px}
+.ins .hd{color:var(--fg4);font-size:9px;letter-spacing:.14em;margin-bottom:3px}
+.insr{display:flex;align-items:center;gap:8px;padding:1.5px 0}
+.insr .sev{font-size:8.5px;padding:0 5px;border-radius:2px;font-weight:600;flex:none}
+.insr .sev.c{background:rgba(255,75,123,.16);color:var(--dgr)}
+.insr .sev.w{background:rgba(255,170,59,.16);color:var(--warn)}
+.insr .tx{flex:1;color:var(--fg2)}
+.insr .jp{color:var(--pri-h);flex:none;font-size:10px}
+
+/* 滚动条指示 */
+.sbar{position:absolute;right:2px;top:8px;bottom:8px;width:2px;background:var(--s3);border-radius:0}
+.sbar i{position:absolute;left:0;width:2px;background:var(--bd3);border-radius:0}
+.main{display:flex;flex-direction:column;min-width:0}
+.canvases{display:grid;flex:1;min-height:0}
+.cv{padding:10px 13px;overflow:auto;border-right:1px solid var(--bd1);min-width:0}
+.cv:last-child{border-right:none}
+.cvh{font-size:10px;letter-spacing:.12em;color:var(--fg4);margin-bottom:7px;
+  display:flex;align-items:center;gap:8px}
+.cvh::after{content:'';flex:1;height:1px;background:var(--bd1)}
+.console{border-top:1px solid var(--bd2);background:var(--s1);padding:8px 13px;min-height:92px;font-size:11.5px}
+.inp{border-top:1px solid var(--bd1);background:var(--s2);padding:9px 13px;font-size:12.5px;flex:none}
+.inp .box{display:flex;align-items:center;gap:9px;background:var(--app);
+  border:1px solid var(--bd2);border-radius:2px;padding:6px 12px;
+  box-shadow:0 0 0 2px rgba(0,119,255,.09)}
+.inp .box .k{margin-left:auto;flex:none;font-size:10.5px;color:var(--fg4);letter-spacing:.04em}
+.inp .box .k b{background:var(--s4);color:var(--fg2);font-weight:500;padding:0 5px;
+  border-radius:2px;margin-right:4px;font-size:10px}
+.stat{border-top:1px solid var(--bd1);background:var(--s2);padding:4px 13px;font-size:10.5px;color:var(--fg4);
+  display:flex;gap:14px;align-items:center}
+.stat .rr{margin-left:auto}
+
+/* text helpers */
+.cm{color:var(--fg4)} .d2{color:var(--fg2)} .pr{color:var(--pri-h)} .br{color:var(--pri)}
+.ok{color:var(--ok)} .wn{color:var(--warn)} .er{color:var(--dgr)} .ac{color:var(--acc)}
+.b{font-weight:700} .selbg{background:var(--sel)}
+.mut{color:var(--fg3)}
+pre{font-family:var(--mono);font-size:11.5px;line-height:1.42;white-space:pre;margin:5px 0}
+.cur{display:inline-block;width:7px;height:14px;background:var(--pri-h);vertical-align:-2px;
+  animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.spin{color:var(--pri-h)}
+.ovl{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;
+  background:rgba(11,11,11,.62);backdrop-filter:blur(1px)}
+.ovlbox{background:var(--s1);border:1px solid var(--bd3);border-radius:4px;padding:14px 18px;
+  min-width:430px;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.ovlbox .t{font-size:12px;color:var(--pri-h);font-weight:600;margin-bottom:3px}
+.ovlbox .w{font-size:11px;color:var(--fg3);margin-bottom:10px}
+.fld{display:flex;gap:10px;padding:3px 0;font-size:12px}
+.fld .l{width:78px;color:var(--fg3)}
+.fld .v{color:var(--fg)}
+.keys{margin-top:11px;font-size:11px;color:var(--fg3)}
+.keys b{color:var(--pri-h)}
+
+/* boot splash */
+/* 启动页：一切都落在字符格上，不用模糊、不用自由定位 —— 终端做不到的效果一律不用 */
+.boot{position:absolute;inset:0;overflow:hidden;z-index:2}
+.boot pre{font-size:11px;line-height:1.05;text-shadow:none;margin:0}
+/* 背景：字符网格半调点阵（GitHub 式密度渐变，但每个"点"都是一个字符） */
+pre.bgf{position:absolute;inset:0;z-index:0;overflow:hidden;color:transparent;
+  background:linear-gradient(148deg,#2b333d 0%,#26302f 26%,#232a2a 48%,#252d33 72%,#2c343e 100%);
+  -webkit-background-clip:text;background-clip:text;
+  white-space:pre;font-family:var(--mono);pointer-events:none;user-select:none;letter-spacing:0}
+pre.bgw2{color:transparent;background:linear-gradient(148deg,#49566a 0%,#3f5a54 34%,#3d5560 66%,#4a5670 100%);
+  -webkit-background-clip:text;background-clip:text}
+pre.bgw1{color:transparent;background:linear-gradient(148deg,#93a6c2 0%,#84b0a2 34%,#7fa8bc 66%,#9aa4cc 100%);
+  -webkit-background-clip:text;background-clip:text}
+.bootin{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:0}
+.boot .lock{gap:26px;align-items:center}
+.boot .wm{line-height:1.02;letter-spacing:0;
+  text-shadow:0 0 12px rgba(255,255,255,.34), 0 0 34px rgba(172,196,228,.22), 0 0 70px rgba(120,150,200,.13)}
+.boot .kpm{text-shadow:0 0 14px rgba(237,28,36,.28), 0 0 36px rgba(237,28,36,.14)}
+.boot .kpm{line-height:.86}
+.brule{color:#333;margin:16px 0 12px !important;letter-spacing:0}
+.bchips{display:flex;gap:7px;margin:18px 0 22px}
+.blog{line-height:1.62;letter-spacing:0}
+/* 启动页输入框 = 真组件：描边 + 焦点环 + 提示位 + 右侧快捷键槽 */
+.binput{display:flex;align-items:center;gap:10px;margin-top:22px;width:820px;
+  background:var(--s1);border:1px solid var(--bd2);border-radius:2px;padding:9px 14px;
+  box-shadow:0 0 0 3px rgba(0,119,255,.10);font-family:var(--mono);font-size:15px}
+.binput .p{flex:none;font-size:15px}
+.binput .ph{color:var(--fg3);flex:none}
+.binput .cur{flex:none;margin-right:2px}
+.binput .hint{margin-left:auto;flex:none;font-size:11.5px;color:var(--fg4);letter-spacing:.04em}
+.binput .hint b{background:var(--s4);color:var(--fg2);font-weight:500;padding:1px 6px;
+  border-radius:2px;margin-right:5px;font-size:11px}
+.bsug{display:flex;align-items:center;gap:7px;margin-top:12px;font-family:var(--mono);font-size:12.5px}
+.bsug .sl{color:var(--fg4);font-size:10px;letter-spacing:.2em;text-transform:uppercase;margin-right:3px}
+.bsug .sg{border:1px solid var(--bd1);border-radius:2px;padding:2px 10px;color:var(--fg3)}
+.bsug .sg:first-of-type{border-color:var(--bd3);color:var(--fg2)}
+
+/* achievement */
+.ach{display:inline-flex;align-items:center;gap:7px;background:var(--s2);border:1px solid var(--bd2);
+  border-radius:2px;padding:3px 11px;margin:3px 5px 3px 0;font-size:11px;color:var(--fg2)}
+.ach i{width:8px;height:8px;background:var(--ok);border-radius:1px;box-shadow:0 0 8px rgba(4,215,147,.7)}
+
+/* caption */
+.cap{max-width:1240px;margin:14px auto 0;padding:0 24px;display:grid;
+  grid-template-columns:1fr 300px;gap:12px}
+.capbox{background:var(--s1);border:1px solid var(--bd1);border-radius:3px;padding:14px 16px}
+.capbox .e{font-size:10px;letter-spacing:.16em;color:var(--pri-h);margin-bottom:5px}
+.capbox h3{font-size:15px;font-weight:600;margin-bottom:6px}
+.capbox p{font-size:13px;color:var(--fg2);margin:6px 0}
+.capbox .wow{color:var(--ok);font-weight:600}
+.pats{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.pat{font-family:var(--mono);font-size:10px;color:var(--fg3);background:var(--s2);
+  border:1px solid var(--bd1);border-radius:2px;padding:2px 8px}
+.pat.hi{color:var(--pri-h);border-color:rgba(0,119,255,.35)}
+.prog{height:3px;background:var(--s3);border-radius:0;overflow:hidden;margin-top:12px}
+.prog i{display:block;height:100%;background:var(--pri);transition:width .3s cubic-bezier(.4,0,.2,1)}
+
+/* ══════════ AwesomeTUI 手法层（在 PTO token 之上）══════════
+   四条：文字底色（反色分段）· 字体（全大写 + 字距）· 颜色层级（整行同色）· 方形（直角） */
+
+/* ① 文字底色：分段反色标识块 —— ›|DEVKIT|AI ▌|.tui */
+.blogo{display:inline-flex;align-items:stretch;font-family:var(--mono);font-size:10px;
+  font-weight:700;letter-spacing:.14em;line-height:1.9;user-select:none}
+.blogo span{padding:0 6px}
+.blogo .g0{background:var(--pri);color:#04122b}
+.blogo .g1{background:var(--s4);color:var(--fg);letter-spacing:.18em}
+.blogo .g2{background:var(--s2);color:var(--fg2);letter-spacing:.18em;border:1px solid var(--bd2)}
+.blogo .g3{background:var(--fg3);width:5px;padding:0;animation:bl 1.1s steps(1) infinite}
+.blogo .g4{background:none;color:var(--fg4);font-weight:500;letter-spacing:.1em;padding-left:7px}
+
+/* ② 字体：区块标题一律全大写 + 重字距，靠字距而非字号建立层级 */
+.dsec .h{display:flex;align-items:baseline;gap:6px;padding:5px 12px 5px;
+  font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.22em;
+  color:var(--fg4);text-transform:uppercase}
+.dsec .h .hash{color:var(--fg4);font-weight:700;letter-spacing:0}
+.dsec .h .cnt{margin-left:auto;background:none;border:none;padding:0;
+  font-size:8.5px;color:var(--fg4);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.dsec .h .car{display:none}
+
+/* ③ 颜色层级：选中行整行同色（前缀 + 标签 + 计数一起变），而不是只染标签 */
+.item{font-family:var(--mono);letter-spacing:.01em}
+.item .idx{color:var(--fg4);flex:none;font-size:10px;width:9px;opacity:.75}
+.item:hover{background:var(--s2)}
+.item:hover .idx{color:var(--fg3)}
+.item.sel{background:var(--sel)}
+.item.sel,.item.sel .lb,.item.sel .idx,.item.sel .meta,.item.sel .ico{color:var(--pri-h)}
+.item.sel .meta{opacity:.8}
+.item.sel::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--pri);border-radius:0}
+.item.sel .pill{border-color:rgba(0,119,255,.42);color:var(--pri-h);background:rgba(0,119,255,.10)}
+.item .meta{font-variant-numeric:tabular-nums}
+
+/* ④ 面板标题：终端提示符字形 + 全大写，取代此前的裸字距标题 */
+.cvh2{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:9px;
+  font-weight:700;letter-spacing:.2em;color:var(--fg2);text-transform:uppercase;
+  padding-bottom:6px;border-bottom:1px solid var(--bd1);margin-bottom:9px}
+.cvh2 .pmt{color:var(--fg4);letter-spacing:0;font-size:10px}
+.cvh2 .r{margin-left:auto;letter-spacing:.04em;color:var(--fg4);font-weight:500;text-transform:none}
+
+/* ⑤ 排序/筛选按钮组：方形描边，激活态=描边+文字上色（不填充） */
+.sortg{display:inline-flex;gap:4px;margin-left:auto}
+.sbtn{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;
+  font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--fg4);
+  background:none;border:1px solid var(--bd2);border-radius:2px;padding:1px 6px;line-height:1.7}
+.sbtn.on{color:var(--fg);border-color:var(--fg3)}
+.sbtn .a{font-size:8px;opacity:.8}
+
+/* ⑥ 标签流：#TAG + 计数，方形描边 */
+.tagf{display:flex;flex-wrap:wrap;gap:4px}
+.tagf .tg{display:inline-flex;align-items:baseline;gap:5px;font-family:var(--mono);font-size:9.5px;
+  border:1px solid var(--bd2);border-radius:2px;padding:0 6px;color:var(--fg2);line-height:1.8}
+.tagf .tg s{text-decoration:none;color:var(--fg4);font-size:8.5px}
+.tagf .tg.on{border-color:var(--fg3);color:var(--fg)}
+
+/* ⑦ 反色小节标签（用于 Console / Insights 头） */
+.ivl{display:inline-block;font-family:var(--mono);font-size:8.5px;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;background:var(--s4);color:var(--fg);
+  padding:0 6px;border-radius:1px;line-height:1.8}
+.ivl.p{background:var(--pri);color:#04122b}
+.ivl.o{background:var(--ok);color:#04231a}
+.ivl.w{background:var(--warn);color:#2b1a03}
+.ivl.e{background:var(--dgr);color:#2b0710}
+
+/* ⑧ 状态栏：首段做成反色块，与其余分段拉开层级 */
+.stat .sg{font-family:var(--mono);letter-spacing:.06em}
+.stat .sg.acc{background:var(--s4);color:var(--fg);font-weight:700;letter-spacing:.12em}
+.stat .sg.acc .cm{color:var(--fg3)}
+
+/* ⑨ Tab：方角 + 全大写 + 激活态顶部实心色条 */
+.tab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+.tab.add{letter-spacing:0}
+
+/* ⑨.4 NEW 标 —— 借自鲲鹏 DevKit 社区站：红只出现在标识与"新增"上 */
+.new{display:inline-block;font-family:var(--mono);font-size:8px;font-weight:700;
+  letter-spacing:.1em;background:var(--kp);color:#fff;padding:0 4px;border-radius:2px;
+  line-height:1.7;flex:none;margin-left:4px}
+
+/* ⑨.5 Kunpeng 标识：半块像素还原（每字符格 = 2 垂直像素） */
+.kpm{font-family:var(--mono);white-space:pre;line-height:.86;letter-spacing:0;font-size:12px;flex:none}
+.kpm i{font-style:normal}
+.kpi{width:26px;height:26px;object-fit:contain;flex:none;image-rendering:auto}
+/* 标识两个渲染档位：T5 光栅（Kitty/Sixel/iTerm2 可用时，顶栏用）
+   T1 半块像素（纯字符降级，splash 用——同时也是我们要的像素调性）*/
+.lock{display:flex;align-items:center;gap:22px}
+.lock .wm2{display:flex;flex-direction:column;align-items:flex-start}
+.lock .kn{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.44em;
+  color:var(--fg2);margin-bottom:6px}
+.blogo .kpi{margin-right:7px;align-self:center}
+.blogo .new{align-self:center;margin-left:6px}
+
+/* ⑩ 抖动像素字标（两色分段 + 抖动衰减带） */
+.wm .w1{color:#f4f4f4}
+.wm .w2{color:#f4f4f4}
+.dith{font-family:var(--mono);font-size:11px;line-height:.92;margin-top:2px;white-space:pre}
+.dith .d1{color:#6e6e6e}.dith .d2{color:#4a4a4a}.dith .d3{color:#333}
+.keybar b{border-radius:2px;letter-spacing:.06em}
+
+/* ══════════ 1920 × 1080 标准画布 ══════════
+   所有尺寸按 1920×1080 实际像素设计；整台舞台再等比缩放塞进当前视口，
+   所以任意屏幕上看到的都是同一张 1080p 设计稿，不是响应式重排。 */
+html,body{height:100%;overflow:hidden;background:#050505}
+#stage{position:absolute;left:0;top:0;width:2422px;height:1282px;
+  transform-origin:top left;background:var(--bg);
+  display:flex;flex-direction:column;padding:26px 30px 22px;gap:14px}
+#stage .head{max-width:none;margin:0;padding:0;gap:14px;flex:none}
+#stage .rail{max-width:none;margin:0;padding:0;gap:6px;flex:none;height:74px}
+.stagebody{flex:1;min-height:0;display:grid;grid-template-columns:1920px 424px;gap:18px}
+.wrap{max-width:none;margin:0;padding:0;min-width:0;display:flex}
+
+/* 终端本体撑满左栏 */
+/* 终端窗口 = 1920×1080 实际像素 —— 这一台"屏幕"就是 1080p */
+.term{width:1920px;height:1080px;flex:none;display:flex;flex-direction:column;
+  box-shadow:0 26px 70px rgba(0,0,0,.6)}
+.tbar{height:38px;flex:none}
+.screen{flex:1;min-height:0;font-size:16px;line-height:1.5}
+.sc{display:flex;flex-direction:column;height:100%}
+.body{flex:1;min-height:0;grid-template-columns:300px 1fr}
+.main{flex:1;min-height:0}
+.canvases{flex:1;min-height:0}
+.boot{inset:0}
+
+/* 右栏串讲卡片竖排 */
+#stage .cap{max-width:none;margin:0;padding:0;display:flex;flex-direction:column;
+  gap:14px;min-height:0}
+#stage .capbox{overflow:auto}
+#stage .capbox:first-child{flex:none}
+#stage .capbox.jbox{flex:1;display:flex;flex-direction:column}
+.jlist{display:flex;flex-direction:column;gap:2px;margin-top:10px;flex:1}
+.jrow{flex:1;display:flex;align-items:center;gap:10px;padding:6px 9px;border-left:2px solid var(--bd2);
+  font-size:13px;color:var(--fg4);min-height:0}
+.jrow .jn{font-family:var(--mono);font-size:11px;width:14px;flex:none;text-align:right}
+.jrow.on{border-left-color:var(--pri);background:var(--sel);color:var(--pri-h)}
+.jrow.on .jn{color:var(--pri-h)}
+.jrow.dn{color:var(--fg3);border-left-color:var(--bd3)}
+.jrow .jm{margin-left:auto;font-family:var(--mono);font-size:10.5px;opacity:.7}
+
+/* 1080p 下的字号档 —— 终端单元格变大，不是把小终端放大 */
+.appbar{font-size:13px;padding:8px 15px}
+.blogo{font-size:11.5px}
+.kpi{width:30px;height:30px}
+.dock{font-size:13px}
+.dsec .h{font-size:10px;padding:7px 15px 6px}
+.dsec .h .cnt{font-size:10px}
+.item{padding:4.5px 12px;margin:0 6px;gap:8px}
+.item .idx{font-size:11px;width:12px}
+.item .meta{font-size:10.5px}
+.item .pill{font-size:10px}
+.tabs{padding:0 14px;height:50px}
+.dockhd{height:50px;padding:0 14px}
+.dockhd .blogo{font-size:10.5px}
+.dockhd .kpi{width:25px;height:25px}
+.dockhd .v{font-size:11px}
+.tab{font-size:12px;padding:5px 14px}
+.cv{padding:14px 18px}
+.cvh2{font-size:10.5px;padding-bottom:8px;margin-bottom:12px}
+.cvh2 .pmt{font-size:12px}
+.sbtn{font-size:10.5px;padding:2px 8px}
+.tagf .tg{font-size:11px;padding:1px 8px}
+pre{font-size:14px;line-height:1.45}
+.srow{padding:6px 10px}
+.srow .t1{font-size:13.5px}
+.srow .t2{font-size:12px}
+.srow .n{font-size:12px;width:17px}
+.srow .tag{font-size:10px}
+.dl{font-size:14px}
+.dl .ln{font-size:12.5px;min-width:40px}
+.console{padding:11px 18px;min-height:118px;font-size:13.5px}
+.inp{padding:10px 18px;font-size:15px}
+.keybar{padding:6px 15px;font-size:12px;gap:14px}
+.keybar b{font-size:11.5px;padding:1px 6px}
+.stat{font-size:12px}
+.stat .sg{padding:6px 14px}
+.ivl{font-size:10px}
+.sb{font-size:10px;padding:1px 6px}
+.rl{font-size:13.5px;padding:3.5px 0 3.5px 11px}
+.ovlbox{min-width:520px;padding:18px 24px}
+.ovlbox .t{font-size:14px} .ovlbox .w{font-size:13px}
+.fld{font-size:14px} .fld .l{width:96px}
+.keys{font-size:13px}
+.chip2{font-size:11.5px;padding:2px 10px}
+.new{font-size:9.5px}
+.kpm{font-size:14px}
+.boot pre{font-size:14px}
+pre.bgf{font-size:14px;line-height:1.5}
+.blog,.bhint,.brule{font-size:14px}
+.boot .wm{font-size:14px}
+.lock .kn{font-size:13px}
+.wm{font-size:13px}
+.dith{font-size:13px}
+
+/* 头部与幕轨在 1080p 下的档位 */
+#stage .head b{font-size:18px}
+#stage .head .c{font-size:12.5px;padding:3px 10px}
+#stage .btn{font-size:13.5px;padding:8px 16px}
+#stage .act{padding:10px 12px}
+#stage .act .n{font-size:17px}
+#stage .act .t{font-size:12.5px}
+#stage .capbox{padding:18px 20px}
+#stage .capbox .e{font-size:11.5px}
+#stage .capbox h3{font-size:19px}
+#stage .capbox p{font-size:14.5px}
+#stage .pat{font-size:11.5px}
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+<div class="scan"></div>
+
+<div class="head">
+  <img class="kpi" style="width:30px;height:30px" alt="Kunpeng" src="data:image/png;base64,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">
+  <b>Kunpeng DevKit AI</b>
+  <span class="c">Demo 故事线 · 10 幕</span>
+  <span class="c">纯本地 · 零前置</span>
+  <span class="r">
+    <button class="btn" id="prev">← 上一幕</button>
+    <button class="btn on" id="play">▶ 自动播放</button>
+    <button class="btn" id="next">下一幕 →</button>
+  </span>
+</div>
+
+<div class="stagebody">
+<div class="wrap">
+  <div class="term">
+    <div class="tbar">
+      <span class="d" style="background:#ff5f57"></span>
+      <span class="d" style="background:#febc2e"></span>
+      <span class="d" style="background:#28c840"></span>
+      <span class="t" id="tbt">user@localhost — devkitai</span>
+      <span class="rt" id="tbr">116×34</span>
+    </div>
+    <div class="screen"><canvas id="pf"></canvas><div class="sc" id="sc"></div></div>
+  </div>
+
+</div>
+
+  <div class="cap">
+    <div class="capbox">
+      <div class="e" id="ce">ACT 01</div>
+      <h3 id="ct">—</h3>
+      <p id="cd">—</p>
+      <p>观众看到的哇点：<span class="wow" id="cw">—</span></p>
+      <div class="pats" id="cp"></div>
+      <div class="prog"><i id="pb" style="width:0"></i></div>
+    </div>
+    <div class="capbox jbox">
+      <div class="e">本幕在旅程中的位置</div>
+      <div class="jlist" id="cj"></div>
+    </div>
+    <div class="capbox">
+      <div class="e">串讲节奏</div>
+      <p style="font-size:12.5px">①–② <span class="mut">为什么是 TUI</span>　2 min<br>
+        ③–⑥ <span class="mut">AI 怎么把活干完且可审计</span>　5 min<br>
+        ⑦–⑨ <span class="mut">可观测与调优深度</span>　5 min<br>
+        ⑩ <span class="mut">收</span></p>
+      <p style="font-size:12px;color:var(--warn);margin-top:8px">⑥ 编译翻车是全场最关键的一幕——它证明系统能处理不顺利的情况。</p>
+      <p style="font-size:11.5px;color:var(--fg4);margin-top:8px">← → 切换 · 空格 播放/暂停</p>
+    </div>
+  </div>
+</div>
+
+<div class="rail" id="rail"></div>
+</div>
+
+<script>
+const E=s=>document.getElementById(s);
+/* 舞台按 1920×1080 设计，等比缩放塞进视口 —— 设计稿尺寸恒定，不做响应式重排 */
+function fitStage(){
+  const st=E('stage'); if(!st) return;
+  const k=Math.min(innerWidth/2422, innerHeight/1282);
+  st.style.transform=`translate(${(innerWidth-2422*k)/2}px, ${(innerHeight-1282*k)/2}px) scale(${k})`;
+}
+addEventListener('resize',fitStage);
+/* 终端尺寸标签按真实字符网格算出来，不写死 */
+/* 背景字符场按当前真实网格生成 —— 它是"字符"，不是图片 */
+let FLOW={raf:0,t:0,d:null,cols:0,rows:0};
+function stopFlow(){ if(FLOW.raf) cancelAnimationFrame(FLOW.raf); FLOW.raf=0; }
+function startFlow(){
+  stopFlow();
+  const w1=E('bgw1'), w2=E('bgw2'); if(!w1||!w2||!FLOW.d) return;
+  let last=0;
+  const step=(ts)=>{
+    FLOW.raf=requestAnimationFrame(step);
+    if(ts-last<30) return;               // ~33fps：明灭要利落
+    last=ts;
+    const L=WAVE2(FLOW.d,FLOW.cols,FLOW.rows,FLOW.elig);
+    w1.textContent=L[0]; w2.textContent=L[1];
+  };
+  FLOW.raf=requestAnimationFrame(step);
+}
+function fillBG(){
+  const el=E('bgf'); if(!el){stopFlow();return;}
+  const sc=E('sc');
+  const cs=getComputedStyle(el);
+  const p=document.createElement('span');
+  p.style.cssText=`position:absolute;visibility:hidden;white-space:pre;font-family:${cs.fontFamily};font-size:${cs.fontSize};line-height:${cs.lineHeight}`;
+  p.textContent='M'.repeat(100); sc.appendChild(p);
+  const r=p.getBoundingClientRect(); const cw=r.width/100, ch=r.height; p.remove();
+  const box=el.getBoundingClientRect();
+  const cols=Math.ceil(box.width/cw)+1, rows=Math.ceil(box.height/ch)+1;
+  FLOW.d=FIELD(cols,rows); FLOW.cols=cols; FLOW.rows=rows;
+  const eg=[]; for(let i=0;i<cols*rows;i++) if(FLOW.d[i]>0.30) eg.push(i);
+  FLOW.elig=eg; seedSparks(Math.max(24, Math.round(eg.length*0.016)));
+  el.textContent=RENDER(FLOW.d,cols,rows);
+  startFlow();
+}
+function measureGrid(){
+  const sc=E('sc'), lab=E('tbr'); if(!sc||!lab) return;
+  const p=document.createElement('span');
+  p.style.cssText='position:absolute;visibility:hidden;font-family:var(--mono);font-size:16px;line-height:1.5;white-space:pre';
+  p.textContent='M'.repeat(100); sc.appendChild(p);
+  const cw=p.getBoundingClientRect().width/100, ch=p.getBoundingClientRect().height;
+  p.remove();
+  const box=sc.getBoundingClientRect();
+  lab.textContent=`${Math.floor(box.width/cw)}×${Math.floor(box.height/ch)}`;
+}
+const T=(s)=>s; // passthrough
+
+/* ══════ Chrome 组件（真 UI，不是字符拼接）══════ */
+const ITEM=(o)=>`<div class="item ${o.sel?'sel':''}">
+  ${o.gut?`<span class="gut">${o.gut}</span>`:''}
+  ${o.idx?`<span class="idx">${o.idx}</span>`:''}
+  ${o.ico!==undefined?`<span class="ico ${o.ic||''}">${o.ico}</span>`:''}
+  <span class="lb">${o.lb}</span>
+  ${o.risk?`<span class="risk" style="width:${o.risk[0]}px;background:${o.risk[1]}"></span>`:''}
+  ${o.nw?'<span class="new">NEW</span>':''}
+  ${o.pill?`<span class="pill" ${o.pc?`style="color:${o.pc}"`:''}>${o.pill}</span>`:''}
+  ${o.meta?`<span class="meta">${o.meta}</span>`:''}</div>`;
+const SEC=(t,rows,cnt)=>`<div class="dsec"><div class="h"><span class="hash">#</span>${t}
+  ${cnt?`<span class="cnt">${cnt}</span>`:''}</div>${rows}</div>`;
+
+const DOCK=(o={})=>`<div class="dock"><div class="dockhd">${BRAND}</div>
+  ${SEC('Tasks', o.tasks||ITEM({idx:'01',ico:'▶',ic:'pr',lb:'migrate nginx',meta:'02:14'}), o.tcnt||'1')}
+  <div class="dsep"></div>
+  ${SEC('Project', o.proj||ITEM({idx:'01',ico:'▸',ic:'cm',lb:'nginx/',meta:'1,204'}), o.pcnt)}
+  <div class="dsep"></div>
+  ${SEC('Tools', o.tools||(ITEM({idx:'01',ico:'✓',ic:'ok',lb:'cpp_migrator'})+ITEM({idx:'02',ico:'✓',ic:'ok',lb:'knowledge_base'})), o.tocnt||'2/4')}
+  <div style="flex:1"></div>
+  ${o.foot||''}</div>`;
+
+const BRAND=`<span class="blogo"><img class="kpi" alt="Kunpeng" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAtCAYAAADV2ImkAAAKDElEQVR42s2Ze4wb1RXGv3Nn/LbHWecB7Ho3ZNf2OrsEISg0QCAKFSq0AhXaBMIjFSoU2qLSgBClRSxUbZEQRQiQeEtFpVXqlFJaKRVSqTcF0RYlsMk+bK+9rxA2lfZhj9ePtT1zT/+wnbhLEpJsGvb+5dHMeH7zzXe/c+YOYYkOBgQAIsBkgNKtwQ0V8KRYiqAMKARIAsycv+Oa2daO1wwGrfokNbpkQHtqoPXt2ZbQ+cXW4C69NfTRjL/9vNrN0FJQlBpBp85ZHc62drxmtHVydnXo7YbjlC8cNAqo9e3/tAXb0y2BZzP+QJlXh3m2PfwoAMRGRtYN7dlzDgAwM6lfBCgAQYAJwJhobW32Svt9UvJdy1SlKSdlYcaibF2RGnwzOTR0J1cq7r6LRp9jZkFEkr4gUBxsDi93C+MHAN3rIFppIUIOMjEP5ZZVB+IfjcYSTxgCG4Oh0EYABhEBAKtnCFapgZqx5Z2eZqdxF2Bud5HwZ6UEEWGO8O7cRPImv6CZA8nkr6XFcjtVKucSUYWZBQB5RkDrv4cDAVumJXi33hJImm0hzviDPOMPlCttIc6sCb8EAB9NTq4cT6X+Pl8sciwW+xYARKNR9YyA1iOIAaG3BG7TWwL7jbYQ51qDPNXSUcq0BniuNShnOrruB4DY/v1fGkulksVCgROx2CvHgqXTDCpqfyoBIOsP3gDiHztIXFJhRoGlCYbpFsJqEGYKqm3bqtGBXcn+/pssLtcrLrfbk8lkhhm4uK+vL79582ZJRNx4DXG6QLk6oSQBMuPv+KruD0StRH+0gC7RpTTzzBIANymKtUzYrxNtWDU6sGt0cPARh9e7w2R2FwoFQ0j5nVAolAWAhbBAQw4utt4DwGxr8AoBftgKca0CIMuyHkNCALJJqOoc0duFifitLaqSH4vHX3f7fNsymUxZ0zRrRtd/2RkOvx+NRtVNmzYZR7vmKVmiBxCPNYBm2jouUqR4CITNNiJkpZQAmABFAlIFhJME8qr6lG9s6MGBsbGz3VLudHk8G2bT6ZLH7bYV8vl/dgSDV9QuIY+m7kkDL8zSbFugiyQelMBtTiFUXUpG1RYKAEiw6SChgFEq2az3Lh8ZfHWwr+/Lbk3bYXM4zs1msxWLxSKIqGiY5oWBQCBZLxDHYlBPFLQXGxXCbgOAmWkLthPjATDucAhy6FJCl6ZJIAVHYA2vUNR54NN5u3LLquTgPxL79m21adqrQlGc2WzWICJyOp1KembmR+Hu7iQzK0RkHo/lhIAJYGC3MdXa2WyV8j4hcbdTCK8uTaRZmgIkarCoPUdjuVDUHPCvuYpxU8uB4QOjQ0OP2jTt8VKphFKpJAHQsmXLlHQ6/Ydwd/dr0WhUJSLj81jUz1P2MYDua2/3qGXxQ7C816WIVVkpMSsNk0BC1ECrqoIFwE1CqFkh3vh4PH5HL7McHR5+w93UdGtW100ppSAi2Gw2kcvlDppS3lOrZOYJinfsEcVGdRN2GzP+jqd9qmV72jRgMpsEErTgXAZMC0GxgFCwWHpWjA79LBaLNdstlp1uTbssk8kYzKwSEQshTJvNps5lMtesXbfunROxwmGF+UgWMx1+olV1CbuNA36/g0HfzBmmKQE0KnrkWDacJFQJZItW63dXjAz+fmjv3ksdNtsOm93elk6nDSJSiQjMbGqapk7PzDy9dt26d07UCoeBqaGpiADKZmykXgCDmBKMIUOH7UobibZ8NVPFUWxjeIWilhjJrMu2tTnev3d4//7bbJr2khDCmc1mTSGEWutnTZfLpeq63qcoyk+YWTlRKxyudNMtgfV6czgEgLYAJmG3sQm7jfMwVCZAmkw3W6tdgVwAygyYPqGoRaK/TVbk5c3x/r0jg4OPu3y+3xiG4SwUClIIodRgWVVVGIYxb5jmt0OhUGnnzp04Vt4ee9IxuVkYz+f8wXPmIfeCEbMIESuzMQjJWRC+lpcMNFiBq1lLXiEUXdALTePx70eZ1dFE8nce37KtmUxGSilJCNH4REyPx6NOz8zcv3bt2v3Hq2afO+nSq1cvE9LygibUm8GMEjPKYJQlzwuCvVECCTZtJBQCZMlifWDF6OAz/f39rS6HI+LWtPWZdNoAoFCt465bQdM0Javru0Lh8NdPFRYARARQmiYmMt5PUlunDeP2PMspCaDMsqJ8FtbwCEURwFTObrt+xejgM/G+vg2a2/O+w+lcnzkyuRphpc1mo0KhMGW12+9kZurt7T3lZpwWltyp5nM77Yr6souUK9PSNKtpAcGA0SSEmmfsy9ktW5uTg7Fkf/82q8fzIhE5isWiWfdro9WJyHQ6nWpG12/s6up662Qi7KgK1ytZbYVFXTk5nvjrJ6mr5qT5CxuRYiMSDBg+IdQc6E+fFmauaE4OxlIDAz93+XyvG4bhKBaL8iiwYGbT6/Wq2Wz25a6urrdqEWYupkMUC+Q2GBCbAek9mHokz/JaZp7wCaHqwBPeA4kbxqanyyPDwzu0lSt/WigUTMMweMHkqtpHSulwOFRd1+MeTdseiUSUxVjhuJWuapFqszPdEvALi3Khbzzx5/F4fI1ULb/1aJ5L09XJpTbYtVFZVhQFFotFFufnL+vs7PwwEokoW7ZsMf8vwI2FZEst2Cfee6+pctZZH5519tmBycnJeSGE/Tinmk6nk+Z0/eFwd/eTi0mF41pi4dhS9bXgjRvVfx86lGWibVNTUx/7fD47M0tZ7X8/qwKRKJfLhsPtfpOZxdTUFOM0DTrJY7mvr8+leTxP2e32e0qlEiqVikn0v/1FPXd1Xf9LZzh8/WKT4VRfQjkSiSgXXHBBvr2j43v5QuFmEmLa4/EozGwwc6PCytzcnKlp2nXxePwbRGTW+oYzqnBdvWpmE5mJRKLdbrW+7HS5vpLJZJiZmYhEvWDY7XYql8vjnlLp/FXd3YVaLvOZUriuHtcV6+zsHF29Zs3VWV1/3GKxwG63C2Y26j4uFovS6/WumVWUR4hI9vb2KmfSEgvBTWYWPT091BEMPmaUSldLKUeWeb0qM5vMzEIIkc1mTYfdvj2ZTHZv2rTJqL1dnPJY1LpE/e02Go2qgXD43fiePeuxYsWzXq93ay6Xg2EYkpnhdDqtpVLpOQBXLXa16bQtVTUmQSqVukdVlF9ZLBZnPp83AJCmaUpG128Ph8NvLCY1TttHmZpFKBKJKIFA4MVcPn95uVze29TUpBIRz8/Pm6qqPjkxMdEEgHt6epbOB6H6qmPkgw8cY2Njz3x68CCnkkk+NDnJiUTi+TO2jHqSFjmsYCqRuHFifPzQoclJHh8bK4/E4xcDQCQSUZYaNNWVHBgYaBtJJnflczlOpVIfNPgeS240VrlUKvXQ7MwMx+Px+xfuW1Kjp6dH1G2SisevGk4k9iQSibX1fViqg7n6IWjfvn3+4eHh62o3csK++C+rzz5mNSr3/QAAAABJRU5ErkJggg=="><span class="g2">KUNPENG</span><span class="g1">DEVKIT AI</span></span>`;
+
+const TABS=(list,right)=>`<div class="tabs">${(list||[{t:'migrate nginx',on:true,d:'var(--pri-h)'}])
+  .map(x=>`<div class="tab ${x.on?'on':''}">${x.d?`<span class="d" style="background:${x.d}"></span>`:''}
+    ${x.t}${x.on?'<span class="x">✕</span>':''}</div>`).join('')}<div class="tab add">＋</div>
+  <span class="tbr"><span class="v">v26.0</span>${right||'<span class="chip2">⬡ Kunpeng ARM64</span> <span class="chip2"><span class="d" style="background:var(--ok)"></span>本地就绪</span>'}</span></div>`;
+
+const STAT=(segs)=>`<div class="stat">${(segs||[
+  {t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class="ok">auto</span>'},
+  {t:'model qwen'},{sp:1},{t:'ctx <span class="ok">18%</span>'},{t:'12:04'}])
+  .map(x=>x.sp?'<div class="sp"></div>':`<div class="sg ${x.a?'acc':''}">${x.t}</div>`).join('')}</div>`;
+
+const INP=(t,cur=true)=>`<div class="inp"><div class="box"><span class="pr">❯</span>
+  <span>${t||'<span class="mut">描述你想做什么，或用 / 调命令</span>'}</span>${cur?'<span class="cur"></span>':''}
+  <span class="k"><b>Ctrl+P</b>命令面板</span></div></div>`;
+const CVH=(t,r)=>`<div class="cvh2"><span class="pmt">&gt;_</span>${t}${r?`<span class="r">${r}</span>`:''}</div>`;
+const SORT=(list)=>`<span class="sortg">${list.map(x=>`<span class="sbtn ${x.on?'on':''}">${x.t}${x.a?`<span class="a">${x.a}</span>`:''}</span>`).join('')}</span>`;
+const TAGF=(list)=>`<div class="tagf">${list.map(x=>`<span class="tg ${x.on?'on':''}">#${x.t}<s>${x.c}</s></span>`).join('')}</div>`;
+
+function SHELL(o){
+  return `<div class="sc">
+    <div class="body">${o.dock===false?'':DOCK(o.d||{})}
+      <div class="main">
+        ${o.tabs===false?'':TABS(o.tabs,o.bar)}
+        <div class="canvases" style="grid-template-columns:${o.cols||'1fr'}">${o.canvas}</div>
+        <div class="console">${o.console||''}</div>
+        ${o.ins||''}${INP(o.input,o.cursor!==false)}
+      </div>
+    </div><div class="keybar">${o.keys||'<b>Ctrl+P</b> 命令面板 &nbsp;<b>Tab</b> 焦点 &nbsp;<b>F1-F4</b> workspace &nbsp;<b>Ctrl+B</b> Dock &nbsp;<b>Ctrl+J</b> Console &nbsp;<b>?</b> 帮助'}</div>${STAT(o.stat)}
+    ${o.overlay?`<div class="ovl"><div class="ovlbox">${o.overlay}</div></div>`:''}
+  </div>`;
+}
+
+/* ══════ 十幕 ══════ */
+const ACTS=[
+{n:'①',t:'开场',
+ title:'零配置进工作台',
+ desc:'本地终端敲 <code>devkitai</code>，全屏工作台直接起来——不填服务器、不要凭据、不连网络。首屏同时给出环境状态、阻塞项、输入口和可继续的上下文。',
+ wow:'一条命令进工作台——不用装 IDE、不用配环境、不用连远端',
+ pats:['单二进制交付','Landing 四要素','P14 能力状态'],hi:[1],
+ particles:false,
+ render:()=>`<div class="sc"><div class="boot">
+<pre class="bgf" id="bgf"></pre><pre class="bgf bgw2" id="bgw2"></pre><pre class="bgf bgw1" id="bgw1"></pre>
+<div class="bootin">
+<div class="lock">
+<pre class="kpm">                               <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i>
+                          <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i>
+                     <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i> <i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
+               <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
+          <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i> <i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
+       <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
+ <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
+   <i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
+         <i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
+           <i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▄</i>
+               <i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▄</i>
+                   <i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▄</i>
+                       <i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">▀</i></pre>
+<pre class="wm">${WORDMARK()}</pre>
+</div>
+<div class="bchips"><span class="ivl">AI&nbsp;TERMINAL</span> <span class="ivl">NATIVE&nbsp;TUI</span> <span class="ivl">v26.0</span> <span class="ivl">KUNPENG&nbsp;ARM64</span></div>
+<pre class="blog"><span class="cm">[ 0.004]</span> <span class="ok">ok</span>   runtime          <span class="d2">本地已就绪，无需连接服务器</span>
+<span class="cm">[ 0.011]</span> <span class="ok">ok</span>   toolchain        <span class="d2">交叉编译 x86_64 → Kunpeng ARM64</span>
+<span class="cm">[ 0.019]</span> <span class="ok">ok</span>   mcp tools        <span class="d2">2/4 已装载  cpp_migrator · knowledge_base</span>
+<span class="cm">[ 0.024]</span> <span class="wn">warn</span> capabilities     <span class="d2">3 项能力未安装</span>  <span class="cm">[Enter] 查看</span>
+<span class="cm">[ 0.031]</span> <span class="ok">ok</span>   session          <span class="d2">恢复 1 个会话  <span class="ac">migrate nginx</span>  3 天前 · 82% · <span class="wn">2 项待人工确认</span></span></pre>
+<div class="binput">
+  <span class="pr p">❯</span>
+  <span class="cur"></span><span class="ph">想做什么？直接说 —— 例如「把 ./nginx 迁到鲲鹏」</span>
+  <span class="hint"><b>Ctrl+P</b> 命令面板</span>
+</div>
+<div class="bsug"><span class="sl">建议</span>
+  <span class="sg">安装迁移能力包</span><span class="sg">扫描当前工程</span><span class="sg">继续上次任务</span></div>
+</div></div></div>`},
+
+{n:'②',t:'提需求',
+ title:'先出计划，再动手',
+ desc:'直接说"把 ./nginx 迁到鲲鹏"。系统不立刻执行，先给 5 步 Plan，<b>每步标注要调哪个 DevKit 工具</b>，且计划可改。',
+ wow:'AI 先给计划再执行，计划可见可改——不是黑盒',
+ pats:['P02 AI Plan','自然语言驱动','P11 工具透明'],hi:[0],
+ typing:'把 ./nginx 迁到鲲鹏',
+ render:(ty)=>SHELL({
+  cols:'1fr',
+  d:{tasks:ITEM({idx:'01',ico:'○',ic:'cm',lb:'migrate nginx',meta:'待启动'}),
+     proj:ITEM({idx:'01',ico:'▸',ic:'cm',lb:'nginx/',meta:'1,204'}),pcnt:'扫描中'},
+  canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>AI PLAN</div>
+   <div style="font-size:12.5px"><span class="cm">Goal</span> &nbsp;Migrate ./nginx &nbsp;x86_64 → Kunpeng ARM64</div>
+   <div class="slist" style="margin-top:9px">
+     <div class="srow on"><span class="n">1</span><span class="bd"><div class="t1">Analyze dependency</div>
+       <div class="t2">静态扫描依赖树</div></span><span class="rt">~20s</span></div>
+     <div class="srow"><span class="n">2</span><span class="bd"><div class="t1">Find incompatible API</div>
+       <div class="t2"><span class="tag">kunpeng_knowledge_base_search</span></div></span><span class="rt">~40s</span></div>
+     <div class="srow"><span class="n">3</span><span class="bd"><div class="t1">Generate patches</div>
+       <div class="t2"><span class="tag">code_cpp_migrator</span></div></span><span class="rt">~60s</span></div>
+     <div class="srow"><span class="n">4</span><span class="bd"><div class="t1">Build verify</div>
+       <div class="t2">交叉编译验证</div></span><span class="rt">~50s</span></div>
+     <div class="srow"><span class="n">5</span><span class="bd"><div class="t1">Benchmark</div>
+       <div class="t2">迁移前后性能对比</div></span><span class="rt">~30s</span></div>
+   </div>
+   <div style="margin-top:9px;font-size:10.5px" class="cm">Estimated &nbsp;5 tools · ~3 min</div>
+   <div style="margin-top:10px;font-size:12px"><span class="pr b">[E] Execute</span> &nbsp;&nbsp;<span class="d2">[M] Modify Plan</span> &nbsp;&nbsp;<span class="d2">[C] Cancel</span></div></div>`,
+  console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span></div><div class="d2" style="margin-top:3px">
+   <span class="ok">●</span> Understand request &nbsp;<span class="cm">意图已解析：迁移任务</span></div>`,
+  input:ty, stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">6%</span>  12:04'}]})},
+
+{n:'③',t:'补配置',
+ title:'要用到才问，且说明为什么',
+ desc:'执行到「编译验证」时停下——本地没探测到 aarch64 工具链。<b>就地弹层收集，浮层第一行说明为什么需要</b>，填完从暂停处继续，不重启任务。',
+ wow:'不是一开始灌一堆表单，要用到才问，且说明为什么要',
+ pats:['P27 配置补齐','P25 非破坏浮层','就地暂停不回滚'],hi:[0,1],
+ render:()=>SHELL({
+  cols:'1fr',
+  d:{tasks:ITEM({idx:'01',ico:'⏸',ic:'wn',lb:'migrate nginx',pill:'待配置',meta:''}),
+     proj:ITEM({idx:'01',ico:'▾',ic:'cm',lb:'nginx/'})+ITEM({gut:'│ ',ico:'▸',ic:'cm',lb:'src/'}),pcnt:'12 改动'},
+  canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>MIGRATION</div>
+   <div class="cm" style="font-size:11.5px">扫描与补丁生成已完成，等待编译验证…</div></div>`,
+  console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span></div><pre>
+ <span class="ok">●</span> Analyze dependency               <span class="cm">18 libs</span>
+ <span class="ok">●</span> Find incompatible API            <span class="cm">3 hits · 知识库</span>
+ <span class="ok">●</span> Generate patches                 <span class="cm">12 files</span>
+ <span class="wn">⏸</span> Build verify —— <span class="wn">需要补充 3 项配置才能继续</span>
+ <span class="cm">○</span> Benchmark</pre>`,
+  input:'', cursor:false,
+  stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">22%</span>  <span class="wn">⏸ 1 任务待配置</span>'}],
+  overlay:`<div class="t">补充配置</div>
+   <div class="w">为什么需要：未探测到 aarch64 交叉编译工具链</div>
+   <div class="fld"><span class="l">工具链路径</span><span class="v">/usr/bin/aarch64-linux-gnu-<span class="cur"></span></span></div>
+   <div class="fld"><span class="l">输出目录</span><span class="v">./build-arm64 &nbsp;<span class="cm">[Tab] 补全</span></span></div>
+   <div class="fld"><span class="l">并行度</span><span class="v">16 &nbsp;<span class="cm">检测到 16 逻辑核</span></span></div>
+   <div class="w" style="margin:8px 0 0">敏感项（如 SQL 迁移的库口令）走 masked 输入 · 不入上下文</div>
+   <div class="keys"><b>[↵] 填完继续</b> &nbsp;&nbsp;[S] 跳过验证 &nbsp;&nbsp;[Esc] 中止任务</div>`})},
+
+{n:'④',t:'出报告',
+ title:'热力图定位问题文件',
+ desc:'兼容性 82%，2 个 Critical、8 个 Warning、21 个可自动修。<b>文件风险热力用单一色阶顺序取档</b>，一眼定位到 crypto.c。',
+ wow:'热力图定位问题文件——颜色承载一个额外维度',
+ pats:['T3 热力层','顺序色阶纪律','P22 联动'],hi:[0,1],
+ render:()=>SHELL({
+  cols:'1.15fr 1fr',
+  d:{tasks:ITEM({idx:'01',ico:'▶',ic:'pr',lb:'migrate nginx',meta:'03:12'}),
+     proj:ITEM({idx:'01',ico:'▾',ic:'cm',lb:'nginx/'})
+       +ITEM({gut:'│ ',ico:'▾',ic:'cm',lb:'src/'})
+       +ITEM({gut:'│ │',ico:'',lb:'crypto.c',sel:true,risk:[18,'var(--o3)']})
+       +ITEM({gut:'│ │',ico:'',lb:'memory.c',risk:[12,'var(--o5)']})
+       +ITEM({gut:'│ │',ico:'',lb:'http.c',risk:[6,'var(--o7)']})
+       +ITEM({gut:'│ ',ico:'▸',ic:'cm',lb:'conf/'}),pcnt:'风险'},
+  canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>MIGRATION REPORT${SORT([{t:'All',on:1},{t:'Crit',a:'2'},{t:'Warn',a:'8'}])}</div>
+   <pre>Compatibility <span class="d2">████████</span><span class="cm">░░</span> <span class="b">82%</span>
+
+<span class="er">Critical 2</span> &nbsp; <span class="wn">Warning 8</span> &nbsp; <span class="ok">Auto-fixable 21</span>
+
+Issues
+ ├ SSE instruction   <span class="wn">⚠</span>  crypto.c:88
+ ├ atomic API        <span class="wn">⚠</span>  memory.c:223
+ └ Makefile flags    <span class="ok">✓</span></pre></div>
+   <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>FILE RISK${SORT([{t:'Risk',a:'▾',on:1},{t:'Name'},{t:'Loc'}])}</div>
+   <pre><span class="cm">高 ◀</span>                         <span class="cm">▶ 低</span>
+<span style="color:var(--o3)">███</span> src/crypto.c      <span class="er">Critical</span>
+<span style="color:var(--o5)">██</span>  src/memory.c      <span class="wn">Warning</span>
+<span style="color:var(--o7)">█</span>   src/http.c        <span class="cm">Info</span>
+<span style="color:var(--o8)">▁</span>   conf/nginx.conf   <span class="ok">OK</span>
+
+<span class="cm">单一 accum-orange 色阶
+800→300 顺序取档
+语义色不参与数据可视化</span></pre></div>`,
+  console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span></div><pre>
+ <span class="ok">●</span> Build verify &nbsp;<span class="cm">配置已补齐，从暂停处继续</span>
+ <span class="pr">▶</span> Generating report <span class="spin">⠹</span></pre>`,
+  input:'', cursor:false, stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">31%</span>  12:07'}]})},
+
+{n:'⑤',t:'审改动',
+ title:'每条改动都有证据可溯源',
+ desc:'逐个看 patch：<code>_mm_pause()</code> → <code>asm("yield")</code>，<b>附知识库案例编号和 ARM 手册章节，Enter 可跳过去验证</b>。左选右画，结论与证据常驻并置。',
+ wow:'每条改动都有证据可溯源——把"我为什么该同意"变成可点开验证的',
+ pats:['P03 Evidence','P05 Diff Review','P22 联动','行业最弱环节'],hi:[0,3],
+ render:()=>SHELL({
+  cols:'1fr 1fr',
+  d:{tasks:ITEM({idx:'01',ico:'▶',ic:'pr',lb:'migrate nginx',meta:'04:01'}),
+     proj:ITEM({idx:'01',ico:'▾',ic:'cm',lb:'nginx/'})
+       +ITEM({gut:'│ ',ico:'▾',ic:'cm',lb:'src/'})
+       +ITEM({gut:'│ │',ico:'',lb:'crypto.c',sel:true,pill:'2/12',risk:[18,'var(--o3)']})
+       +ITEM({gut:'│ │',ico:'',lb:'memory.c',risk:[12,'var(--o5)']}),
+     pcnt:'⇄ 跟随'},
+  canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>PATCH 2/12${SORT([{t:'Pending',a:'10',on:1},{t:'Accepted',a:'1'}])}</div>
+   <div style="font-size:11.5px" class="cm">src/crypto.c:88</div>
+   <div style="margin-top:7px">
+     <div class="dl"><span class="ln">86</span><span class="sg cm">&nbsp;</span><span class="d2">while (spin--) {</span></div>
+     <div class="dl del"><span class="ln er">87</span><span class="sg er">-</span><span class="d2">&nbsp;&nbsp;<span class="tk d">_mm_pause</span>();</span></div>
+     <div class="dl add"><span class="ln ok">87</span><span class="sg ok">+</span><span class="d2">&nbsp;&nbsp;<span class="tk a">asm volatile("yield")</span>;</span></div>
+     <div class="dl"><span class="ln">88</span><span class="sg cm">&nbsp;</span><span class="d2">}</span></div>
+   </div>
+   <div style="margin-top:6px;font-size:10px" class="cm">仅高亮变化的 token —— 一眼看出"到底动了什么"</div>
+   <div style="font-size:11.5px;margin-top:8px" class="d2">Impact &nbsp;<span class="ok">Compatibility Fixed</span> · Perf +3%</div>
+   <div style="margin-top:12px;font-size:12px"><span class="pr b">[A] Accept</span> &nbsp;<span class="d2">[E] Edit</span> &nbsp;<span class="d2">[R] Reject</span> &nbsp;<span class="cm">[Space] next</span></div></div>
+   <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>EVIDENCE</div>
+   <div class="slist">
+     <div class="srow on"><span class="n ac">[1]</span><span class="bd">
+       <div class="t1">指令替换案例库 #4471</div>
+       <div class="t2">x86 PAUSE → ARM YIELD · 自旋等待场景等价替换</div></span>
+       <span class="rt">↵</span></div>
+     <div class="srow"><span class="n ac">[2]</span><span class="bd">
+       <div class="t1">ARM ARM §B2.5</div>
+       <div class="t2">Memory ordering &amp; hints</div></span><span class="rt">↵</span></div>
+     <div class="srow"><span class="n ac">[3]</span><span class="bd">
+       <div class="t1">crypto.c:88</div>
+       <div class="t2">当前源码位置</div></span><span class="rt">↵</span></div>
+   </div>
+   <div style="margin-top:11px;font-size:11px" class="d2">Confidence
+     <span class="d2">█████████</span><span class="cm">░</span> 94%</div></div>`,
+  keys:'<b>A</b> accept &nbsp;<b>E</b> edit &nbsp;<b>R</b> reject &nbsp;<b>Space</b> 下一处 &nbsp;<b>↵</b> 打开证据 &nbsp;<b>Ctrl+D</b> 全屏 diff',
+  console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span> <span class="cm" style="font-size:10px">▸ read 折叠 · ▾ write 展开</span></div><pre>
+ <span class="cm">▸ read &nbsp;src/http.c</span>
+ <span class="wn">▾ write src/crypto.c &nbsp;[WRITE]</span>
+ <span class="cm">▸ read &nbsp;conf/nginx.conf</span></pre>`,
+  input:'', cursor:false, stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">38%</span>  12:09'}]})},
+
+{n:'⑥',t:'编译翻车',
+ title:'失败是分支，不是死路',
+ desc:'Build 失败。系统不只报错，<b>直接转入诊断</b>：根因链路图指到内存对齐，置信度 91%，给修复方案。修完重编 PASS——全场最关键的一幕。',
+ wow:'失败是分支不是死路——就地转诊断，不是甩一个错误码',
+ pats:['P04 根因图','P03 Evidence','分支而非死路'],hi:[0,2],
+ render:()=>SHELL({
+  cols:'1fr 0.92fr',
+  bar:'⬡ 交叉编译 → Kunpeng ARM64 &nbsp; <span class="er">● Build FAILED</span>',
+  d:{tasks:ITEM({idx:'01',ico:'✕',ic:'er',lb:'migrate nginx',pill:'FAILED',pc:'var(--dgr)'}),
+     proj:ITEM({idx:'01',ico:'▾',ic:'cm',lb:'nginx/'})+ITEM({gut:'│ │',ico:'',lb:'memory.c',sel:true,risk:[18,'var(--dgr)']})},
+  canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>DIAGNOSIS</div>
+   <pre><span class="er">✕ Build failed</span> &nbsp;<span class="cm">exit 1 · ld</span>
+
+Problem Graph
+ nginx
+  │
+ runtime.so
+  │
+ memory allocator
+  │
+ <span class="er">unaligned access</span>  <span class="pr">◀ Root Cause</span>
+ <span class="er">═══════════════</span>
+
+Confidence <span class="d2">█████████</span><span class="cm">░</span> <span class="b">91%</span></pre></div>
+   <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>EVIDENCE &amp; FIX</div>
+   <pre><span class="ac">[1]</span> build.log:223
+    <span class="cm">"unaligned access at 0x7f3a"</span>
+<span class="ac">[2]</span> src/memory.c:88
+<span class="ac">[3]</span> ARM ARM §B2.5
+
+<span class="cm">Fix</span>
+ <span class="er">- malloc(size)</span>
+ <span class="ok">+ aligned_alloc(64, size)</span>
+
+<span class="cm">影响 1 处 · 不改变语义</span></pre>
+   <div style="margin-top:10px;font-size:12px"><span class="pr b">[Y] Apply &amp; rebuild</span> &nbsp;<span class="d2">[R] Review</span> &nbsp;<span class="d2">[N] Dismiss</span></div></div>`,
+  console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span></div>
+   <div class="rl er"><span class="sb er">FAILED</span><span class="tx">Build verify — ld: unaligned access in memory allocator</span></div>
+   <div class="rl in"><span class="sb in">AUTO</span><span class="tx">转入诊断，无需用户操作 <span class="cm">tool:diagnoser</span></span></div>
+   <div class="rl"><span class="sb wn">RUNNING</span><span class="tx">Root cause located <span class="spin">⠹</span> <span class="cm">置信度计算中</span></span></div>`,
+  input:'', cursor:false,
+  stat:[{t:'<span class="cm">[F2]</span>Diagnose',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">47%</span>  12:13'}]})},
+
+{n:'⑦',t:'看性能',
+ title:'并置才看得出的结论',
+ desc:'Build PASS 后<b>下一步引导给三条状态相关的建议</b>，选"跑性能基线"。Trace 出来：HBM 持续饱和而 NPU 有气泡 → memory-bound，AI 判断直接标在图上。',
+ wow:'并置才看得出的结论，AI 直接标在图上而不是另起一段文字',
+ pats:['P28 下一步引导','P26 AI 标注层','T3 密度带','P21 Live Canvas'],hi:[0,1],
+ render:()=>SHELL({
+  cols:'1fr',
+  bar:'⬡ Kunpeng ARM64 &nbsp; <span class="ok">● Build PASS</span>',
+  d:{tasks:ITEM({idx:'01',ico:'✓',ic:'ok',lb:'migrate nginx',pill:'PASS',pc:'var(--ok)'}),
+     tools:ITEM({idx:'01',ico:'✓',ic:'ok',lb:'cpp_migrator'})+ITEM({idx:'02',ico:'✓',ic:'ok',lb:'knowledge_base'})
+       +ITEM({idx:'03',ico:'▶',ic:'pr',lb:'profiler',meta:'采集中'}),tocnt:'3/4'},
+  canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>TRACE<span class="r">[+/-] zoom · [drag] pan</span></div>
+   <pre>      0ms                                          120ms
+CPU   <span style="color:var(--g4)">████</span><span style="color:var(--g6)">▓▓▓▓</span><span style="color:var(--g8)">░░░░</span><span style="color:var(--g6)">▓▓▓</span><span style="color:var(--g8)">░░░░░░░░░░░░░░░░░░░░░░░░</span>
+NPU   <span style="color:var(--v8)">░░░░</span><span style="color:var(--v3)">███████</span><span style="color:var(--v6)">▓▓▓▓</span><span style="color:var(--v3)">██████████</span><span style="color:var(--v8)">░░░░░░░░░</span>
+HBM   <span style="color:var(--o5)">▓▓</span><span style="color:var(--o3)">████████████████</span><span style="color:var(--o5)">▓▓▓</span><span style="color:var(--o3)">████████</span><span style="color:var(--o8)">░░░</span>
+                <span class="er">└─ ⚠ AI: HBM 持续饱和而 NPU 有气泡 → memory-bound</span>
+                   <span class="cm">置信度 89% · [↵] 查看证据</span></pre>
+   <pre style="margin-top:9px">Bottleneck        <span class="cm">▾ share</span>
+attention   <span style="color:var(--o3)">█████████</span> 45%
+matmul      <span style="color:var(--o5)">███████</span>   35%
+memcpy      <span style="color:var(--o7)">████</span>      20%</pre></div>`,
+  console:`<div style="font-size:11.5px"><span class="ok">✓ Build PASS</span>
+   <span class="cm">&nbsp;21 fixed · <span class="wn">2 manual</span> · 3m12s</span></div>
+   <div class="slist" style="margin-top:6px">
+     <div class="srow on"><span class="n pr">▸</span><span class="bd">
+       <div class="t1">跑性能基线，看迁移后掉了多少</div></span><span class="rt">~2min</span></div>
+     <div class="srow"><span class="n">2</span><span class="bd">
+       <div class="t1 d2">处理剩下 2 处需人工确认的改动</div></span></div>
+     <div class="srow"><span class="n">3</span><span class="bd">
+       <div class="t1 d2">换个工程继续迁移</div></span></div>
+   </div>`,
+  input:'', cursor:false,
+  stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">58%</span>  12:16'}]})},
+
+{n:'⑧',t:'调参数',
+ title:'给方案对比，不给单一建议',
+ desc:'三套方案对比 QPS / P99 / CPU / 内存，推荐方案 A。<b>每条改动都带"为什么"，副作用显式标出</b>——方案 B 的 P99 更好但内存涨到 6.8G。',
+ wow:'方案对比而非单一建议，改动都带"为什么"，副作用不藏着',
+ pats:['方案对比表','T1 分段 gauge','副作用显式'],hi:[0,2],
+ render:()=>SHELL({
+  cols:'1fr',
+  bar:'⬡ Kunpeng ARM64 · 64C · NUMA×4 &nbsp; <span class="ok">● 就绪</span>',
+  d:{tasks:ITEM({idx:'01',ico:'✓',ic:'ok',lb:'migrate nginx',pill:'PASS',pc:'var(--ok)'})
+       +ITEM({idx:'02',ico:'▶',ic:'pr',lb:'param tuning',meta:'压测中'}),tcnt:'2'},
+  canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>PARAM TUNING<span class="r">nginx @ Kunpeng920</span></div>
+   <pre>方案对比            QPS            P99     CPU          内存
+<span class="cm">baseline</span>       <span style="color:var(--o8)">████</span><span class="cm">░░░░░</span> 42k   18ms   <span style="color:var(--o6)">███</span><span class="cm">░░</span> 62%   4.2G
+<span class="ok">方案 A ★推荐</span>   <span style="color:var(--o3)">██████</span><span class="cm">░░░</span> <span class="b">61k</span>   12ms   <span style="color:var(--o4)">████</span><span class="cm">░</span> 78%   5.1G
+<span class="cm">方案 B 激进</span>    <span style="color:var(--o4)">█████</span><span class="cm">░░░░</span> 55k    <span class="ok">9ms</span>   <span style="color:var(--o3)">█████</span> 88%   <span class="wn">6.8G</span></pre>
+   <pre style="margin-top:10px"><span class="cm">方案 A 的改动与理由</span>
+ worker_processes    auto → 64        <span class="cm">← 对齐 64 物理核，去掉超分</span>
+ worker_connections  1024 → 8192      <span class="cm">← 匹配实测并发水位</span>
+ numa 绑定            off → per-worker <span class="cm">← 消除跨 NUMA 访问（<span class="pr">↵ 见热力</span>）</span></pre>
+   <div style="margin-top:11px;font-size:12px"><span class="pr b">[Y] 应用方案 A</span> &nbsp;<span class="d2">[D] 看完整 diff</span> &nbsp;<span class="d2">[B] 再压测</span> &nbsp;<span class="d2">[C] 自定义</span></div></div>`,
+  console:`<pre>
+ <span class="ok">●</span> 压测 3 组配置 &nbsp;<span class="cm">wrk · 60s × 3</span>
+ <span class="ok">●</span> NUMA 亲和性分析 &nbsp;<span class="cm">core 34-38 跨节点访问已定位</span>
+ <span class="pr">▶</span> 生成方案对比 <span class="spin">⠹</span></pre>`,
+  input:'', cursor:false,
+  stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">66%</span>  12:24'}]})},
+
+{n:'⑨',t:'场景化',
+ title:'调优按业务场景分档',
+ desc:'应用方案 A 后 QPS 42k → 61k。引导进入场景化调优：选"高并发短连接" profile，针对该场景再调一轮——<b>调优不是一次性的</b>。',
+ wow:'调优不是一次性的，按业务场景分档再深调',
+ pats:['P23 Workspace 预设','P28 下一步引导','场景 profile'],hi:[0,2],
+ render:()=>SHELL({
+  cols:'1fr 0.85fr',
+  bar:'⬡ Kunpeng ARM64 &nbsp; <span class="ok">● 方案 A 已应用</span>',
+  d:{tasks:ITEM({idx:'01',ico:'✓',ic:'ok',lb:'migrate nginx',pill:'PASS',pc:'var(--ok)'})
+       +ITEM({idx:'02',ico:'✓',ic:'ok',lb:'param tuning',pill:'+45%',pc:'var(--ok)'}),tcnt:'2'},
+  canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>APPLIED</div>
+   <pre>QPS &nbsp;&nbsp;Before <span style="color:var(--o8)">████████</span><span class="cm">░░░░</span> 42k
+      After &nbsp;<span class="ok">████████████</span> <span class="b">61k</span> &nbsp;<span class="ok">+45%</span>
+
+P99 &nbsp;&nbsp;18ms → <span class="ok">12ms</span> &nbsp;<span class="ok">−33%</span>
+NUMA &nbsp;跨节点访问 <span class="er">18%</span> → <span class="ok">2%</span></pre>
+   <div style="margin-top:12px" class="cm">✓ 已验证 · 压测 3 轮取中位数</div></div>
+   <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>SCENARIO PROFILE</div>
+   <pre><span class="pr">▸</span> <span class="selbg"> 高并发短连接 </span>
+   <span class="cm">keepalive 短 · 连接数高</span>
+
+  长连接推送
+   <span class="cm">连接常驻 · 内存敏感</span>
+
+  大文件传输
+   <span class="cm">吞吐优先 · IO 密集</span>
+
+  混合负载
+   <span class="cm">按时段自适应</span></pre>
+   <div style="margin-top:11px;font-size:12px"><span class="pr b">[↵] 进入场景化调优</span></div></div>`,
+  console:`<pre><span class="cm">下一步</span>
+ <span class="pr">▸ [1] 针对「高并发短连接」再调一轮 &nbsp;<span class="cm">~4min</span></span>
+ <span class="d2">&nbsp;&nbsp; [2] 导出本轮调优报告</span>
+ <span class="d2">&nbsp;&nbsp; [3] 处理剩下 2 处人工确认项</span></pre>`,
+  input:'', cursor:false,
+  stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">71%</span>  12:31'}]})},
+
+{n:'⑩',t:'收尾',
+ title:'全程可追溯，一份报告交差',
+ desc:'Session Summary：21 修复 / 2 待人工 / Build PASS / QPS +45%。<b>未完成项转为下次会话的待办</b>，报告可导出。',
+ wow:'全程可追溯，一份报告交差——未完成的不会丢',
+ pats:['P12 Session Summary','P28 下一步引导','未完成项转待办'],hi:[0,2],
+ confetti:true,
+ render:()=>SHELL({
+  cols:'1fr 0.8fr',
+  bar:'⬡ Kunpeng ARM64 &nbsp; <span class="ok">● 任务完成</span>',
+  d:{tasks:ITEM({idx:'01',ico:'✓',ic:'ok',lb:'migrate nginx',pill:'PASS',pc:'var(--ok)'})
+       +ITEM({idx:'02',ico:'✓',ic:'ok',lb:'param tuning',pill:'+45%',pc:'var(--ok)'}),tcnt:'2 完成'},
+  canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>SESSION SUMMARY</div>
+   <pre><span class="cm">migrate nginx → Kunpeng ARM64</span>
+
+ <span class="ok">✓ 21 issues fixed</span>        <span class="cm">自动修复</span>
+ <span class="wn">⚠ 2 need manual review</span>   <span class="cm">已转待办</span>
+ <span class="ok">✓ Build PASS</span>              <span class="cm">交叉编译通过</span>
+ <span class="ok">✓ QPS 42k → 61k</span>          <span class="ok">+45%</span>
+
+ <span class="cm">Files &nbsp;+6 modified &nbsp;·&nbsp; Tokens 48k
+ Duration &nbsp;27 min &nbsp;·&nbsp; Tools 5</span></pre>
+   <div style="margin-top:12px;font-size:12px"><span class="pr b">[S] 导出报告</span> &nbsp;<span class="d2">[N] 新任务</span> &nbsp;<span class="d2">[Q] 退出</span></div></div>
+   <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>全程可追溯</div>
+   ${TAGF([{t:'零配置启动',c:'①'},{t:'计划先行可改',c:'②'},{t:'配置用到才问',c:'③'},
+     {t:'改动有证据',c:'⑤'},{t:'失败转诊断',c:'⑥'},{t:'结论标在图上',c:'⑦'},
+     {t:'方案对比',c:'⑧'},{t:'待办不丢',c:'⑩'}])}
+   <pre style="margin-top:14px"><span class="cm">转入待办</span>
+ <span class="wn">⚠</span> src/http.c:412 &nbsp;<span class="cm">内联汇编需人工确认</span>
+ <span class="wn">⚠</span> conf/nginx.conf &nbsp;<span class="cm">worker 绑核策略待评审</span></pre></div>`,
+  console:`<pre><span class="cm">下一步</span>
+ <span class="pr">▸ [1] 处理 2 项人工确认，收尾这个工程 &nbsp;<span class="cm">~5min</span></span>
+ <span class="d2">&nbsp;&nbsp; [2] 迁移下一个工程 order-svc</span>
+ <span class="d2">&nbsp;&nbsp; [3] 把本轮参数固化成场景 profile</span>
+ <span class="pr">❯</span> 或直接说你想干什么<span class="cur"></span></pre>`,
+  input:'', cursor:false,
+  stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">74%</span>  12:31'}]})}
+];
+
+
+/* ══ 5 行块字体：启动页字标必须落在字符格上，不能是自由排版的图形 ══ */
+const F5={
+ A:['.###.','#...#','#####','#...#','#...#'], D:['####.','#...#','#...#','#...#','####.'],
+ E:['#####','#....','####.','#....','#####'], G:['.####','#....','#..##','#...#','.####'],
+ I:['#####','..#..','..#..','..#..','#####'], K:['#...#','#..#.','###..','#..#.','#...#'],
+ N:['#...#','##..#','#.#.#','#..##','#...#'], P:['####.','#...#','####.','#....','#....'],
+ T:['#####','..#..','..#..','..#..','..#..'], U:['#...#','#...#','#...#','#...#','.###.'],
+ V:['#...#','#...#','#...#','.#.#.','..#..']
+};
+const BR=(w)=>[0,1,2,3,4].map(r=>[...w].map(c=>F5[c][r]).join('.')
+  .replace(/#/g,'█').replace(/\./g,' '));
+function WORDMARK(){
+  const a=BR('KUNPENG'), b=BR('DEVKIT'), c=BR('AI');
+  return [0,1,2,3,4].map(r=>
+    `<span class="w2">${a[r]}</span>   <span class="w1">${b[r]}   ${c[r]}</span>`).join('\n');
+}
+
+/* ══ 字符网格背景场：GitHub 式半调点阵，但每个点都是一个字符 ══
+   用确定性哈希而不是随机数，避免每次重绘都在抖 */
+const GLY=[' ',' ',' ',' ',' ',' ','·','·','·','-','+','+'];
+const H2=(x,y)=>{let h=(x*374761393+y*668265263)>>>0;h=(h^(h>>13))*1274126177>>>0;return((h>>>8)&65535)/65535;};
+/* 值噪声：低频团块 —— 让字符场像一张地图，而不是一圈同心环 */
+function VN(x,y,s){
+  const gx=x/s, gy=y/s, x0=Math.floor(gx), y0=Math.floor(gy), fx=gx-x0, fy=gy-y0;
+  const u=fx*fx*(3-2*fx), v=fy*fy*(3-2*fy);
+  return H2(x0,y0)*(1-u)*(1-v)+H2(x0+1,y0)*u*(1-v)+H2(x0,y0+1)*(1-u)*v+H2(x0+1,y0+1)*u*v;
+}
+/* 密度图：算一次，缓存。光每帧只在这张图上跑，所以光只会点亮"本来就有点"的格子 */
+function FIELD(cols,rows){
+  const cx=cols*.5, cy=rows*.48, d=new Float32Array(cols*rows);
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+    const dx=(x-cx)/(cols*.5), dy=(y-cy)/(rows*.5);
+    const r=Math.sqrt(dx*dx*1.02+dy*dy*0.96);
+    let h=(x*374761393+y*668265263)>>>0; h=(h^(h>>13))*1274126177>>>0;
+    const n=((h>>>8)&1023)/1023;
+    const organic=VN(x,y,6.5)*.88 + VN(x,y,2.4)*.44 - .56;
+    d[y*cols+x]=Math.max(0,Math.min(.999,(r-.60)*1.50 + organic*.58 + n*.16));
+  }
+  return d;
+}
+const RENDER=(d,cols,rows)=>{
+  let o='';
+  for(let y=0;y<rows;y++){
+    for(let x=0;x<cols;x++) o+=GLY[Math.floor(d[y*cols+x]*GLY.length)];
+    if(y<rows-1) o+='\n';
+  }
+  return o;
+};
+/* 四周的细碎光点：几十个小光点在点阵的外圈随机点亮又熄灭，各自寿命不同、
+   位置不规则、每一颗只占 1–5 格。快速明灭 + 随机重生 = 灵动而不抢戏。
+   每帧改写的仍然只是字符本身 —— 终端每帧重绘单元格就是这么干的。 */
+const WGLY=[' ','·','·','-','+','*','#'];
+const SPARKS=[];
+function seedSparks(n){
+  SPARKS.length=0;
+  for(let i=0;i<n;i++) SPARKS.push({t:0,ttl:1,i:-1,big:0});
+}
+function WAVE2(d,cols,rows,elig){
+  const amp=new Float32Array(cols*rows);
+  const put=(x,y,v)=>{ if(x<0||y<0||x>=cols||y>=rows) return;
+    const j=y*cols+x; if(v>amp[j]) amp[j]=v; };
+  for(let k=0;k<SPARKS.length;k++){
+    const sp=SPARKS[k];
+    sp.t++;
+    if(sp.t>=sp.ttl||sp.i<0){                       // 熄灭 → 换个位置重生
+      sp.t=0;
+      sp.ttl=7+((Math.random()*22)|0);              // 0.3–1.2s，快
+      sp.i=elig[(Math.random()*elig.length)|0];
+      sp.big=Math.random()<0.34?1:0;                // 三成是"带一圈晕"的稍大点
+    }
+    const g=Math.sin(Math.PI*sp.t/sp.ttl);          // 淡入淡出
+    if(g<=0.02) continue;
+    const x=sp.i%cols, y=(sp.i/cols)|0;
+    put(x,y,g);
+    if(sp.big){ put(x-1,y,g*.52); put(x+1,y,g*.52); put(x,y-1,g*.44); put(x,y+1,g*.44); }
+  }
+  const L1=[],L2=[];
+  for(let y=0;y<rows;y++){
+    let a='',c='';
+    for(let x=0;x<cols;x++){
+      const i=y*cols+x, f=amp[i];
+      if(f<=0){a+=' ';c+=' ';continue;}
+      const v=f*(0.80+0.28*d[i]);
+      a += (v<.56)?' ':WGLY[Math.min(6,((v-.56)/.44*7)|0)];   // 芯
+      c += (v<.14)?' ':WGLY[Math.min(6,((v-.14)/.46*7)|0)];   // 晕
+    }
+    L1.push(a);L2.push(c);
+  }
+  return [L1.join('\n'),L2.join('\n')];
+}
+
+/* 幕 → 六阶段用户旅程的映射（见 JOURNEY.md）*/
+const STAGES=['初始化配置','代码迁移','验证编译','代码优化','参数优化','场景化调优'];
+const ACT2STAGE=[1,2,1,2,2,3,4,5,6,6];
+
+/* ══════ 运行时 ══════ */
+let cur=0, playing=true, timer=null, typeTimer=null;
+
+function buildRail(){
+  E('rail').innerHTML=ACTS.map((a,i)=>
+    `<div class="act" data-i="${i}"><div class="n">${a.n}</div><div class="t">${a.t}</div></div>`).join('');
+  [...document.querySelectorAll('.act')].forEach(el=>
+    el.onclick=()=>{go(+el.dataset.i);pause();});
+}
+function paint(){
+  const a=ACTS[cur];
+  [...document.querySelectorAll('.act')].forEach((el,i)=>{
+    el.classList.toggle('on',i===cur); el.classList.toggle('done',i<cur);});
+  E('ce').textContent='ACT '+String(cur+1).padStart(2,'0')+' · '+a.t;
+  E('ct').textContent=a.title;
+  E('cd').innerHTML=a.desc;
+  E('cw').textContent=a.wow;
+  E('cp').innerHTML=a.pats.map((p,i)=>
+    `<span class="pat ${(a.hi||[]).includes(i)?'hi':''}">${p}</span>`).join('');
+  E('pb').style.width=((cur+1)/ACTS.length*100)+'%';
+  const st=ACT2STAGE[cur];
+  E('cj').innerHTML=STAGES.map((t,i)=>{
+    const n=i+1, cls = n===st?'on' : (n<st?'dn':'');
+    const acts=ACT2STAGE.map((x,j)=>x===n?j+1:0).filter(Boolean);
+    return `<div class="jrow ${cls}"><span class="jn">0${n}</span>${t}`+
+           `<span class="jm">${acts.map(x=>'⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽'[x-1]).join('')}</span></div>`;
+  }).join('');
+  requestAnimationFrame(()=>{measureGrid();fillBG();});
+  E('tbt').textContent = cur===0 ? 'user@localhost — devkitai' : 'user@localhost — devkitai · migrate nginx';
+  PF.enabled = !!a.particles;
+  clearTimeout(typeTimer);
+  if(a.typing){
+    let k=0;
+    const tick=()=>{ E('sc').innerHTML=a.render(a.typing.slice(0,k));
+      if(k<a.typing.length){k++;typeTimer=setTimeout(tick,52);} };
+    tick();
+  } else { E('sc').innerHTML=a.render(); }
+}
+function go(i){cur=(i+ACTS.length)%ACTS.length;paint();}
+function next(){go(cur+1)} function prev(){go(cur-1)}
+function play(){playing=true;E('play').textContent='❚❚ 暂停';E('play').classList.add('on');
+  clearInterval(timer);timer=setInterval(next,6200);}
+function pause(){playing=false;E('play').textContent='▶ 自动播放';E('play').classList.remove('on');
+  clearInterval(timer);}
+E('next').onclick=()=>{next();pause()};
+E('prev').onclick=()=>{prev();pause()};
+E('play').onclick=()=>playing?pause():play();
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'){next();pause();e.preventDefault();}
+  if(e.key==='ArrowLeft'){prev();pause();e.preventDefault();}
+  if(e.key===' '){playing?pause():play();e.preventDefault();}
+});
+
+/* 粒子：仅开场幕启用，像素方点 + 字符雨 */
+const PF=(function(){
+  const c=E('pf'),x=c.getContext('2d');let W,H,dots=[],gl=[],on=false;
+  const G='01<>{}[]/|-_=+*#⣿⣷⣠⡀▁▂▃▅▇█'.split('');
+  function size(){const r=c.parentElement.getBoundingClientRect();
+    W=c.width=r.width*devicePixelRatio;H=c.height=r.height*devicePixelRatio;
+    c.style.width=r.width+'px';c.style.height=r.height+'px';}
+  function init(){dots=[];gl=[];
+    for(let i=0;i<Math.min(120,W*H/30000);i++)dots.push({x:Math.random()*W,y:Math.random()*H,
+      s:(Math.random()*1.5+.6)*devicePixelRatio,v:Math.random()*.24+.06,
+      a:Math.random()*.36+.06,c:Math.random()<.08?'0,119,255':'255,255,255'});
+    for(let i=0;i<Math.min(26,W/(70*devicePixelRatio));i++)gl.push({x:Math.random()*W,y:Math.random()*H,
+      g:G[Math.floor(Math.random()*G.length)],v:Math.random()*.3+.07,a:Math.random()*.15+.03,t:Math.random()*200});}
+  function draw(){
+    x.clearRect(0,0,W,H);
+    if(on){
+      for(const d of dots){d.y+=d.v*devicePixelRatio;if(d.y>H){d.y=-4;d.x=Math.random()*W;}
+        x.fillStyle='rgba('+d.c+','+d.a+')';x.fillRect(Math.round(d.x),Math.round(d.y),d.s,d.s);}
+      x.font='500 '+Math.round(11*devicePixelRatio)+'px ui-monospace,monospace';
+      for(const g of gl){g.y+=g.v*devicePixelRatio;g.t++;
+        if(g.t>240){g.g=G[Math.floor(Math.random()*G.length)];g.t=0;}
+        if(g.y>H){g.y=-14;g.x=Math.random()*W;}
+        x.fillStyle='rgba(170,170,170,'+g.a+')';x.fillText(g.g,g.x,g.y);}
+    }
+    requestAnimationFrame(draw);}
+  size();init();draw();
+  addEventListener('resize',()=>{size();init();},{passive:true});
+  return {set enabled(v){on=v}};
+})();
+
+buildRail();fitStage();paint();play();
+addEventListener('load',fitStage);
+</script>
+</body>
+</html>

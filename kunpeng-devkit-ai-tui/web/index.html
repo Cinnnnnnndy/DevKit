@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kunpeng DevKit AI — Design System &amp; UX Spec</title>
+<style>
+/* ═══ PTO Design System tokens ═══ */
+:root{
+  --ark-blue-500:#0077ff; --ark-blue-600:#3d98ff; --ark-domain-aux:#7c8db8;
+  --ark-green-500:#04d793; --ark-orange-500:#ffaa3b; --ark-red-500:#ff4b7b;
+  --ark-neutral-0:#0b0b0b; --ark-neutral-1:#101010; --ark-neutral-2:#141414;
+  /* data-viz highlight ramps — DATA VIZ ONLY */
+  --hl-copy-blue:#3C7CF6;   --hl-copy-blue-600:#094CCD;
+  --hl-violet:#9B3CF6;      --hl-violet-600:#6E0ACD;
+  --hl-orange:#FA8838;      --hl-orange-600:#D15905;
+  --hl-green:#B3F141;       --hl-green-600:#86C70F;
+  --hl-amber:#F4CB22;       --hl-amber-600:#CA8A04;
+  /* spacing · radius · motion */
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:24px;
+  --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-pill:999px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.28); --shadow-md:0 6px 18px rgba(0,0,0,.34); --shadow-lg:0 12px 30px rgba(0,0,0,.42);
+  --duration-fast:100ms; --duration-base:200ms; --duration-slow:350ms;
+  --easing-default:cubic-bezier(.4,0,.2,1); --easing-out:cubic-bezier(0,0,.2,1);
+  --font-sans:'Inter','Source Han Sans SC','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
+  --fs-display:28px; --fs-title-md:20px; --fs-title-sm:16px; --fs-body:14px; --fs-body-sm:12px; --fs-label:11px;
+}
+:root[data-theme="dark"],:root{
+  --background:var(--ark-neutral-1); --background-elevated:var(--ark-neutral-2);
+  --surface-1:#161616; --surface-2:#1c1c1c; --surface-3:#262626; --surface-4:#313131;
+  --foreground:rgba(255,255,255,.90); --foreground-secondary:rgba(255,255,255,.60);
+  --foreground-muted:rgba(255,255,255,.40); --foreground-disabled:rgba(255,255,255,.25);
+  --border-subtle:rgba(255,255,255,.06); --border-default:rgba(255,255,255,.10); --border-strong:rgba(255,255,255,.16);
+  --primary:var(--ark-blue-500); --primary-hover:var(--ark-blue-600); --accent:var(--ark-domain-aux);
+  --success:var(--ark-green-500); --warning:var(--ark-orange-500); --danger:var(--ark-red-500);
+  --state-hover:rgba(255,255,255,.06); --state-selected:rgba(0,119,255,.14);
+  --tone-info-bg:rgba(0,119,255,.16); --tone-warning-bg:rgba(255,170,59,.16); --tone-critical-bg:rgba(255,75,123,.14);
+  --focus-ring:rgba(0,119,255,.42);
+}
+:root[data-theme="light"]{
+  --background:#f5f5f5; --background-elevated:#ffffff;
+  --surface-1:#ffffff; --surface-2:#f2f2f2; --surface-3:#e6e6e6; --surface-4:#cccccc;
+  --foreground:rgba(0,0,0,.88); --foreground-secondary:rgba(0,0,0,.58);
+  --foreground-muted:rgba(0,0,0,.42); --foreground-disabled:rgba(0,0,0,.26);
+  --border-subtle:rgba(0,0,0,.07); --border-default:rgba(0,0,0,.12); --border-strong:rgba(0,0,0,.20);
+  --state-hover:rgba(0,0,0,.04); --state-selected:rgba(0,119,255,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{background:var(--background);color:var(--foreground);font-family:var(--font-sans);
+  font-size:var(--fs-body);line-height:1.65;-webkit-font-smoothing:antialiased}
+::selection{background:var(--state-selected)}
+a{color:var(--primary-hover);text-decoration:none;transition:color var(--duration-fast) var(--easing-default)}
+a:hover{color:var(--primary)}
+
+/* ═══ topbar ═══ */
+.topbar{position:fixed;top:0;left:0;right:0;height:56px;background:var(--background-elevated);
+  border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:var(--space-3);
+  padding:0 var(--space-5);z-index:60}
+.logo{width:26px;height:26px;border-radius:var(--radius-md);background:var(--primary);
+  display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:6px;flex-shrink:0}
+.logo i{background:#fff;border-radius:1px;display:block}
+.logo i:nth-child(1){opacity:.95}.logo i:nth-child(2){opacity:.62}
+.logo i:nth-child(3){opacity:.62}.logo i:nth-child(4){opacity:.35}
+.brand{font-weight:700;font-size:15px;letter-spacing:-.01em}
+.vchip{font-family:var(--font-mono);font-size:var(--fs-label);color:var(--foreground-muted);
+  background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:2px 7px}
+.tagline{font-size:var(--fs-body-sm);color:var(--foreground-muted)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:var(--space-3)}
+.tb-right a{font-size:var(--fs-body-sm);color:var(--foreground-muted)}
+.tbtn{font-family:var(--font-sans);font:500 12px/1 var(--font-sans);color:var(--foreground);
+  background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);
+  padding:7px 13px;cursor:pointer;transition:background var(--duration-fast) var(--easing-default)}
+.tbtn:hover{background:var(--surface-3)}
+
+/* ═══ layout ═══ */
+.wrap{display:flex;max-width:1400px;margin:0 auto;padding-top:56px}
+nav{width:248px;flex-shrink:0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;
+  padding:var(--space-6) var(--space-3) 60px var(--space-5);border-right:1px solid var(--border-subtle)}
+nav::-webkit-scrollbar{width:6px}nav::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:3px}
+.ngrp{font-size:var(--fs-label);font-weight:500;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--foreground-disabled);margin:var(--space-5) 0 var(--space-2) var(--space-2)}
+.ngrp:first-child{margin-top:0}
+nav a{display:flex;align-items:center;gap:9px;color:var(--foreground-secondary);padding:5px var(--space-2);
+  border-radius:var(--radius-sm);font-size:13px;transition:all var(--duration-fast) var(--easing-default)}
+nav a::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--foreground-disabled);flex-shrink:0}
+nav a:hover{color:var(--foreground);background:var(--state-hover)}
+nav a.on{color:var(--primary-hover);background:var(--state-selected)}
+nav a.on::before{background:var(--primary-hover)}
+.nfoot{margin-top:var(--space-6);padding:var(--space-4) var(--space-2) 0;border-top:1px solid var(--border-subtle);
+  font-family:var(--font-mono);font-size:var(--fs-label);color:var(--foreground-disabled);line-height:1.9}
+main{flex:1;min-width:0;padding:var(--space-6) 44px 140px}
+
+/* ═══ typography ═══ */
+.eyebrow{font-size:var(--fs-label);font-weight:500;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--primary-hover);margin-bottom:var(--space-2)}
+h1{font-size:var(--fs-display);font-weight:700;letter-spacing:-.02em;margin-bottom:var(--space-3)}
+h2{font-size:var(--fs-title-md);font-weight:600;letter-spacing:-.01em;margin-bottom:var(--space-3)}
+h3{font-size:var(--fs-title-sm);font-weight:600;margin:var(--space-6) 0 var(--space-3)}
+section{padding-top:var(--space-6);margin-bottom:52px}
+.desc{color:var(--foreground-secondary);font-size:var(--fs-body);margin-bottom:var(--space-4);max-width:78ch}
+.sublabel{font-size:var(--fs-label);font-weight:500;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--foreground-muted);margin:var(--space-6) 0 var(--space-3);display:flex;align-items:center;gap:var(--space-3)}
+.sublabel::after{content:'';flex:1;height:1px;background:var(--border-subtle)}
+p{margin:var(--space-3) 0;color:var(--foreground-secondary)}
+p.fg{color:var(--foreground)}
+strong,b{color:var(--foreground);font-weight:600}
+code{font-family:var(--font-mono);font-size:12px;background:var(--surface-2);white-space:nowrap;
+  border:1px solid var(--border-subtle);padding:1px 6px;border-radius:var(--radius-sm);color:var(--foreground)}
+kbd{font-family:var(--font-mono);font-size:var(--fs-label);background:var(--surface-3);
+  border:1px solid var(--border-default);border-bottom-width:2px;padding:2px 6px;
+  border-radius:var(--radius-sm);color:var(--foreground)}
+
+/* ═══ terminal blocks ═══ */
+pre{font-family:var(--font-mono);background:var(--ark-neutral-0);border:1px solid var(--border-subtle);
+  border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);overflow-x:auto;
+  font-size:12px;line-height:1.5;margin:var(--space-3) 0;color:#E8E8E8}
+pre.dense{font-size:11px;line-height:1.2}
+pre .cm{color:#707070} pre .pr{color:#3d98ff} pre .ac{color:#7c8db8}
+pre .ok{color:#04d793} pre .wn{color:#ffaa3b} pre .er{color:#ff4b7b}
+pre .hb{color:#3C7CF6} pre .hv{color:#9B3CF6} pre .ho{color:#FA8838} pre .hg{color:#B3F141} pre .ha{color:#F4CB22}
+/* sequential ramp steps — accum-orange 800→200 */
+pre .o8{color:#773303} pre .o7{color:#A44604} pre .o6{color:#D15905}
+pre .o5{color:#F96A06} pre .o4{color:#FA8838} pre .o3{color:#FBAB74} pre .o2{color:#FDCFAF}
+/* categorical lane hues with intensity steps */
+pre .b8{color:#052C75} pre .b6{color:#094CCD} pre .b4{color:#3C7CF6} pre .b3{color:#76A3F9}
+pre .v8{color:#3F0675} pre .v6{color:#6E0ACD} pre .v4{color:#9B3CF6} pre .v3{color:#B977F9}
+/* brand fill (UI chrome only) */
+pre .br{color:#0077FF}
+/* domain ramps — CPU=ub-green · NET=mte-amber */
+pre .g8{color:#4D7209} pre .g6{color:#86C70F} pre .g4{color:#B3F141} pre .g3{color:#CAF57A}
+pre .a8{color:#713F12} pre .a6{color:#CA8A04} pre .a4{color:#F4CB22} pre .a3{color:#FBDC59}
+pre .sel{background:#18293C}
+pre .t{color:#E8E8E8;font-weight:600}
+
+/* ═══ cards ═══ */
+.grid{display:grid;gap:var(--space-3);margin:var(--space-4) 0}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(168px,1fr))}
+.card{background:var(--surface-1);border:1px solid var(--border-default);border-radius:var(--radius-lg);
+  padding:var(--space-4);transition:all var(--duration-fast) var(--easing-default)}
+.card:hover{background:var(--state-hover);border-color:var(--border-strong)}
+.card h4{font-size:13px;font-weight:600;color:var(--foreground);margin-bottom:var(--space-2)}
+.card p{font-size:var(--fs-body-sm);color:var(--foreground-secondary);margin:var(--space-2) 0}
+.stat{background:var(--surface-1);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:var(--space-4)}
+.stat b{display:block;font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.stat span{font-size:var(--fs-body-sm);color:var(--foreground-muted)}
+
+/* ═══ swatches ═══ */
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:var(--space-2);margin:var(--space-3) 0}
+.sw>div{border:1px solid var(--border-default);border-radius:var(--radius-md);overflow:hidden;background:var(--surface-1)}
+.sw .chip{height:52px;border-bottom:1px solid var(--border-subtle)}
+.sw .meta{padding:var(--space-2) var(--space-3)}
+.sw b{display:block;font-family:var(--font-mono);font-size:var(--fs-label);color:var(--foreground);font-weight:500}
+.sw span{font-family:var(--font-mono);font-size:10px;color:var(--foreground-muted)}
+
+/* ═══ badges ═══ */
+.badge{display:inline-block;font-size:var(--fs-label);font-weight:500;padding:2px 9px;
+  border-radius:var(--radius-pill);background:var(--surface-2);border:1px solid var(--border-default);
+  color:var(--foreground-secondary);margin:2px 4px 2px 0}
+.badge.p{color:var(--primary-hover)} .badge.s{color:var(--success)}
+.badge.w{color:var(--warning)} .badge.d{color:var(--danger)}
+.chipm{display:inline-block;font-family:var(--font-mono);font-size:var(--fs-label);padding:2px 9px;
+  border-radius:var(--radius-pill);background:var(--surface-2);border:1px solid var(--border-subtle);
+  color:var(--foreground-secondary);margin:2px 4px 2px 0}
+
+/* ═══ tables ═══ */
+table{width:100%;border-collapse:collapse;margin:var(--space-3) 0;font-size:var(--fs-body-sm)}
+th{text-align:left;font-size:var(--fs-label);font-weight:500;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--foreground-muted);padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-default)}
+td{padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-subtle);
+  vertical-align:top;color:var(--foreground-secondary)}
+tr:hover td{background:var(--state-hover)}
+td:first-child{color:var(--foreground);font-weight:500;white-space:nowrap}
+td.mono,th.mono{font-family:var(--font-mono)}
+
+/* ═══ pattern block ═══ */
+.pat{border:1px solid var(--border-default);border-radius:var(--radius-lg);margin:var(--space-4) 0;
+  overflow:hidden;background:var(--surface-1)}
+.pat .hd{background:var(--surface-2);padding:var(--space-3) var(--space-4);display:flex;gap:var(--space-3);
+  align-items:baseline;border-bottom:1px solid var(--border-subtle)}
+.pat .no{font-family:var(--font-mono);font-size:var(--fs-body-sm);color:var(--primary-hover);font-weight:500}
+.pat .nm{font-weight:600;font-size:13px;color:var(--foreground)}
+.pat .sc{margin-left:auto;font-size:var(--fs-label);color:var(--foreground-muted)}
+.pat .bd{padding:var(--space-2) var(--space-4) var(--space-4)}
+.rule{font-size:var(--fs-body-sm);color:var(--foreground-secondary);
+  border-left:2px solid var(--border-strong);padding-left:var(--space-3);margin:var(--space-3) 0}
+.note{background:var(--tone-info-bg);border:1px solid rgba(0,119,255,.28);border-radius:var(--radius-lg);
+  padding:var(--space-3) var(--space-4);margin:var(--space-4) 0;font-size:13px;color:var(--foreground-secondary)}
+.note b{color:var(--primary-hover)}
+.warn{background:var(--tone-warning-bg);border-color:rgba(255,170,59,.28)}
+.warn b{color:var(--warning)}
+footer{margin-top:72px;padding-top:var(--space-5);border-top:1px solid var(--border-subtle);
+  font-size:var(--fs-label);color:var(--foreground-disabled);font-family:var(--font-mono);line-height:2}
+@media(max-width:980px){nav{display:none}main{padding:var(--space-5) var(--space-5) 80px}}
+.kpmark{width:22px;height:22px;object-fit:contain;vertical-align:-6px;margin-right:9px;flex:none}
+.kplock{display:flex;align-items:center;gap:0;margin-bottom:14px}
+.kplock .nm{font-family:var(--mono,monospace);font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--fg2,#a4a4a4)}
+.kplock .sep{opacity:.35;margin:0 9px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <img class="kpmark" alt="Kunpeng" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAtCAYAAADV2ImkAAAKDElEQVR42s2Ze4wb1RXGv3Nn/LbHWecB7Ho3ZNf2OrsEISg0QCAKFSq0AhXaBMIjFSoU2qLSgBClRSxUbZEQRQiQeEtFpVXqlFJaKRVSqTcF0RYlsMk+bK+9rxA2lfZhj9ePtT1zT/+wnbhLEpJsGvb+5dHMeH7zzXe/c+YOYYkOBgQAIsBkgNKtwQ0V8KRYiqAMKARIAsycv+Oa2daO1wwGrfokNbpkQHtqoPXt2ZbQ+cXW4C69NfTRjL/9vNrN0FJQlBpBp85ZHc62drxmtHVydnXo7YbjlC8cNAqo9e3/tAXb0y2BZzP+QJlXh3m2PfwoAMRGRtYN7dlzDgAwM6lfBCgAQYAJwJhobW32Svt9UvJdy1SlKSdlYcaibF2RGnwzOTR0J1cq7r6LRp9jZkFEkr4gUBxsDi93C+MHAN3rIFppIUIOMjEP5ZZVB+IfjcYSTxgCG4Oh0EYABhEBAKtnCFapgZqx5Z2eZqdxF2Bud5HwZ6UEEWGO8O7cRPImv6CZA8nkr6XFcjtVKucSUYWZBQB5RkDrv4cDAVumJXi33hJImm0hzviDPOMPlCttIc6sCb8EAB9NTq4cT6X+Pl8sciwW+xYARKNR9YyA1iOIAaG3BG7TWwL7jbYQ51qDPNXSUcq0BniuNShnOrruB4DY/v1fGkulksVCgROx2CvHgqXTDCpqfyoBIOsP3gDiHztIXFJhRoGlCYbpFsJqEGYKqm3bqtGBXcn+/pssLtcrLrfbk8lkhhm4uK+vL79582ZJRNx4DXG6QLk6oSQBMuPv+KruD0StRH+0gC7RpTTzzBIANymKtUzYrxNtWDU6sGt0cPARh9e7w2R2FwoFQ0j5nVAolAWAhbBAQw4utt4DwGxr8AoBftgKca0CIMuyHkNCALJJqOoc0duFifitLaqSH4vHX3f7fNsymUxZ0zRrRtd/2RkOvx+NRtVNmzYZR7vmKVmiBxCPNYBm2jouUqR4CITNNiJkpZQAmABFAlIFhJME8qr6lG9s6MGBsbGz3VLudHk8G2bT6ZLH7bYV8vl/dgSDV9QuIY+m7kkDL8zSbFugiyQelMBtTiFUXUpG1RYKAEiw6SChgFEq2az3Lh8ZfHWwr+/Lbk3bYXM4zs1msxWLxSKIqGiY5oWBQCBZLxDHYlBPFLQXGxXCbgOAmWkLthPjATDucAhy6FJCl6ZJIAVHYA2vUNR54NN5u3LLquTgPxL79m21adqrQlGc2WzWICJyOp1KembmR+Hu7iQzK0RkHo/lhIAJYGC3MdXa2WyV8j4hcbdTCK8uTaRZmgIkarCoPUdjuVDUHPCvuYpxU8uB4QOjQ0OP2jTt8VKphFKpJAHQsmXLlHQ6/Ydwd/dr0WhUJSLj81jUz1P2MYDua2/3qGXxQ7C816WIVVkpMSsNk0BC1ECrqoIFwE1CqFkh3vh4PH5HL7McHR5+w93UdGtW100ppSAi2Gw2kcvlDppS3lOrZOYJinfsEcVGdRN2GzP+jqd9qmV72jRgMpsEErTgXAZMC0GxgFCwWHpWjA79LBaLNdstlp1uTbssk8kYzKwSEQshTJvNps5lMtesXbfunROxwmGF+UgWMx1+olV1CbuNA36/g0HfzBmmKQE0KnrkWDacJFQJZItW63dXjAz+fmjv3ksdNtsOm93elk6nDSJSiQjMbGqapk7PzDy9dt26d07UCoeBqaGpiADKZmykXgCDmBKMIUOH7UobibZ8NVPFUWxjeIWilhjJrMu2tTnev3d4//7bbJr2khDCmc1mTSGEWutnTZfLpeq63qcoyk+YWTlRKxyudNMtgfV6czgEgLYAJmG3sQm7jfMwVCZAmkw3W6tdgVwAygyYPqGoRaK/TVbk5c3x/r0jg4OPu3y+3xiG4SwUClIIodRgWVVVGIYxb5jmt0OhUGnnzp04Vt4ee9IxuVkYz+f8wXPmIfeCEbMIESuzMQjJWRC+lpcMNFiBq1lLXiEUXdALTePx70eZ1dFE8nce37KtmUxGSilJCNH4REyPx6NOz8zcv3bt2v3Hq2afO+nSq1cvE9LygibUm8GMEjPKYJQlzwuCvVECCTZtJBQCZMlifWDF6OAz/f39rS6HI+LWtPWZdNoAoFCt465bQdM0Javru0Lh8NdPFRYARARQmiYmMt5PUlunDeP2PMspCaDMsqJ8FtbwCEURwFTObrt+xejgM/G+vg2a2/O+w+lcnzkyuRphpc1mo0KhMGW12+9kZurt7T3lZpwWltyp5nM77Yr6souUK9PSNKtpAcGA0SSEmmfsy9ktW5uTg7Fkf/82q8fzIhE5isWiWfdro9WJyHQ6nWpG12/s6up662Qi7KgK1ytZbYVFXTk5nvjrJ6mr5qT5CxuRYiMSDBg+IdQc6E+fFmauaE4OxlIDAz93+XyvG4bhKBaL8iiwYGbT6/Wq2Wz25a6urrdqEWYupkMUC+Q2GBCbAek9mHokz/JaZp7wCaHqwBPeA4kbxqanyyPDwzu0lSt/WigUTMMweMHkqtpHSulwOFRd1+MeTdseiUSUxVjhuJWuapFqszPdEvALi3Khbzzx5/F4fI1ULb/1aJ5L09XJpTbYtVFZVhQFFotFFufnL+vs7PwwEokoW7ZsMf8vwI2FZEst2Cfee6+pctZZH5519tmBycnJeSGE/Tinmk6nk+Z0/eFwd/eTi0mF41pi4dhS9bXgjRvVfx86lGWibVNTUx/7fD47M0tZ7X8/qwKRKJfLhsPtfpOZxdTUFOM0DTrJY7mvr8+leTxP2e32e0qlEiqVikn0v/1FPXd1Xf9LZzh8/WKT4VRfQjkSiSgXXHBBvr2j43v5QuFmEmLa4/EozGwwc6PCytzcnKlp2nXxePwbRGTW+oYzqnBdvWpmE5mJRKLdbrW+7HS5vpLJZJiZmYhEvWDY7XYql8vjnlLp/FXd3YVaLvOZUriuHtcV6+zsHF29Zs3VWV1/3GKxwG63C2Y26j4uFovS6/WumVWUR4hI9vb2KmfSEgvBTWYWPT091BEMPmaUSldLKUeWeb0qM5vMzEIIkc1mTYfdvj2ZTHZv2rTJqL1dnPJY1LpE/e02Go2qgXD43fiePeuxYsWzXq93ay6Xg2EYkpnhdDqtpVLpOQBXLXa16bQtVTUmQSqVukdVlF9ZLBZnPp83AJCmaUpG128Ph8NvLCY1TttHmZpFKBKJKIFA4MVcPn95uVze29TUpBIRz8/Pm6qqPjkxMdEEgHt6epbOB6H6qmPkgw8cY2Njz3x68CCnkkk+NDnJiUTi+TO2jHqSFjmsYCqRuHFifPzQoclJHh8bK4/E4xcDQCQSUZYaNNWVHBgYaBtJJnflczlOpVIfNPgeS240VrlUKvXQ7MwMx+Px+xfuW1Kjp6dH1G2SisevGk4k9iQSibX1fViqg7n6IWjfvn3+4eHh62o3csK++C+rzz5mNSr3/QAAAABJRU5ErkJggg==">
+  <span class="brand">Kunpeng DevKit AI</span>
+  <span class="vchip">v0.6 / PTO 4.1</span>
+  <span class="tagline">鲲鹏迁移 · 诊断 · 调优工作站 · 原生 TUI · Dark-first</span>
+  <span class="tb-right">
+    <a href="#fw">框架选型 ↗</a>
+    <button class="tbtn" onclick="tt()">◐ <span id="tl">Light</span></button>
+  </span>
+</div>
+
+<div class="wrap">
+<nav id="nav">
+  <div class="ngrp">Overview</div>
+  <a href="#intro">Introduction</a>
+  <a href="#form">形态：原生 TUI</a>
+  <a href="#ia">信息架构</a>
+  <a href="#base">现有能力基线</a>
+
+  <div class="ngrp">Foundation</div>
+  <a href="#ds">设计系统继承</a>
+  <a href="#chrome">★ Chrome vs Canvas</a>
+  <a href="#color">Colors</a>
+  <a href="#type">Typography</a>
+  <a href="#space">Spacing &amp; Grid</a>
+  <a href="#elev">Elevation &amp; Border</a>
+  <a href="#motion">Motion</a>
+
+  <div class="ngrp">TUI Capability</div>
+  <a href="#tui">TUI ≠ CLI</a>
+  <a href="#tier">渲染分层 T0–T4</a>
+  <a href="#prim">图表原语</a>
+  <a href="#fw">框架选型</a>
+
+  <div class="ngrp">Scenarios</div>
+  <a href="#s-mig">Migrate ★</a>
+  <a href="#s-dev">Develop</a>
+  <a href="#s-diag">Diagnose</a>
+  <a href="#s-opt">Optimize</a>
+  <a href="#s-obs">Observe</a>
+  <a href="#s-kb">Knowledge</a>
+
+  <div class="ngrp">Journey</div>
+  <a href="#jmap">旅程地图</a>
+  <a href="#jstory">Demo 故事线</a>
+  <a href="#jscreen">阶段屏幕</a>
+
+  <div class="ngrp">Layout &amp; Interaction</div>
+  <a href="#frame">★ 应用框架</a>
+  <a href="#shell">Shell 布局</a>
+  <a href="#loop">交互循环</a>
+  <a href="#cmd">命令 &amp; 快捷键</a>
+
+  <div class="ngrp">Patterns</div>
+  <a href="#p1">P01–P12 核心</a>
+  <a href="#p2">P13–P20 已验证</a>
+  <a href="#p3">P21–P26 TUI 原生</a>
+
+  <div class="ngrp">Components</div>
+  <a href="#comp">组件清单</a>
+
+  <div class="ngrp">Demos</div>
+  <a href="#d1">Migration</a>
+  <a href="#d2">Optimize</a>
+  <a href="#d3">Diagnose</a>
+  <a href="#d4">Observe</a>
+
+  <div class="ngrp">System</div>
+  <a href="#road">Roadmap</a>
+
+  <div class="nfoot">
+    26 patterns · 20 components<br>
+    5 render tiers · 4 demos<br>
+    PTO tokens · Textual / OpenTUI
+  </div>
+</nav>
+
+<main>
+
+<!-- ══════ INTRO ══════ -->
+<section id="intro">
+<div class="eyebrow">Overview</div>
+<h1>Kunpeng DevKit AI</h1>
+<p class="desc">面向开发者、芯片工程师与性能工程师的<strong>原生 TUI 工作站</strong>——独立运行、全屏接管终端，把 AI Agent、鲲鹏 DevKit 工具链与工程可视化能力融合在一起，直接跑在鲲鹏服务器上。</p>
+<p class="desc">设计定位继承 <strong>PTO Design System</strong>：技术、克制、精确——对标 Cursor · Warp · Resend，而非消费级仪表盘。Dark-first，中英双语，专家级密度。</p>
+<div class="grid g4">
+  <div class="stat"><b style="color:var(--primary-hover)">29</b><span>Interaction Patterns</span></div>
+  <div class="stat"><b style="color:var(--success)">20</b><span>TUI Components</span></div>
+  <div class="stat"><b style="color:var(--warning)">5</b><span>Render Tiers</span></div>
+  <div class="stat"><b style="color:var(--accent)">4</b><span>Workspaces</span></div>
+</div>
+<pre>  <span class="pr">AI Agent</span>  +  <span class="ac">DevKit Tool Runtime</span>  +  <span class="wn">Engineering Visualization</span>
+     大脑              手                     眼</pre>
+</section>
+
+<!-- ══════ 形态 ══════ -->
+<section id="form">
+<div class="eyebrow">Overview · 最需先钉死的一条</div>
+<h2>产品形态：原生 TUI 应用</h2>
+<p class="desc">这不是命令行工具，不是 IDE 里的终端面板，也不是插件里的聊天框。三者的差别决定了后面所有交互设计的推论。</p>
+<table>
+<tr><th>形态</th><th>代表</th><th>运行方式</th><th>能力边界</th></tr>
+<tr><td>CLI 工具</td><td class="mono">devkitai_cli<br>porting_workflow_cli</td><td>一次性进程，执行完退出</td><td>无状态、无布局、无实时；输出即日志</td></tr>
+<tr><td>IDE 插件</td><td>Cline + DevKit MCP<br>（手册记载的当前形态）</td><td>寄生在 IDE 进程内</td><td>受宿主 UI 框架约束；渲染由 IDE 决定；必须先有 IDE</td></tr>
+<tr><td style="color:var(--primary-hover)">原生 TUI 应用</td><td><strong>本产品</strong></td><td><strong>独立常驻进程，全屏接管终端，自有事件循环</strong></td><td><strong>自主布局 / 状态 / 快捷键 / 渲染；直接跑在目标机器上</strong></td></tr>
+</table>
+
+<div class="sublabel">为什么必须是原生 TUI</div>
+<pre><span class="cm">DevKit AI 部署在鲲鹏 Linux 服务器（手册确认）：</span>
+
+  工程师笔记本 ──ssh──▸ <span class="t">鲲鹏服务器（openEuler / 麒麟）</span>
+                            │
+                            ├─ 待迁移工程源码就在这里
+                            ├─ 编译器 / 构建产物就在这里
+                            ├─ 性能计数器 / NPU 驱动就在这里
+                            └─ DevKit AI 服务 :8000 就在这里
+
+<span class="er">IDE 插件方案：</span>本地装 IDE → 挂远程开发 → 文件同步 → 再连回服务器
+              <span class="cm">多一层同步与延迟，性能采集尤其失真</span>
+
+<span class="ok">原生 TUI 方案：</span>ssh 上去，直接 run，全屏工作台
+              <span class="cm">零同步、零延迟、与被观测对象同机</span></pre>
+<div class="grid g2">
+<div class="card"><h4>只有原生 TUI 才成立的四件事</h4>
+<p><strong>① 与被观测对象同机</strong>——性能剖析、进程表、NUMA 拓扑、驱动状态必须在目标机采集</p>
+<p><strong>② SSH 即完整体验</strong>——本地零安装，服务器上一个二进制</p>
+<p><strong>③ 自主渲染权</strong>——braille、真彩热力需直接控制终端缓冲</p>
+<p><strong>④ 常驻状态</strong>——上下文水位、索引、实时曲线需要进程活着</p></div>
+<div class="card"><h4>由此产生的设计约束</h4>
+<p><strong>键盘优先鼠标可选</strong>——SSH 常无鼠标，每个鼠标操作必须有键盘等价</p>
+<p><strong>不假设 IDE 存在</strong>——跳源码要内置预览，不能只给深链接</p>
+<p><strong>低带宽友好</strong>——局部刷新而非全屏重绘，采样率可降档</p>
+<p><strong>终端能力协商</strong>——真彩/braille/鼠标运行时探测并降级</p>
+<p><strong>单二进制交付</strong>——无外部依赖</p></div>
+</div>
+<div class="note"><b>本地与远程是同一个二进制、同一套体验。</b>上图是生产场景（工程师 ssh 到鲲鹏机器干活）；但同一个 <code>devkitai</code> 也直接跑在本地开发机上做交叉编译迁移，<strong>不连任何远端、零配置启动</strong>——Demo 演示的正是这条本地路径。两种部署共用同一份渲染、同一套快捷键、同一个会话模型，差别只是被观测对象在本机还是在远端。<strong>这种"一个二进制两处都完整"恰恰是原生 TUI 独有的</strong>：CLI 两处都能跑但没有工作台，IDE 插件两处都别扭（本地要装 IDE、远程要挂远程开发）。</div>
+<div class="note"><b>三种形态并存而非替代：</b>CLI 留给 CI/脚本；IDE 插件留给本地轻量编码；<strong>原生 TUI 面向"在服务器上做迁移、诊断、调优"这个 DevKit 真正的主战场</strong>。三者共用同一套 Agent Runtime 与 MCP 工具，差异只在壳。</div>
+</section>
+
+<!-- ══════ IA ══════ -->
+<section id="ia">
+<div class="eyebrow">Overview</div>
+<h2>信息架构</h2>
+<p class="desc">以鲲鹏 DevKit AI 现有能力为锚点，<strong>迁移为第一核心场景</strong>，四条主线 + 两个横向能力。</p>
+<pre>                     Kunpeng DevKit AI
+                             |
+        ┌───────────┬────────┴───────┬────────────┐
+        |           |                |            |
+     <span class="pr">Migrate</span>     <span class="ac">Develop</span>         <span class="wn">Diagnose</span>      <span class="er">Optimize</span>
+        |           |                |            |
+  x86→ARM64    Code Assist      Build失败      性能剖析
+  C/C++迁移     Build/Debug      Crash定位      算子调优
+  SQL迁移      知识增强编码      根因分析       模型推理优化
+  构建脚本迁移
+        └────────────┬───────────────┘
+                     |
+        ┌────────────┴────────────┐
+        |                         |
+     <span class="ok">Observe</span>（横向）          <span class="ok">Knowledge</span>（横向）
+     系统/Trace/Metric        鲲鹏领域知识库检索</pre>
+<div class="grid g3">
+  <div class="card"><h4>Application Developer</h4><p>编译、调试、代码迁移、API 适配 → Migrate / Develop</p></div>
+  <div class="card"><h4>Performance Engineer</h4><p>算子性能、CPU/NPU 利用率、内存瓶颈 → Optimize / Observe</p></div>
+  <div class="card"><h4>System Engineer</h4><p>环境、日志、故障定位 → Diagnose / Observe</p></div>
+  <div class="card"><h4>AI Engineer</h4><p>模型推理、算子优化、Benchmark → Optimize / Observe</p></div>
+  <div class="card"><h4>DBA / 数据工程师</h4><p>SQL 迁移 Oracle→GoldenDB → Migrate</p></div>
+</div>
+</section>
+
+<!-- ══════ 能力基线 ══════ -->
+<section id="base">
+<div class="eyebrow">Overview</div>
+<h2>现有能力基线</h2>
+<p class="desc">逐页核对自鲲鹏 DevKit AI 用户手册。这是 TUI 设计的现实起点——不是空想的 Agent，而是把已落地的四个工具包进更好的交互壳。</p>
+<div class="sublabel">四个已落地工具（MCP）</div>
+<table>
+<tr><th>工具</th><th>能力</th><th>关键参数 / 约束</th></tr>
+<tr><td class="mono">kunpeng_knowledge_base_search</td><td>迁移知识库精准检索</td><td>x86→鲲鹏指令替换案例库；SQL 不兼容语法案例库（当前仅 Oracle→GoldenDB）</td></tr>
+<tr><td class="mono">database_sql_migrator</td><td>SQL 智能迁移（含文件级）</td><td>language: Java / XML；source: MySQL / Oracle / DB2；target: DM / Vastbase / KINGBASE / MySQL / GoldenDB</td></tr>
+<tr><td class="mono">sql_syntax_repair</td><td>SQL 语法自动修复</td><td>SQL 内容 + 目标数据库类型 → 修正版本</td></tr>
+<tr><td class="mono">code_cpp_migrator</td><td>C/C++ 源码 + 构建脚本迁移</td><td>Makefile / Blade / Bazel；兼容性扫描 + 改写建议</td></tr>
+</table>
+<div class="sublabel">现有交互基线 → TUI 目标</div>
+<pre><span class="cm">现状（手册记载的 MCP 使用流）：</span>
+@ 选文件 → 指定源/目标库 → <span class="wn">[Approve]</span> 工具调用 → 自动展示 diff → <span class="ok">[Save]</span> 落盘
+
+<span class="pr">映射到本规范：</span>
+@ 选文件   →  P09 Command Palette + 上下文引用
+Approve    →  P10 Approval（升级：风险分级 + 批量策略）
+自动 diff   →  P05 Diff Review（升级：Evidence + Impact）
+Save       →  P12 Session Summary（升级：验证闭环 + 报告）</pre>
+<div class="grid g4">
+  <div class="card"><h4>MCP 服务</h4><p class="mono">streamableHttp :8000/mcp<br>timeout 300s</p></div>
+  <div class="card"><h4>CLI 工具</h4><p class="mono">devkitai_cli<br>porting_workflow_cli</p></div>
+  <div class="card"><h4>REST API</h4><p>上传 / 交互 / 下载，流式输出</p></div>
+  <div class="card"><h4>Skill 形态</h4><p>官方 SKILL.md，可装入 Cline</p></div>
+</div>
+</section>
+
+<!-- ══════ 设计系统 ══════ -->
+<section id="ds">
+<div class="eyebrow">Foundation</div>
+<h2>设计系统继承：PTO → TUI</h2>
+<p class="desc">直接继承 PTO Design System 的 token 体系与设计原则。但 Web 与终端的表达能力差异巨大——<strong>本节的核心工作是把 PTO 的 web token 翻译成终端可实现的 TUI token</strong>，而不是简单复制色值。</p>
+<table>
+<tr><th>PTO（Web）</th><th>终端能力</th><th>翻译策略</th></tr>
+<tr><td>6 级表面 ramp</td><td>✓ 真彩逐格背景色</td><td><strong>1:1 直译</strong>，truecolor 下完全可复现</td></tr>
+<tr><td>4 级前景透明度</td><td>✗ 无 alpha 通道</td><td><strong>预合成</strong>——按已知表面色离线拍平为实色（见下表）</td></tr>
+<tr><td>3 级阴影</td><td>✗ 无阴影</td><td><strong>改用边框强度 + 表面步进</strong>表达层级</td></tr>
+<tr><td>5 级圆角</td><td>△ 仅两档制表符</td><td>sm/md → <code>┌┐└┘</code>；lg/xl/pill → <code>╭╮╰╯</code></td></tr>
+<tr><td>4px 基准间距</td><td>△ 单元格非正方</td><td><strong>拆成 space-x（列）与 space-y（行）双轴</strong></td></tr>
+<tr><td>6 级字号 + 2 字族</td><td>✗ 单一字号，全等宽</td><td><strong>层级改由 粗细 + 色阶 + 大写字距 + 缩进 编码</strong></td></tr>
+<tr><td>5 条数据可视化色阶</td><td>✓ 真彩</td><td><strong>1:1 直译</strong>，正是热力图/Trace 密度带所需</td></tr>
+<tr><td>动效 duration + easing</td><td>△ 帧驱动</td><td>换算为帧数（30fps）；保留"动效只服务于功能"原则</td></tr>
+</table>
+<div class="note"><b>继承的第一性原则（原样保留）：</b>中性表面承载布局，强调色传递语义 · 不在 UI 面板背景使用大面积饱和填充 · 高亮色阶仅用于数据可视化 · 每个表面只选一种强调机制，不叠加多种视觉技巧 · 动效只服务于功能，无装饰性循环动画。</div>
+</section>
+
+
+<!-- ══════ CHROME vs CANVAS ══════ -->
+<section id="chrome">
+<div class="eyebrow">Foundation · 最容易做错的一条</div>
+<h2>Chrome 层 vs Canvas 层 —— 不是所有东西都用字符拼</h2>
+<p class="desc">TUI 常被误解成"全部由 ASCII 拼出来的界面"。<strong>不是。</strong>现代 TUI 框架（Textual / OpenTUI）提供的是<strong>真正的 UI 组件系统</strong>——有表面层、边框、圆角、状态、图标、徽标、滚动条。字符拼接只是其中一种渲染手段，且只该用在特定地方。</p>
+
+<div class="note d"><b>反面案例就在我们自己的稿子里。</b>早期的 Demo 把 Dock、工程树、任务列表全做成了裸文本行——没有选中态的层次、没有 hover、没有图标、没有徽标、缩进靠空格对齐。<strong>那不是 TUI，那是把 CLI 输出塞进了一个框里。</strong>参照 MobaXterm：它的左侧面板有分组标题、图标、悬停高亮、计数——这些都是 UI 组件该有的东西，TUI 一样做得到。</div>
+
+<div class="sublabel">分界原则：结构用组件，数据用字符</div>
+<table>
+<tr><th>层</th><th>包含</th><th>渲染方式</th><th>必须具备</th></tr>
+<tr><td style="color:var(--primary-hover)"><strong>Chrome 层</strong><br><span style="color:var(--foreground-muted)">框架 / 结构</span></td>
+<td>Header · Dock（任务/工程树/工具/知识库）· Tab Bar · 状态栏 · 浮层与模态 · 列表（Plan / Evidence / 下一步 / 能力）· 表单与输入 · 命令面板</td>
+<td><strong>真 UI 组件</strong><br>Textual Widget + TCSS</td>
+<td>表面层级 · 边框强度 · 圆角 · <strong>hover / selected / focus / disabled 四态</strong> · 图标 · 徽标与计数 · 缩进引导线 · 滚动条指示</td></tr>
+<tr><td style="color:var(--warning)"><strong>Canvas 层</strong><br><span style="color:var(--foreground-muted)">数据 / 读数</span></td>
+<td>Braille 曲线 · 热力网格 · Trace 密度带 · Gauge / Sparkline · 散点图 · diff · 日志 · 代码</td>
+<td><strong>字符网格</strong><br>Rich renderable / 自定义 render</td>
+<td>渲染分层 T1–T3 · 域色映射 · 顺序/分类色阶纪律 · 等宽对齐</td></tr>
+</table>
+
+<div class="sublabel">怎么判断一个区域属于哪层</div>
+<pre><span class="cm">问一句：这块内容是「结构」还是「读数」？</span>
+
+<span class="ok">结构</span> —— 用户在这里做的是<span class="t">选择、导航、切换、确认</span>
+        → Chrome 层，用组件。需要状态表达（选中/悬停/焦点）
+        <span class="cm">例：工程树里选 crypto.c · 任务列表切任务 · Evidence 点开某条</span>
+
+<span class="wn">读数</span> —— 用户在这里做的是<span class="t">看数值、比大小、找异常</span>
+        → Canvas 层，用字符。需要密度与对齐
+        <span class="cm">例：NUMA 热力图 · Trace 泳道 · latency 曲线 · diff 增删行</span>
+
+<span class="er">两者混在一个面板里时，按<span class="t">子区域</span>分别处理：</span>
+  Migration Report 面板 = <span class="ok">Issue 列表（组件）</span> + <span class="wn">兼容性 bar / 风险热力（字符）</span>
+  算子表 = <span class="ok">行选中与排序（组件）</span> + <span class="wn">单元格里的 bar（字符）</span></pre>
+
+<div class="sublabel">Chrome 组件清单与 PTO token 对应</div>
+<table>
+<tr><th>组件</th><th>结构</th><th>PTO token</th></tr>
+<tr><td>分区标题（TASKS / PROJECT）</td><td>折叠箭头 + 大写字距标签 + 右侧计数徽标</td><td class="mono">label 11px · fg-muted · surface-2 pill</td></tr>
+<tr><td>列表项</td><td>图标 + 主标签（省略号截断）+ 徽标 + 右侧元信息</td><td class="mono">radius-sm · hover=surface-3 · selected=state-selected + 左侧 2px accent</td></tr>
+<tr><td>树节点</td><td><strong>缩进引导线</strong> + 展开箭头 + 文件名 + 风险条</td><td class="mono">gutter=fg-disabled · 风险条用域色阶</td></tr>
+<tr><td>Tab</td><td>状态点 + 标题 + 关闭 + 新建；选中态顶部 2px 品牌色</td><td class="mono">radius-lg 上圆角 · 选中底色=background</td></tr>
+<tr><td>状态栏</td><td><strong>分段式</strong>，段间 1px 分隔；当前 Workspace 段用品牌底色</td><td class="mono">surface-2 · border-subtle · state-selected</td></tr>
+<tr><td>结构化列表（Plan / Evidence）</td><td>序号 + 主副两行 + 右侧耗时/动作 + 工具 tag</td><td class="mono">radius-md · hover · on=state-selected + border</td></tr>
+<tr><td>Header chip</td><td>状态点 + 文本，pill 形态</td><td class="mono">radius-pill · surface-3 · border-subtle</td></tr>
+</table>
+
+<div class="note"><b>为什么这条重要：</b>① <strong>状态表达</strong>——字符拼不出 hover/selected 的层次感，而"我现在选中的是哪一项"是工作台的基本诉求；② <strong>自适应</strong>——组件能随宽度伸缩截断，字符对齐依赖固定列宽，一变窄就崩；③ <strong>可维护</strong>——TCSS 改一处全局生效，字符拼接每处都要重算列宽（本规范里那些 ASCII 框就是靠脚本算宽度才对齐的，这恰恰说明它不适合做框架）。<br><br>
+反过来，<strong>数据区也不能用组件</strong>：64 核热力网格如果用 64 个 div，密度、对齐、性能全都做不到——那里就该是字符网格。<strong>两层各司其职，边界清晰。</strong></div>
+</section>
+
+<!-- ══════ COLORS ══════ -->
+<section id="color">
+<div class="eyebrow">Foundation</div>
+<h2>Colors</h2>
+<p class="desc">中性表面承载布局，强调色传递语义。终端下每个单元格只有一个前景色与一个背景色——所以"用什么颜色"的纪律比 Web 更重要。</p>
+
+<div class="sublabel">Surfaces — 6-step ramp · 1:1 直译</div>
+<div class="sw">
+  <div><div class="chip" style="background:#101010"></div><div class="meta"><b>--background</b><span>#101010</span></div></div>
+  <div><div class="chip" style="background:#141414"></div><div class="meta"><b>--bg-elevated</b><span>#141414</span></div></div>
+  <div><div class="chip" style="background:#161616"></div><div class="meta"><b>--surface-1</b><span>#161616</span></div></div>
+  <div><div class="chip" style="background:#1c1c1c"></div><div class="meta"><b>--surface-2</b><span>#1C1C1C</span></div></div>
+  <div><div class="chip" style="background:#262626"></div><div class="meta"><b>--surface-3</b><span>#262626</span></div></div>
+  <div><div class="chip" style="background:#313131"></div><div class="meta"><b>--surface-4</b><span>#313131</span></div></div>
+</div>
+<p class="rule">TUI 语义分配：<code>background</code> = 应用底 · <code>elevated</code> = 面板底 · <code>surface-1</code> = 卡片 · <code>surface-2</code> = 表头/工具栏 · <code>surface-3</code> = hover · <code>surface-4</code> = 选中/节点高亮。</p>
+
+<div class="sublabel">Foreground — 4 级不透明度 · 预合成为实色</div>
+<p>终端无 alpha 通道。PTO 的 <code>rgba(255,255,255,.90/.60/.40/.25)</code> 必须按所叠表面离线拍平。<strong>下表可直接写进配色文件。</strong></p>
+<table>
+<tr><th class="mono">level</th><th class="mono">on #101010</th><th class="mono">on #161616</th><th class="mono">on #1C1C1C</th><th class="mono">on #262626</th><th class="mono">on #313131</th></tr>
+<tr><td class="mono">foreground .90</td><td class="mono">#E7E7E7</td><td class="mono">#E8E8E8</td><td class="mono">#E8E8E8</td><td class="mono">#E9E9E9</td><td class="mono">#EAEAEA</td></tr>
+<tr><td class="mono">secondary .60</td><td class="mono">#9F9F9F</td><td class="mono">#A2A2A2</td><td class="mono">#A4A4A4</td><td class="mono">#A8A8A8</td><td class="mono">#ADADAD</td></tr>
+<tr><td class="mono">muted .40</td><td class="mono">#707070</td><td class="mono">#737373</td><td class="mono">#777777</td><td class="mono">#7D7D7D</td><td class="mono">#838383</td></tr>
+<tr><td class="mono">disabled .25</td><td class="mono">#4C4C4C</td><td class="mono">#505050</td><td class="mono">#555555</td><td class="mono">#5C5C5C</td><td class="mono">#646464</td></tr>
+</table>
+<div class="note warn"><b>降级注意：</b>disabled .25 拍平后在 #101010 上是 #4C4C4C，对比度约 2.2:1——<strong>在终端上比 Web 更难读</strong>（无字体抗锯齿加持）。规范：TUI 中 disabled 文本最低使用 muted 档（#707070），<code>disabled</code> 档只用于分隔线与装饰性字符。</div>
+
+<div class="sublabel">Primary &amp; Semantic</div>
+<div class="sw">
+  <div><div class="chip" style="background:#0077ff"></div><div class="meta"><b>--primary</b><span>#0077FF</span></div></div>
+  <div><div class="chip" style="background:#3d98ff"></div><div class="meta"><b>--primary-hover</b><span>#3D98FF</span></div></div>
+  <div><div class="chip" style="background:#7c8db8"></div><div class="meta"><b>--accent</b><span>#7C8DB8</span></div></div>
+  <div><div class="chip" style="background:#04d793"></div><div class="meta"><b>--success</b><span>#04D793</span></div></div>
+  <div><div class="chip" style="background:#ffaa3b"></div><div class="meta"><b>--warning</b><span>#FFAA3B</span></div></div>
+  <div><div class="chip" style="background:#ff4b7b"></div><div class="meta"><b>--danger</b><span>#FF4B7B</span></div></div>
+</div>
+<p class="rule">TUI 语义映射：<span style="color:#3d98ff">primary</span> = 焦点/当前项/Agent 活动 · <span style="color:#7c8db8">accent</span> = 元数据/ID/次级强调 · <span style="color:#04d793">success</span> = ✓ 完成/通过 · <span style="color:#ffaa3b">warning</span> = ⚠ 风险/待重启/非致命异常 · <span style="color:#ff4b7b">danger</span> = ✕ 失败/Critical/高危操作。</p>
+
+<div class="note warn"><b>品牌色替换带来的两条硬约束。</b>DevKit 品牌色 <code>#0077FF</code> 取代 PTO 原本的 <code>#4369EF</code> 后，实测出两个必须处理的问题：<br><br>
+<strong>① 对比度不足，文本不能直接用品牌色。</strong><code>#0077FF</code> 在 <code>#101010</code> 上对比度 4.61:1（勉强过 AA），但在 <code>#1C1C1C</code> 表面上降到 <strong>4.12:1，不达 AA 标准</strong>。规范：<strong>品牌色只用于填充、边框、焦点底色；一切文本/链接/图标用 <code>--primary-hover #3D98FF</code></strong>（各表面上 5.8–6.5:1，全部达标）。这与 PTO 原色不同——旧的 #4369EF 更暗，反而是靠 hover 档提亮；新品牌色更亮更饱和，问题变成了"纯色在深灰表面上灰度差不够"。<br><br>
+<strong>② 与 data-viz 的 copy-blue 撞色。</strong>品牌色色相 212°，PTO 的 <code>copy-blue</code> 色阶色相 219°——<strong>只差 7°</strong>，在终端里（无法靠尺寸/位置区分）用户无法分辨"这条泳道是 CPU"还是"这条泳道被选中了"。解决方案见下。</div>
+
+<div class="sublabel">域色映射 — 蓝色专属品牌，数据色从非蓝取</div>
+<p>既然品牌蓝会出现在色块上（进度条、选中底色、焦点），<strong><code>copy-blue</code> 必须退出 TUI 的数据可视化色板</strong>。全产品建立一套固定的域色映射，同一个观测对象在任何页面都是同一个色相：</p>
+<table>
+<tr><th>域</th><th>色阶</th><th>色相距品牌</th><th>档位（800→300）</th></tr>
+<tr><td>UI / 品牌 / 焦点</td><td class="mono">brand blue</td><td class="mono">212° —</td><td><span style="color:#0077FF">■</span> <code>#0077FF</code> 填充 · <code>#3D98FF</code> 文本</td></tr>
+<tr><td>CPU</td><td class="mono">ub-green</td><td class="mono">131°</td><td><span style="color:#4D7209">█</span><span style="color:#86C70F">█</span><span style="color:#B3F141">█</span><span style="color:#CAF57A">█</span></td></tr>
+<tr><td>NPU / GPU</td><td class="mono">l0a-violet</td><td class="mono">59°</td><td><span style="color:#3F0675">█</span><span style="color:#6E0ACD">█</span><span style="color:#9B3CF6">█</span><span style="color:#B977F9">█</span></td></tr>
+<tr><td>Memory / HBM</td><td class="mono">accum-orange</td><td class="mono">173°</td><td><span style="color:#773303">█</span><span style="color:#D15905">█</span><span style="color:#FA8838">█</span><span style="color:#FBAB74">█</span></td></tr>
+<tr><td>Network / IO</td><td class="mono">mte-amber</td><td class="mono">167°</td><td><span style="color:#713F12">█</span><span style="color:#CA8A04">█</span><span style="color:#F4CB22">█</span><span style="color:#FBDC59">█</span></td></tr>
+<tr><td style="color:var(--foreground-muted)">copy-blue</td><td class="mono" style="color:var(--foreground-muted)">已退出</td><td class="mono" style="color:var(--danger)">7° ✕</td><td style="color:var(--foreground-muted)">与品牌撞色，TUI 中停用</td></tr>
+</table>
+<div class="note"><b>还有一条形状层的分离规则，比调色相更可靠。</b>语义色（success / warning / danger）与数据色阶在色相上仍有邻近（warning 35° vs accum-orange 25°）。终端里最终靠<strong>字形</strong>而非色相区分：<br>
+<strong>语义色只上字符与短文本</strong>（<code>✓ ⚠ ✕</code>、状态标签），<strong>永不上色块</strong>；<br>
+<strong>数据色阶只上色块与点阵</strong>（<code>█▓▒░ ⣿</code>），<strong>永不上文字</strong>。<br>
+这与 PTO 自身的"Badge 语义色只作用于文字，底面保持中性"是同一条纪律的两面。有了它，即使色相接近也不会误读。</div>
+
+<div class="sublabel">State Overlays — 预合成（叠在 surface-2 上）</div>
+<div class="sw">
+  <div><div class="chip" style="background:#1C1C1C"></div><div class="meta"><b>base</b><span>#1C1C1C</span></div></div>
+  <div><div class="chip" style="background:#2A2A2A"></div><div class="meta"><b>hover +6%</b><span>#2A2A2A</span></div></div>
+  <div><div class="chip" style="background:#333333"></div><div class="meta"><b>press +10%</b><span>#333333</span></div></div>
+  <div><div class="chip" style="background:#18293C"></div><div class="meta"><b>selected</b><span>#18293C</span></div></div>
+  <div><div class="chip" style="background:#162E49"></div><div class="meta"><b>focus</b><span>#162E49</span></div></div>
+</div>
+<p class="rule">终端无 focus ring（无法画外发光轮廓）。<strong>替代方案：焦点 = 背景色 <code>#162E49</code> + 左侧 <code>▎</code> 标记 + 边框升为 border-strong 三者组合</strong>，三选二即可辨识，兼顾 16 色降级。</p>
+
+<div class="sublabel">Highlight Ramps — 仅用于数据可视化</div>
+<div class="sw">
+  <div><div class="chip" style="background:linear-gradient(90deg,#B1CAFC,#3C7CF6,#094CCD)"></div><div class="meta"><b>copy-blue</b><span>200→400→600</span></div></div>
+  <div><div class="chip" style="background:linear-gradient(90deg,#D7B1FB,#9B3CF6,#6E0ACD)"></div><div class="meta"><b>l0a-violet</b><span>200→400→600</span></div></div>
+  <div><div class="chip" style="background:linear-gradient(90deg,#FDCFAF,#FA8838,#D15905)"></div><div class="meta"><b>accum-orange</b><span>200→400→600</span></div></div>
+  <div><div class="chip" style="background:linear-gradient(90deg,#E1F9B3,#B3F141,#86C70F)"></div><div class="meta"><b>ub-green</b><span>200→400→600</span></div></div>
+  <div><div class="chip" style="background:linear-gradient(90deg,#FDEB9D,#F4CB22,#CA8A04)"></div><div class="meta"><b>mte-amber</b><span>200→400→600</span></div></div>
+</div>
+<div class="note"><b>这条约束在 TUI 里价值更高。</b>PTO 规定高亮色阶"禁止作为通用 UI 面板背景"——终端里必须严格执行，因为大面积饱和背景会让整屏文字不可读。</div>
+
+<div class="sublabel">色阶使用规则：顺序 vs 分类 — 不要混用</div>
+<p>这五条色阶的命名（copy · l0a · accum · ub · mte）本身就是<strong>昇腾 NPU 的功能单元名</strong>——它们是<strong>分类色（categorical）</strong>，用来区分"这是哪个单元"，<strong>不是</strong>用来表达"值有多大"。两种用法必须分开：</p>
+<table>
+<tr><th>用途</th><th>取色方式</th><th>DevKit 场景</th></tr>
+<tr><td><strong>顺序 / 强度</strong><br><span style="color:var(--foreground-muted)">sequential</span></td><td><strong>同一条色阶内取 5 档</strong><br><code>800 → 600 → 500 → 400 → 300</code>（暗→亮）</td><td>NUMA 核心利用率、文件风险热力、Trace 密度、内存占用</td></tr>
+<tr><td><strong>分类 / 身份</strong><br><span style="color:var(--foreground-muted)">categorical</span></td><td><strong>每类取一条色阶</strong>，各用其 <code>-400</code> 档</td><td>Trace 泳道身份（CPU / NPU / HBM / MTE / UB）、算子类别、Diff 类型</td></tr>
+<tr><td><strong>分类 + 强度</strong></td><td>色阶定身份，<strong>档位定强度</strong></td><td>Trace 密度带——<em>哪条泳道</em>用色阶，<em>多忙</em>用档位</td></tr>
+</table>
+<pre><span class="cm">✗ 错误：用五条不同色阶表达"利用率高低"——五种色相混在一起，</span>
+<span class="cm">        读者无法建立"哪个更热"的直觉，且视觉噪音极大</span>
+   <span class="hg">▂▃</span><span class="ha">▅</span><span class="ho">▇</span><span class="er">█</span>
+
+<span class="ok">✓ 正确：同一条色阶取 5 档，暗→亮 = 低→高</span>
+   <span class="o8">▂</span><span class="o7">▃</span><span class="o6">▅</span><span class="o4">▇</span><span class="o3">█</span>   <span class="cm">accum-orange  800 → 700 → 600 → 400 → 300</span>
+
+<span class="ok">✓ 正确：分类用色阶，强度用档位</span>
+   CPU  <span class="g8">▓▓</span><span class="g6">▓▓▓</span><span class="g4">████</span><span class="g3">██</span>    <span class="cm">ub-green     800→300</span>
+   NPU  <span class="v8">▓▓</span><span class="v6">▓▓</span><span class="v4">██████</span><span class="v3">█</span>     <span class="cm">l0a-violet   800→300</span>
+   HBM  <span class="o8">▓</span><span class="o6">▓▓▓</span><span class="o4">██████</span><span class="o3">█</span>     <span class="cm">accum-orange 800→300</span></pre>
+<div class="note warn"><b>语义色不参与数据可视化。</b><code>success / warning / danger</code> 只表达<strong>状态判断</strong>（通过 / 风险 / 失败），不表达<strong>数值大小</strong>。一个 90% 的 CPU 利用率本身不是"错误"——它应该用顺序色阶的最亮档，而不是 danger 红。只有当 AI 判定它构成问题时，才由 P26 标注层叠加 danger 色的描边与角标。<strong>把"数据"和"结论"用不同的颜色系统表达，是这套规范里最重要的一条用色纪律。</strong></div>
+</section>
+
+<!-- ══════ TYPOGRAPHY ══════ -->
+<section id="type">
+<div class="eyebrow">Foundation</div>
+<h2>Typography — 六级字号如何塌缩到一级</h2>
+<p class="desc">这是 Web→TUI 翻译中最困难的一环。PTO 有 6 级字号 × 3 种字重 × 2 个字族；终端<strong>只有一个字号、一个字族</strong>。层级必须由其它维度重新编码。</p>
+<table>
+<tr><th>PTO 级别</th><th>Web 规格</th><th>TUI 编码方案</th><th>示例</th></tr>
+<tr><td>display</td><td class="mono">28px / 700</td><td>BOLD + primary 色 + 下方整行分隔线</td><td class="mono" style="color:#3d98ff;font-weight:700">DevKit AI</td></tr>
+<tr><td>title-1</td><td class="mono">20px / 600</td><td>BOLD + foreground .90 + 上方留 1 空行</td><td class="mono" style="font-weight:700;color:#E8E8E8">Migration Report</td></tr>
+<tr><td>title-2</td><td class="mono">16px / 600</td><td>BOLD + 嵌入面板上边框</td><td class="mono">┌<span style="font-weight:700;color:#E8E8E8">kernels</span>────┐</td></tr>
+<tr><td>body</td><td class="mono">14px / 400</td><td>常规 + foreground .90</td><td class="mono" style="color:#E8E8E8">Select an operator node</td></tr>
+<tr><td>body-sm</td><td class="mono">12px / 400</td><td>常规 + secondary .60</td><td class="mono" style="color:#A4A4A4">3 inputs · 1 output</td></tr>
+<tr><td>label</td><td class="mono">11px / 500 / +0.5px</td><td><strong>muted .40 + 全大写 + 字间插空格</strong></td><td class="mono" style="color:#777">P A S S   S T A G E</td></tr>
+</table>
+<p class="rule">关键技法：PTO label 的 <code>letter-spacing:+0.5px</code> 在终端无法用亚字符实现，但可以<strong>在字符间插入空格</strong>模拟——<code>PASS STAGE</code> → <code>P A S S&nbsp;&nbsp;S T A G E</code>。仅用于分区标签这类短文本，长文本禁用（破坏可读性且浪费列宽）。</p>
+
+<div class="sublabel">字族语义的替代编码</div>
+<p>PTO 用 <strong>Inter（UI）+ JetBrains Mono（代码/数值/ID）</strong> 区分"叙述"与"数据"。终端全等宽，这个区分会丢失。替代方案：</p>
+<table>
+<tr><th>PTO 用法</th><th>TUI 替代编码</th></tr>
+<tr><td>mono 表示 ID / 算子名</td><td>accent 色 <code>#7C8DB8</code></td></tr>
+<tr><td>mono 表示数值 / 指标</td><td><strong>右对齐 + 固定小数位</strong> + secondary 色</td></tr>
+<tr><td>mono 表示代码</td><td>缩进 2 格 + 语法高亮（Textual 可直接用 Rich Syntax）</td></tr>
+<tr><td>sans 表示叙述文本</td><td>默认态，不加任何修饰</td></tr>
+</table>
+<pre><span class="cm">推荐终端字体（需含 Braille U+2800–28FF 与 CJK）：</span>
+JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC（更纱黑体，CJK 等宽对齐最佳）
+<span class="cm">启动时探测 braille 字形宽度，缺失则 T2 降级到 T1（见渲染分层）</span></pre>
+</section>
+
+<!-- ══════ SPACING ══════ -->
+<section id="space">
+<div class="eyebrow">Foundation</div>
+<h2>Spacing &amp; Grid — 单轴间距必须拆成双轴</h2>
+<p class="desc">PTO 用 4px 基准的单一间距阶梯。但<strong>终端单元格不是正方形</strong>——典型比例约 1:2（宽 ≈ 8px，高 ≈ 17–20px）。用一套阶梯同时管水平和垂直，必然在某一个方向失真。</p>
+<table>
+<tr><th>PTO token</th><th>Web</th><th>space-x（列）</th><th>space-y（行）</th><th>用途</th></tr>
+<tr><td class="mono">--space-1</td><td class="mono">4px</td><td class="mono">0 col</td><td class="mono">0 row</td><td>终端无法表达，向上取到 space-2</td></tr>
+<tr><td class="mono">--space-2</td><td class="mono">8px</td><td class="mono">1 col</td><td class="mono">0 row</td><td>行内元素间隙、图标与文字之间</td></tr>
+<tr><td class="mono">--space-3</td><td class="mono">12px</td><td class="mono">2 col</td><td class="mono">0 row</td><td>表格列间距</td></tr>
+<tr><td class="mono">--space-4</td><td class="mono">16px</td><td class="mono">2 col</td><td class="mono">1 row</td><td>面板内边距、区块间距</td></tr>
+<tr><td class="mono">--space-5</td><td class="mono">20px</td><td class="mono">3 col</td><td class="mono">1 row</td><td>面板之间</td></tr>
+<tr><td class="mono">--space-6</td><td class="mono">24px</td><td class="mono">3 col</td><td class="mono">2 row</td><td>大区块分隔</td></tr>
+</table>
+<div class="note"><b>纪律不变：</b>PTO 规定"不使用任意像素值（7px、13px）"。TUI 版对应——<strong>不使用任意单元格数</strong>。所有留白只能取上表六档，代码里禁止出现裸数字 padding。</div>
+<pre><span class="cm">面板内边距标准（space-4）：</span>
+╭─ Migration Report ──────────────────────────╮
+│                                             │  <span class="cm">← 上 1 行</span>
+│<span class="cm">··</span>Compatibility  ████████░░ 82%<span class="cm">···············</span>│  <span class="cm">← 左右各 2 列</span>
+│                                             │  <span class="cm">← 下 1 行</span>
+╰─────────────────────────────────────────────╯</pre>
+</section>
+
+<!-- ══════ ELEVATION ══════ -->
+<section id="elev">
+<div class="eyebrow">Foundation</div>
+<h2>Elevation &amp; Border — 没有阴影怎么做层级</h2>
+<p class="desc">PTO 有三级阴影表达浮起。终端没有阴影，也没有模糊。层级必须完全由<strong>表面步进 + 边框强度</strong>承担。</p>
+<table>
+<tr><th>PTO 阴影</th><th>Web 用途</th><th>TUI 替代</th></tr>
+<tr><td class="mono">--shadow-sm</td><td>chips · pills</td><td>surface-2 底 + border-subtle</td></tr>
+<tr><td class="mono">--shadow-md</td><td>floating panels</td><td>surface-1 底 + border-default + 圆角 <code>╭╮╰╯</code></td></tr>
+<tr><td class="mono">--shadow-lg</td><td>modals · overlays</td><td>surface-1 底 + <strong>border-strong</strong> + 圆角 + <strong>底层整体降到 disabled 色阶</strong></td></tr>
+</table>
+<p class="rule">最后一条是终端里表达"模态浮起"的关键——既然不能给浮层加阴影，就<strong>把底层压暗</strong>（所有前景色降一档到 muted/disabled），浮层保持正常色阶。这等价于 Web 的遮罩层，且在 16 色终端下依然成立。</p>
+<div class="sublabel">Border 预合成表</div>
+<table>
+<tr><th class="mono">level</th><th class="mono">on #101010</th><th class="mono">on #161616</th><th class="mono">on #1C1C1C</th><th class="mono">on #262626</th></tr>
+<tr><td class="mono">border-subtle .06</td><td class="mono">#1E1E1E</td><td class="mono">#242424</td><td class="mono">#2A2A2A</td><td class="mono">#333333</td></tr>
+<tr><td class="mono">border-default .10</td><td class="mono">#282828</td><td class="mono">#2D2D2D</td><td class="mono">#333333</td><td class="mono">#3C3C3C</td></tr>
+<tr><td class="mono">border-strong .16</td><td class="mono">#363636</td><td class="mono">#3B3B3B</td><td class="mono">#404040</td><td class="mono">#494949</td></tr>
+</table>
+<div class="sublabel">Radius — 5 档塌缩为 2 档</div>
+<pre>--radius-sm  6px  ┐
+--radius-md  8px  ┴─▸ 直角  <span class="cm">┌────┐  用于：表格、内嵌块、工具栏</span>
+                          <span class="cm">└────┘</span>
+--radius-lg  12px ┐
+--radius-xl  16px ├─▸ 圆角  <span class="cm">╭────╮  用于：主面板、浮层、卡片</span>
+--radius-pill     ┘        <span class="cm">╰────╯</span>
+
+<span class="cm">pill（999px）在终端无对应形态 → 用「反色 + 前后各留 1 空格」表达 chip：</span>
+  <span style="background:#2A2A2A;color:#A4A4A4"> 124 ops </span>  <span style="background:#2A2A2A;color:#A4A4A4"> 1.24ms </span>  <span style="background:#2A2A2A;color:#A4A4A4"> fp16 </span></pre>
+</section>
+
+<!-- ══════ MOTION ══════ -->
+<section id="motion">
+<div class="eyebrow">Foundation</div>
+<h2>Motion</h2>
+<p class="desc">PTO 原则原样继承：<strong>动效只服务于功能。无装饰性循环动画，无内容区持续播放。</strong>这条在 TUI 里比 Web 更重要——终端重绘成本高，且远程 SSH 下每一帧都是带宽。</p>
+<table>
+<tr><th>PTO token</th><th>Web</th><th>TUI @30fps</th><th>用途</th></tr>
+<tr><td class="mono">--duration-fast</td><td class="mono">100ms</td><td class="mono">3 帧</td><td>hover / 选中态切换 / 焦点移动</td></tr>
+<tr><td class="mono">--duration-base</td><td class="mono">200ms</td><td class="mono">6 帧</td><td>面板切换 / 分栏展开</td></tr>
+<tr><td class="mono">--duration-slow</td><td class="mono">350ms</td><td class="mono">10 帧</td><td>模态浮层进出 / Workspace 切换</td></tr>
+</table>
+<pre><span class="cm">允许的动效（服务于功能）：</span>
+  <span class="pr">⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏</span>  spinner —— 仅在真实 pending 的工具调用上
+  <span class="ok">█</span><span class="cm">░</span> → <span class="ok">██</span><span class="cm">░</span> → <span class="ok">███</span>   进度填充 —— 有确定进度时
+  <span class="pr">▶</span> 呼吸             Timeline 当前步，1s 周期
+  逐行 reveal          流式输出
+
+<span class="er">禁止：</span>
+  ✗ 常驻装饰性动画（跑马灯、闪烁边框、彩虹渐变）
+  ✗ 无进度信息时的假进度条
+  ✗ 全屏重绘式转场（远程 SSH 下会明显卡顿）</pre>
+<p class="rule">远程降级：检测到高延迟连接（RTT &gt; 80ms）时自动关闭所有过渡动画，只保留 spinner 与进度条，且 spinner 降到 4fps。</p>
+</section>
+
+<!-- ══════ TUI ≠ CLI ══════ -->
+<section id="tui">
+<div class="eyebrow">TUI Capability</div>
+<h2>TUI ≠ CLI</h2>
+<p class="desc">TUI 拿到的是<strong>全屏可寻址缓冲 + 事件循环</strong>，能力集远大于 CLI。设计时必须主动消费这些能力，否则做出来的只是带框线的 CLI。</p>
+<table>
+<tr><th>能力</th><th>CLI</th><th>TUI</th><th>DevKit 场景应用</th></tr>
+<tr><td>全屏可寻址缓冲</td><td>只能向下追加</td><td>alternate screen，任意坐标重绘</td><td>多面板常驻：左树 + 中报告 + 右指标同屏不滚动</td></tr>
+<tr><td>亚字符分辨率</td><td>1 字符 = 1 像素</td><td>Braille 2×4 = <strong>8× 密度</strong></td><td>真折线/面积图：CPU 历史、算子 latency 曲线</td></tr>
+<tr><td>高频局部重绘</td><td>无</td><td>局部 diff 刷新，500ms 级</td><td>实时 Trace、采集中的 Profiler</td></tr>
+<tr><td>鼠标事件</td><td>无</td><td>click / hover / drag / wheel</td><td>点选算子下钻、拖拽调分栏、滚轮缩放 Timeline</td></tr>
+<tr><td>焦点与滚动容器</td><td>靠 less 管道</td><td>独立滚动区、Scrollbar</td><td>万行日志、64 核进程表、长 Diff 各自独立滚动</td></tr>
+<tr><td>浮层 / 模态</td><td>无</td><td>overlay 覆盖不破坏底层</td><td>Command Palette、Approval、模型切换器</td></tr>
+<tr><td>24-bit 真彩</td><td>通常 8/16 色</td><td>真彩 + 背景色</td><td><strong>颜色作为第三维</strong>：NUMA 热力、风险热力</td></tr>
+<tr><td>可调分栏</td><td>无</td><td>resizable split</td><td>用户自定义工作区</td></tr>
+<tr><td>持久会话状态</td><td>退出即丢</td><td>常驻进程</td><td>上下文水位、索引状态、多会话 Tab</td></tr>
+</table>
+<div class="note"><b>设计准则：</b>每画一个页面先问三个问题——① 这里能不能用 braille 提到 8× 密度？② 这里能不能用颜色承载一个额外维度？③ 这个元素能不能点、能不能滚、能不能拖？三个都答"否"的页面，说明还停在 CLI 思维。</div>
+</section>
+
+<!-- ══════ TIERS ══════ -->
+<section id="tier">
+<div class="eyebrow">TUI Capability</div>
+<h2>渲染分层 T0–T4</h2>
+<p class="desc">高层必须能向低层降级（SSH 老终端、CI 日志、16 色环境）。每个组件都要声明层级与降级路径。</p>
+<table>
+<tr><th>层</th><th>技法</th><th>密度</th><th>适用</th><th>降级到</th></tr>
+<tr><td>T0 文本</td><td>纯字符 + 状态符号</td><td>1×1</td><td>Timeline、Tree、列表、日志</td><td>—（兼容底线）</td></tr>
+<tr><td>T1 块字符</td><td>▁▂▃▅▇█ / 象限</td><td>1×2 · 2×2</td><td>Gauge、Sparkline、BarChart</td><td>T0 数字 + 百分比</td></tr>
+<tr><td>T2 Braille</td><td>⠁⡀⣿ 点阵画布</td><td><strong>2×4 = 8×</strong></td><td>折线、面积、散点、双向流量</td><td>T1 Sparkline</td></tr>
+<tr><td>T3 真彩热力</td><td>bgcolor 承载数值</td><td>颜色 = 第三维</td><td>核心网格、风险热力、Trace 密度</td><td>T1 灰阶块字符</td></tr>
+<tr><td>T4 交互</td><td>mouse + focus + scroll</td><td>—</td><td>zoom/select/drag/sort/hover</td><td>纯键盘等价（必须全覆盖）</td></tr>
+<tr><td style="color:var(--warning)"><strong>T5 图形</strong></td><td><strong>终端图形协议</strong><br>Sixel · Kitty · iTerm2 inline</td><td><strong>真像素</strong></td><td>火焰图 · 依赖图 · 复杂 Roofline · 真实截图 · LaTeX 公式</td><td>T2 braille 近似 / T0 文字摘要</td></tr>
+</table>
+<p class="rule">硬性要求：T4 的每个鼠标操作必须有键盘等价路径（无鼠标的 SSH 是 DevKit 主战场）。T3 在 <code>NO_COLOR</code> / 16 色下自动降级为 T1，语义不能丢。<strong>T5 必须永远可降级</strong>——它依赖终端支持，不能作为唯一表达路径。</p>
+
+<div class="sublabel">T5 · 终端图形协议 —— 之前被低估的一整层</div>
+<div class="note warn"><b>一个必须纠正的假设：终端不只能画字符。</b>现代终端支持图形协议，可以渲染<strong>真正的位图</strong>。实拍佐证：<code>euporie</code> 在终端里渲染 matplotlib 图表、LaTeX 公式、HTML/CSS 表格与真实图片；TUI 媒体库渲染电影海报；SimUtil 把手机模拟器画面嵌进面板；甚至有人在终端里跑 Pokémon。<strong>这意味着"复杂图表必须简化成字符"这个前提是错的。</strong></div>
+<table>
+<tr><th>协议</th><th>支持终端</th><th>特点</th></tr>
+<tr><td class="mono">Kitty graphics</td><td>kitty · WezTerm · Ghostty · Konsole</td><td>性能最好，支持动画与 z-index 层叠，可与文字混排</td></tr>
+<tr><td class="mono">Sixel</td><td>xterm · mlterm · foot · WezTerm · Windows Terminal(预览)</td><td>最广泛的老协议，色深受限，大图较慢</td></tr>
+<tr><td class="mono">iTerm2 inline</td><td>iTerm2 · WezTerm</td><td>直接传 base64 图片，简单但生态窄</td></tr>
+<tr><td class="mono">— 无支持</td><td>基础 xterm · 多数 SSH 默认环境 · CI</td><td><strong>降级到 T2/T0</strong></td></tr>
+</table>
+<div class="sublabel">DevKit 里该用 T5 的四个地方</div>
+<table>
+<tr><th>场景</th><th>为什么字符做不好</th><th>降级路径</th></tr>
+<tr><td><strong>火焰图 / 调用栈</strong></td><td>层级深、标签长，字符网格下要么截断要么滚不完</td><td>T0：Top-N 热点函数列表 + 占比</td></tr>
+<tr><td><strong>依赖图 / Pass-IR 图</strong></td><td>节点多、连线交叉，ASCII 连线在 20+ 节点后不可读</td><td>T0：P04 因果链（单链路，不画全图）</td></tr>
+<tr><td><strong>Roofline 精确图</strong></td><td>需要对数坐标轴与精确点位，braille 只能近似</td><td>T2：braille 近似 + 数值表</td></tr>
+<tr><td><strong>导出报告预览</strong></td><td>报告本身就是图文混排的 PDF/HTML</td><td>T0：文字摘要 + 导出路径</td></tr>
+</table>
+<div class="note"><b>但纪律不变，而且更严：</b>① <strong>T5 是增强不是基础</strong>——每个用 T5 的地方都必须有 T2/T0 降级，因为 SSH 到鲲鹏服务器的默认环境大概率不支持；② <strong>不用 T5 做框架</strong>——Chrome 层永远是组件，图形只进 Canvas；③ <strong>启动时探测协议能力</strong>并写入会话，不要每次渲染前试探；④ <strong>远程带宽敏感</strong>——T5 传的是位图，RTT 高时应自动退回 T2（与动效降级同一条规则）。</div>
+</section>
+
+<!-- ══════ PRIMITIVES ══════ -->
+<section id="prim">
+<div class="eyebrow">TUI Capability</div>
+<h2>图表原语</h2>
+<p class="desc">全部改用 PTO 高亮色阶着色（<code>-200 → -700</code>），不再自造调色板。</p>
+
+<h3>① Braille 历史曲线 <span class="badge p">T2</span></h3>
+<pre class="dense">┌<span class="pr">cpu</span>──kunpeng920─────────────────────────21:02──<span class="cm">2000ms ▾</span>─┐
+│ <span class="cm">⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span>  <span class="cm">64C 2.6GHz</span>      │
+│ <span class="g4">⣠⣴⣾⣿⣷⣿⣿⣷⣦⣄⣠⣴⣾⣿⣿⣿⣿⣷⣤⣀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣄⣠⣴⣶⣤⣀⣠⣴</span>  <span class="wn">62%  54°C</span>       │
+└────────────────────────────────────────────────────────┘</pre>
+<p class="rule">着色用 <code>copy-blue-400 #3C7CF6</code>。用途：CPU/NPU 利用率历史、算子 latency 趋势。采样率随面板高度自适应。</p>
+
+<h3>② 多核热力网格 <span class="badge p">T3</span> <span class="badge d">鲲鹏特化</span></h3>
+<pre class="dense">64-core heatmap   <span class="o8">▁ 0-20%</span> <span class="o7">▃ 20-40</span> <span class="o6">▅ 40-60</span> <span class="o4">▇ 60-80</span> <span class="o3">█ 80-100</span>
+ <span class="cm">0-15</span>  <span class="o3">█</span><span class="o4">▇▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃</span><span class="o8">▁</span>   NUMA0 <span class="o4">██████</span><span class="o8">░░</span> 78%
+<span class="cm">16-31</span>  <span class="o6">▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁▁</span><span class="o6">▂</span>   NUMA1 <span class="o5">████</span><span class="o8">░░░░</span> 44%
+<span class="cm">32-47</span>  <span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span>   NUMA2 <span class="o3">███████</span><span class="o8">░</span> 82% <span class="er">▚▚▚</span>
+<span class="cm">48-63</span>  <span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span>   NUMA3 <span class="o6">███</span><span class="o8">░░░░░</span> 31%
+ <span class="er">⚠ AI: core 34-38 持续 &gt;80% · 疑似跨 NUMA 访问 · 87% [↵]</span></pre>
+<p class="rule">色阶：单一 <code>accum-orange</code> 顺序取档 <code>800→300</code>（暗=闲，亮=忙）。<strong>AI 的结论用 danger 色的 <code>▚▚▚</code> 描边单独叠加</strong>——数据与判断分属两个颜色系统。鲲鹏 920 多核 + NUMA 亲和性可视化：CLI 完全做不到、而对鲲鹏调优最关键的一张图。</p>
+
+<h3>③ 分段渐变 Gauge <span class="badge p">T1</span></h3>
+<pre class="dense">Memory  <span class="o3">████████████</span><span class="o5">██████</span><span class="o7">████</span><span class="cm">░░░░░░░░</span>  38.2 / 64 GiB
+        <span class="o3">used 22G</span>   <span class="o5">cached 12G</span>  <span class="o7">kv 4G</span>  <span class="cm">free 26G</span></pre>
+
+<h3>④ 双向面积图 <span class="badge p">T2</span></h3>
+<pre class="dense"><span class="a3">↑ up  ⣀⣠⣴⣶⣤⣀⣀⣠⣴⣿⣷⣦⣄⣀⣠⣴⣶⣤⣀⣀⣠⣴⣶⣤⣀</span>   1.30 KiB/s
+<span class="a6">↓ down⠉⠛⠿⣿⣿⠿⠛⠉⠙⠻⢿⡿⠟⠋⠉⠛⠿⠟⠉⠛⠿⣿⠿⠛⠉</span>   346 B/s</pre>
+
+<h3>⑤ 可排序算子表 <span class="badge p">T4</span></h3>
+<pre class="dense">┌<span class="pr">kernels</span>─<span class="cm">filter▸</span>──────────────per-core─reverse─tree─<span class="pr">▾ total</span>─┐
+│ <span class="cm">Name              Calls   Avg      Total    Mem     Bound</span> │
+│ <span class="sel">attention_fwd      1024   18.2ms   18.6s    2.1G    <span class="er">mem</span>   </span>│
+│ matmul_4096        512   12.4ms    6.3s    1.4G    <span class="wn">comp</span>   │
+│ layernorm         2048    0.8ms    1.6s    128M    <span class="er">mem</span>    │
+└─────────────────────────────<span class="cm">▲▼ select  ↵ drill  / filter</span>──┘</pre>
+<p class="rule">选中行背景用 <code>state-selected #18293C</code>——正是 PTO token 预合成的结果，与 Web 端视觉完全一致。</p>
+
+<h3>⑥ Trace 密度带 <span class="badge p">T3</span> <span class="badge s">分类 + 强度</span></h3>
+<pre class="dense">        0ms                                            120ms
+CPU     <span class="g4">████</span><span class="g6">▓▓▓▓</span><span class="g8">░░░░</span><span class="g6">▓▓▓</span><span class="g8">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
+NPU     <span class="v8">░░░░░░░</span><span class="v3">███████</span><span class="v4">████████</span><span class="v6">▓▓▓▓▓▓▓</span><span class="v3">██████████</span><span class="v8">░░░░</span>
+HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><span class="o3">████</span><span class="o5">▓▓</span><span class="o3">████████</span><span class="o5">▓▓▓▓▓▓</span><span class="o3">██████</span><span class="o6">▓▓</span><span class="o8">░░░</span>
+                    <span class="pr">└─ selected: attention 18.2ms · mem-bound ⚠</span></pre>
+<p class="rule"><strong>泳道身份用色阶（CPU=copy-blue · NPU=l0a-violet · HBM=accum-orange），忙闲用同色阶内的档位。</strong>这样一眼能同时读出"哪条线"和"多忙"，且色盲用户仍可通过明度差辨识强度。</p>
+</section>
+
+<!-- ══════ FRAMEWORK ══════ -->
+<section id="fw">
+<div class="eyebrow">TUI Capability</div>
+<h2>框架选型</h2>
+<p class="desc">关键前提：<strong>DevKit AI 已通过 MCP over streamableHttp（:8000）暴露能力</strong>，TUI 本质是客户端。实现语言与 Agent Runtime 解耦，选型可纯按"渲染能力 + 设计系统落地成本 + 团队栈"决策。</p>
+<div class="note"><b>已定：Python / Textual。</b>FTXUI 是 C++ 库，与技术栈方向不符，<strong>已排除</strong>（其 Canvas 双层绘图 API 的分层思路仍值得在自建 braille 封装时借鉴）。下表保留 OpenTUI 作为对照——它是 OpenCode 的底层引擎，其会话层与流式渲染实现仍是重要参考来源。</div>
+<table>
+<tr><th>维度</th><th style="color:var(--primary-hover)">Textual（Python）★ 已选</th><th>OpenTUI（TypeScript）· 对照</th></tr>
+<tr><td>生态位</td><td>Textualize 出品，基于 Rich，Python TUI 生态最大</td><td>Zig 编写的原生 TUI 核心 + TypeScript 绑定，另提供 C ABI；<strong>OpenCode 生产环境在跑</strong></td></tr>
+<tr><td><strong>样式系统</strong></td><td><strong>TCSS —— CSS 子集，含变量、选择器、伪类</strong></td><td>组件式架构 + 灵活布局；样式为 style props</td></tr>
+<tr><td><strong>设计 token 落地</strong></td><td><strong>内置主题系统</strong>（predefined themes），变量可直接承载 PTO token</td><td>需自建 token 层</td></tr>
+<tr><td>内置组件</td><td>Button / Tree / DataTable / Input / TextArea / Select / Switch / ProgressBar / Sparkline / Digits / Log / Markdown / Collapsible / Tabs …</td><td><code>@opentui/core</code> 提供命令式 API 与全部原语；<code>@opentui/react</code>、<code>@opentui/solid</code> 提供 reconciler</td></tr>
+<tr><td><strong>Command Palette</strong></td><td><strong>内置模糊搜索命令面板</strong>（<kbd>Ctrl+P</kbd>），可扩展自定义命令 —— 直接兑现 P09</td><td>需自建</td></tr>
+<tr><td>Canvas / 图形</td><td>Rich 提供渲染原语，braille 画布需薄封装</td><td>核心含缓冲级绘制；<code>@opentui/three</code> 提供 Three.js WebGPU 渲染器</td></tr>
+<tr><td>鼠标 / 动画</td><td>✓ 完整鼠标 + <code>animate()</code> 缓动</td><td>✓ 主打 correctness / stability / performance</td></tr>
+<tr><td>Web 部署</td><td><strong><code>textual serve</code> + Textual Web</strong>：同一份代码跑进浏览器</td><td>—</td></tr>
+<tr><td>与 DevKit 生态</td><td><strong>Python 贴近 AI / 编译分析 / 数据处理工具链</strong></td><td>需 IPC 或 C ABI 桥接</td></tr>
+<tr><td>OpenCode 复用</td><td>低（可通过 MCP 复用能力，不复用代码）</td><td>高（同栈）</td></tr>
+</table>
+
+<div class="note"><b>为什么 Textual 是对的选择——决定性理由是设计系统落地成本。</b>本规范 Foundation 六节把 PTO token 体系完整翻译成了 TUI token，而 Textual 的 TCSS 是 CSS 子集、且有原生主题变量系统，<strong>这套 token 可以近乎 1:1 写成 TCSS 变量文件</strong>，Web 端与终端端共用同一份设计语言、同一套命名、同一套 review 流程。换任何其它框架都要先自建一层 token 系统再手工映射，一致性只能靠人肉维护。<br><br>
+次要理由：内置模糊命令面板（<kbd>Ctrl+P</kbd>）直接兑现 P09，省掉一个组件；<code>textual serve</code> 让同一份代码跑进浏览器，评审和文档嵌入零成本；DataTable / Tree / Tabs / Collapsible / Sparkline 覆盖了组件清单的大半；Python 生态本身就贴着编译分析与 AI 工具链，将来要接 profiler 解析、IR 处理都顺手。</div>
+
+<div class="note warn"><b>Textual 路线要自己补的三块。</b>① <strong>Braille 画布</strong>——Rich 有渲染原语但无现成 braille canvas，T2 层（历史曲线、双向面积图、Roofline）需要薄封装一层 <code>DrawPoint</code> 式 API，这是 Phase 0 的主要工作量，可参考 FTXUI 的 <code>DrawPoint</code>/<code>DrawBlock</code> 双层分法。② <strong>热力网格</strong>——T3 层的 NUMA 网格、Trace 密度带需自定义 Widget。③ <strong>可拖拽分栏</strong>——P23 的布局预设需在 Horizontal 容器上自建拖拽。<br><br>
+从 OpenTUI / OpenCode 可借鉴（而非直接复用）的是：Agent 流式渲染节奏、工具调用展示折叠策略、会话切换与上下文管理的交互实现。</div>
+
+<div class="sublabel">建议架构（渲染与智能解耦）</div>
+<pre>  <span class="pr">Textual TUI Shell</span>   ← 渲染 T0–T4 · 交互 · 布局 · 快捷键
+        │              <span class="cm">TCSS 变量文件 = PTO token 直译</span>
+        │  MCP / HTTP :8000 · streamableHttp
+  <span class="ac">Agent Runtime</span>       ← Agent Loop · 会话 · 上下文 · 工具编排
+        │
+  <span class="wn">DevKit Tools</span>        ← code_cpp_migrator · database_sql_migrator
+                        sql_syntax_repair · kunpeng_knowledge_base_search
+                        profiler · 诊断器</pre>
+
+<div class="sublabel">TCSS 落地示例</div>
+<pre><span class="cm"># pto.tcss —— 由本规范第 Foundation 节直接生成</span>
+$background: #101010;      $surface-1: #161616;
+$surface-2: #1c1c1c;       $surface-3: #262626;
+$foreground: #e8e8e8;      <span class="cm"># .90 预合成</span>
+$foreground-secondary: #a4a4a4;
+$foreground-muted: #777777;
+$primary: #0077ff;         $success: #04d793;
+$warning: #ffaa3b;         $danger: #ff4b7b;
+
+KernelTable {
+    background: $surface-1;
+    border: round $surface-3;   <span class="cm"># radius-lg → ╭╮╰╯</span>
+    padding: 1 2;               <span class="cm"># space-4 → 1 row / 2 col</span>
+}
+KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># state-selected</span></pre>
+</section>
+
+<!-- ══════ SCENARIOS ══════ -->
+<section id="s-mig">
+<div class="eyebrow">Scenarios</div>
+<h2>Migrate · AI 智能迁移 <span class="badge d">P0 第一核心场景</span></h2>
+<p class="desc">User Story：作为开发者，我希望导入已有工程，AI 自动分析不兼容点，生成迁移补丁，并完成编译验证与性能确认。</p>
+<pre>Project Import → Architecture Scan → Compatibility Analysis
+      → AI Patch → Build Verify → Performance Check</pre>
+<table>
+<tr><th>页面</th><th>关键内容</th><th>组件</th></tr>
+<tr><td>P1 Workspace</td><td>项目路径、源/目标架构</td><td>Form Card</td></tr>
+<tr><td>P2 分析总览</td><td>兼容性评分、Issue 分级、文件风险热力</td><td>Score Bar · Issue Tree · Heatmap</td></tr>
+<tr><td>P3 Agent 执行流</td><td>扫描 → 识别 → 补丁 → 验证</td><td>Agent Timeline · Tool Card</td></tr>
+<tr><td>P4 Patch Review</td><td>逐文件 Diff、影响评估</td><td>Diff View · Approval Bar</td></tr>
+<tr><td>P5 验证报告</td><td>编译结果、Benchmark 对比</td><td>Metric Bar · Before/After</td></tr>
+</table>
+<p class="rule">SQL 迁移子线：源库 MySQL/Oracle/DB2 → 目标库 DM/Vastbase/KINGBASE/MySQL/GoldenDB；语法错误走 <code>sql_syntax_repair</code> 快修；工具搞不定的复杂语法自动升级为知识库辅助迁移（P08 兜底），TUI 上要显式展示这次升级。</p>
+<div class="note"><b>验收：</b>导入到出报告 ≤ 3 步；每个不兼容点均有 Evidence（文件行号 + 知识库依据）；Patch 必须经确认后落盘。</div>
+</section>
+
+<section id="s-dev">
+<div class="eyebrow">Scenarios</div>
+<h2>Develop · AI 开发助手</h2>
+<p class="desc">不止写代码，而是<strong>架构感知</strong>的鲲鹏生态开发助手：识别 x86 SIMD → 给出 ARM NEON 等价物；生成 → 编译 → 测试 → Benchmark 一体闭环。</p>
+<pre><span class="pr">❯</span> Add ARM optimized memcpy
+
+Agent
+ <span class="ok">✓</span> Search knowledge base
+ <span class="ok">✓</span> Find existing implementation
+ <span class="ok">✓</span> Generate NEON code        <span class="cm">+ memcpy_arm64.c</span>
+ <span class="pr">▶</span> Run benchmark
+
+Benchmark   before <span class="er">8 GB/s</span> → after <span class="ok">15 GB/s</span></pre>
+</section>
+
+<section id="s-diag">
+<div class="eyebrow">Scenarios</div>
+<h2>Diagnose · 智能诊断 <span class="badge w">P1</span></h2>
+<p class="desc">"哪里有问题" → AI 自动定位根因。覆盖编译失败、Runtime Crash、环境体检。</p>
+<pre><span class="cm">$</span> devkitai diagnose build.log | ./app | core.dump
+
+Collect → Analyze → Root Cause → <span class="pr">Evidence</span> → Suggestion → Fix → Verify</pre>
+<div class="note"><b>硬性要求（Evidence Pattern）：</b>每个诊断结论必须附证据列表（日志行、代码行、架构文档引用）+ 置信度。<strong>工程领域 AI 不能只给答案。</strong></div>
+</section>
+
+<section id="s-opt">
+<div class="eyebrow">Scenarios</div>
+<h2>Optimize · 性能调优 <span class="badge w">P1</span></h2>
+<p class="desc">发现瓶颈 → 定位算子/热点 → 生成优化方案 → Benchmark 验证。分析层次：Application → Model → Operator → Kernel。</p>
+<div class="note"><b>验收：</b>每条优化建议必须带量化预期收益；优化前后 Benchmark 对比自动生成。</div>
+</section>
+
+<section id="s-obs">
+<div class="eyebrow">Scenarios</div>
+<h2>Observe · 观测（横向）<span class="badge">P2</span></h2>
+<p class="desc">诊断/调优的"眼睛"——问题呈现必须能下钻到对应观测对象的值。Infrastructure（CPU/Mem/NPU/Net）+ Runtime（Kernel/Operator/Task）。</p>
+</section>
+
+<section id="s-kb">
+<div class="eyebrow">Scenarios</div>
+<h2>Knowledge Agent · 知识库（横向）</h2>
+<p class="desc">DevKit AI 特有能力，不是普通 RAG。独立 Workspace，同时作为其它 Agent 的内部工具。</p>
+<pre>Q: x86 pause instruction on ARM replacement?
+
+Retrieved
+ <span class="ac">[1]</span> ARM migration guide · 指令替换案例库
+ <span class="ac">[2]</span> Instruction mapping case #4471
+
+A: Use <span class="pr">yield</span> instruction instead of <span class="er">pause</span>
+   ↳ [I]nsert to code   [O]pen source doc</pre>
+<p class="rule">引用必须可溯源、可跳转：Retrieval → Citation → Action。</p>
+</section>
+
+<!-- ══════ JOURNEY ══════ -->
+<section id="jmap">
+<div class="eyebrow">Journey</div>
+<h2>用户旅程地图</h2>
+<p class="desc">六阶段线性推进 + 关键节点分支。这条旅程补出了前面场景章节没覆盖的三个环节：<strong>首次配置（能力安装 / Skill 配置）· 配置补齐 · 下一步引导</strong>——它们不属于任何单一场景，而是贯穿全流程的连接组织。</p>
+<pre>阶段1 <span class="pr">初始化配置</span> ─▸ 阶段2 <span class="pr">代码迁移</span> ─▸ 阶段3 <span class="pr">验证编译</span> ─┬─▸ 阶段4 <span class="pr">代码优化</span> ─▸ 阶段5 <span class="pr">参数优化</span> ─▸ 阶段6 <span class="pr">场景化调优</span>
+  开屏引导          自然语言触发       一键编译      │     高亮 + diff        方案对比图表        业务场景深调
+  能力安装          Plan 生成 → 确认    结果反馈      │     Plan 生成          性能前后对比
+  Skill 配置        <span class="wn">配置补齐</span>          <span class="er">✕ 失败</span> ──────┘     <span class="wn">配置补齐</span>            <span class="wn">配置补齐</span>
+  多任务管理        改写结果展示       <span class="ok">✓ 通过</span>            <span class="ok">下一步引导</span>          <span class="ok">下一步引导</span>
+                   <span class="ok">下一步引导</span>
+<span class="cm">                    ▲                  ▲                  ▲                  ▲</span>
+<span class="cm">                    └────────── 三个贯穿全流程的连接组织 ───────────┘</span>
+<span class="cm">                       P27 配置补齐 · P28 下一步引导 · P29 多任务管理</span></pre>
+
+<table>
+<tr><th>阶段</th><th>用户目标</th><th>关键触点</th><th>TUI 屏 / Pattern</th></tr>
+<tr><td>1 初始化配置</td><td>熟悉系统，搭好基础环境</td><td>开屏与初始对话引导 · 能力安装 · Skill 配置 · 多 terminal 并发任务管理</td><td>Landing Screen · Capability Manager · <strong>P29 多任务</strong> · P14 索引状态</td></tr>
+<tr><td>2 代码迁移</td><td>把现有代码迁到鲲鹏</td><td>自然语言触发 · Plan 生成与确认 · <strong>配置补齐</strong>（工具链 / 输出目录 / 并行度）· 改写结果 · 下一步引导</td><td>P02 Plan · <strong>P27 配置补齐</strong> · P05 Diff · P11 Tool · <strong>P28 下一步</strong></td></tr>
+<tr><td>3 验证编译</td><td>确认迁移后能编译能跑</td><td>一键验证 · 编译执行 · 成功/失败即时反馈</td><td>P01 Timeline · P12 Summary · 失败分支转 Diagnose（P03/P04）</td></tr>
+<tr><td>4 代码优化</td><td>进一步提升质量与性能</td><td>自然语言或系统引导触发 · Plan 生成 · 配置补齐 · <strong>高亮 + diff 对比</strong> · 下一步引导</td><td>P02 · P27 · <strong>P05 Diff Review</strong> · P28</td></tr>
+<tr><td>5 参数优化</td><td>调参数达到最佳性能</td><td>触发 · Plan 生成 · 配置补齐 · <strong>优化方案图表 + 性能前后对比图表</strong> · 下一步引导</td><td>P02 · P27 · <strong>方案对比表 + Before/After（T1/T2）</strong> · P28</td></tr>
+<tr><td>6 场景化调优</td><td>针对具体业务场景深度调优</td><td>从参数优化结果页引导进入</td><td>Workspace 切换（P23）· 场景 profile 选择 · P21 Live Canvas</td></tr>
+</table>
+
+<div class="note"><b>旅程的四个特征，直接对应四条设计要求。</b><br>
+<strong>① 自然语言驱动</strong>——迁移 / 代码优化 / 参数优化三个核心环节都由自然语言触发，所以输入栏必须常驻且是第一入口，命令只是等价快捷方式（见命令体系节）。<br>
+<strong>② 配置补齐反复出现</strong>——三个阶段都有，说明它不是某个场景的细节而是<strong>系统级 Pattern（P27）</strong>，必须统一设计。<br>
+<strong>③ 结果可视化按阶段分化</strong>——代码阶段看 diff 和高亮，参数阶段看图表。同一个"结果页"在不同阶段要换渲染层：代码 T0，参数 T1/T2。<br>
+<strong>④ 线性为主、关键节点分支</strong>——编译失败要能就地转入诊断，参数调优后要能进场景化。所以<strong>下一步引导（P28）必须是状态相关的</strong>，不能给固定菜单。</div>
+</section>
+
+<section id="jstory">
+<div class="eyebrow">Journey</div>
+<h2>Demo 故事线</h2>
+<p class="desc">一条连续叙事，供演示串讲。主角：性能工程师，要把一套 x86 上的 nginx 迁到鲲鹏 ARM64 并调到可上线的性能。<strong>全程在本地开发机上跑，不连任何远端服务器</strong>——打开终端就能开始。</p>
+<div class="note"><b>演示环境：纯本地，零前置。</b>Runtime 随二进制本地起，不需要填服务器地址、不需要凭据、不需要网络。<code>devkitai</code> 一敲就进工作台——这是演示的第一个说服点，也是"原生 TUI 单二进制交付"的直接兑现。</div>
+<table>
+<tr><th>幕</th><th>发生什么</th><th>观众看到的"哇点"</th></tr>
+<tr><td>① 开场</td><td>本地终端敲 <code>devkitai</code>，全屏工作台直接起来，<strong>零配置、零登录</strong>。首屏显示环境已就绪 + 检测到 3 项能力未装，一键装好。</td><td><strong>一条命令进工作台</strong>——不用装 IDE、不用配环境、不用连远端</td></tr>
+<tr><td>② 提需求</td><td>直接说"把 ./nginx 迁到鲲鹏"。系统不立刻动手，先出 5 步 Plan 并标注要调哪些工具。</td><td>AI 先给计划再执行，计划可改</td></tr>
+<tr><td>③ 补配置</td><td>执行到"编译验证"时停下：本地没探测到 aarch64 交叉编译工具链，需要指定路径和输出目录。就地弹层收集（带 Tab 路径补全），填完<strong>接着原来那一步继续</strong>。</td><td>不是一开始灌一堆表单，<strong>要用到才问，且说明为什么要</strong></td></tr>
+<tr><td>④ 出报告</td><td>兼容性 82%，2 个 Critical、8 个 Warning、21 个可自动修。文件风险热力一眼定位到 crypto.c。</td><td>热力图定位问题文件</td></tr>
+<tr><td>⑤ 审改动</td><td>逐个看 patch：<code>_mm_pause()</code> → <code>asm("yield")</code>，附知识库案例编号和 ARM 手册章节。</td><td><strong>每条改动都有证据可溯源</strong></td></tr>
+<tr><td>⑥ 编译翻车</td><td>Build 失败。系统不只报错，直接转入诊断：根因链路图指到内存对齐，置信度 91%，给修复方案。修完重编，PASS。</td><td><strong>失败是分支不是死路</strong>——就地转诊断</td></tr>
+<tr><td>⑦ 看性能</td><td>下一步引导给了三条建议，选"跑性能基线"。Trace 出来：HBM 持续饱和而 NPU 有气泡 → memory-bound。</td><td>并置才看得出的结论，AI 直接标在图上</td></tr>
+<tr><td>⑧ 调参数</td><td>参数优化给三套方案对比表（QPS / P99 / CPU / 内存），推荐方案 A：worker 数对齐 64 物理核 + NUMA 亲和绑定。应用后 QPS 42k → 61k。</td><td><strong>方案对比而非单一建议</strong>，改动都带"为什么"</td></tr>
+<tr><td>⑨ 场景化</td><td>引导进入场景化调优：选"高并发短连接"profile，再针对性调一轮。</td><td>调优不是一次性的，按业务场景分档</td></tr>
+<tr><td>⑩ 收尾</td><td>Session Summary：21 修复 / 2 待人工 / Build PASS / QPS +45%。导出报告。</td><td>全程可追溯，一份报告交差</td></tr>
+</table>
+<div class="note"><b>串讲节奏建议：</b>①–② 讲"为什么是 TUI"（2 分钟）· ③–⑥ 讲"AI 怎么把活干完且可审计"（5 分钟，<strong>⑥ 编译翻车是全场最关键的一幕</strong>，它证明系统能处理不顺利的情况）· ⑦–⑨ 讲"可观测与调优深度"（5 分钟）· ⑩ 收。总时长 12–15 分钟。</div>
+</section>
+
+<section id="jscreen">
+<div class="eyebrow">Journey</div>
+<h2>阶段屏幕</h2>
+<p class="desc">旅程新增环节的关键屏。已有阶段的屏见 Demos 章节。</p>
+
+<h3>阶段 1 · Landing —— 开屏与初始引导</h3>
+<pre class="dense">╭──────────────────────────────────────────────────────────────╮
+│                                                              │
+│     <span class="br">██████</span>  <span class="br">███████</span> <span class="br">██</span>   <span class="br">██</span> <span class="br">██</span>  <span class="br">██</span> <span class="br">██</span> <span class="br">████████</span>               │
+│     <span class="br">██   ██</span> <span class="br">██</span>      <span class="br">██</span>   <span class="br">██</span> <span class="br">██</span> <span class="br">██</span>  <span class="br">██</span>    <span class="br">██</span>                  │
+│     <span class="br">██   ██</span> <span class="br">█████</span>    <span class="br">██</span> <span class="br">██</span>  <span class="br">████</span>   <span class="br">██</span>    <span class="br">██</span>                  │
+│     <span class="br">██████</span>  <span class="br">███████</span>   <span class="br">███</span>   <span class="br">██</span>  <span class="br">██</span> <span class="br">██</span>    <span class="br">██</span>                  │
+│                              <span class="cm">AI Terminal   v26.0</span>             │
+│                                                              │
+│  <span class="ok">●</span> Runtime 本地已就绪          <span class="cm">⬡ 交叉编译 → Kunpeng ARM64</span>    │
+│  <span class="wn">⚠</span> 3 项能力未安装              <span class="cm">[Enter] 查看</span>                  │
+│                                                              │
+│  <span class="pr">❯</span> 想做什么？直接说 —— 或按 <span class="cm">Ctrl+P</span> 看全部命令                │
+│                                                              │
+│  <span class="cm">最近</span>   <span class="ac">migrate nginx</span>  3 天前 · 82% · <span class="wn">2 项待人工确认</span>         │
+│  <span class="cm">建议</span>   安装迁移能力包  ·  扫描当前工程  ·  继续上次任务     │
+╰──────────────────────────────────────────────────────────────╯</pre>
+<p class="rule">设计要点：<strong>不做纯 Logo 开屏</strong>——首屏必须同时给出①环境状态②阻塞项③输入口④可继续的上下文。"最近"和"建议"两行让用户零输入就能往下走，这是常驻进程相对 CLI 的直接兑现（CLI 没有"上次"）。</p>
+
+<h3>阶段 1 · 能力安装与 Skill 配置</h3>
+<pre class="dense">╭─ Capabilities ───────────────────────── <span class="cm">[Space]勾选 [I]安装 [A]全装</span> ─╮
+│ <span class="ok">✓</span> kunpeng_knowledge_base_search  知识库检索      <span class="cm">已就绪</span>              │
+│ <span class="ok">✓</span> code_cpp_migrator              C/C++ 源码迁移   <span class="cm">已就绪</span>             │
+│ <span class="cm">○</span> database_sql_migrator          SQL 智能迁移     <span class="cm">未安装  12MB</span>       │
+│ <span class="cm">○</span> sql_syntax_repair              SQL 语法修复     <span class="cm">未安装  3MB</span>        │
+│ <span class="wn">⚠</span> profiler                       性能剖析        <span class="wn">需 NPU 驱动</span>         │
+│                                    <span class="cm">└ 未检测到 driver ≥ 23.0，[F] 修复</span>│
+├──────────────────────────────────────────────────────────────────    ┤
+│ Skill    <span class="ok">✓</span> devkitai.SKILL.md  已加载       <span class="cm">[E] 编辑  [R] 重载</span>        │
+╰──────────────────────────────────────────────────────────────────    ╯</pre>
+<p class="rule">复用 <strong>P17 State-Gated Toggle</strong>：装/卸不对称——安装要确认体积与依赖，卸载直接执行。<strong>P14 Index State</strong>：安装进度用三态状态机，异常统一 warning 色并给修复动作（不用 danger）。</p>
+
+<h3>阶段 2/4/5 · 配置补齐（P27）</h3>
+<pre class="dense">│ Agent
+│ <span class="ok">●</span> Analyze dependency               <span class="cm">18 libs</span>
+│ <span class="ok">●</span> Generate patches                 <span class="cm">12 files</span>
+│ <span class="wn">⏸</span> Build verify —— <span class="wn">需要补充 3 项配置才能继续</span>
+│
+│   ╭─ 补充配置 ────────────────────────────────────────╮
+│   │ <span class="cm">为什么需要：未探测到 aarch64 交叉编译工具链</span>       │
+│   │                                                   │
+│   │ 工具链路径   <span class="pr">❯</span> /usr/bin/aarch64-linux-gnu-▌         │
+│   │ 输出目录     <span class="pr">❯</span> ./build-arm64          <span class="cm">[Tab] 补全</span>    │
+│   │ 并行度       <span class="pr">❯</span> 16              <span class="cm">检测到 16 逻辑核</span>       │
+│   │ <span class="cm">敏感项（如 SQL 迁移的库口令）走 masked 输入，见 P27</span>  │
+│   │                                                   │
+│   │ <span class="pr">[↵] 填完继续</span>   [S] 跳过验证   [Esc] 中止任务       │
+│   ╰───────────────────────────────────────────────────╯
+│ <span class="cm">○</span> Performance check</pre>
+
+<h3>阶段 2/4/5 · 下一步引导（P28）</h3>
+<pre class="dense">│ <span class="ok">✓ Build PASS</span>   21 fixed · <span class="wn">2 manual</span> · 3m12s
+│
+│ <span class="cm">下一步</span>
+│  <span class="pr">▸</span> <span class="pr">[1]</span> 跑性能基线，看迁移后掉了多少        <span class="cm">~2min</span>
+│    <span class="pr">[2]</span> 处理剩下 2 处需人工确认的改动
+│    <span class="pr">[3]</span> 换个工程继续迁移
+│ <span class="pr">❯</span> 或直接说你想干什么▌</pre>
+<p class="rule">建议必须<strong>随结果状态变化</strong>：Build 失败时第一条应是"看诊断报告"而不是"跑性能基线"。给 1–3 条、带耗时预估、首条默认高亮回车即走。<strong>禁止在阶段结束后甩回空白输入框</strong>——那是把接续成本转嫁给用户。</p>
+
+<h3>阶段 5 · 参数优化结果</h3>
+<pre class="dense">┌<span class="pr">param tuning</span>─<span class="cm">nginx @ Kunpeng920</span>───────────────────────────────────────┐
+│ 方案对比                QPS         P99      CPU        内存         │
+│ <span class="cm">baseline</span>          <span class="o8">████</span><span class="cm">░░░░░</span> 42k   18ms   <span class="o6">███</span><span class="cm">░░</span> 62%   4.2G            │
+│ <span class="ok">方案 A ★推荐</span>      <span class="o3">██████</span><span class="cm">░░░</span> 61k   12ms   <span class="o4">████</span><span class="cm">░</span> 78%   5.1G            │
+│ <span class="cm">方案 B 激进</span>       <span class="o4">█████</span><span class="cm">░░░░</span> 55k    <span class="ok">9ms</span>   <span class="o3">█████</span> 88%   <span class="wn">6.8G</span>            │
+├──────────────────────────────────────────────────────────────────────┤
+│ 方案 A 的改动与理由                                                  │
+│  worker_processes    auto → 64      <span class="cm">← 对齐 64 物理核，去掉超分</span>       │
+│  worker_connections  1024 → 8192    <span class="cm">← 匹配实测并发水位</span>               │
+│  numa 绑定            off  → per-worker  <span class="cm">← 消除跨 NUMA 访问（见热力）</span>│
+│                                                                      │
+│ <span class="pr">[Y] 应用方案 A</span>  [D] 看完整 diff  [B] 再压测一轮  [C] 自定义组合      │
+└──────────────────────────────────────────────────────────────────────┘</pre>
+<p class="rule">这一屏兑现旅程特征③：参数阶段<strong>看图表不看 diff</strong>。三条纪律：① 给方案<strong>对比</strong>而非单一建议（工程师要自己判断取舍）；② 每条改动带<strong>为什么</strong>，且尽量引用同屏可验证的证据（"见热力"可 Enter 跳回 NUMA 图）；③ 副作用要显式（方案 B 的 P99 更好但内存涨到 6.8G，用 warning 色标出）。</p>
+
+<h3>阶段 1 · 多任务管理（P29）</h3>
+<pre class="dense">┌<span class="pr">tasks</span>─────────────────────── <span class="cm">[Alt+1..9]切换 [n]新建 [k]终止</span> ─┐
+│ <span class="ok">●</span> <span class="cm">1</span> migrate nginx          <span class="ok">✓ 完成</span>    Build PASS  <span class="cm">12:04</span>      │
+│ <span class="pr">▶</span> <span class="cm">2</span> optimize qwen-72b      <span class="pr">⠹ 采集中</span>  02:14 / ~05:00         │
+│ <span class="cm">○ 3</span> diagnose crash.log     <span class="cm">排队中</span>                           │
+│ <span class="wn">⚠</span> <span class="cm">4</span> migrate order-svc      <span class="wn">⏸ 等待补充配置</span>  <span class="cm">[↵] 去处理</span>       │
+└─────────────────────────────────────────────────────────────┘</pre>
+<p class="rule">长任务（迁移大工程、性能采集）必须能后台跑。要点：① 任务状态徽标复用全局符号体系；② <strong>⏸ 等待配置</strong>是最需要突出的状态——它卡着不动且需要人，要在底栏常驻提示；③ 后台任务完成时给<strong>非打断式通知</strong>（底栏闪一下 + 任务列表徽标变化），不抢当前焦点。</p>
+</section>
+
+<!-- ══════ FRAMEWORK ══════ -->
+<section id="frame">
+<div class="eyebrow">Layout &amp; Interaction · 框架</div>
+<h2>应用框架 —— MobaXterm 结构 × PTO 分割</h2>
+<p class="desc">前面的 Shell 布局是三栏骨架，够画单个场景但撑不起"多工程 · 多任务 · 多面板"的真实工作台。这一节参照 <strong>MobaXterm 的结构组织</strong>（左侧竖向 Dock、中央多标签 + 分屏、跟随上下文的文件浏览器、底部状态栏），用 <strong>PTO 的分割方法</strong>（表面层级承担嵌套、边框强度承担层级、无阴影）把完整框架定下来。</p>
+
+<div class="sublabel">从 MobaXterm 借什么 · 不借什么</div>
+<table>
+<tr><th>MobaXterm 的做法</th><th>借鉴到 Kunpeng DevKit AI</th><th>判断</th></tr>
+<tr><td>左侧竖向标签条 Dock（Sessions / Tools / Macros / Sftp），可折叠</td><td><strong>左 Dock：任务 / 工程 / 工具 / 知识库 / 历史</strong>，竖向标签条 + 内容区，<kbd>Ctrl+B</kbd> 折叠为图标列</td><td class="badge s">借</td></tr>
+<tr><td>中央多标签会话区，支持横/竖/四宫格分屏</td><td><strong>中央多任务标签 + 分屏</strong>，直接兑现 P29 多任务与 P23 布局预设</td><td class="badge s">借</td></tr>
+<tr><td>SFTP 面板「Follow terminal folder」——文件树跟随终端当前目录</td><td><strong>工程树跟随 Agent 上下文</strong>：Agent 在改哪个文件，左树就定位到哪——这是 MobaXterm 最值得偷的一招</td><td class="badge s">借 ★</td></tr>
+<tr><td>MultiExec：一次输入，广播到所有打开的会话</td><td><strong>批量任务</strong>：一条指令对多个工程同时执行（批量迁移扫描）</td><td class="badge s">借</td></tr>
+<tr><td>底部状态栏常驻</td><td><strong>底栏</strong>：模式 / 模型 / 上下文水位 / 待处理任务（P15 · P20 · P29）</td><td class="badge s">借</td></tr>
+<tr><td>顶部 Ribbon 大工具栏（十几个分组、上百个图标按钮）</td><td><strong>不借。</strong>Ribbon 是鼠标时代的密度换发现性；本产品键盘优先，用 <kbd>Ctrl+P</kbd> 命令面板替代——发现性靠模糊搜索而非视觉罗列</td><td class="badge d">不借</td></tr>
+<tr><td>会话前必须先建 Session（填地址/协议/凭据）</td><td><strong>不借。</strong>本产品零配置启动，直接说需求即可；配置按 P27 用到才问</td><td class="badge d">不借</td></tr>
+</table>
+
+<div class="sublabel">完整框架</div>
+<pre class="dense">┌ <span class="br">▪</span> <span class="t">DevKit AI</span> ───────────────────────────────── ⬡ →ARM64 · <span class="ok">●</span> 就绪 ┐ <span class="cm">  ← Header</span>
+├─┬──────────────────┬────────────────────────────────────────────┤
+│<span class="pr">▮</span>│<span class="t">TASKS</span>             │<span class="sel"> 1 migrate </span> 2 optimize ⠹  3 diag  +         │<span class="cm">  ← Tab Bar</span>
+│ │                  ├──────────────────────┬─────────────────────┤
+│<span class="cm">▯</span>│<span class="ok">●</span> 1 migrate nginx │ Migration Report     │ src/crypto.c        │
+│<span class="cm">▯</span>│<span class="pr">▶</span> 2 optimize <span class="pr">⠹</span>    │ Compat <span class="br">████████</span><span class="cm">░░</span> 82%│ <span class="er">- _mm_pause();</span>      │
+│<span class="cm">▯</span>│<span class="cm">○</span> 3 diagnose      │ <span class="er">Critical 2</span>  <span class="wn">Warn 8</span>   │ <span class="ok">+ asm("yield");</span>     │
+│<span class="cm">▯</span>│<span class="wn">⚠</span> 4 order-svc <span class="wn">⏸</span>   │                      │                     │
+│ │──────────────────│ ├ SSE     <span class="wn">⚠</span> crypto.c │ Evidence            │
+│ │<span class="t">PROJECT</span>   <span class="pr">⇄ 跟随</span>  │ ├ atomic  <span class="wn">⚠</span> memory.c │  <span class="ac">[1]</span> 案例库 #4471   │
+│ │nginx/            │ └ Makefile <span class="ok">✓</span>         │  <span class="ac">[2]</span> ARM ARM §B2.5  │
+│ │ ├ src/           │                      │                     │
+│ │ │  <span class="sel">crypto.c</span> <span class="er">███</span>  │                      │                     │
+│ │ │  memory.c <span class="ho">██</span>   │                      │                     │
+│ │ └ conf/          │                      │                     │
+│ ├──────────────────┼────────────────────────────────────────────┤
+│ │<span class="t">TOOLS</span>             │ <span class="t">Agent Console</span>          <span class="cm">[Ctrl+J]</span>            │<span class="cm">  ← Console</span>
+│ │<span class="ok">✓</span> cpp_migrator    │ <span class="ok">●</span> Scan project    <span class="cm">1,204 files</span>              │
+│ │<span class="ok">✓</span> knowledge_base  │ <span class="ok">●</span> Search KB       <span class="cm">3 hits</span>                   │
+│ │<span class="cm">○</span> sql_migrator    │ <span class="pr">▶</span> Generate patch <span class="pr">⠹</span>  <span class="cm">cpp_migrator</span>           │
+├─┴──────────────────┴────────────────────────────────────────────┤
+│ <span class="pr">❯</span> 让 crypto.c 也用 NEON 优化▌                                   │<span class="cm">  ← Input</span>
+├─────────────────────────────────────────────────────────────────┤
+│ <span class="cm">[F1]</span>Migrate  <span class="cm">mode:</span><span class="ok">auto</span>  model:qwen  <span class="cm">ctx:</span><span class="wn">72%⚠</span>  <span class="wn">⏸ 1 任务待配置</span>    │<span class="cm">  ← Status</span>
+└─────────────────────────────────────────────────────────────────┘</pre>
+
+<div class="sublabel">区域规格</div>
+<table>
+<tr><th>区域</th><th>职责</th><th>PTO 表面</th><th>边框</th><th>尺寸</th><th>折叠</th></tr>
+<tr><td>Header</td><td>产品标识 · 目标架构 · 连接状态</td><td class="mono">surface-2</td><td class="mono">border-subtle 下边</td><td>1 行</td><td>常驻</td></tr>
+<tr><td>Dock 标签条</td><td>面板切换（竖排单字符）</td><td class="mono">surface-2</td><td class="mono">border-subtle 右边</td><td>1 列</td><td>常驻</td></tr>
+<tr><td>Dock 内容</td><td>TASKS / PROJECT / TOOLS / KB / HISTORY</td><td class="mono">background</td><td class="mono">border-subtle 分区</td><td>18–28 列</td><td><kbd>Ctrl+B</kbd></td></tr>
+<tr><td>Tab Bar</td><td>任务标签 + 状态徽标 + 新建</td><td class="mono">surface-2</td><td class="mono">当前页 border-strong</td><td>1 行</td><td>单任务时隐藏</td></tr>
+<tr><td>Canvas</td><td>主内容，可 1/2/3 分屏</td><td class="mono">background</td><td class="mono">分隔 border-subtle</td><td>剩余</td><td>常驻</td></tr>
+<tr><td>Canvas B / Inspector</td><td>证据 · 源码 · 详情——始终承载"结论的依据"</td><td class="mono">background</td><td class="mono">border-subtle 左分隔</td><td>18–24 列</td><td><kbd>Ctrl+I</kbd> 收折</td></tr>
+<tr><td>Agent Console</td><td>步骤流 / 工具调用 / 日志</td><td class="mono">surface-1</td><td class="mono">border-default 上边</td><td>3–12 行</td><td><kbd>Ctrl+J</kbd> 抽高</td></tr>
+<tr><td>Input</td><td>自然语言 + <code>/命令</code></td><td class="mono">surface-2</td><td class="mono">focus 时 border-strong</td><td>1–3 行</td><td>常驻</td></tr>
+<tr><td>Status</td><td>Workspace · 模式 · 模型 · 上下文 · 待处理</td><td class="mono">surface-2</td><td class="mono">border-subtle 上边</td><td>1 行</td><td>常驻</td></tr>
+</table>
+
+<div class="sublabel">PTO 分割方法在 TUI 的四条落地规则</div>
+<div class="grid g2">
+<div class="card"><h4>① 嵌套用表面层，不用阴影</h4>
+<p>外层 <code>background</code> → 面板 <code>surface-1</code> → 面板内表头/工具条 <code>surface-2</code> → hover <code>surface-3</code> → 选中 <code>surface-4</code>。<strong>最多嵌两层</strong>，第三层改用留白分隔而非再加一层底色。</p></div>
+<div class="card"><h4>② 层级用边框强度</h4>
+<p>同级区域分隔 <code>border-subtle</code>；跨职责区域（Console 与 Canvas 之间）<code>border-default</code>；当前焦点区域整圈升到 <code>border-strong</code>。焦点不靠颜色靠<strong>边框强度 + 左侧 <code>▮</code> 标记</strong>。</p></div>
+<div class="card"><h4>③ 圆角只给浮层</h4>
+<p>框架内所有固定区域用直角 <code>┌┐└┘</code>（radius-sm/md）；只有浮层、模态、Palette 用圆角 <code>╭╮╰╯</code>（radius-lg）。<strong>圆角在这套体系里等于"浮起"</strong>，不能随便用。</p></div>
+<div class="card"><h4>④ 留白只取六档</h4>
+<p>面板内边距 space-4（左右 2 列 / 上下 1 行）；面板之间 space-5（3 列）；大区块 space-6。<strong>禁止裸数字 padding</strong>——这是 PTO"不使用任意像素值"在 TUI 的对应物。</p></div>
+</div>
+
+<div class="sublabel">分屏规则</div>
+<pre>单屏      <span class="cm">┌───────────────┐</span>   报告类、Trace 全宽、Landing
+          <span class="cm">└───────────────┘</span>
+
+左右分    <span class="cm">┌───────┬───────┐</span>   <strong>主力形态</strong>：结论 ↔ 证据（报告↔源码、Trace↔算子表）
+          <span class="cm">└───────┴───────┘</span>   默认 60/40，可拖拽，比例随 Workspace 记忆
+
+上下分    <span class="cm">┌───────────────┐</span>   时序 ↔ 明细（Trace 在上、选中区间详情在下）
+          <span class="cm">├───────────────┤</span>
+          <span class="cm">└───────────────┘</span>
+
+三分      <span class="cm">┌─────┬────┬────┐</span>   仅 ≥160col 时允许；&lt;160col 自动降级为左右分
+          <span class="cm">└─────┴────┴────┘</span>   第三栏优先牺牲（折叠成 Inspector 条）</pre>
+<p class="rule">硬规则：<strong>同屏最多 3 个 Canvas</strong>。终端行列有限，四宫格（MobaXterm 支持）在 TUI 里每格都会窄到读不了数据——宁可用标签页切换。分屏是为了<strong>并置对比</strong>（P22 联动的载体），不是为了塞更多东西。</p>
+
+<div class="sublabel">Dock 面板</div>
+<table>
+<tr><th>面板</th><th>内容</th><th>对应 Pattern</th><th>快捷键</th></tr>
+<tr><td>TASKS</td><td>并发任务列表 + 状态徽标 + 耗时；<code>⏸ 等待配置</code>置顶</td><td>P29 多任务</td><td><kbd>Alt+1..9</kbd></td></tr>
+<tr><td>PROJECT</td><td>工程树 + 文件风险热力；<strong><code>⇄ 跟随</code>开关：自动定位到 Agent 正在处理的文件</strong></td><td>P22 联动</td><td><kbd>Ctrl+E</kbd></td></tr>
+<tr><td>TOOLS</td><td>已装 MCP 工具与状态；点击查看最近调用记录</td><td>P11 · P17</td><td>—</td></tr>
+<tr><td>KB</td><td>知识库检索入口与最近引用；可拖引用进 Canvas</td><td>P08 知识检索</td><td><kbd>Ctrl+K</kbd></td></tr>
+<tr><td>HISTORY</td><td>历史会话，全文可搜；支持 fork 出新任务</td><td>P20 上下文管理</td><td><kbd>Ctrl+H</kbd></td></tr>
+</table>
+<div class="note"><b><code>⇄ 跟随</code>是这一节最值得实现的一个细节。</b>MobaXterm 的 SFTP 面板会跟随终端当前目录，省掉了用户反复手动定位。搬到这里就是：<strong>Agent 改到哪个文件，左侧工程树就高亮定位到哪个文件，风险热力同步更新</strong>。用户不需要在"AI 说它改了 crypto.c"和"我去树里找 crypto.c"之间做翻译。这条同时也是 P22 Linked Drill-down 在框架层的常驻体现——联动不只发生在用户点击时，也发生在 Agent 行动时。</div>
+
+<div class="sublabel">折叠降级链</div>
+<pre>≥160col  Dock + Canvas×3 + Inspector          <span class="cm">全展开</span>
+140-159  Dock + Canvas×2 + Inspector 条        <span class="cm">Inspector 收成 1 列</span>
+120-139  Dock + Canvas×2                       <span class="cm">Inspector 隐藏，Ctrl+I 浮层调出</span>
+100-119  Dock 图标列 + Canvas×2                <span class="cm">Dock 收成 1 列</span>
+ 80-99   Dock 图标列 + Canvas×1                <span class="cm">取消分屏</span>
+ &lt;80     单栏 + Tab 切换                        <span class="cm">Dock 转为浮层</span>
+
+<span class="cm">高度不足时的收缩优先级：Console(3行底线) → Canvas → Tab Bar(单任务时隐藏)</span>
+<span class="cm">Header / Input / Status 永不隐藏——它们是方向感的锚点</span></pre>
+</section>
+
+<!-- ══════ SHELL ══════ -->
+<section id="shell">
+<div class="eyebrow">Layout &amp; Interaction</div>
+<h2>Shell 布局</h2>
+<pre>┌────────────────────────────────────────────────┐
+│ Header   DevKit AI v26.0        ⬡ NPU:8  <span class="ok">● OK</span>  │
+├────────────┬───────────────────────────────────┤
+│ Explorer   │                                   │
+│ ▸ Migrate  │          Main Canvas              │
+│ ▸ Develop  │   （报告 / Trace / Diff / 图表）    │
+│ ▸ Diagnose │                                   │
+│ ▸ Optimize │                                   │
+│ ▸ Observe  │                                   │
+├────────────┴───────────────────────────────────┤
+│ Agent Console  <span class="pr">▶</span> analyzing trace… <span class="cm">[tool:profiler]</span>│
+├────────────────────────────────────────────────┤
+│ <span class="pr">❯</span> input                             <span class="cm">tokens 12k</span> │
+└────────────────────────────────────────────────┘</pre>
+<p class="rule">响应式：≥120col 三栏全开 · 80–119col Explorer 折叠为图标列 · &lt;80col 单栏 + Tab 切换。</p>
+<div class="sublabel">启动与退出</div>
+<pre><span class="cm">$</span> devkitai                        <span class="cm">← 单二进制，无参数即进工作台</span>
+   ├─ 切换 alternate screen（<span class="t">接管全屏，退出后原终端完整恢复</span>）
+   ├─ 终端能力探测：truecolor? mouse? braille? → 决定渲染层 T1–T4
+   ├─ 连接 Agent Runtime :8000，拉取工具清单（失败降级为离线只读）
+   ├─ 恢复上次会话（工程路径、Workspace、布局、上下文水位）
+   └─ 进入主循环
+
+<span class="cm">$</span> devkitai migrate ./nginx        <span class="cm">← 带任务直达</span>
+<span class="cm">$</span> devkitai --headless diagnose …  <span class="cm">← 降级为 CLI 输出，供 CI 调用</span></pre>
+</section>
+
+<section id="loop">
+<div class="eyebrow">Layout &amp; Interaction</div>
+<h2>核心交互循环</h2>
+<pre>Intent → Context Understanding → Plan → Tool Execution
+      → Visualization → Decision → Action → Verification
+
+┌────────┐   ┌─────────┐   ┌─────────┐   ┌────────┐
+│ Intent │ → │ Analyze │ → │ Execute │ → │ Verify │
+└────────┘   └─────────┘   └─────────┘   └────────┘
+  输入栏      Plan Card     Agent        Report +
+             （可修改）     Timeline      Before/After</pre>
+<div class="grid g2">
+<div class="card"><h4>五条关键原则</h4>
+<p>1. 复杂任务先出 Plan，不直接执行（P02）</p>
+<p>2. 执行过程步骤全透明（P01）</p>
+<p>3. 结论必须带证据（P03）</p>
+<p>4. 高风险动作必须确认（P10）</p>
+<p>5. 动作之后必须验证（P12）</p></div>
+<div class="card"><h4>生命周期对齐</h4>
+<p>启动 → 表达意图 → 等待执行 → 审查确认 → 多智能体协调 → 收尾总结</p>
+<p>每个阶段都有对应 Pattern 承接。</p></div>
+</div>
+</section>
+
+<section id="cmd">
+<div class="eyebrow">Layout &amp; Interaction</div>
+<h2>命令 &amp; 快捷键</h2>
+<pre>/migrate &lt;path&gt;     迁移工程       /diagnose &lt;target&gt;  诊断
+/optimize &lt;target&gt;  性能调优       /profile /observe /explain /kb /plan /undo
+
+<span class="cm">系统级命令：</span>
+/model    模型切换 + 额度可视化      <span class="cm">→ P13</span>
+/codebase 代码库索引管理            <span class="cm">→ P14</span>
+/runmode  运行模式 Auto/Manual/Sandbox <span class="cm">→ P15</span>
+/btw      不中断任务流的临时插话      <span class="cm">→ P16</span>
+/fork /compact /clear   上下文管理   <span class="cm">→ P20</span></pre>
+<table>
+<tr><th>快捷键</th><th>动作</th><th>快捷键</th><th>动作</th></tr>
+<tr><td><kbd>Ctrl+P</kbd></td><td>Command Palette</td><td><kbd>Tab</kbd></td><td>区域焦点轮转</td></tr>
+<tr><td><kbd>Ctrl+A</kbd></td><td>Agent Action 菜单</td><td><kbd>j / k</kbd></td><td>列表上下</td></tr>
+<tr><td><kbd>Ctrl+R</kbd></td><td>Run / 重新执行</td><td><kbd>Enter</kbd></td><td>下钻 / 展开</td></tr>
+<tr><td><kbd>Ctrl+D</kbd></td><td>Diff 视图</td><td><kbd>y / r / n</kbd></td><td>Approve / Review / Reject</td></tr>
+<tr><td><kbd>Ctrl+O</kbd></td><td>Observe</td><td><kbd>Esc</kbd></td><td>中断 Agent / 返回</td></tr>
+<tr><td><kbd>F1–F4</kbd></td><td>Workspace 布局预设</td><td><kbd>?</kbd></td><td>快捷键速查</td></tr>
+</table>
+</section>
+
+<!-- ══════ PATTERNS ══════ -->
+<section id="p1">
+<div class="eyebrow">Patterns</div>
+<h2>P01–P12 核心 Patterns</h2>
+<pre><span class="cm">生命周期映射：</span>
+启动        表达意图      等待执行        审查确认        收尾
+ |            |             |               |             |
+Env Check   P02 Plan     P01 Timeline    P05 Diff      P12 Summary
+P13 Model   P08 KB       P11 Tool Exec   P10 Approval
+P14 Index   P09 Palette  P06/P07 Chart   P03 Evidence
+P15 RunMode P16 /btw     P18 Collapse    P04 Graph
+                         P20 Context     P17 Gated Toggle · P19 Permission</pre>
+
+<div class="pat"><div class="hd"><span class="no">P01</span><span class="nm">Agent Timeline</span><span class="sc">所有 Agent 执行过程</span></div><div class="bd">
+<pre><span class="ok">●</span> Understand Request
+<span class="ok">●</span> Scan Project              <span class="cm">1.2s</span>
+<span class="ok">●</span> Search Knowledge Base     <span class="cm">3 hits</span>
+<span class="pr">▶</span> Generate Migration Patch  <span class="pr">⠹</span>
+<span class="cm">○</span> Compile Verify
+<span class="cm">○</span> Performance Test</pre>
+<p class="rule">每步可展开工具输入/输出；失败步 ✕ danger 色并给跳转；Esc 可中断。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P02</span><span class="nm">AI Plan</span><span class="sc">复杂任务先出计划</span></div><div class="bd">
+<pre>Goal: Migrate nginx x86 project → Kunpeng ARM64
+1. Analyze dependency
+2. Find incompatible API      <span class="cm">(knowledge_search)</span>
+3. Generate patches           <span class="cm">(code_cpp_migrator)</span>
+4. Build verify   5. Benchmark
+Estimated: 5 tools · ~3 min
+<span class="pr">[E]xecute</span>   [M]odify Plan   [C]ancel</pre></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P03</span><span class="nm">Evidence</span><span class="sc">结论必须带证据</span></div><div class="bd">
+<pre>Root Cause: Memory Alignment Issue
+Evidence:
+ <span class="ac">[1]</span> kernel.c:223            <span class="cm">← Enter 跳转</span>
+ <span class="ac">[2]</span> runtime.log: "unaligned access at 0x7f3a…"
+ <span class="ac">[3]</span> ARM Architecture Reference Manual §B2.5
+Confidence  <span class="pr">█████████░</span> 91%</pre>
+<p class="rule">证据可跳转源头；置信度 &lt; 70% 禁用一键 Apply，只允许 Review。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P04</span><span class="nm">Diagnosis Graph</span><span class="sc">因果链路</span></div><div class="bd">
+<pre>app → runtime.so → memory allocator → <span class="er">unaligned access</span> <span class="pr">◀ Root Cause</span>
+                                       ═══════════════
+Fix: replace malloc → aligned_alloc</pre></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P05</span><span class="nm">Diff Review</span><span class="sc">AI 修改代码/配置</span></div><div class="bd">
+<pre>src/memory.c        <span class="cm">(2/12 files)</span>
+<span class="er">- _mm_pause();</span>
+<span class="ok">+ asm volatile("yield");</span>
+Impact:  Performance +35% · Compatibility Fixed
+<span class="pr">[A]ccept</span>  [E]dit  [R]eject  <span class="cm">[Space] next file</span></pre></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P06</span><span class="nm">Metric Visualization</span><span class="sc">CLI 图表标准</span></div><div class="bd">
+<pre>Bar        CPU  <span class="g4">████████</span><span class="cm">░░</span> 80%
+Ranking    kernel_A <span class="o3">██████████</span> 40% · kernel_B <span class="o5">██████</span> 25%
+Sparkline  Latency <span class="o4">▂▃▅▇▆▃▂</span></pre>
+<p class="rule">百分比必带 bar；排行 Top10 + "N more"；元素可选中下钻。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P07</span><span class="nm">Trace</span><span class="sc">时序泳道</span></div><div class="bd">
+<pre>        0ms ─────────────────── 100ms
+CPU     <span class="g4">████████</span>
+GPU        <span class="a4">███████</span>
+NPU           <span class="v4">█████████</span>
+           <span class="cm">└ matmul  attention  softmax</span></pre></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P08</span><span class="nm">Knowledge Retrieval</span><span class="sc">知识库问答</span></div><div class="bd">
+<p class="rule">回答必带 citation 且可跳转；答案可一键落到当前代码上下文。作为其它 Agent 的内部工具时，Tool Card 要显式展示这次检索。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P09</span><span class="nm">Command Palette</span><span class="sc">Ctrl+P · Textual 内置</span></div><div class="bd">
+<pre><span class="pr">❯</span> mig▌
+  /migrate         迁移工程
+  /migrate-sql     SQL 迁移
+  <span class="cm">↺ migrate nginx  (recent session)</span></pre></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P10</span><span class="nm">Approval</span><span class="sc">危险动作确认</span></div><div class="bd">
+<pre>AI wants to: Modify 12 files
+Risk: <span class="wn">▮▮▮ Medium</span>        Changes: <span class="ok">+320</span> <span class="er">−80</span>
+<span class="pr">[Y] Apply</span>   [R] Review each   [N] Cancel</pre>
+<p class="rule">Low 可配置自动放行 · Medium 默认确认 · High 强制逐项 Review。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P11</span><span class="nm">Tool Execution</span><span class="sc">MCP 调用透明化</span></div><div class="bd">
+<pre>Tool: <span class="ac">code_cpp_migrator</span>
+In:   src/crypto.c (SSE scan)
+<span class="pr">⠼</span> running… 2.1s
+Out:  3 incompatible instructions found</pre>
+<p class="rule">工具名/输入摘要/耗时/结果摘要四要素必现。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P12</span><span class="nm">Session Summary</span><span class="sc">任务收尾</span></div><div class="bd">
+<pre>Session Summary · migrate nginx
+<span class="ok">✓ 21 issues fixed</span>   <span class="wn">⚠ 2 need manual review</span>
+Build: <span class="ok">PASS</span>    Benchmark: 100ms → <span class="ok">70ms (−30%)</span>
+<span class="pr">[S]ave report</span>   [N]ew task   [Q]uit</pre></div></div>
+</section>
+
+<section id="p2">
+<div class="eyebrow">Patterns</div>
+<h2>P13–P20 已验证 Patterns</h2>
+<p class="desc">移植自 CodeArts CLI/TUI 研究库中已做过完整交互稿的方案，避免重复设计。</p>
+
+<div class="pat"><div class="hd"><span class="no">P13</span><span class="nm">Model / Quota Switcher</span><span class="sc">源：/model</span></div><div class="bd">
+<pre><span class="pr">❯</span> /mo▌
+┌ Models ────────────────────────────────┐
+│ Pool A（共享额度池）                     │
+│  <span class="ok">✓</span> qwen-72b        <span class="cm">current</span>            │
+│    deepseek-v3                          │
+├─────────────────────────────────────────┤
+│ 5h  <span class="ok">████</span><span class="cm">░░░░░░</span> 38%   reset 14:00       │
+│ 7d  <span class="wn">███████</span><span class="cm">░░░</span> 72%   reset 周一        │
+└─────────────────────────────────────────┘</pre>
+<p class="rule">用量四级风险色（0–49 / 50–69 / 70–84 / 85–100）——<strong>提醒但不替用户做决策</strong>，接近上限仍可切换。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P14</span><span class="nm">Index / Asset State</span><span class="sc">源：/codebase</span></div><div class="bd">
+<pre>状态机：未构建 → <span class="hv">构建中 ◉</span> → <span class="ok">已构建 ● + 时间戳</span></pre>
+<p class="rule">上传等非关键步骤对用户隐藏；异常统一 warning 色 + 建议方案，不滥用 danger；破坏性操作 Y/N 二次确认。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P15</span><span class="nm">Run Mode</span><span class="sc">源：/RunMode</span></div><div class="bd">
+<pre>/runmode   <span class="ok">Auto</span> · Manual · <span class="wn">Sandbox（先配置后生效）</span>
+底栏永驻：<span class="cm">[mode:auto] [model:qwen] [ctx:38%]</span></pre></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P16</span><span class="nm">Side Question（/btw）</span><span class="sc">源：/btw</span></div><div class="bd">
+<pre>│ <span class="pr">▶</span> Generate Migration Patch ⠹   <span class="cm">← 主任务继续</span>
+│ <span class="hv">┃ /btw yield 和 pause 的语义差异？</span>
+│ <span class="hv">┃ 侧链回答流式渲染（fork 上下文）</span>
+│ <span class="cm">主任务输出缓冲中… esc 后一次性刷入，零污染</span></pre></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P17</span><span class="nm">State-Gated Toggle</span><span class="sc">源：/lsp-toggle</span></div><div class="bd">
+<pre>Off→On：<span class="wn">┃ 警示（内存 150–500MB/服务）</span> → 二次确认
+On→Off：直接写配置
+Sidebar：<span class="ok">● 运行中</span> · <span class="wn">⟳ 待重启生效</span> · <span class="cm">灰 未启用</span></pre>
+<p class="rule">非对称确认；配置分级 enabled / pendingEnabled。适用于 Profiler 采集、Trace 埋点等耗资源开关。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P18</span><span class="nm">Output Collapsing</span><span class="sc">源：HAI CLI</span></div><div class="bd">
+<pre><span class="cm">▸ read  src/crypto.c            （自动折叠）</span>
+<span class="wn">▾ write src/memory.c  [WRITE]</span>   （展开 + 徽标）
+   <span class="er">- _mm_pause();</span>
+   <span class="ok">+ asm volatile("yield");</span></pre>
+<p class="rule">READ 自动折叠、WRITE 展开——信噪比管理，长会话不被读文件日志淹没。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P19</span><span class="nm">Permission Tiers</span><span class="sc">源：HAI CLI</span></div><div class="bd">
+<pre>风险着色：<span class="br">蓝 = read</span> · <span class="wn">橙 = write</span> · <span class="er">红 = execute</span>
+授权范围：[1] 仅本次 · [S] 本会话 · [P] 永久</pre></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P20</span><span class="nm">Context Management</span><span class="sc">源：HAI CLI</span></div><div class="bd">
+<pre>底栏常驻：<span class="cm">[ctx: <span class="wn">████████░░ 72% ⚠</span>]</span>
+/fork 快照分叉 · /compact 压缩 · /clear 重置</pre>
+<p class="rule">用量仪表 70%+ 变色告警。迁移大工程时上下文极易爆，此 pattern 为 P0 依赖。</p></div></div>
+</section>
+
+<section id="p3">
+<div class="eyebrow">Patterns</div>
+<h2>P21–P26 TUI 原生 Patterns</h2>
+<p class="desc">依赖 TUI 增量能力，<strong>在 CLI 里无法实现</strong>。这是"这个产品必须是 TUI"的理由。</p>
+
+<div class="pat"><div class="hd"><span class="no">P21</span><span class="nm">Live Canvas</span><span class="sc">依赖：局部重绘 + Braille</span></div><div class="bd">
+<pre class="dense">┌<span class="pr">npu</span>──采集中────────────<span class="pr">⠹</span>─<span class="cm">500ms ▾</span>─<span class="cm">[space] 暂停</span>─┐
+│ <span class="cm">⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀</span>               │
+│ <span class="v4">⣠⣴⣾⣿⣷⣿⣿⣷⣦⣄⣠⣴⣾⣿⣿⣿⣿⣷⣤⣀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣄</span>  <span class="er">peak 94%</span>     │
+└──────────────────────────────────────────────┘</pre>
+<p class="rule">采样率档位可调（250ms/500ms/2s/5s），<kbd>space</kbd> 冻结画面便于读数，冻结态明确标记。<strong>CLI 只能反复重跑命令，看不到连续形态。</strong></p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P22</span><span class="nm">Linked Drill-down</span><span class="sc">依赖：鼠标 + 多面板联动</span></div><div class="bd">
+<pre class="dense">Trace   <span class="v8">░░░</span><span class="v3">████</span><span class="sel"><span class="v6">▓▓▓▓</span></span><span class="v3">████</span><span class="v8">░░</span>   <span class="pr">← 点选此段</span>
+   ├─▸ <span class="pr">Kernel 面板</span>  跳到 attention_fwd 行并高亮
+   ├─▸ <span class="pr">Metric 面板</span>  切到该区间 18.2ms 的 HBM 带宽
+   └─▸ <span class="pr">Code 面板</span>    定位 attention.cpp:142</pre>
+<p class="rule">兑现"问题呈现要能下钻到对应观测对象的值"——诊断结论 → 证据 → 观测值 → 源码四跳联动。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P23</span><span class="nm">Workspace Layout Preset</span><span class="sc">依赖：resizable split</span></div><div class="bd">
+<pre class="dense"><span class="cm">F1</span> <span class="pr">Migrate</span>   树 40% │ Diff 60%          │ Agent 30%
+<span class="cm">F2</span> <span class="pr">Diagnose</span>  日志 50% │ 根因图 50%        │ Agent 20%
+<span class="cm">F3</span> <span class="pr">Optimize</span>  Trace 60% │ 算子表 40%       │ Agent 15%
+<span class="cm">F4</span> <span class="pr">Observe</span>   全屏仪表盘（Agent 收起）</pre>
+<p class="rule">避免"一套布局适配所有场景"——诊断需要大日志区，调优需要大图表区。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P24</span><span class="nm">Sortable / Filterable Table</span><span class="sc">依赖：焦点 + 列头</span></div><div class="bd">
+<p class="rule">列头点击/快捷键排序（<code>▾</code> 标记）、行内筛选表达式、多选批量操作。用于算子排行、进程表、Issue 表、文件风险表。Textual <code>DataTable</code> 直接支持。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P25</span><span class="nm">Non-destructive Overlay</span><span class="sc">依赖：浮层缓冲</span></div><div class="bd">
+<pre class="dense"><span class="cm">│ Agent Console  ▶ Generate Patch ⠹    ← 底层继续运行（压暗）</span>
+│      ╭─ <span class="pr">Approval</span> ──────────────────╮
+│      │ Modify 12 files  <span class="wn">Risk Medium</span>  │
+│      │ <span class="pr">[Y] Apply</span> [R] Review [N] No  │
+│      ╰────────────────────────────╯</pre>
+<p class="rule">覆盖而非插入，关闭后底层布局与滚动位置完全不变。<strong>浮起感由「底层整体降到 muted 色阶」表达</strong>——见 Elevation 节。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P26</span><span class="nm">AI Annotation Layer</span><span class="sc">依赖：真彩 + 图层叠加</span></div><div class="bd">
+<pre class="dense"><span class="cm">数据层（顺序色阶）</span>      <span class="cm">标注层（语义色）</span>
+64-core   <span class="o6">▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁</span>  <span class="er">▚▚▚</span><span class="o6">▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span>
+                        <span class="er">└──┘</span>
+                        <span class="er">⚠ AI: core 34-38 跨 NUMA 访问</span>
+                          <span class="cm">置信度 87% · [Enter] 查看证据</span></pre>
+<p class="rule"><strong>本规范最具差异化的 pattern。</strong>AI 的判断不是另起一段文字，而是<strong>作为图层叠加在数据可视化之上</strong>——热点描边、异常标色、瓶颈角标、Trace 气泡高亮。让"AI 说了什么"和"数据长什么样"在同一视觉空间对齐，人可以立即验证。与 P03 Evidence 组合：图上标注 → Enter → 证据列表 → 下钻源码。</p></div></div>
+</section>
+
+<section>
+<h3>P27–P29 · 旅程连接组织</h3>
+<p class="desc">这三个 Pattern 不属于任何单一场景，而是把六个阶段串成连续旅程的连接组织。它们来自用户旅程地图的反复出现项。</p>
+
+<div class="pat"><div class="hd"><span class="no">P27</span><span class="nm">Config Completion 配置补齐</span><span class="sc">阶段 2 / 4 / 5 反复出现</span></div><div class="bd">
+<p class="rule"><strong>反模式：</strong>任务开始前甩一张大表单要求填完所有可能用到的配置。用户此时既不知道哪些是必需的，也不知道为什么要。</p>
+<p class="rule"><strong>本 Pattern：</strong>让 Agent 先跑，<strong>执行到真正需要某项配置的那一步才暂停询问</strong>，问的时候必须说明"为什么这一步需要它"，填完<strong>从暂停处继续</strong>而不是重启任务。</p>
+<table>
+<tr><th>规则</th><th>说明</th></tr>
+<tr><td>就地暂停</td><td>Timeline 该步标 <code>⏸</code>，不回滚已完成步骤；补齐后原地续跑</td></tr>
+<tr><td>解释必需性</td><td>浮层顶部一句话说明为什么需要——这是信任的关键</td></tr>
+<tr><td>敏感信息隔离</td><td>密码/密钥 masked 输入，标注<strong>「仅本次会话 · 不入上下文 · 不写日志」</strong>并真的做到</td></tr>
+<tr><td>提供退路</td><td>必须有「跳过此步」选项（如跳过验证），不能把用户堵死</td></tr>
+<tr><td>记忆与复用</td><td>非敏感项（工具链路径、输出目录）存入会话，同工程下次不再问</td></tr>
+<tr><td>批量合并</td><td>同一步需要多项时一次问完，不要连续弹三次</td></tr>
+</table></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P28</span><span class="nm">Next-Step Guidance 下一步引导</span><span class="sc">每个阶段收尾</span></div><div class="bd">
+<p class="rule">线性旅程能不能真的走下去，取决于每一段结束时系统有没有把下一步铺好。<strong>禁止在阶段结束后甩回空白输入框</strong>——那是把"接下来该干嘛"的成本转嫁给用户。</p>
+<table>
+<tr><th>规则</th><th>说明</th></tr>
+<tr><td><strong>状态相关</strong></td><td>Build PASS → 首选"跑性能基线"；Build FAIL → 首选"看诊断报告"。同一个阶段不同结果给不同建议</td></tr>
+<tr><td>1–3 条</td><td>超过 3 条就成了菜单，失去引导意义</td></tr>
+<tr><td>带耗时预估</td><td>让用户判断现在做还是待会做</td></tr>
+<tr><td>首条可回车直走</td><td>默认高亮，<kbd>Enter</kbd> 即执行</td></tr>
+<tr><td>保留自由输入</td><td>建议之下永远留一行 <code>❯</code>——引导是加速器不是围栏</td></tr>
+</table>
+<p class="rule">与 P12 Session Summary 的分工：P12 讲<strong>刚才发生了什么</strong>（结果与产物），P28 讲<strong>接下来能做什么</strong>。两者同屏、上下相邻。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P29</span><span class="nm">Multi-Task Manager 多任务并发</span><span class="sc">阶段 1 · 贯穿全程</span></div><div class="bd">
+<p class="rule">迁移大工程、性能采集、压测都是分钟级任务，必须能后台跑并行推进——这是常驻进程相对 CLI 的核心增量之一。</p>
+<table>
+<tr><th>规则</th><th>说明</th></tr>
+<tr><td>状态徽标统一</td><td>复用全局符号体系 <code>✓ ▶ ○ ⚠ ✕</code>，并显示已用/预估时长</td></tr>
+<tr><td><strong>⏸ 等待配置最高优先级</strong></td><td>此状态卡着不动且需要人介入，必须在底栏常驻提示，否则任务会被遗忘</td></tr>
+<tr><td>非打断式通知</td><td>后台任务完成时底栏提示 + 列表徽标变化，<strong>不抢当前焦点</strong>、不弹浮层</td></tr>
+<tr><td>快速切换</td><td><kbd>Alt+1..9</kbd> 直达；每个任务保留自己的 Workspace 布局与滚动位置</td></tr>
+<tr><td>资源提示</td><td>并发采集任务会互相干扰性能数据——同时运行 profiler 类任务时给出警告</td></tr>
+</table></div></div>
+</section>
+
+<!-- ══════ COMPONENTS ══════ -->
+<section id="comp">
+<div class="eyebrow">Components</div>
+<h2>组件清单</h2>
+<table>
+<tr><th>组件</th><th>用途</th><th>Tier</th><th>Pattern</th><th>Textual 基座</th></tr>
+<tr><td>Agent Timeline</td><td>任务状态流</td><td>T0</td><td>P01</td><td class="mono">Static + Rich</td></tr>
+<tr><td>Plan Card</td><td>任务规划</td><td>T0</td><td>P02</td><td class="mono">Container</td></tr>
+<tr><td>Evidence List</td><td>证据 + 置信度</td><td>T1</td><td>P03</td><td class="mono">ListView</td></tr>
+<tr><td>Diagnosis Graph</td><td>因果链路</td><td>T0</td><td>P04</td><td class="mono">Tree（定制渲染）</td></tr>
+<tr><td>Diff View</td><td>代码/配置变更</td><td>T0</td><td>P05</td><td class="mono">RichLog + Syntax</td></tr>
+<tr><td>Metric Bar / Ranking</td><td>指标</td><td>T1</td><td>P06</td><td class="mono">ProgressBar / 定制</td></tr>
+<tr><td>Sparkline</td><td>内嵌迷你趋势</td><td>T1</td><td>P06</td><td class="mono">Sparkline（内置）</td></tr>
+<tr><td>Trace View</td><td>时序泳道</td><td>T3</td><td>P07</td><td class="mono">定制 Widget</td></tr>
+<tr><td>Knowledge Card</td><td>检索问答</td><td>T0</td><td>P08</td><td class="mono">Markdown</td></tr>
+<tr><td>Command Palette</td><td>命令入口</td><td>T4</td><td>P09</td><td class="mono">内置 CommandPalette</td></tr>
+<tr><td>Approval Bar</td><td>确认操作</td><td>T0</td><td>P10</td><td class="mono">Horizontal + Button</td></tr>
+<tr><td>Tool Card</td><td>工具调用</td><td>T0</td><td>P11</td><td class="mono">Collapsible</td></tr>
+<tr><td>Summary Card</td><td>会话总结</td><td>T0</td><td>P12</td><td class="mono">Container</td></tr>
+<tr><td>Selector Popup</td><td>模型/模式/索引选择</td><td>T4</td><td>P13–15</td><td class="mono">ModalScreen + OptionList</td></tr>
+<tr><td>Side Block</td><td>侧链问答</td><td>T0</td><td>P16</td><td class="mono">定制 Widget</td></tr>
+<tr><td>Collapsible Op Row</td><td>工具操作折叠行</td><td>T0</td><td>P18</td><td class="mono">Collapsible（内置）</td></tr>
+<tr><td>Context Gauge</td><td>上下文/额度水位</td><td>T1</td><td>P20</td><td class="mono">ProgressBar</td></tr>
+<tr><td>Live Canvas</td><td>实时曲线</td><td>T2</td><td>P21</td><td class="mono">定制（braille 封装）</td></tr>
+<tr><td>Heatmap Grid</td><td>NUMA / 风险 / 密度</td><td>T3</td><td>P26</td><td class="mono">定制 Widget</td></tr>
+<tr><td>Sortable Table</td><td>算子/进程/Issue 排行</td><td>T4</td><td>P24</td><td class="mono">DataTable（内置）</td></tr>
+<tr><td>Split Container</td><td>Workspace 布局</td><td>T4</td><td>P23</td><td class="mono">Horizontal + 定制拖拽</td></tr>
+<tr><td>Overlay</td><td>Palette / Approval</td><td>T4</td><td>P25</td><td class="mono">ModalScreen（内置）</td></tr>
+</table>
+<div class="note"><b>组件评审门槛（继承 PTO preview-gate 流程）：</b>每个组件实现时必须声明：所属渲染层（T0–T4）、降级路径、键盘等价操作、使用的 PTO token。<strong>禁止在业务模块里直接造新样式</strong>——需要新样式先做 preview 页确认没有可用组件，再加入 <code>pto.tcss</code>。</div>
+</section>
+
+<!-- ══════ DEMOS ══════ -->
+<section id="d1">
+<div class="eyebrow">Demos</div>
+<h2>Demo 1 · AI Migration Agent <span class="badge d">P0</span></h2>
+<pre class="dense"><span class="cm">Step 1 · 入口</span>
+╭─ DevKit AI ────────────────────────────────────╮
+│   What do you want?                            │
+│   <span class="pr">❯</span> migrate nginx project▌                     │
+│   <span class="cm">/migrate  /diagnose  /optimize  /observe</span>     │
+╰────────────────────────────────────────────────╯
+
+<span class="cm">Step 3 · Agent 执行流</span>
+│ <span class="ok">●</span> Source Scan                <span class="cm">1,204 files  1.2s</span> │
+│ <span class="ok">●</span> Dependency Analysis        <span class="cm">18 libs</span>           │
+│ <span class="pr">▶</span> API Compatibility  <span class="pr">⠹</span>       <span class="cm">tool:cpp_migrator</span> │
+│ <span class="cm">○</span> Generate Patch  ○ Build Verify               │
+
+<span class="cm">Step 4 · 迁移报告</span>
+╭─ Migration Report · nginx ─────────────────────╮
+│ Compatibility  <span class="br">████████</span><span class="cm">░░</span> 82%                  │
+│ <span class="er">Critical 2</span> · <span class="wn">Warning 8</span> · <span class="ok">Auto-fixable 21</span>       │
+│ ├ SSE instruction  <span class="wn">⚠</span>  crypto.c:88              │
+│ ├ atomic API       <span class="wn">⚠</span>  memory.c:223             │
+│ └ Makefile flags   <span class="ok">✓</span>                           │
+│ Files: crypto.c <span class="o3">███████</span> · memory.c <span class="o5">████</span> · mk <span class="o7">██</span>│
+╰────────────────────────────────────────────────╯
+
+<span class="cm">Step 5 · Patch Review</span>
+│ <span class="er">- _mm_pause();</span>                                 │
+│ <span class="ok">+ asm volatile("yield");</span>                       │
+│ Evidence: 指令替换案例库 #4471 · ARM ARM §B2.5 │
+│ <span class="pr">[A]ccept</span>  [E]dit  [R]eject  [Space] next       │
+
+<span class="cm">Step 6 · 总结</span>
+│ <span class="ok">✓ 21 fixed</span>  <span class="wn">⚠ 2 manual</span>  Build <span class="ok">PASS</span>             │
+│ Bench  100ms → <span class="ok">70ms (−30%)</span>                     │</pre>
+</section>
+
+<section id="d2">
+<div class="eyebrow">Demos</div>
+<h2>Demo 2 · Performance Optimize <span class="badge w">P1</span></h2>
+<pre class="dense"><span class="pr">❯</span> optimize model.bin
+┌<span class="pr">roofline</span>─<span class="cm">Qwen-72B @ 910B</span>──────────────┐┌<span class="pr">bottleneck</span>──────<span class="pr">▾ share</span>─┐
+│ <span class="cm">GFLOPS</span>          <span class="ac">⣀⣠⣤⣴⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿</span>  │ <span class="sel">attention  <span class="er">█████████</span> 45%</span> │
+│         <span class="ac">⣠⣴⡾⠟⠋</span>       <span class="cm">compute roof</span>  │ matmul    <span class="o5">███████</span>   35%  │
+│      <span class="ac">⣴⠟⠁</span>   <span class="er">◆attention</span>  <span class="wn">◆matmul</span>       │ memcpy    <span class="o7">████</span>      20%  │
+│   <span class="ac">⣴⠟</span>  <span class="cm">mem roof</span>   <span class="er">▲ 落在内存墙下方</span>    │ <span class="cm">↵ 下钻 · s 排序</span>        │
+└────────────────────────────────────────┘└──────────────────────┘
+┌<span class="pr">trace</span>────────<span class="cm">[+/-] zoom [drag] pan</span>─────────────────────────────────┐
+│ NPU  <span class="v8">░░</span><span class="v3">██████████</span><span class="sel"><span class="v6">▓▓▓▓▓▓</span></span><span class="v3">████████</span><span class="v8">░░░</span><span class="v3">████████</span><span class="v6">▓▓▓</span><span class="v8">░░░░░░░░░░░</span> │
+│ HBM  <span class="o5">▓▓</span><span class="o3">████████████████████</span><span class="o5">▓▓▓▓</span><span class="o3">██████████</span><span class="o5">▓▓</span><span class="o8">░░░░░░░░░░░░</span> │
+│                <span class="er">└─ ⚠ AI: HBM 持续饱和而 NPU 有气泡 → memory-bound</span> │
+└──────────────────────────────────────────────────────────────────────┘
+┌<span class="pr">operator</span>─<span class="cm">attention_fwd</span>──────────────────────────────────────────┐
+│ Compute <span class="o5">███████</span><span class="cm">░░░</span> 70%   Memory <span class="er">██████████</span> 98%   <span class="er">◀ 瓶颈维度</span>      │
+│ AI Proposal                              Expected                    │
+│  <span class="ok">✓</span> FlashAttention 融合                  18.2ms → <span class="ok">9.6ms</span>  <span class="ok">−47%</span>     │
+│  <span class="ok">✓</span> KV Cache INT8 量化                    HBM   <span class="er">98%</span> → <span class="ok">61%</span>          │
+│  <span class="ok">✓</span> tiling 128×128 适配 910B L2          <span class="cm">Evidence: 知识库 #2213</span> │
+│ <span class="pr">[Y] Apply &amp; Benchmark</span>  [R] Review  [E] 编辑参数                    │
+└──────────────────────────────────────────────────────────────────────┘
+Before <span class="er">████████████████████</span> 120ms │ After <span class="ok">███████████</span> 70ms <span class="ok">−42% ✓</span></pre>
+</section>
+
+<section id="d3">
+<div class="eyebrow">Demos</div>
+<h2>Demo 3 · AI Diagnose <span class="badge w">P1</span></h2>
+<pre class="dense"><span class="pr">❯</span> diagnose crash.log
+
+╭─ Crash Diagnosis ──────────────────────────────╮
+│ Signal  <span class="er">SIGSEGV</span>                                │
+│ Problem Graph                                  │
+│  app → runtime.so → memory allocator           │
+│      → <span class="er">unaligned access</span>   <span class="pr">◀ Root Cause</span>         │
+│        ═══════════════                         │
+│ Confidence  <span class="br">█████████</span><span class="cm">░</span> 91%                     │
+│ Evidence                                       │
+│  <span class="ac">[1]</span> runtime.log:223  "unaligned access"       │
+│  <span class="ac">[2]</span> kernel.c:88   <span class="ac">[3]</span> ARM ARM §B2.5           │
+│ Fix: replace malloc → aligned_alloc            │
+│ <span class="pr">[Y] Apply fix</span>   [R] Review diff   [N] Dismiss  │
+╰────────────────────────────────────────────────╯</pre>
+</section>
+
+<section id="d4">
+<div class="eyebrow">Demos</div>
+<h2>Demo 4 · Observe <span class="badge">P2</span></h2>
+<p class="desc">这一屏同时消费 T2 braille、T3 热力、T4 交互三层能力，并使用 PTO 高亮色阶着色。</p>
+<pre class="dense">┌<span class="pr">cpu</span>─<span class="cm">kunpeng920</span>──────────────────────────21:02─<span class="cm">2000ms ▾</span>─┐┌<span class="pr">npu</span>─<span class="cm">910B×8</span>────────┐
+│<span class="cm">⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span>│ <span class="cm">64C 2.6GHz</span>  ││ <span class="cm">⠀⠀⢀⣀⠀⠀⠀⢀⣠⣀⠀⠀⠀</span>       │
+│<span class="g4">⣠⣴⣾⣿⣷⣿⣿⣷⣦⣄⣠⣴⣾⣿⣿⣿⣿⣷⣤⣀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣄⣠⣴⣶⣤⣀⣠⣴</span>│ <span class="wn">62%  54°C</span>   ││ <span class="v4">⣴⣿⣿⣿⣷⣦⣴⣿⣿⣿⣷⣄⣠</span>  <span class="er">88%</span>  │
+├<span class="cm">64-core</span>──────────────────────────────────────────────────┤│ <span class="cm">HBM</span> <span class="o3">██████</span><span class="o5">██</span><span class="o8">░░</span> 78% │
+│ <span class="cm">0-15</span>  <span class="o3">█</span><span class="o4">▇▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃</span><span class="o8">▁</span>  NUMA0 <span class="o4">██████</span><span class="o8">░░</span> 78%          ││ <span class="cm">P2P</span> <span class="o6">███</span><span class="o8">░░░░░</span> 31%   │
+│ <span class="cm">16-31</span> <span class="o6">▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁▁</span><span class="o6">▂</span>  NUMA1 <span class="o5">████</span><span class="o8">░░░░</span> 44%          │└───────────────────┘
+│ <span class="cm">32-47</span> <span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span>  NUMA2 <span class="o3">███████</span><span class="o8">░</span> 82% <span class="er">▚▚▚</span>      │┌<span class="pr">mem</span>────────────────┐
+│ <span class="cm">48-63</span> <span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span>  NUMA3 <span class="o6">███</span><span class="o8">░░░░░</span> 31%          ││ <span class="o3">████████</span><span class="o5">██████</span><span class="o7">████</span><span class="cm">░░</span>│
+│ <span class="er">⚠ AI: core 34-38 持续 &gt;80% · 疑似跨 NUMA 访问 · 87% [↵]</span>    ││ <span class="o3">used22</span> <span class="o5">cache12</span> <span class="o7">kv4</span> │
+└──────────────────────────────────────────────────────────┘│ 38.2 / 64 GiB     │
+┌<span class="pr">net</span>─<span class="cm">enp3s0</span>────────────┐┌<span class="pr">kernels</span>─<span class="cm">filter▸</span>─────reverse─<span class="pr">▾total</span>─┐└───────────────────┘
+│<span class="a3">↑⣀⣠⣴⣶⣤⣀⣠⣴⣿⣷⣦⣄⣠⣴⣶⣤⣀</span>││ <span class="sel">attention_fwd  1024  18.2ms <span class="er">18.6s</span> <span class="er">mem</span></span> │
+│<span class="a6">↓⠉⠛⠿⣿⣿⠿⠛⠙⠻⢿⡿⠟⠋⠛⠿⠟⠉</span>││ matmul_4096    512  12.4ms  6.3s <span class="wn">comp</span>│  <span class="cm">P22 联动：</span>
+│ <span class="a3">↑ 1.30 KiB/s</span>  <span class="a6">↓ 346 B/s</span>  ││ layernorm     2048   0.8ms  1.6s <span class="er">mem</span> │  <span class="cm">选中行 → Trace</span>
+└───────────────────────────┘└──<span class="cm">▲▼选择 ↵下钻 /筛选 s排序</span>──────┘  <span class="cm">→ 源码定位</span>
+┌<span class="pr">trace</span>─────────────────────<span class="cm">[+/-] zoom  [drag] pan  [f] filter</span>──────────────────┐
+│ CPU    <span class="g4">████</span><span class="g6">▓▓▓▓</span><span class="g8">░░░░</span><span class="g6">▓▓▓</span><span class="g8">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>  │
+│ NPU    <span class="v8">░░░░░░░</span><span class="v3">███████</span><span class="v4">████████</span><span class="sel"><span class="v6">▓▓▓▓▓▓▓</span></span><span class="v3">██████████</span><span class="v8">░░░░░░░░░░░░░░</span>  │
+│ HBM    <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><span class="o3">████</span><span class="o5">▓▓</span><span class="o3">████████</span><span class="o5">▓▓▓▓▓▓</span><span class="o3">██████</span><span class="o6">▓▓</span><span class="o8">░░░░░░░░░░░░░░░░</span>  │
+│                       <span class="pr">└─ selected: attention_fwd 18.2ms · mem-bound ⚠</span>   │
+└───────────────────────────────────────────────────────────────────────────┘
+<span class="cm">❯</span> top 10 slow kernel                     <span class="cm">[mode:auto] [model:qwen] [ctx:</span><span class="wn">72%⚠</span><span class="cm">]</span></pre>
+</section>
+
+<!-- ══════ ROADMAP ══════ -->
+<section id="road">
+<div class="eyebrow">System</div>
+<h2>Roadmap</h2>
+<table>
+<tr><th>阶段</th><th>内容</th><th>优先级</th></tr>
+<tr><td>Phase 0</td><td><strong>渲染底座 + token 落地</strong>：Textual Shell 骨架，把本规范 Foundation 节生成 <code>pto.tcss</code>；打通 T1–T3 三原语（Braille 曲线 / NUMA 热力 / DataTable）+ MCP 客户端连 :8000</td><td><span class="badge d">先做</span></td></tr>
+<tr><td>Phase 1</td><td>四大 Demo：Migration（P0）· Optimize（P1）· Diagnose（P1）· Observe（P2）</td><td><span class="badge d">Now</span></td></tr>
+<tr><td>Phase 2</td><td>Agent Runtime UX：MCP 工具调用展示、多 Agent 协作、Context/Memory 管理（P19/P20）</td><td><span class="badge w">Next</span></td></tr>
+<tr><td>Phase 3</td><td>插件生态 + 研发映射（Pattern → Textual Widget → Backend API）+ textual-serve 在线演示</td><td><span class="badge">Later</span></td></tr>
+</table>
+<div class="note"><b>为什么 Phase 0 要先行：</b>本规范最有价值的几个 pattern（P21 Live Canvas、P26 AI Annotation、NUMA 热力）全部依赖渲染底座能力。如果先做业务 Demo 再补渲染，大概率退化成"带框线的 CLI"。建议两周先把 token 文件 + 三个原语跑通，再往上叠场景。</div>
+<pre>Kunpeng DevKit AI = <span class="pr">PTO Design System</span> + <span class="ac">Textual 渲染底座</span>
+              + <span class="wn">OpenCode Agent Loop</span> + <span class="er">DevKit Intelligence</span></pre>
+</section>
+
+<footer>
+Kunpeng DevKit AI · Design System &amp; UX Spec v0.6 · Concept Design · 2026-08<br>
+设计系统：PTO Design System 4.1（529 tokens · Dark-first · Inter + JetBrains Mono）<br>
+能力基线：鲲鹏 DevKit AI 用户手册（产品概览 / 安装部署 / MCP / SQL 迁移 / 语法修复 / 知识库 / Cline 配置）<br>
+Pattern 来源：CodeArts CLI/TUI 交互研究库（/model · /codebase · /runmode · /btw · /lsp-toggle · HAI CLI）<br>
+渲染参照：btop · ratatui demo　　框架：Textual（主选）· OpenTUI（备选）· FTXUI
+</footer>
+</main>
+</div>
+
+<script>
+function tt(){
+  const r=document.documentElement, d=r.getAttribute('data-theme')==='dark';
+  r.setAttribute('data-theme', d?'light':'dark');
+  document.getElementById('tl').textContent = d?'Dark':'Light';
+}
+const links=[...document.querySelectorAll('nav a')];
+const secs=links.map(a=>document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+const spy=()=>{let cur=secs[0]&&secs[0].id;
+  for(const s of secs){if(s.getBoundingClientRect().top<120)cur=s.id}
+  links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur));};
+document.addEventListener('scroll',spy,{passive:true});spy();
+</script>
+</body>
+</html>
