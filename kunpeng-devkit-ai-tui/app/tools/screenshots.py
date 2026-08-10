@@ -36,6 +36,10 @@ PLAIN = Capabilities(truecolor=False, braille=False, mouse=False, graphics=False
 
 async def shot(app, path: pathlib.Path, size: tuple[int, int]) -> None:
     async with app.run_test(size=size) as pilot:
+        # 必须等两帧。主题是在 on_mount 里注册的，它会触发一次整屏重绘——
+        # 只等一帧的话截图赶在重绘之前，导出来是一张**空终端**：外框、标题栏
+        # 都在，格子里一个字都没有。这种失败不会报错，只会安静地产出废图。
+        await pilot.pause()
         await pilot.pause()
         app.save_screenshot(str(path))
     print(f"  {path.name:<22} {path.stat().st_size // 1024:>4} KB  {size[0]}×{size[1]}")

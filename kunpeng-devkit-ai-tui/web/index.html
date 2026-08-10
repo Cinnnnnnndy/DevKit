@@ -337,7 +337,8 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <div class="ngrp">TUI Capability</div>
   <a href="#tui">TUI ≠ CLI</a>
   <a href="#tier">渲染分层 T0–T4</a>
-  <a href="#prim">图表原语</a>
+  <a href="#primlib">★ 图元库 · 十四种</a>
+  <a href="#prim">原语画法示例</a>
   <a href="#fw">框架选型</a>
 
   <div class="ngrp">Scenarios</div>
@@ -1036,9 +1037,46 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC（更纱黑体，CJK 等宽
 </section>
 
 <!-- ══════ PRIMITIVES ══════ -->
+<section id="primlib">
+<div class="eyebrow">TUI Capability</div>
+<h2>图表原语库 · 十四种</h2>
+<p class="desc">图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。实现见 <code>app/devkitai/render/</code>，活样本见<a href="#impl-prim">图元画廊</a>，完整规格见 <code>docs/COMPONENT.md</code> §3。</p>
+
+<table>
+<thead><tr><th>组</th><th>问题</th><th>图元</th><th>渲染层</th><th>降级到</th></tr></thead>
+<tbody>
+<tr><td><b>比大小</b></td><td>谁比谁大</td><td>Metric Bar · 排行 · 多列条形 · Before/After</td><td>T1</td><td>T0 数值</td></tr>
+<tr><td><b>看趋势</b></td><td>怎么走的</td><td>折线 · 面积 · Sparkline · 双向面积</td><td>T2</td><td>T1 Sparkline → T0 当前值 + 峰值</td></tr>
+<tr><td><b>找位置</b></td><td>在哪儿 / 谁在等谁</td><td>散点 · 火焰图 · 泳道 Timeline</td><td>T2 / T1</td><td>T1 块字符</td></tr>
+<tr><td><b>看余量</b></td><td>还剩多少</td><td>水位 · 进度条 · 分段</td><td>T1</td><td>T0 百分比</td></tr>
+<tr><td><b>读单值</b></td><td>现在多少</td><td>像素数字 · 数图 Stat</td><td>T1</td><td>T0 常规数字</td></tr>
+<tr><td><b>看分布</b></td><td>热点在哪</td><td>热力网格</td><td>T3</td><td>T1 灰阶 + <code>░▒▓█</code></td></tr>
+</tbody>
+</table>
+
+<div class="sublabel">三条贯穿全族的规则</div>
+<p class="rule"><b>① 八分之一格精度是地基。</b>垂直方向有 <code>▁▂▃▄▅▆▇█</code>，水平方向同样有一套 <code>▏▎▍▌▋▊▉█</code>。一个 10 格宽的 bar 因此能表达 <b>80 档而不是 10 档</b>——没有它，<b>82% 和 85% 画出来一模一样</b>，而「兼容性 82%」这种数字恰恰是拿来做判断的。</p>
+<p class="rule"><b>② 并置的图必须共用量程。</b>多列条形、多系列折线、Before/After、双向面积——分别归一化会让每条都填满画布，看着都一样忙。<b>而并置的全部意义就是比较。</b></p>
+<p class="rule"><b>③ 画不下的东西要显式说，不能悄悄省略。</b>排行榜尾部标 <code>… N more</code>，火焰图标 <code>N 帧过窄未显示</code>。悄悄丢掉窄帧会让<b>「我看全了」变成一个错觉</b>，这比不画更危险。同理也不做「最小宽度 1 格」的兜底——那会让窄帧集体虚胖、把宽帧挤走，图就假了。</p>
+
+<div class="sublabel">Metric Bar 的着色 —— 一处规范冲突，已按本文档解</div>
+<div class="tip"><code>COMPONENT.md</code> v0.2 原写「阈值着色：&lt;60% accent · 60–85% warn · &gt;85% error」，即把语义色刷到 bar 上。但本页 <a href="#color">Colors</a> 一节定死<b>语义色只上字符与短文本、永不上色块</b>。冲突按本文档解：</div>
+<table>
+<thead><tr><th>元素</th><th>走什么色</th><th>因为它是</th></tr></thead>
+<tbody>
+<tr><td>bar 本身</td><td>域色阶顺序取档</td><td><b>数据</b></td></tr>
+<tr><td>数值文字 / 前缀符号</td><td>阈值语义色</td><td><b>结论</b></td></tr>
+</tbody>
+</table>
+<p class="rule">这不是折中。<b>一个 90% 的 CPU 利用率本身不是错误</b>——只有当它被判定为问题时才该出现语义色。把两者刷成一个颜色，等于宣布「数值大 = 出事了」，而这在性能调优场景里恰恰经常是反的：利用率高往往是好事。</p>
+
+<div class="sublabel">对齐 —— 禁用裸 ljust / rjust</div>
+<p class="rule">所有图元的标签与表格列必须走 <code>render/text.py</code> 的 <code>fit()</code> / <code>pad()</code> / <code>truncate()</code>。Python 数的是<b>码位</b>，终端排的是<b>单元格</b>，一个汉字占 2 格：<code>f"{'折线':&lt;12}"</code> 实际占 14 格，<code>f"{'Sparkline':&lt;12}"</code> 占 12 格——同一张表里两种标签混用，列就是歪的。<b>这类 bug 只在中文标签下出现，纯英文界面上怎么测都测不出来</b>，所以靠纪律不靠自觉。</p>
+</section>
+
 <section id="prim">
 <div class="eyebrow">TUI Capability</div>
-<h2>图表原语</h2>
+<h2>原语画法示例</h2>
 <p class="desc">全部改用 PTO 高亮色阶着色（<code>-200 → -700</code>），不再自造调色板。</p>
 
 <h3>① Braille 历史曲线 <span class="badge p">T2</span></h3>
@@ -2180,8 +2218,7 @@ Before <span class="er">██████████████████�
 </text><text class="terminal-1559306564-r10" x="12.2" y="1069.2" textLength="109.8" clip-path="url(#terminal-1559306564-line-43)">&#160;Migrate&#160;</text><text class="terminal-1559306564-r8" x="122" y="1069.2" textLength="36.6" clip-path="url(#terminal-1559306564-line-43)">&#160;│&#160;</text><text class="terminal-1559306564-r15" x="158.6" y="1069.2" textLength="109.8" clip-path="url(#terminal-1559306564-line-43)">mode:auto</text><text class="terminal-1559306564-r8" x="268.4" y="1069.2" textLength="36.6" clip-path="url(#terminal-1559306564-line-43)">&#160;│&#160;</text><text class="terminal-1559306564-r15" x="305" y="1069.2" textLength="122" clip-path="url(#terminal-1559306564-line-43)">model:qwen</text><text class="terminal-1559306564-r8" x="427" y="1069.2" textLength="36.6" clip-path="url(#terminal-1559306564-line-43)">&#160;│&#160;</text><text class="terminal-1559306564-r15" x="463.6" y="1069.2" textLength="48.8" clip-path="url(#terminal-1559306564-line-43)">ctx:</text><text class="terminal-1559306564-r16" x="512.4" y="1069.2" textLength="36.6" clip-path="url(#terminal-1559306564-line-43)">72%</text><text class="terminal-1559306564-r16" x="549" y="1069.2" textLength="12.2" clip-path="url(#terminal-1559306564-line-43)">⚠</text><text class="terminal-1559306564-r8" x="561.2" y="1069.2" textLength="36.6" clip-path="url(#terminal-1559306564-line-43)">&#160;│&#160;</text><text class="terminal-1559306564-r16" x="597.8" y="1069.2" textLength="109.8" clip-path="url(#terminal-1559306564-line-43)">⏸&#160;1&#160;任务待配置</text><text class="terminal-1559306564-r13" x="768.6" y="1069.2" textLength="97.6" clip-path="url(#terminal-1559306564-line-43)">&#160;[↵]&#160;去处理</text>
     </g>
     </g>
-</svg>
-</div>
+</svg></div>
 <p class="rule">
       <b>Dock 从顶通到底</b>，品牌标识在它的头部，tab 带缩回主区——所以屏幕上
       <b>一条垂直分割贯穿全屏、一条水平分割横贯全屏，两条线各只出现一次</b>。
@@ -2334,8 +2371,7 @@ Before <span class="er">██████████████████�
 </text>
     </g>
     </g>
-</svg>
-</div>
+</svg></div>
 <p class="rule">
       这是整套设计里<b>最需要被看到、也最难用文字讲清</b>的一块。上排是同一条 CPU 曲线：
       <b>T2</b> 用 Braille 点阵，一格 2×4 = 8 倍密度，画出来是真折线；<b>T1</b> 缺 Braille 字形时掉成一行八分块
@@ -2674,8 +2710,7 @@ Before <span class="er">██████████████████�
 </text>
     </g>
     </g>
-</svg>
-</div>
+</svg></div>
 <p class="rule">
       图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。
       三条贯穿全族的规则：<b>八分之一格精度</b>（水平方向也有 <code>▏▎▍▌▋▊▉█</code>，10 格宽的 bar 因此能分 80 档；
