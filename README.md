@@ -27,18 +27,22 @@
 
 ## 快速开始
 
-从 [`launch.html`](launch.html) 进——**项目启动页**，把四份可交互 HTML、十一份设计规范、整套视觉 token 收在一页，点开即看。
+**在线入口 ▸ https://cinnnnnnndy.github.io/DevKit/launch.html**
 
-四份 HTML 是自包含的单文件，**下载后双击即可打开**，无需构建、无需联网：
+项目启动页，把四份可交互 HTML、十一份设计规范、整套视觉 token 收在一页，点开即看。
 
-| 文件 | 内容 |
-|---|---|
-| [`web/demo.html`](kunpeng-devkit-ai-tui/web/demo.html) | **十幕交互演示** — 可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点" |
-| [`web/index.html`](kunpeng-devkit-ai-tui/web/index.html) | **产品规范单页** — 设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用） |
-| [`web/competitive-analysis.html`](kunpeng-devkit-ai-tui/web/competitive-analysis.html) | **TUI 竞品分析** — 7 竞品 × 22 触点 × 6 阶段旅程 |
-| [`web/visual-analysis.html`](kunpeng-devkit-ai-tui/web/visual-analysis.html) | **TUI 视觉风格分析** — 五个审美流派 + 皮肤生态 + 手法清单 |
+四份 HTML 也各有独立地址，可以单独打开或直接分享；它们是自包含的单文件，**下载后双击也能开**，无需构建、无需联网：
 
-想在浏览器里直接看，可以开启 GitHub Pages（Settings → Pages → Deploy from branch → `main` / `root`），之后访问 `https://<user>.github.io/<repo>/launch.html`。
+| 页面 | 在线打开 | 仓库文件 |
+|---|---|---|
+| **十幕交互演示**<br><sub>可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点"</sub> | [demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo.html) | [`web/demo.html`](kunpeng-devkit-ai-tui/web/demo.html) |
+| **产品规范单页**<br><sub>设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用）</sub> | [index.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html) | [`web/index.html`](kunpeng-devkit-ai-tui/web/index.html) |
+| **TUI 竞品分析**<br><sub>7 竞品 × 22 触点 × 6 阶段旅程</sub> | [competitive-analysis.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/competitive-analysis.html) | [`web/competitive-analysis.html`](kunpeng-devkit-ai-tui/web/competitive-analysis.html) |
+| **TUI 视觉风格分析**<br><sub>五个审美流派 + 皮肤生态 + 手法清单</sub> | [visual-analysis.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/visual-analysis.html) | [`web/visual-analysis.html`](kunpeng-devkit-ai-tui/web/visual-analysis.html) |
+
+几个常用深链：[规范单页 · Chrome vs Canvas ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#chrome) · [规范单页 · Colors ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#color) · [规范单页 · 渲染分层 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#tier) · [竞品 · 机会点 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/competitive-analysis.html#f9) · [视觉 · 我们的定位 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/visual-analysis.html#v7)
+
+> Pages 从 `main` 分支根目录发布，上面的地址在改动合入 `main`、Pages 完成一次构建之后生效。仓库根没有 `index.html`，所以站点根地址 `https://cinnnnnnndy.github.io/DevKit/` 不会有内容，请直接进 `launch.html`。
 
 <table>
 <tr>
@@ -123,7 +127,7 @@
 
 [`docs/VISUAL.md`](kunpeng-devkit-ai-tui/docs/VISUAL.md) 记录了完整的 web → terminal token 翻译：六级表面、四级前景透明度预合成为实色、状态叠加层预合成、五档 highlight ramp 的顺序 vs 分类纪律、以及为什么品牌蓝会和原色板里的 copy-blue 撞色（色相差 7°，最后退役了 copy-blue 并重建了域色映射）。
 
-上述 token 的速查版直接排在 [`launch.html#tokens`](launch.html#tokens) 上——六级表面、预合成前景、状态叠加、域色映射、三条用色纪律、渲染分层 T0–T5，都能直接取色。
+上述 token 的速查版直接排在启动页的 [视觉规范速查 ↗](https://cinnnnnnndy.github.io/DevKit/launch.html#tokens) 一节——六级表面、预合成前景、状态叠加、域色映射、三条用色纪律、渲染分层 T0–T5，都能直接取色。
 
 ---
 
