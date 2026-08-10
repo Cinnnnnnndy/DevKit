@@ -153,6 +153,7 @@ body{
 .tag--spec{background:rgba(124,141,184,.14);border-color:rgba(124,141,184,.36);color:#9dabc9}
 .tag--star{background:rgba(255,170,59,.13);border-color:rgba(255,170,59,.34);color:var(--warn)}
 .tag--res {background:rgba(4,215,147,.11);border-color:rgba(4,215,147,.30);color:var(--ok)}
+.tag--impl{background:rgba(255,170,59,.13);border-color:rgba(255,170,59,.34);color:var(--warn)}
 
 /* 卡片预览用字符块，不用矢量插画 —— 这套产品的语言就是字符网格 */
 .card-preview{
@@ -198,6 +199,27 @@ body{
   color:var(--fg4);text-decoration:none;word-break:break-all;transition:color 130ms ease}
 .src:hover{color:var(--pri-h)}
 .src svg{width:12px;height:12px;flex:none;opacity:.8}
+
+/* ═══════════ 文档清单 ═══════════
+ * 十二份规范用卡片铺开会占掉整页，把「这个项目是什么」压成「这里有一堆 md」。
+ * 一行一份，密度换回叙事重心。
+ */
+.doclist{border:1px solid var(--line);border-radius:var(--r-card);background:var(--s1);
+  box-shadow:var(--shadow);overflow:hidden}
+.doclist .doc{display:grid;grid-template-columns:210px 1fr auto;gap:14px;align-items:baseline;
+  padding:9px 16px;border-bottom:1px solid var(--line);text-decoration:none;
+  transition:background 120ms ease}
+.doclist .doc:last-child{border-bottom:0}
+.doclist .doc:hover{background:var(--s2)}
+.doclist .dn{font-family:var(--mono);font-size:12.5px;color:var(--fg);letter-spacing:.01em}
+.doclist .doc:hover .dn{color:var(--pri-h)}
+.doclist .dd{font-size:12.5px;color:var(--fg2);line-height:1.6}
+.doclist .dw{font-family:var(--mono);font-size:10.5px;color:var(--fg4);white-space:nowrap}
+.doclist .star{color:var(--warn)}
+@media(max-width:760px){
+  .doclist .doc{grid-template-columns:1fr;gap:3px}
+  .doclist .dw{display:none}
+}
 
 /* ═══════════ 视觉规范速查 ═══════════ */
 .spec-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
@@ -308,8 +330,9 @@ table.spec-tb td.g{font-family:var(--mono);font-size:12px;color:var(--fg3)}
       面向鲲鹏迁移 / 开发 / 诊断 / 调优的 <b>AI Native Terminal Engineering Workspace</b> 的完整设计文档集。
       产品形态先钉死一条——这是<b>原生 TUI 应用</b>：独立常驻进程、全屏接管终端、自有事件循环，
       不是 CLI 命令集合，不是 IDE 里的终端面板，不是聊天窗口套壳。
-      四份可交互 HTML、十一份设计规范、整套视觉 token，按组收在这一页，点开即看。
-      当前是 <span class="mono">概念设计</span> 阶段，实现尚未开始。
+      六份可交互 HTML、四块已经能跑的实现、十二份设计规范、整套视觉 token，按组收在这一页。
+      设计规范已收敛，实现进行中——渲染底座、Chrome 层外壳与十四种图表原语已落地，
+      Agent Runtime 与 MCP 客户端尚未开始。
     </p>
     <p class="hero-legend">
       上方色带即全站用色分工 ▸ <em>红 = 身份</em> · <em>蓝 = 交互</em> · <em>粉红 = 语义</em> · <em>后四色 = CPU / NPU / Memory / IO 域色阶</em>
@@ -480,359 +503,170 @@ table.spec-tb td.g{font-family:var(--mono);font-size:12px;color:var(--fg3)}
     </section>
 
     <!-- ═══════════ 组 B · 设计规范 ═══════════ -->
+
+    <!-- ═══════════ 组 B · 原生 TUI 实现 ═══════════ -->
+    <section class="card-group" aria-labelledby="g-app">
+      <div class="group-header">
+        <h2 class="group-title" id="g-app">原生 TUI 实现</h2>
+        <span class="group-note">Python + Textual · 159 个测试 · 在发布分支上，尚未并入 main</span>
+        <div class="group-rule" aria-hidden="true"></div>
+      </div>
+      <div class="card-grid">
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/shell.py" target="_blank" rel="noopener">工作台外壳</a></h3>
+            <div class="card-tags"><span class="tag tag--impl">shell</span><span class="tag ">Chrome 层</span><span class="tag ">折叠降级链</span></div>
+          </div>
+          <div class="card-preview tall" aria-hidden="true">
+<pre><span class="pv-dim">┌──────┬───────────────────────────</span>
+<span class="pv-dim">│</span> <span class="pv-kp">▪</span> <span class="pv-fg">DEV</span> <span class="pv-dim">│</span> <span class="pv-run">▔▔▔</span><span class="pv-dim"> 1 migrate  2 optimize</span>
+<span class="pv-dim">│ 任务 ├───────────┬───────────────</span>
+<span class="pv-dim">│ 工程 │ Canvas A  │ Evidence</span>
+<span class="pv-dim">│ 工具 │           │</span>
+<span class="pv-dim">│      ├───────────┴───────────────</span>
+<span class="pv-dim">│      │</span> <span class="pv-run">❯</span> <span class="pv-dim">把 ./nginx 迁到鲲鹏</span>
+<span class="pv-dim">└──────┴───────────────────────────</span></pre>
+          </div>
+          <p class="card-desc">Dock 从顶通到底、TabBar、输入框、keybar、状态栏。<b>一条垂直分割贯穿全屏、一条水平分割横贯全屏，两条线各只出现一次</b>。按终端宽度分六档折叠：≥160 三栏 → 140 Inspector 收条 → 120 隐藏 → 100 Dock 收成图标列 → 80 取消分屏 → &lt;80 Dock 转浮层。</p>
+          <div class="card-links"><a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/shell.py" target="_blank" rel="noopener">看源码</a><a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/blob/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/layout.py" target="_blank" rel="noopener">折叠降级链</a></div>
+          <div class="card-src">
+            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/shell.py" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>app/devkitai/shell.py</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/gallery.py" target="_blank" rel="noopener">图元画廊</a></h3>
+            <div class="card-tags"><span class="tag tag--impl">gallery</span><span class="tag ">十四种图元</span><span class="tag ">preview gate</span></div>
+          </div>
+          <div class="card-preview tall" aria-hidden="true">
+<pre><span class="pv-dim">比大小 </span><span class="pv-cpu">████████▍</span><span class="pv-dim">░</span>  <span class="pv-wn">84.3%</span>
+<span class="pv-dim">看趋势 </span><span class="pv-cpu">⢀⡠⠔⠊⠉⠑⠢⢄⡀⢀⡠⠔⠊⠉⠑⠢</span>
+<span class="pv-dim">找位置 </span><span class="pv-npu">██████████</span><span class="pv-dim">░░░░░░</span> <span class="pv-dim">火焰图</span>
+<span class="pv-dim">看余量 </span><span class="pv-mem">████████</span><span class="pv-dim">░░░░░░░░</span> <span class="pv-dim">68%</span>
+<span class="pv-dim">读单值 </span><span class="pv-fg">███ ██  ███</span>
+<span class="pv-dim">       </span><span class="pv-fg">█ █  █    █</span>  <span class="pv-dim">k QPS</span>
+<span class="pv-dim">看分布 </span><span class="pv-cpu">████</span><span class="pv-npu">████</span><span class="pv-mem">████</span><span class="pv-io">████</span></pre>
+          </div>
+          <p class="card-desc">十四种图表原语，按<b>回答什么问题</b>分组而不是按名字排：比大小 / 看趋势 / 找位置 / 看余量 / 读单值 / 看分布。三条贯穿全族的规则——<b>八分之一格精度</b>（10 格 bar 分 80 档，否则 82% 和 85% 长得一样）、<b>并置必须共用量程</b>、<b>画不下的要显式说</b>（火焰图标「N 帧过窄未显示」）。</p>
+          <div class="card-links"><a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/gallery.py" target="_blank" rel="noopener">看源码</a><a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/COMPONENT.md" target="_blank" rel="noopener">COMPONENT.md §3</a></div>
+          <div class="card-src">
+            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/gallery.py" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>app/devkitai/gallery.py</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/tree/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/render" target="_blank" rel="noopener">渲染底座</a></h3>
+            <div class="card-tags"><span class="tag tag--impl">render/</span><span class="tag ">T0–T5</span><span class="tag ">零 Textual 依赖</span></div>
+          </div>
+          <div class="card-preview tall" aria-hidden="true">
+<pre><span class="pv-fg">T5</span> <span class="pv-dim">图形协议  Kitty / Sixel  → T1</span>
+<span class="pv-fg">T4</span> <span class="pv-dim">交互      mouse+focus  → T0</span>
+<span class="pv-fg">T3</span> <span class="pv-dim">真彩热力  颜色=第三维  → T1</span>
+<span class="pv-fg">T2</span> <span class="pv-dim">Braille   2×4 = 8×    → T1</span>
+<span class="pv-fg">T1</span> <span class="pv-dim">块字符    ▁▂▃▅▇█     → T0</span>
+<span class="pv-fg">T0</span> <span class="pv-dim">文本      兼容底线</span>
+<span class="pv-ok">✓</span> <span class="pv-dim">159 passed</span></pre>
+          </div>
+          <p class="card-desc">纯渲染层<b>不 import Textual</b>，所以「值怎么变成字符和颜色」可以单独测——降级的每一条分支都在测试里覆盖，不需要真去开 SSH 会话。<b>用色纪律做成运行期护栏</b>：把语义色传进色阶函数直接抛错，因为终端里语义色与数据色最终靠字形区分，画进色块会毁掉这层区分且看不出问题。</p>
+          <div class="card-links"><a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/tree/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/render" target="_blank" rel="noopener">看源码</a><a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/tree/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/tests" target="_blank" rel="noopener">159 个测试</a></div>
+          <div class="card-src">
+            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/tree/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/render" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>app/devkitai/render/</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/preview.py" target="_blank" rel="noopener">组件预览页</a></h3>
+            <div class="card-tags"><span class="tag tag--impl">preview</span><span class="tag ">评审门槛</span><span class="tag ">现场切降级</span></div>
+          </div>
+          <div class="card-preview tall" aria-hidden="true">
+<pre><span class="pv-dim">▸ BrailleChart</span>
+<span class="pv-dim">  T2 Braille → T1 块字符 → T0 文本</span>
+<span class="pv-dim">  键盘：</span><span class="pv-fg">space</span><span class="pv-dim"> 冻结  </span><span class="pv-fg">[ ]</span><span class="pv-dim"> 采样率</span>
+<span class="pv-dim">  token：DOMAIN_RAMPS, SURFACE_1</span>
+<span class="pv-dim">▸ CoreHeatmap</span>
+<span class="pv-dim">  T3 真彩 → T1 灰阶 + ░▒▓█</span>
+<span class="pv-dim">  键盘：</span><span class="pv-fg">←→↑↓</span><span class="pv-dim"> </span><span class="pv-fg">enter</span><span class="pv-dim"> </span><span class="pv-fg">l</span><span class="pv-dim"> 标注层</span></pre>
+          </div>
+          <p class="card-desc">VISUAL.md §6 要求每个组件声明<b>渲染层 · 降级路径 · 键盘等价 · 用到的 token</b>。写在文档里的门槛会被绕过，写成 <span class="mono">ComponentSpec</span> 加一个遍历所有组件的测试就不会——漏声明是<b>测试失败</b>，不是评审时才发现。页面里按 <span class="mono">t</span> 能现场切换渲染层看降级。</p>
+          <div class="card-links"><a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/preview.py" target="_blank" rel="noopener">看源码</a><a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/blob/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/spec.py" target="_blank" rel="noopener">评审门槛</a></div>
+          <div class="card-src">
+            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/claude/ecstatic-tesla-zsshap/kunpeng-devkit-ai-tui/app/devkitai/preview.py" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>app/devkitai/preview.py</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ═══════════ 组 C · 设计规范 ═══════════ -->
     <section class="card-group" aria-labelledby="g-doc">
       <div class="group-header">
         <h2 class="group-title" id="g-doc">设计规范 · Markdown</h2>
         <span class="group-note">建议顺序 OVERVIEW → JOURNEY → VISUAL → PATTERN，其余按需查阅</span>
         <div class="group-rule" aria-hidden="true"></div>
       </div>
-      <div class="card-grid">
-
-        <!-- VISUAL.md -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/VISUAL.md" target="_blank" rel="noopener">VISUAL.md<span class="star">★</span></a></h3>
-            <div class="card-tags">
-              <span class="tag tag--star">最厚也最关键</span>
-              <span class="tag tag--spec">573 行</span>
-              <span class="tag">PTO → TUI</span>
-            </div>
-          </div>
-          <div class="card-preview" aria-hidden="true">
-<pre><span class="pv-dim">#101010 #161616 #1c1c1c #262626 #313131</span>
-<span class="pv-dim">██████ ██████ ██████ ██████ ██████</span>
-<span class="pv-fg">.90 #E8E8E8</span>  <span class="pv-dim">.60 #A4A4A4</span>  <span class="pv-dim">.40 #777</span>
-<span class="pv-kp">▰</span> <span class="pv-dim">身份</span>   <span class="pv-run">▰</span> <span class="pv-dim">交互</span>   <span class="pv-er">▰</span> <span class="pv-dim">语义</span></pre>
-          </div>
-          <p class="card-desc">完整的 web → terminal token 翻译：六级表面 1:1 直译、四级前景透明度<b>预合成为实色</b>、状态叠加层预合成、五档 highlight ramp 的顺序 vs 分类纪律、域色映射。它不只写"结论是什么"，也写了<b>曾经试过什么、为什么被推翻</b>——字符做的辉光为什么是脏的、全屏横扫的动效为什么参数怎么调都不对。动任何视觉之前先读。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/VISUAL.md" target="_blank" rel="noopener">阅读</a>
-            <a class="lnk" href="#tokens">token 速查</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/VISUAL.md" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>docs/VISUAL.md
-            </a>
-          </div>
-        </article>
-
-        <!-- OVERVIEW.md -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/OVERVIEW.md" target="_blank" rel="noopener">OVERVIEW.md</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--spec">定位</span>
-              <span class="tag">信息架构</span>
-              <span class="tag">第一份读</span>
-            </div>
-          </div>
-          <div class="card-preview" aria-hidden="true">
-<pre><span class="pv-dim">        Kunpeng DevKit AI</span>
-<span class="pv-dim">  ┌────┬────┴───┬────┐</span>
-<span class="pv-fg">Migrate</span> <span class="pv-dim">Develop Diagnose Optimize</span>
-<span class="pv-dim">  └────┬──────────────┘</span>
-<span class="pv-dim">  Observe · Knowledge（横向）</span></pre>
-          </div>
-          <p class="card-desc">产品定位、愿景、五类用户角色、信息架构。核心是<b>形态之争</b>：CLI / IDE 插件 / 原生 TUI 三者的能力边界对照，以及"只有原生 TUI 才成立的四件事"——同机采集、SSH 即完整体验、自主渲染权、常驻状态。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/OVERVIEW.md" target="_blank" rel="noopener">阅读</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/OVERVIEW.md" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>docs/OVERVIEW.md
-            </a>
-          </div>
-        </article>
-
-        <!-- JOURNEY.md -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/JOURNEY.md" target="_blank" rel="noopener">JOURNEY.md</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--spec">旅程</span>
-              <span class="tag">六阶段</span>
-              <span class="tag">P27–P29</span>
-            </div>
-          </div>
-          <div class="card-preview" aria-hidden="true">
-<pre><span class="pv-dim">①初始化 ▸ ②迁移 ▸ ③编译 ┬▸ ④优化</span>
-<span class="pv-dim">                        │</span>
-<span class="pv-er">          ✕ 失败 ───────┘</span>
-<span class="pv-dim">▸ ⑤参数 ▸ ⑥场景化</span>
-<span class="pv-run">P27 配置补齐 · P28 下一步 · P29 多任务</span></pre>
-          </div>
-          <p class="card-desc">六阶段线性推进 + 关键节点分支，加上串起整条旅程的<b>三个连接组织</b>：P27 配置补齐（用到才问，且说明为什么）、P28 下一步引导（状态相关，1–3 条）、P29 多任务并发。另含 Demo 十幕故事线与 1920×1080 演示画布规范。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/JOURNEY.md" target="_blank" rel="noopener">阅读</a>
-            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/demo.html">对应演示</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/JOURNEY.md" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>docs/JOURNEY.md
-            </a>
-          </div>
-        </article>
-
-        <!-- PATTERN.md -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/PATTERN.md" target="_blank" rel="noopener">PATTERN.md</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--spec">Pattern 库</span>
-              <span class="tag">P01–P29</span>
-            </div>
-          </div>
-          <div class="card-preview" aria-hidden="true">
-<pre><span class="pv-ok">●</span> <span class="pv-fg">Understand Request</span>
-<span class="pv-ok">●</span> <span class="pv-fg">Search Knowledge Base</span>   <span class="pv-dim">3 hits</span>
-<span class="pv-run">▶</span> <span class="pv-fg">Generate Migration Patch</span> <span class="pv-run">⠹</span>
-<span class="pv-dim">○ Compile Verify</span>
-<span class="pv-dim">Confidence</span> <span class="pv-run">█████████</span><span class="pv-dim">░</span> <span class="pv-fg">91%</span></pre>
-          </div>
-          <p class="card-desc">交互 Pattern 库 P01–P29，按 AI CLI 六阶段生命周期（启动 → 表达意图 → 等待执行 → 审查确认 → 多智能体协调 → 收尾）编排。核心是 <b>P03 Evidence</b>——工程领域 AI 不能只给答案，必须展示"为什么这么判断"，置信度 &lt; 70% 时禁用一键 Apply。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/PATTERN.md" target="_blank" rel="noopener">阅读</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#p1">规范单页 · Patterns</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/PATTERN.md" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>docs/PATTERN.md
-            </a>
-          </div>
-        </article>
-
-        <!-- TUI-CAPABILITY.md -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/TUI-CAPABILITY.md" target="_blank" rel="noopener">TUI-CAPABILITY.md</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--spec">能力基线</span>
-              <span class="tag">T0–T5</span>
-              <span class="tag">框架选型</span>
-            </div>
-          </div>
-          <div class="card-preview" aria-hidden="true">
-<pre><span class="pv-dim">┌cpu──kunpeng─────── 2000ms ────</span>
-<span class="pv-dim">│</span> <span class="pv-cpu">⠀⠀⠀⢀⣀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⢀⣀⡀⠀</span> <span class="pv-dim">920</span>
-<span class="pv-dim">│</span> <span class="pv-cpu">⣠⣴⣾⣿⣷⣿⣷⣦⣄⣴⣾⣿⣷⣤⣀⣴⣾⣿⣷</span> <span class="pv-dim">64C</span>
-<span class="pv-dim">└───────────────────────────────</span>
-<span class="pv-fg">T2 Braille</span> <span class="pv-dim">2×4 = 8× 密度</span></pre>
-          </div>
-          <p class="card-desc">TUI ≠ CLI 的能力对照、<b>渲染分层 T0–T5</b>（纯文本 → 块字符 → Braille → 真彩热力 → 交互 → 终端图形协议）与每层的降级路径、八个图表原语、框架选型。结论：<b>Python + Textual</b>，决定性理由是 TCSS 能把 PTO token 近乎 1:1 写成变量文件。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/TUI-CAPABILITY.md" target="_blank" rel="noopener">阅读</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#tier">#渲染分层</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/TUI-CAPABILITY.md" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>docs/TUI-CAPABILITY.md
-            </a>
-          </div>
-        </article>
-
-        <!-- FRAMEWORK.md -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/FRAMEWORK.md" target="_blank" rel="noopener">FRAMEWORK.md</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--spec">应用框架</span>
-              <span class="tag">Dock 通到底</span>
-              <span class="tag">分屏 ≤ 3</span>
-            </div>
-          </div>
-          <div class="card-preview" aria-hidden="true">
-<pre><span class="pv-dim">┌──────┬───────────────────────────</span>
-<span class="pv-dim">│</span> <span class="pv-kp">▰</span> <span class="pv-fg">DEV</span> <span class="pv-dim">│</span> <span class="pv-run">▁▁▁</span><span class="pv-dim"> tab   tab   tab</span>
-<span class="pv-dim">│ 任务 ├───────────┬───────────────</span>
-<span class="pv-dim">│ 工程 │ Canvas A  │ Canvas B</span>
-<span class="pv-dim">│ 工具 │           │</span>
-<span class="pv-dim">│      ├───────────┴───────────────</span>
-<span class="pv-dim">│      │</span> <span class="pv-run">❯</span> <span class="pv-dim">描述你想做什么，或用 / 调命令</span>
-<span class="pv-dim">└──────┴───────────────────────────</span></pre>
-          </div>
-          <p class="card-desc">MobaXterm 的结构组织 × PTO 的分割方法。两条结论：<b>左栏从顶通到底</b>（一条垂直分割 + 一条水平分割，各只出现一次）；<b>输入框归属会话而非窗口</b>——切换页签会变的东西归页签，不变的归窗口。附八档折叠降级链。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/FRAMEWORK.md" target="_blank" rel="noopener">阅读</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#frame">#应用框架</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/FRAMEWORK.md" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>docs/FRAMEWORK.md
-            </a>
-          </div>
-        </article>
-
-        <!-- UX-SPEC.md -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/UX-SPEC.md" target="_blank" rel="noopener">UX-SPEC.md</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--spec">交互</span>
-              <span class="tag">命令体系</span>
-              <span class="tag">快捷键</span>
-            </div>
-          </div>
-          <div class="card-preview" aria-hidden="true">
-<pre><span class="pv-run">❯</span> <span class="pv-fg">mig</span><span class="pv-run">▌</span>
-  <span class="pv-dim">/migrate       迁移工程</span>
-  <span class="pv-dim">/migrate-sql   SQL 迁移</span>
-  <span class="pv-dim">↺ migrate nginx  (recent)</span>
-<span class="pv-dim">状态符 </span><span class="pv-ok">✓</span> <span class="pv-run">▶</span> <span class="pv-dim">○</span> <span class="pv-wn">⚠</span> <span class="pv-er">✕</span>  <span class="pv-dim">Ctrl+P</span></pre>
-          </div>
-          <p class="card-desc">总体布局、核心交互循环、命令体系、快捷键体系，以及<b>状态符号体系</b> <span class="mono">✓ ▶ ○ ⚠ ✕</span> 的语义定死——这套符号在 Timeline、任务列表、能力管理里全局复用，是 16 色降级下最后还站得住的一层编码。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/UX-SPEC.md" target="_blank" rel="noopener">阅读</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#cmd">#命令 &amp; 快捷键</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/UX-SPEC.md" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>docs/UX-SPEC.md
-            </a>
-          </div>
-        </article>
-
-        <!-- COMPONENT.md -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/COMPONENT.md" target="_blank" rel="noopener">COMPONENT.md</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--spec">组件</span>
-              <span class="tag">图表原语</span>
-              <span class="tag">四态</span>
-            </div>
-          </div>
-          <div class="card-preview" aria-hidden="true">
-<pre><span class="pv-dim">CPU     </span><span class="pv-cpu">████████</span><span class="pv-dim">░░</span> <span class="pv-fg">80%</span>
-<span class="pv-dim">Memory  </span><span class="pv-mem">██████</span><span class="pv-dim">░░░░</span> <span class="pv-fg">38.2/64G</span>
-<span class="pv-dim">Latency </span><span class="pv-io">▂▃▅▇▆▃▂</span>
-<span class="pv-dim">main.c </span><span class="pv-npu">███</span><span class="pv-dim">  memory.c </span><span class="pv-npu">██████</span></pre>
-          </div>
-          <p class="card-desc">图表原语与组件规范：Metric Bar / Ranking / Sparkline / Timeline 泳道 / Tree / Graph / Diff / Heatmap / Score Ring / Before-After，各自给到字符级规格。加一份组件状态规范——<b>hover / selected / focus / disabled 四态</b>缺一不可。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/COMPONENT.md" target="_blank" rel="noopener">阅读</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#comp">#组件清单</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/COMPONENT.md" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>docs/COMPONENT.md
-            </a>
-          </div>
-        </article>
-
-        <!-- PRD.md -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/PRD.md" target="_blank" rel="noopener">PRD.md</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--spec">需求</span>
-              <span class="tag">六大场景</span>
-            </div>
-          </div>
-          <div class="card-preview" aria-hidden="true">
-<pre><span class="pv-run">01</span> <span class="pv-fg">AI Migration Agent</span>   <span class="pv-run">★ 第一核心</span>
-<span class="pv-dim">02 AI Develop</span>
-<span class="pv-dim">03 AI Diagnose</span>
-<span class="pv-dim">04 AI Optimize</span>
-<span class="pv-dim">05 Observe   06 Knowledge （横向）</span></pre>
-          </div>
-          <p class="card-desc">四条主线场景 + 两个横向能力，每个给到用户目标、User Story、能力锚点、Workflow、页面清单与验收指标。<b>迁移是第一核心场景</b>，锚定 DevKit 现有的 <span class="mono">code_cpp_migrator</span> / <span class="mono">database_sql_migrator</span> / <span class="mono">kunpeng_knowledge_base_search</span> 三个 MCP 工具。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/PRD.md" target="_blank" rel="noopener">阅读</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#s-mig">#Migrate ★</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/PRD.md" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>docs/PRD.md
-            </a>
-          </div>
-        </article>
-
-        <!-- COMPETITIVE-ANALYSIS.md -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/COMPETITIVE-ANALYSIS.md" target="_blank" rel="noopener">COMPETITIVE-ANALYSIS.md</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--spec">竞品</span>
-              <span class="tag">Markdown 版</span>
-            </div>
-          </div>
-          <div class="card-preview" aria-hidden="true">
-<pre><span class="pv-fg">F1</span> <span class="pv-dim">全屏接管破坏原生复制</span>
-<span class="pv-fg">F2</span> <span class="pv-dim">独占单 Ctrl 键撞车</span>
-<span class="pv-fg">F3</span> <span class="pv-dim">大 diff 不折叠</span>
-<span class="pv-fg">F6</span> <span class="pv-dim">撤销只覆盖一部分 = </span><span class="pv-er">假安全感</span>
-<span class="pv-dim">…… 七个必须绕开的坑</span></pre>
-          </div>
-          <p class="card-desc">HTML 版竞品分析的 Markdown 落档：范围与选品理由、旅程地图、触点级对比节选、模式识别（六条通用模式 + <b>七个必须绕开的坑</b>）、差距矩阵、四个行业分歧点、八条机会点排序。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/COMPETITIVE-ANALYSIS.md" target="_blank" rel="noopener">阅读</a>
-            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/competitive-analysis.html">HTML 版</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/COMPETITIVE-ANALYSIS.md" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>docs/COMPETITIVE-ANALYSIS.md
-            </a>
-          </div>
-        </article>
-
-        <!-- DEMO-WIREFRAME.md -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/DEMO-WIREFRAME.md" target="_blank" rel="noopener">DEMO-WIREFRAME.md</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--spec">交互稿</span>
-              <span class="tag">ASCII</span>
-              <span class="tag">四大 Demo</span>
-            </div>
-          </div>
-          <div class="card-preview" aria-hidden="true">
-<pre><span class="pv-dim">┌ Migration Report ─────────────────</span>
-<span class="pv-dim">│ 兼容性 </span><span class="pv-ok">████████</span><span class="pv-dim">░░ </span><span class="pv-fg">82%</span>
-<span class="pv-dim">│ </span><span class="pv-er">✕ 2 Critical</span><span class="pv-dim">  </span><span class="pv-wn">⚠ 8 Warning</span>
-<span class="pv-dim">│ </span><span class="pv-ok">✓ 21 可自动修</span>
-<span class="pv-dim">└───────────────────────────────────</span></pre>
-          </div>
-          <p class="card-desc">四大 Demo 的 ASCII 交互稿，逐屏逐步：Migration（P0，六步）、Performance Optimize、Diagnose、Observe。可直接对齐 TUI 研发实现——框线是按字符宽度算过的，拿去当布局基准。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/DEMO-WIREFRAME.md" target="_blank" rel="noopener">阅读</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#d1">#Demo 1</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/DEMO-WIREFRAME.md" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>docs/DEMO-WIREFRAME.md
-            </a>
-          </div>
-        </article>
-
-        <!-- docs/README.md -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/README.md" target="_blank" rel="noopener">docs/README.md</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--spec">索引</span>
-              <span class="tag">阅读顺序</span>
-            </div>
-          </div>
-          <div class="card-preview" aria-hidden="true">
-<pre><span class="pv-fg">OVERVIEW</span> <span class="pv-dim">▸</span> <span class="pv-fg">JOURNEY</span> <span class="pv-dim">▸</span> <span class="pv-wn">VISUAL ★</span> <span class="pv-dim">▸</span> <span class="pv-fg">PATTERN</span>
-<span class="pv-dim">其余按需查阅：</span>
-<span class="pv-dim">UX-SPEC · COMPONENT · TUI-CAPABILITY</span>
-<span class="pv-dim">FRAMEWORK · PRD · 竞品 · WIREFRAME</span></pre>
-          </div>
-          <p class="card-desc">规范索引：十一份文档各自"写了什么、什么时候读"的对照表，以及推荐阅读顺序。想从头理解这套设计，从这份进最省事。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/README.md" target="_blank" rel="noopener">阅读</a>
-            <a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/tree/main/kunpeng-devkit-ai-tui/docs" target="_blank" rel="noopener">整个 docs/</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/tree/main/kunpeng-devkit-ai-tui/docs" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>docs/
-            </a>
-          </div>
-        </article>
-
+      <div class="doclist">
+        <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/VISUAL.md" target="_blank" rel="noopener">
+          <span class="dn">VISUAL.md<span class="star"> ★</span></span>
+          <span class="dd">PTO → TUI 的完整 token 翻译、颜色纪律、动效边界。也写了曾经试过什么、为什么被推翻</span>
+          <span class="dw">573 行</span>
+        </a>
+        <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/OVERVIEW.md" target="_blank" rel="noopener">
+          <span class="dn">OVERVIEW.md</span>
+          <span class="dd">产品定位、愿景、五类用户角色、信息架构；三种形态的能力边界对照</span>
+          <span class="dw">150 行</span>
+        </a>
+        <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/JOURNEY.md" target="_blank" rel="noopener">
+          <span class="dn">JOURNEY.md</span>
+          <span class="dd">六阶段旅程 + Demo 十幕故事线；P27 配置补齐 / P28 下一步 / P29 多任务</span>
+          <span class="dw">216 行</span>
+        </a>
+        <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/PATTERN.md" target="_blank" rel="noopener">
+          <span class="dn">PATTERN.md</span>
+          <span class="dd">交互 Pattern 库 P01–P29，按 AI CLI 六阶段生命周期编排</span>
+          <span class="dw">234 行</span>
+        </a>
+        <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/TUI-CAPABILITY.md" target="_blank" rel="noopener">
+          <span class="dn">TUI-CAPABILITY.md</span>
+          <span class="dd">能力基线、渲染分层 T0–T5 与降级路径、八个图表原语、框架选型</span>
+          <span class="dw">166 行</span>
+        </a>
+        <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/FRAMEWORK.md" target="_blank" rel="noopener">
+          <span class="dn">FRAMEWORK.md</span>
+          <span class="dd">应用框架：MobaXterm 结构 × PTO 分割；左栏从顶通到底、八档折叠降级链</span>
+          <span class="dw">118 行</span>
+        </a>
+        <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/COMPONENT.md" target="_blank" rel="noopener">
+          <span class="dn">COMPONENT.md</span>
+          <span class="dd">图表原语库十四种 + 组件状态规范；含与 VISUAL.md 的一处冲突及判据</span>
+          <span class="dw">311 行</span>
+        </a>
+        <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/UX-SPEC.md" target="_blank" rel="noopener">
+          <span class="dn">UX-SPEC.md</span>
+          <span class="dd">布局、交互循环、命令体系、快捷键、状态符号体系 ✓ ▶ ○ ⚠ ✕</span>
+          <span class="dw">154 行</span>
+        </a>
+        <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/PRD.md" target="_blank" rel="noopener">
+          <span class="dn">PRD.md</span>
+          <span class="dd">四条主线场景 + 两个横向能力，各带用户目标 / Workflow / 验收指标</span>
+          <span class="dw">194 行</span>
+        </a>
+        <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/COMPETITIVE-ANALYSIS.md" target="_blank" rel="noopener">
+          <span class="dn">COMPETITIVE-ANALYSIS.md</span>
+          <span class="dd">7 竞品 × 22 触点；六条通用模式、七个必须绕开的坑、八条机会点</span>
+          <span class="dw">178 行</span>
+        </a>
+        <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/DEMO-WIREFRAME.md" target="_blank" rel="noopener">
+          <span class="dn">DEMO-WIREFRAME.md</span>
+          <span class="dd">四大 Demo 的 ASCII 交互稿，可直接对齐研发实现</span>
+          <span class="dw">220 行</span>
+        </a>
+        <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/README.md" target="_blank" rel="noopener">
+          <span class="dn">README.md</span>
+          <span class="dd">规范索引：每份文档写了什么、什么时候读，以及推荐阅读顺序</span>
+          <span class="dw">19 行</span>
+        </a>
       </div>
     </section>
+
 
     <!-- ═══════════ 组 C · 视觉规范速查 ═══════════ -->
     <section class="card-group" id="tokens" aria-labelledby="g-tok">
@@ -1029,8 +863,8 @@ table.spec-tb td.g{font-family:var(--mono);font-size:12px;color:var(--fg3)}
   <section class="status" aria-label="项目状态与下一步">
     <div>
       <h4>当前状态</h4>
-      <span class="badge">CONCEPT DESIGN · v0.9</span>
-      <p>设计规范已收敛，<b>实现尚未开始</b>。颜色给到预合成后的实色十六进制、组件给到 CSS 行为、渲染能力给到分层降级策略、Pattern 给到编号和适用条件——是一套可以直接拿去实现的规范，不是一份 PPT。</p>
+      <span class="badge">IN PROGRESS · 规范 v0.9 · 实现 v0.1</span>
+      <p>规范部分已收敛：颜色给到预合成后的实色十六进制、组件给到 CSS 行为、渲染能力给到分层降级策略。实现部分已落地<b>渲染底座 · Chrome 层外壳 · 十四种图表原语</b>，159 个测试。<b>Agent Runtime、MCP 客户端与业务逻辑尚未开始</b>——现在图上喂的还是确定性假数据。</p>
     </div>
     <div>
       <h4>待验证项</h4>
@@ -1041,14 +875,15 @@ table.spec-tb td.g{font-family:var(--mono);font-size:12px;color:var(--fg3)}
       </ul>
     </div>
     <div>
-      <h4>下一步 · Phase 0 渲染底座先行</h4>
-      <p>最有价值的 pattern（P21 Live Canvas、P26 AI 标注层、多核热力）全部依赖渲染底座。<b>若先做业务 Demo 再补渲染，大概率退化成"带框线的 CLI"。</b>建议先跑通三个原语——Braille 曲线 / 多核热力网格 / 可排序表——再接 MCP 客户端到 <span style="font-family:var(--mono);color:var(--accent)">:8000</span>，然后往上叠场景。</p>
+      <h4>下一步 · 接 MCP 客户端</h4>
+      <p>渲染底座先行这条已经兑现——最有价值的 pattern（P21 Live Canvas、P26 AI 标注层、多核热力）全都依赖它，<b>反过来做大概率退化成"带框线的 CLI"</b>。底座、外壳、图元都有了，缺的是真数据：接 MCP 到 <span style="font-family:var(--mono);color:var(--accent)">:8000</span>，然后往上叠场景。</p>
     </div>
   </section>
 
   <!-- ═══════════════════════════ footer ═══════════════════════════ -->
   <footer class="foot">
     <div>本页是站点首页 <a href="https://cinnnnnnndy.github.io/DevKit/">cinnnnnnndy.github.io/DevKit/</a>，源文件是仓库根的 <span class="mono">index.html</span>（Pages 分支模式发布，发布分支在 Settings → Pages 里指定）。站内链接走相对路径 <span class="mono">./kunpeng-devkit-ai-tui/web/*.html</span>，所以在线打开和本地双击打开是同一套链接；四份 HTML 都是自包含单文件，无需构建、无需联网。</div>
+    <div>「原生 TUI 实现」那组指向 <span class="mono">app/</span> 的源码——它是终端应用，浏览器里跑不了，所以只给源码链接；本地 <span class="mono">python -m devkitai</span> / <span class="mono">preview</span> / <span class="mono">gallery</span> 三个页面可以直接跑起来。这部分目前在 Pages 的发布分支上，尚未并入 <span class="mono">main</span>。</div>
     <div>「设计规范」那组指向 GitHub 上的 Markdown 源文件（Pages 会把 <span class="mono">.md</span> 直接当纯文本返回，读起来不方便），未标分支的都在 <span class="mono">main</span> 上。每张卡片底部的灰色路径是它在仓库里的位置，点进去就是源。</div>
     <div>本页视觉直接取自 <span class="mono">docs/VISUAL.md</span>：Dark-first 六级表面、预合成前景实色、红身份 / 蓝交互 / 粉红语义的三分工、方形为默认（圆角 = 浮起）。<b>启动页本身就是这套规范的第一个样例</b>——参照页是浅色的，这里没有照抄，因为这套 token 是 Dark-first 的。</div>
     <div>本页与全站均为 noindex。内部设计资料，授权方式待定；Kunpeng 标识及华为品牌色版权归华为技术有限公司所有，本仓库仅在设计示意中引用。</div>
