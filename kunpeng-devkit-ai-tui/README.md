@@ -38,11 +38,11 @@
 | **TUI 设计 demo**<br><sub>两种风格上下排列，各占一屏，可直接对照（两者都是 TUI，差别在版式）</sub> | [tui-demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/tui-demo.html) | [`web/tui-demo.html`](web/tui-demo.html) |
 | ├ **风格 A · 单栏工作台**<br><sub>十幕交互演示，可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点"</sub> | [demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo.html) | [`web/demo.html`](web/demo.html) |
 | └ **风格 B · 三栏分屏工作台**<br><sub>典型一屏：资源管理器 │ 源码预览 │ Agent 三个面板，Agent 面板承载主标签内容</sub> | [demo-studio.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo-studio.html) | [`web/demo-studio.html`](web/demo-studio.html) |
-| **产品规范单页**<br><sub>设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用）</sub> | [index.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html) | [`web/index.html`](web/index.html) |
+| **设计系统**<br><sub>Design System &amp; UX Spec：token + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用）</sub> | [index.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html) | [`web/index.html`](web/index.html) |
 | **TUI 竞品分析**<br><sub>7 竞品 × 22 触点 × 6 阶段旅程</sub> | [competitive-analysis.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/competitive-analysis.html) | [`web/competitive-analysis.html`](web/competitive-analysis.html) |
 | **TUI 视觉风格分析**<br><sub>五个审美流派 + 皮肤生态 + 手法清单</sub> | [visual-analysis.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/visual-analysis.html) | [`web/visual-analysis.html`](web/visual-analysis.html) |
 
-几个常用深链：[规范单页 · Chrome vs Canvas ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#chrome) · [规范单页 · Colors ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#color) · [规范单页 · 渲染分层 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#tier) · [竞品 · 机会点 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/competitive-analysis.html#f9) · [视觉 · 我们的定位 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/visual-analysis.html#v7)
+几个常用深链：[设计系统 · Chrome vs Canvas ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#chrome) · [设计系统 · Colors ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#color) · [设计系统 · 渲染分层 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#tier) · [竞品 · 机会点 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/competitive-analysis.html#f9) · [视觉 · 我们的定位 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/visual-analysis.html#v7)
 
 > 站点走 Pages 的分支模式发布（Settings → Pages → Deploy from a branch），发布分支在那里指定，推上去就会自动重新构建。仓库根的 `index.html` **就是**启动页，所以站点根打开即入口；根目录的 `.nojekyll` 关掉了 Jekyll——没有它时 Pages 会拿 README 渲染成首页，点开站点根看到的是这份文档而不是启动页。六份 HTML 按仓库里的路径原样访问，在线地址与仓库路径一一对应。旧的 `/launch.html` 保留成重定向壳，之前分享出去的链接仍然有效。
 
@@ -53,7 +53,7 @@
 </tr>
 <tr>
 <td><img src="assets/demo-diagnose.png" alt="编译翻车"><br><sub><b>⑥ 编译翻车</b> — 失败不只报错，直接转入诊断并给修复方案</sub></td>
-<td><img src="assets/spec-index.png" alt="规范单页"><br><sub><b>产品规范单页</b> — 设计系统与 Pattern 库的整合版</sub></td>
+<td><img src="assets/spec-index.png" alt="设计系统"><br><sub><b>设计系统</b> — token 体系与 Pattern 库的整合版</sub></td>
 </tr>
 </table>
 
