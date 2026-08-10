@@ -402,12 +402,13 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#93a6c2 0%,#84b0a2 
    所有尺寸按 1920×1080 实际像素设计；整台舞台再等比缩放塞进当前视口，
    所以任意屏幕上看到的都是同一张 1080p 设计稿，不是响应式重排。 */
 html,body{height:100%;overflow:hidden;background:#050505}
-#stage{position:absolute;left:0;top:0;width:2562px;height:1420px;
+#stage{position:absolute;left:0;top:0;width:2120px;height:1420px;
   transform-origin:top left;background:var(--bg);
   display:flex;flex-direction:column;padding:26px 30px 22px;gap:14px}
 #stage .head{max-width:none;margin:0;padding:0;gap:14px;flex:none}
 #stage .rail{max-width:none;margin:0;padding:0;gap:6px;flex:none;height:74px}
-.stagebody{flex:1;min-height:0;display:grid;grid-template-columns:2060px 424px;gap:18px}
+/* 右栏串讲卡片已移除：舞台只剩笔记本一列，画布与风格 B 同尺寸 */
+.stagebody{flex:1;min-height:0;display:flex;justify-content:center}
 .wrap{max-width:none;margin:0;padding:0;min-width:0;display:flex;align-items:center}
 
 /* ══ 无品牌笔记本外壳 —— 屏幕内仍是真实的 1920×1080 ══ */
@@ -436,10 +437,6 @@ html,body{height:100%;overflow:hidden;background:#050505}
 .canvases{flex:1;min-height:0}
 .boot{inset:0}
 
-/* 右栏串讲卡片竖排 */
-#stage .cap{max-width:none;margin:0;padding:0;display:flex;flex-direction:column;
-  gap:14px;min-height:0}
-#stage .capbox{overflow:auto;flex:none}
 
 /* 1080p 下的字号档 —— 终端单元格变大，不是把小终端放大 */
 .appbar{font-size:13px;padding:8px 15px}
@@ -502,10 +499,6 @@ pre.bgf{font-size:14px;line-height:1.5}
 #stage .act{padding:10px 12px}
 #stage .act .n{font-size:17px}
 #stage .act .t{font-size:12.5px}
-#stage .capbox{padding:18px 20px}
-#stage .capbox .e{font-size:11.5px}
-#stage .capbox h3{font-size:19px}
-#stage .capbox p{font-size:14.5px}
 #stage .pat{font-size:11.5px}
 
 
@@ -548,25 +541,6 @@ pre.bgf{font-size:14px;line-height:1.5}
   </div>
 </div>
 
-  <div class="cap">
-    <div class="capbox">
-      <div class="e" id="ce">ACT 01</div>
-      <h3 id="ct">—</h3>
-      <p id="cd">—</p>
-      <p>观众看到的哇点：<span class="wow" id="cw">—</span></p>
-      <div class="pats" id="cp"></div>
-      <div class="prog"><i id="pb" style="width:0"></i></div>
-    </div>
-    <div class="capbox">
-      <div class="e">串讲节奏</div>
-      <p style="font-size:12.5px">①–② <span class="mut">为什么是 TUI</span>　2 min<br>
-        ③–⑥ <span class="mut">AI 怎么把活干完且可审计</span>　5 min<br>
-        ⑦–⑨ <span class="mut">可观测与调优深度</span>　5 min<br>
-        ⑩ <span class="mut">收</span></p>
-      <p style="font-size:12px;color:var(--warn);margin-top:8px">⑥ 编译翻车是全场最关键的一幕——它证明系统能处理不顺利的情况。</p>
-      <p style="font-size:11.5px;color:var(--fg4);margin-top:8px">← → 切换 · 空格 播放/暂停</p>
-    </div>
-  </div>
 </div>
 
 <div class="rail" id="rail"></div>
@@ -577,8 +551,8 @@ const E=s=>document.getElementById(s);
 /* 舞台按 1920×1080 设计，等比缩放塞进视口 —— 设计稿尺寸恒定，不做响应式重排 */
 function fitStage(){
   const st=E('stage'); if(!st) return;
-  const k=Math.min(innerWidth/2562, innerHeight/1420);
-  st.style.transform=`translate(${(innerWidth-2562*k)/2}px, ${(innerHeight-1420*k)/2}px) scale(${k})`;
+  const k=Math.min(innerWidth/2120, innerHeight/1420);
+  st.style.transform=`translate(${(innerWidth-2120*k)/2}px, ${(innerHeight-1420*k)/2}px) scale(${k})`;
 }
 addEventListener('resize',fitStage);
 /* 嵌在 iframe 里时，首帧算出的视口尺寸可能还不是最终值，
@@ -1152,13 +1126,6 @@ function paint(){
   const a=ACTS[cur];
   [...document.querySelectorAll('.act')].forEach((el,i)=>{
     el.classList.toggle('on',i===cur); el.classList.toggle('done',i<cur);});
-  E('ce').textContent='ACT '+String(cur+1).padStart(2,'0')+' · '+a.t;
-  E('ct').textContent=a.title;
-  E('cd').innerHTML=a.desc;
-  E('cw').textContent=a.wow;
-  E('cp').innerHTML=a.pats.map((p,i)=>
-    `<span class="pat ${(a.hi||[]).includes(i)?'hi':''}">${p}</span>`).join('');
-  E('pb').style.width=((cur+1)/ACTS.length*100)+'%';
   requestAnimationFrame(()=>{measureGrid();fillBG();});
   E('tbt').textContent = cur===0 ? 'user@localhost — devkitai' : 'user@localhost — devkitai · migrate nginx';
   PF.enabled = !!a.particles;
