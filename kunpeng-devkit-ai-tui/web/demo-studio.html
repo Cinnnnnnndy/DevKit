@@ -49,6 +49,7 @@
   --hl-green:#B3F141;    /* ub-green-400    */
   --hl-orange:#FA8838;   /* accum-orange-400*/
 
+  --input-bg:var(--surface-1); --input-border:var(--border-default); --input-height-md:34px;
   --button-height-compact:28px; --button-gap:6px; --button-padding-x:12px;
   --button-secondary-bg:color-mix(in srgb,var(--surface-2) 92%,white 3%);
   --button-secondary-bg-hover:var(--surface-3);
@@ -98,6 +99,18 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
 .head .r{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--fg3)}
 
 .wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+
+/* 底栏 —— 与风格 A 的幕条等高，画布多出来的竖向空间用来说清三个框各自干什么 */
+.legend{flex:none;height:74px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.legend .lg{display:flex;flex-direction:column;justify-content:center;gap:3px;
+  padding:0 16px;border-radius:var(--radius-md);
+  background:var(--surface-1);border:1px solid var(--border-default)}
+.legend .lg .n{font-family:var(--font-mono);font-size:var(--font-size-label-xs);
+  color:var(--foreground-muted)}
+.legend .lg .t{font-size:13.5px;font-weight:var(--font-weight-medium);color:var(--foreground)}
+.legend .lg .d{font-size:12px;color:var(--foreground-muted)}
+.legend .lg.on{background:var(--state-selected);border-color:color-mix(in srgb,var(--primary) 45%,transparent)}
+.legend .lg.on .t{color:#cfe2ff}
 .laptop{width:2060px;flex:none;display:flex;flex-direction:column;align-items:center}
 .lid{position:relative;padding:30px 30px 56px;border-radius:20px 20px 4px 4px;
   background:linear-gradient(#3b4046,#22252a 55%,#16181b);border:1px solid #52585f;
@@ -143,6 +156,9 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
   grid-template-columns:786px minmax(0,1fr);transition:grid-template-columns .18s var(--easing,ease)}
 /* 代码区收起后整块让位给 Agent 面板 */
 .workarea.folded{grid-template-columns:308px minmax(0,1fr)}
+/* 收起后标签行装不下：只留"资源管理器"和收起按钮，其余隐藏，避免换行重叠 */
+.workarea.folded .tabrow .tab:not(.on){display:none}
+.workarea.folded .tabrow .repo{display:none}
 
 /* ── 合卡：资源管理器 + 源码同处一张 leaf-pane（BMC 的组织方式）── */
 .split2{flex:1;min-height:0;display:flex}
@@ -181,14 +197,14 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
 .tabrow{height:var(--comp-toolbar-height);flex:none;display:flex;align-items:center;
   gap:var(--space-1);padding:0 var(--space-2);
   background:var(--comp-toolbar-bg);border-bottom:1px solid var(--comp-toolbar-border)}
-.tab{display:flex;align-items:center;gap:var(--space-2);height:30px;padding:0 var(--space-3);
+.tab{display:flex;align-items:center;gap:var(--space-2);height:30px;white-space:nowrap;padding:0 var(--space-3);
   border-radius:var(--radius-md);border:1px solid transparent;
   font-size:var(--font-size-body-sm);line-height:var(--line-height-label);
   font-weight:var(--font-weight-medium);color:var(--foreground-secondary)}
 .tab .ic{font-size:var(--font-size-body-sm);opacity:.75}
 .tab.on{color:var(--foreground);background:var(--surface-2);border-color:var(--border-default)}
 .tab .x{color:var(--foreground-disabled);font-size:var(--font-size-label-xs);margin-left:var(--space-1)}
-.tabrow .ra{margin-left:auto;display:flex;align-items:center;gap:var(--space-2);
+.tabrow .ra{margin-left:auto;display:flex;align-items:center;gap:var(--space-2);white-space:nowrap;
   padding:0 var(--space-3);font-family:var(--font-mono);
   font-size:var(--font-size-label-xs);color:var(--foreground-muted);
   letter-spacing:var(--letter-spacing-label)}
@@ -198,6 +214,13 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
 /* 分组小标题 */
 .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
   color:var(--fg4);margin:0 6px 8px}
+
+/* 搜索框 —— 放在树上方，走 PTO 的 input token */
+.search{display:flex;align-items:center;gap:var(--space-2);height:var(--input-height-md);
+  padding:0 10px;margin:2px 2px 12px;border-radius:var(--radius-sm);
+  background:var(--input-bg);border:1px solid var(--input-border);
+  font-size:var(--font-size-body-sm);color:var(--foreground-muted)}
+.search .ic{font-family:var(--font-mono);color:var(--foreground-disabled);font-size:13px}
 
 /* ── 资源管理器：样式对齐 BMC 的文件树 ── */
 .tree{display:flex;flex-direction:column;font-family:var(--font-sans);font-size:13.5px}
@@ -387,8 +410,7 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
           <section class="pane">
             <div class="tabrow">
               <div class="tab on"><span class="ic">▤</span>资源管理器</div>
-              <div class="tab"><span class="ic">⌕</span>搜索</div>
-              <span class="ra">nginx-main
+              <span class="ra"><span class="repo">nginx-main</span>
                 <button class="fold" id="edfold" title="收起代码区"><span class="cv">▾</span>代码区</button>
               </span>
             </div>
@@ -396,6 +418,7 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
             <div class="split2">
               <aside class="side">
                 <div class="sbody">
+                  <div class="search"><span class="ic">⌕</span>在 nginx-main 中搜索</div>
                   <div class="tree">
               <div class="tr"><span class="cv">∨</span><span class="nm root">NGINX-MAIN</span></div>
               <div class="tr lv1"><span class="cv">∨</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-dir"><path d="M1.8 4.1h4.1l1.2 1.5h7.1v7a.9.9 0 0 1-.9.9H2.7a.9.9 0 0 1-.9-.9V4.1Z"/></svg><span class="nm">nginx</span></div>
@@ -539,6 +562,12 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
     <div class="hinge"></div>
     <div class="base"></div>
    </div>
+  </div>
+
+  <div class="legend">
+    <div class="lg"><span class="n">①</span><span class="t">资源管理器</span><span class="d">定位改动落在哪个文件</span></div>
+    <div class="lg"><span class="n">②</span><span class="t">源码</span><span class="d">预览这一处到底改了什么，可收起</span></div>
+    <div class="lg on"><span class="n">③</span><span class="t">Agent</span><span class="d">主标签：出计划、逐条给证据、等人确认</span></div>
   </div>
 
 </div>
