@@ -3,7 +3,7 @@
 > 面向鲲鹏迁移 / 开发 / 诊断 / 调优的 **AI Native Terminal Engineering Workspace** 的完整设计文档集。
 > 版本 0.9 · 概念设计阶段 · 2026-08
 
-![启动页](assets/demo-splash.png)
+![启动页](kunpeng-devkit-ai-tui/assets/demo-splash.png)
 
 ---
 
@@ -27,25 +27,27 @@
 
 ## 快速开始
 
+从 [`launch.html`](launch.html) 进——**项目启动页**，把四份可交互 HTML、十一份设计规范、整套视觉 token 收在一页，点开即看。
+
 四份 HTML 是自包含的单文件，**下载后双击即可打开**，无需构建、无需联网：
 
 | 文件 | 内容 |
 |---|---|
-| [`web/demo.html`](web/demo.html) | **十幕交互演示** — 可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点" |
-| [`web/index.html`](web/index.html) | **产品规范单页** — 设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用） |
-| [`web/competitive-analysis.html`](web/competitive-analysis.html) | **TUI 竞品分析** — 7 竞品 × 22 触点 × 6 阶段旅程 |
-| [`web/visual-analysis.html`](web/visual-analysis.html) | **TUI 视觉风格分析** — 五个审美流派 + 皮肤生态 + 手法清单 |
+| [`web/demo.html`](kunpeng-devkit-ai-tui/web/demo.html) | **十幕交互演示** — 可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点" |
+| [`web/index.html`](kunpeng-devkit-ai-tui/web/index.html) | **产品规范单页** — 设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用） |
+| [`web/competitive-analysis.html`](kunpeng-devkit-ai-tui/web/competitive-analysis.html) | **TUI 竞品分析** — 7 竞品 × 22 触点 × 6 阶段旅程 |
+| [`web/visual-analysis.html`](kunpeng-devkit-ai-tui/web/visual-analysis.html) | **TUI 视觉风格分析** — 五个审美流派 + 皮肤生态 + 手法清单 |
 
-想在浏览器里直接看，可以开启 GitHub Pages（Settings → Pages → Deploy from branch → `main` / `root`），之后访问 `https://<user>.github.io/<repo>/web/demo.html`。
+想在浏览器里直接看，可以开启 GitHub Pages（Settings → Pages → Deploy from branch → `main` / `root`），之后访问 `https://<user>.github.io/<repo>/launch.html`。
 
 <table>
 <tr>
-<td width="50%"><img src="assets/demo-report.png" alt="迁移报告"><br><sub><b>④ 出报告</b> — 文件风险热力用单一色阶顺序取档，一眼定位到 crypto.c</sub></td>
-<td width="50%"><img src="assets/demo-review.png" alt="审改动"><br><sub><b>⑤ 审改动</b> — 每条改动都附知识库案例编号与 ARM 手册章节，可跳转验证</sub></td>
+<td width="50%"><img src="kunpeng-devkit-ai-tui/assets/demo-report.png" alt="迁移报告"><br><sub><b>④ 出报告</b> — 文件风险热力用单一色阶顺序取档，一眼定位到 crypto.c</sub></td>
+<td width="50%"><img src="kunpeng-devkit-ai-tui/assets/demo-review.png" alt="审改动"><br><sub><b>⑤ 审改动</b> — 每条改动都附知识库案例编号与 ARM 手册章节，可跳转验证</sub></td>
 </tr>
 <tr>
-<td><img src="assets/demo-diagnose.png" alt="编译翻车"><br><sub><b>⑥ 编译翻车</b> — 失败不只报错，直接转入诊断并给修复方案</sub></td>
-<td><img src="assets/spec-index.png" alt="规范单页"><br><sub><b>产品规范单页</b> — 设计系统与 Pattern 库的整合版</sub></td>
+<td><img src="kunpeng-devkit-ai-tui/assets/demo-diagnose.png" alt="编译翻车"><br><sub><b>⑥ 编译翻车</b> — 失败不只报错，直接转入诊断并给修复方案</sub></td>
+<td><img src="kunpeng-devkit-ai-tui/assets/spec-index.png" alt="规范单页"><br><sub><b>产品规范单页</b> — 设计系统与 Pattern 库的整合版</sub></td>
 </tr>
 </table>
 
@@ -56,23 +58,26 @@
 ```
 .
 ├── README.md                        本文件
-├── docs/                            设计规范（Markdown）
-│   ├── OVERVIEW.md                  产品定位 · 愿景 · 用户角色 · 信息架构
-│   ├── PRD.md                       六大核心场景需求
-│   ├── UX-SPEC.md                   布局 · 交互模型 · 命令体系 · 快捷键
-│   ├── PATTERN.md                   交互 Pattern 库 P01–P29
-│   ├── COMPONENT.md                 图表原语与组件规范
-│   ├── VISUAL.md                    视觉系统：PTO Design System → TUI token 翻译 ★
-│   ├── JOURNEY.md                   六阶段用户旅程 · Demo 故事线
-│   ├── FRAMEWORK.md                 应用框架：MobaXterm 结构 × PTO 分割
-│   ├── TUI-CAPABILITY.md            能力基线 · 渲染分层 T0–T5 · 框架选型
-│   ├── COMPETITIVE-ANALYSIS.md      竞品分析（Markdown 版）
-│   └── DEMO-WIREFRAME.md            四大 Demo 的 ASCII 交互稿
-├── web/                             可交互 HTML（自包含单文件）
-└── assets/                          README 用截图
+├── launch.html                      项目启动页（入口，自包含单文件）
+└── kunpeng-devkit-ai-tui/
+    ├── README.md                    与本文件同内容
+    ├── docs/                        设计规范（Markdown）
+    │   ├── OVERVIEW.md              产品定位 · 愿景 · 用户角色 · 信息架构
+    │   ├── PRD.md                   六大核心场景需求
+    │   ├── UX-SPEC.md               布局 · 交互模型 · 命令体系 · 快捷键
+    │   ├── PATTERN.md               交互 Pattern 库 P01–P29
+    │   ├── COMPONENT.md             图表原语与组件规范
+    │   ├── VISUAL.md                视觉系统：PTO Design System → TUI token 翻译 ★
+    │   ├── JOURNEY.md               六阶段用户旅程 · Demo 故事线
+    │   ├── FRAMEWORK.md             应用框架：MobaXterm 结构 × PTO 分割
+    │   ├── TUI-CAPABILITY.md        能力基线 · 渲染分层 T0–T5 · 框架选型
+    │   ├── COMPETITIVE-ANALYSIS.md  竞品分析（Markdown 版）
+    │   └── DEMO-WIREFRAME.md        四大 Demo 的 ASCII 交互稿
+    ├── web/                         可交互 HTML（自包含单文件）
+    └── assets/                      README 用截图
 ```
 
-`docs/VISUAL.md` 是整套里最厚的一份（570+ 行），也是最值得先读的——所有视觉决策的推导过程和被推翻的方案都记在里面。
+[`docs/VISUAL.md`](kunpeng-devkit-ai-tui/docs/VISUAL.md) 是整套里最厚的一份（570+ 行），也是最值得先读的——所有视觉决策的推导过程和被推翻的方案都记在里面。
 
 ---
 
@@ -90,7 +95,7 @@
    kunpeng_knowledge_base_search · profiler
 ```
 
-框架选型结论：**Python + Textual**。FTXUI 是 C++ 已排除；OpenTUI（Zig + TS）作为备选记录在 `docs/TUI-CAPABILITY.md`。
+框架选型结论：**Python + Textual**。FTXUI 是 C++ 已排除；OpenTUI（Zig + TS）作为备选记录在 [`docs/TUI-CAPABILITY.md`](kunpeng-devkit-ai-tui/docs/TUI-CAPABILITY.md)。
 
 ---
 
@@ -116,7 +121,9 @@
 
 视觉继承 **PTO Design System 4.1**（529 tokens · Dark-first · Inter + JetBrains Mono），定位是技术、克制、精确——对标 Cursor / Warp / Resend，而非消费级仪表盘。
 
-`docs/VISUAL.md` 记录了完整的 web → terminal token 翻译：六级表面、四级前景透明度预合成为实色、状态叠加层预合成、五档 highlight ramp 的顺序 vs 分类纪律、以及为什么品牌蓝会和原色板里的 copy-blue 撞色（色相差 7°，最后退役了 copy-blue 并重建了域色映射）。
+[`docs/VISUAL.md`](kunpeng-devkit-ai-tui/docs/VISUAL.md) 记录了完整的 web → terminal token 翻译：六级表面、四级前景透明度预合成为实色、状态叠加层预合成、五档 highlight ramp 的顺序 vs 分类纪律、以及为什么品牌蓝会和原色板里的 copy-blue 撞色（色相差 7°，最后退役了 copy-blue 并重建了域色映射）。
+
+上述 token 的速查版直接排在 [`launch.html#tokens`](launch.html#tokens) 上——六级表面、预合成前景、状态叠加、域色映射、三条用色纪律、渲染分层 T0–T5，都能直接取色。
 
 ---
 
@@ -127,6 +134,8 @@
 - Textual 在 199×43 网格下的全屏重绘性能（尤其是 SSH 低带宽场景）
 - 终端图形协议（T5）在目标环境的实际可用比例
 - Braille 密度渲染在中文等宽字体下的对齐表现
+
+下一步建议按 [`docs/TUI-CAPABILITY.md`](kunpeng-devkit-ai-tui/docs/TUI-CAPABILITY.md) §6 的 **Phase 0 渲染底座先行**：先跑通 Braille 曲线 / 多核热力网格 / 可排序表三个原语，再接 MCP 客户端到 `:8000`，然后往上叠场景。若先做业务 Demo 再补渲染，大概率退化成"带框线的 CLI"。
 
 欢迎以 Issue 形式讨论。文档中所有被推翻的方案都保留了推翻理由，改动前建议先读一眼相关章节，避免重复踩坑。
 

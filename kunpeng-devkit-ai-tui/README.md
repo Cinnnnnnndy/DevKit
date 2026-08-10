@@ -27,6 +27,8 @@
 
 ## 快速开始
 
+从仓库根的 [`launch.html`](../launch.html) 进——**项目启动页**，把四份可交互 HTML、十一份设计规范、整套视觉 token 收在一页，点开即看。
+
 四份 HTML 是自包含的单文件，**下载后双击即可打开**，无需构建、无需联网：
 
 | 文件 | 内容 |
@@ -36,7 +38,7 @@
 | [`web/competitive-analysis.html`](web/competitive-analysis.html) | **TUI 竞品分析** — 7 竞品 × 22 触点 × 6 阶段旅程 |
 | [`web/visual-analysis.html`](web/visual-analysis.html) | **TUI 视觉风格分析** — 五个审美流派 + 皮肤生态 + 手法清单 |
 
-想在浏览器里直接看，可以开启 GitHub Pages（Settings → Pages → Deploy from branch → `main` / `root`），之后访问 `https://<user>.github.io/<repo>/web/demo.html`。
+想在浏览器里直接看，可以开启 GitHub Pages（Settings → Pages → Deploy from branch → `main` / `root`），之后访问 `https://<user>.github.io/<repo>/launch.html`。
 
 <table>
 <tr>
@@ -118,6 +120,8 @@
 
 `docs/VISUAL.md` 记录了完整的 web → terminal token 翻译：六级表面、四级前景透明度预合成为实色、状态叠加层预合成、五档 highlight ramp 的顺序 vs 分类纪律、以及为什么品牌蓝会和原色板里的 copy-blue 撞色（色相差 7°，最后退役了 copy-blue 并重建了域色映射）。
 
+上述 token 的速查版直接排在 [`launch.html#tokens`](../launch.html#tokens) 上——六级表面、预合成前景、状态叠加、域色映射、三条用色纪律、渲染分层 T0–T5，都能直接取色。
+
 ---
 
 ## 状态与后续
@@ -127,6 +131,8 @@
 - Textual 在 199×43 网格下的全屏重绘性能（尤其是 SSH 低带宽场景）
 - 终端图形协议（T5）在目标环境的实际可用比例
 - Braille 密度渲染在中文等宽字体下的对齐表现
+
+下一步建议按 [`docs/TUI-CAPABILITY.md`](docs/TUI-CAPABILITY.md) §6 的 **Phase 0 渲染底座先行**：先跑通 Braille 曲线 / 多核热力网格 / 可排序表三个原语，再接 MCP 客户端到 `:8000`，然后往上叠场景。若先做业务 Demo 再补渲染，大概率退化成"带框线的 CLI"。
 
 欢迎以 Issue 形式讨论。文档中所有被推翻的方案都保留了推翻理由，改动前建议先读一眼相关章节，避免重复踩坑。
 
