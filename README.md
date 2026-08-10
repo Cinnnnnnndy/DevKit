@@ -83,18 +83,19 @@
     │   └── DEMO-WIREFRAME.md        四大 Demo 的 ASCII 交互稿
     ├── web/                         可交互 HTML（自包含单文件）
     ├── assets/                      README 用截图
-    └── app/                         原生 TUI 实现（Phase 0 渲染底座）
+    └── app/                         原生 TUI 实现
         ├── devkitai/
         │   ├── tokens.py            PTO → TUI token 直译
         │   ├── tiers.py             能力探测 + T0–T5 降级链
-        │   ├── spec.py              组件评审门槛
         │   ├── layout.py            折叠降级链（宽度 → 布局判决）
-        │   ├── render/              纯渲染层（braille / blocks / ramp）
+        │   ├── spec.py              组件评审门槛
+        │   ├── render/              纯渲染层：十四种图元 + 按 cell 对齐
         │   ├── widgets/             Chrome 层 + Canvas 层组件
         │   ├── theme/pto.tcss       样式表，无十六进制字面量
         │   ├── shell.py             工作台外壳
-        │   └── preview.py           组件预览页
-        └── tests/                   114 个测试
+        │   ├── preview.py           组件预览页
+        │   └── gallery.py           图元画廊
+        └── tests/                   159 个测试
 ```
 
 [`docs/VISUAL.md`](kunpeng-devkit-ai-tui/docs/VISUAL.md) 是整套里最厚的一份（570+ 行），也是最值得先读的——所有视觉决策的推导过程和被推翻的方案都记在里面。
@@ -149,13 +150,14 @@
 
 ## 状态与后续
 
-设计规范已收敛；实现进行中（[`app/`](kunpeng-devkit-ai-tui/app/)）。已落地 **Phase 0 渲染底座**（Braille 曲线 / 多核热力网格 / 可排序算子表 + PTO token + T0–T5 降级链）与 **Chrome 层外壳**（Dock 从顶通到底、TabBar、输入框、keybar、状态栏，以及按终端宽度分档的折叠降级链）。Agent Runtime、MCP 客户端与业务逻辑尚未开始。
+设计规范已收敛；实现进行中（[`app/`](kunpeng-devkit-ai-tui/app/)）。已落地 **Phase 0 渲染底座**（PTO token + T0–T5 降级链）、**Chrome 层外壳**（Dock 从顶通到底、TabBar、输入框、keybar、状态栏，以及按终端宽度分档的折叠降级链），以及**十四种图表原语**（条形 / 排行 / 多列 / Before-After / 折线 / 面积 / 散点 / 火焰图 / 泳道 / 水位 / 进度 / 分段 / 像素数字 / 数图 / 热力）。Agent Runtime、MCP 客户端与业务逻辑尚未开始。
 
 ```bash
 cd kunpeng-devkit-ai-tui/app && pip install -e '.[dev]'
 python -m devkitai          # 工作台外壳
 python -m devkitai preview  # 组件预览页，按 t 现场切换渲染层看降级
-pytest                      # 114 个测试
+python -m devkitai gallery  # 图元画廊：十四种图表原语的活样本
+pytest                      # 159 个测试
 ```
 
 文档中已明确标注的待验证项：
@@ -164,7 +166,7 @@ pytest                      # 114 个测试
 - 终端图形协议（T5）在目标环境的实际可用比例
 - Braille 密度渲染在中文等宽字体下的对齐表现
 
-下一步建议按 [`docs/TUI-CAPABILITY.md`](kunpeng-devkit-ai-tui/docs/TUI-CAPABILITY.md) §6 的 **Phase 0 渲染底座先行**：先跑通 Braille 曲线 / 多核热力网格 / 可排序表三个原语，再接 MCP 客户端到 `:8000`，然后往上叠场景。若先做业务 Demo 再补渲染，大概率退化成"带框线的 CLI"。
+下一步是**接 MCP 客户端到 `:8000`**——底座、外壳、图元都有了，缺的是真数据（现在喂的都是 `math.sin` 的确定性假数据）。渲染底座先行这条已经兑现：若先做业务 Demo 再补渲染，大概率退化成"带框线的 CLI"（[`docs/TUI-CAPABILITY.md`](kunpeng-devkit-ai-tui/docs/TUI-CAPABILITY.md) §6）。
 
 欢迎以 Issue 形式讨论。文档中所有被推翻的方案都保留了推翻理由，改动前建议先读一眼相关章节，避免重复踩坑。
 
