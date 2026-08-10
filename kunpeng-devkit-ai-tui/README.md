@@ -27,12 +27,13 @@
 
 ## 快速开始
 
-五份 HTML 是自包含的单文件，**下载后双击即可打开**，无需构建、无需联网：
+六份 HTML 是自包含的单文件，**下载后双击即可打开**，无需构建、无需联网：
 
 | 文件 | 内容 |
 |---|---|
-| [`web/demo.html`](web/demo.html) | **十幕交互演示** — 可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点" |
-| [`web/demo-studio.html`](web/demo-studio.html) | **IDE 分屏工作台（风格 B）** — 典型一屏：资源管理器 │ 源码 │ Agent 三面板，外框复用 openUBMC Studio |
+| [`web/tui-demo.html`](web/tui-demo.html) | **TUI 设计 demo** — 两种风格并排比较的入口，可切换"只看 A / 只看 B"，附风格对照表 |
+| ├ [`web/demo.html`](web/demo.html) | 风格 A · **终端 TUI** — 十幕交互演示，可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点" |
+| └ [`web/demo-studio.html`](web/demo-studio.html) | 风格 B · **IDE 分屏工作台** — 典型一屏：资源管理器 │ 源码 │ Agent 三面板，外框复用 openUBMC Studio |
 | [`web/index.html`](web/index.html) | **产品规范单页** — 设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用） |
 | [`web/competitive-analysis.html`](web/competitive-analysis.html) | **TUI 竞品分析** — 7 竞品 × 22 触点 × 6 阶段旅程 |
 | [`web/visual-analysis.html`](web/visual-analysis.html) | **TUI 视觉风格分析** — 五个审美流派 + 皮肤生态 + 手法清单 |
