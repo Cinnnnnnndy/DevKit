@@ -42,7 +42,7 @@
 
 几个常用深链：[规范单页 · Chrome vs Canvas ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#chrome) · [规范单页 · Colors ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#color) · [规范单页 · 渲染分层 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#tier) · [竞品 · 机会点 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/competitive-analysis.html#f9) · [视觉 · 我们的定位 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/visual-analysis.html#v7)
 
-> Pages 从 `main` 分支根目录发布，上面的地址在改动合入 `main`、Pages 完成一次构建之后生效。仓库根没有 `index.html`，所以站点根地址 `https://cinnnnnnndy.github.io/DevKit/` 不会有内容，请直接进 `launch.html`。
+> 站点走 Pages 的分支模式发布（Settings → Pages → Deploy from a branch），发布分支在那里指定，推上去就会自动重新构建。站点根 `https://cinnnnnnndy.github.io/DevKit/` 由 Jekyll 渲染仓库根的 README；启动页与四份 HTML 按仓库里的路径原样访问，所以在线地址和仓库路径是一一对应的。
 
 <table>
 <tr>
