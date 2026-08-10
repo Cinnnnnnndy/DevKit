@@ -27,7 +27,7 @@
 
 ## 快速开始
 
-**在线入口 ▸ https://cinnnnnnndy.github.io/DevKit/launch.html**
+**在线入口 ▸ https://cinnnnnnndy.github.io/DevKit/**
 
 项目启动页，把四份可交互 HTML、十一份设计规范、整套视觉 token 收在一页，点开即看。
 
@@ -42,7 +42,7 @@
 
 几个常用深链：[规范单页 · Chrome vs Canvas ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#chrome) · [规范单页 · Colors ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#color) · [规范单页 · 渲染分层 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#tier) · [竞品 · 机会点 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/competitive-analysis.html#f9) · [视觉 · 我们的定位 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/visual-analysis.html#v7)
 
-> 站点走 Pages 的分支模式发布（Settings → Pages → Deploy from a branch），发布分支在那里指定，推上去就会自动重新构建。站点根 `https://cinnnnnnndy.github.io/DevKit/` 由 Jekyll 渲染本 README；启动页与四份 HTML 按仓库里的路径原样访问，所以在线地址和仓库路径是一一对应的。
+> 站点走 Pages 的分支模式发布（Settings → Pages → Deploy from a branch），发布分支在那里指定，推上去就会自动重新构建。仓库根的 `index.html` **就是**启动页，所以站点根打开即入口；根目录的 `.nojekyll` 关掉了 Jekyll——没有它时 Pages 会拿 README 渲染成首页，点开站点根看到的是这份文档而不是启动页。四份 HTML 按仓库里的路径原样访问，在线地址与仓库路径一一对应。旧的 `/launch.html` 保留成重定向壳，之前分享出去的链接仍然有效。
 
 <table>
 <tr>
@@ -62,7 +62,9 @@
 ```
 .
 ├── README.md                        本文件
-├── launch.html                      项目启动页（入口，自包含单文件）
+├── index.html                       项目启动页 = 站点首页（自包含单文件）
+├── launch.html                      重定向壳，保旧链接不失效
+├── .nojekyll                        关掉 Jekyll，否则 README 会顶掉首页
 └── kunpeng-devkit-ai-tui/
     ├── README.md                    与本文件同内容
     ├── docs/                        设计规范（Markdown）
@@ -127,7 +129,7 @@
 
 [`docs/VISUAL.md`](kunpeng-devkit-ai-tui/docs/VISUAL.md) 记录了完整的 web → terminal token 翻译：六级表面、四级前景透明度预合成为实色、状态叠加层预合成、五档 highlight ramp 的顺序 vs 分类纪律、以及为什么品牌蓝会和原色板里的 copy-blue 撞色（色相差 7°，最后退役了 copy-blue 并重建了域色映射）。
 
-上述 token 的速查版直接排在启动页的 [视觉规范速查 ↗](https://cinnnnnnndy.github.io/DevKit/launch.html#tokens) 一节——六级表面、预合成前景、状态叠加、域色映射、三条用色纪律、渲染分层 T0–T5，都能直接取色。
+上述 token 的速查版直接排在启动页的 [视觉规范速查 ↗](https://cinnnnnnndy.github.io/DevKit/#tokens) 一节——六级表面、预合成前景、状态叠加、域色映射、三条用色纪律、渲染分层 T0–T5，都能直接取色。
 
 ---
 
