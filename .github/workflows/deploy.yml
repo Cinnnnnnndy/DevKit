@@ -1,0 +1,58 @@
+# 把仓库根整个发布到 GitHub Pages。
+#
+# 站点是纯静态的（launch.html + kunpeng-devkit-ai-tui/web/*.html + assets），
+# 没有构建步骤，所以这里只做一件事：把仓库内容原样打包上传。
+#
+# 发布后的地址：
+#   https://cinnnnnnndy.github.io/DevKit/launch.html
+#   https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo.html
+#   （其余三份 HTML 同理，路径与仓库里一致）
+#
+# 前提：Settings → Pages → Source 必须是 **GitHub Actions**。
+# 如果这个 workflow 在最后一步报 Pages 相关的 404 / Not Found，
+# 就是 Source 还停在 "Deploy from a branch" —— 改成 GitHub Actions 后重跑即可。
+# （反过来，若你更想用分支模式，把 Source 设成 main / root，本文件可以直接删掉。）
+
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 允许一个部署在跑；排队的新部署不取消正在进行的那个
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      # 整个仓库原样发布，只去掉 .git 与产物目录本身
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          rsync -a --exclude '.git' --exclude '_site' ./ _site/
+          ls -la _site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
