@@ -142,3 +142,5 @@ DataTable > .datatable--hover { background: $pto-hover; }
 /* 焦点不靠颜色靠边框强度——终端画不出外发光轮廓 */
 .canvas:focus-within { border: solid $pto-border-strong; }
 
+
+#gallery { padding: 1 2; background: $pto-background; }

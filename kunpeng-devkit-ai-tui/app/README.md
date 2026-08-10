@@ -9,8 +9,9 @@
 ```bash
 pip install -e '.[dev]'
 python -m devkitai            # 工作台外壳
-python -m devkitai preview    # 组件预览页
-pytest                        # 114 个测试
+python -m devkitai preview    # 组件预览页 · 可现场切换渲染层
+python -m devkitai gallery    # 图元画廊 · COMPONENT.md §3 的活样本
+pytest                        # 159 个测试
 ```
 
 预览页可以**现场切换渲染层**，因为降级路径写在文档里没人会去验，能按一下就看到的才会：
@@ -32,9 +33,14 @@ devkitai/
 ├── layout.py          折叠降级链：宽度 → 布局判决（纯函数）
 ├── spec.py            组件评审门槛（ComponentSpec）
 ├── shell.py           工作台外壳，Dock 从顶通到底
+├── gallery.py         图元画廊
 ├── render/            纯渲染层，不依赖 Textual
 │   ├── braille.py     T2 · 2×4 点阵画布
 │   ├── blocks.py      T1 · 块字符 / 半块 / 象限
+│   ├── bars.py        条形族 · 水位 · 进度 · 阈值判断
+│   ├── plots.py       折线 · 散点 · 火焰图 · 泳道
+│   ├── bignum.py      像素数字 · 数图 Stat
+│   ├── text.py        按单元格宽度对齐（禁用裸 ljust）
 │   └── ramp.py        色阶取值 + 用色纪律的运行期护栏
 ├── widgets/
 │   ├── dock.py            Dock：竖标签条 + 面板 + ⇄ 跟随 · Chrome
@@ -74,6 +80,25 @@ devkitai/
 | **Canvas**（读数） | Braille 曲线 · 热力网格 · 算子表 | 用户在这里做的是看数值 / 比大小 / 找异常，需要的是密度与对齐。64 核热力如果用 64 个 widget，密度、对齐、性能全都做不到 |
 
 外壳结构按「左栏要从顶通到底」：Dock 从顶端一直通到状态栏，品牌标识进 Dock 头部，tab 带缩回主区。结果是**一条垂直分割贯穿全屏、一条水平分割横贯全屏，两条线各只出现一次**。全宽的只有 keybar 与状态栏——判据是「切换页签会变的东西归页签，不变的归窗口」。
+
+## 图元库
+
+十四种图元，按**回答什么问题**分组而不是按名字排——选图之前先问自己在回答哪个问题：
+
+| 组 | 图元 | 渲染层 |
+|---|---|---|
+| 比大小 | Metric Bar · 排行 · 多列 · Before/After | T1 |
+| 看趋势 | 折线 · 面积 · Sparkline · 双向面积 | T2 |
+| 找位置 | 散点 · 火焰图 · 泳道 Timeline | T2 / T1 |
+| 看余量 | 水位 · 进度 · 分段 | T1 |
+| 读单值 | 像素数字 · 数图 Stat | T1 |
+| 看分布 | 热力网格 | T3 |
+
+完整规格见 [`../docs/COMPONENT.md`](../docs/COMPONENT.md) §3，跑 `python -m devkitai gallery` 看活样本。
+
+三条贯穿全族的规则：**八分之一格精度**（10 格宽的 bar 能分 80 档，否则 82% 和 85% 长得一样）· **并置必须共用量程**（否则并置就没有意义）· **画不下的要显式说**（火焰图标「N 帧过窄未显示」，悄悄省略会让「我看全了」变成错觉）。
+
+其中一处规范冲突按 VISUAL.md 解了：COMPONENT.md 原本要求 Metric Bar 按阈值着 warn / error 色，但 VISUAL.md §1.6 定死语义色永不上色块。现在 **bar 走域色阶（数据），阈值判断只上数值文字（结论）** —— 一个 90% 的利用率本身不是错误。
 
 ## 还没做
 

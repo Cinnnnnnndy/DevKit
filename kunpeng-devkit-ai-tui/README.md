@@ -27,7 +27,7 @@
 
 ## 快速开始
 
-**在线入口 ▸ https://cinnnnnnndy.github.io/DevKit/**
+**在线入口 ▸ [cinnnnnnndy.github.io/DevKit](https://cinnnnnnndy.github.io/DevKit/)**
 
 仓库根的项目启动页，把六份可交互 HTML、十一份设计规范、整套视觉 token 收在一页，点开即看（源文件 [`../index.html`](../index.html)）。
 

@@ -13,7 +13,7 @@ dependencies = ["textual>=1.0"]
 dev = ["pytest>=8", "pytest-asyncio>=0.23"]
 
 [project.scripts]
-devkitai = "devkitai.preview:main"
+devkitai = "devkitai.__main__:main"
 
 [tool.setuptools.packages.find]
 include = ["devkitai*"]
