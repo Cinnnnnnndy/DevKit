@@ -315,7 +315,7 @@ table.spec-tb td.g{font-family:var(--mono);font-size:12px;color:var(--fg3)}
       上方色带即全站用色分工 ▸ <em>红 = 身份</em> · <em>蓝 = 交互</em> · <em>粉红 = 语义</em> · <em>后四色 = CPU / NPU / Memory / IO 域色阶</em>
     </p>
     <div class="hero-actions">
-      <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/demo.html">看十幕交互演示</a>
+      <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/tui-demo.html">看 TUI 设计 demo</a>
       <a class="pill" href="./kunpeng-devkit-ai-tui/web/index.html">产品规范单页</a>
       <a class="pill" href="./kunpeng-devkit-ai-tui/web/competitive-analysis.html">TUI 竞品分析</a>
       <a class="pill" href="./kunpeng-devkit-ai-tui/web/visual-analysis.html">TUI 视觉风格分析</a>
@@ -338,12 +338,12 @@ table.spec-tb td.g{font-family:var(--mono);font-size:12px;color:var(--fg3)}
         <!-- demo.html -->
         <article class="card">
           <div class="card-head">
-            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/demo.html">十幕交互演示</a></h3>
+            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/tui-demo.html">TUI 设计 demo</a></h3>
             <div class="card-tags">
               <span class="tag tag--html">演示</span>
-              <span class="tag">十幕</span>
+              <span class="tag">两种风格</span>
+              <span class="tag">并排比较</span>
               <span class="tag">1920×1080</span>
-              <span class="tag">199×43</span>
             </div>
           </div>
           <div class="card-preview tall" aria-hidden="true">
@@ -357,14 +357,16 @@ table.spec-tb td.g{font-family:var(--mono);font-size:12px;color:var(--fg3)}
 <span class="pv-dim">│</span> <span class="pv-fg">memory.c</span> <span class="pv-wn">█████</span><span class="pv-dim">░░░░░░</span>  <span class="pv-wn">8 warn</span>
 <span class="pv-dim">╰─ 1 2 3 4 5 </span><span class="pv-run">6</span><span class="pv-dim"> 7 8 9 10 ─────────</span></pre>
           </div>
-          <p class="card-desc">主角是性能工程师，要把一套 x86 上的 nginx 迁到鲲鹏 ARM64 并调到可上线性能。可自动播放或键盘切换，右侧三张卡给出<b>本幕说明与"哇点"</b>、本幕在六阶段旅程中的位置、串讲节奏。终端画布固定 <span class="mono">1920×1080</span>、字符网格 <span class="mono">199×43</span>，整台舞台等比缩放到视口——任何屏幕上看到的都是同一张设计稿。</p>
+          <p class="card-desc">同一个故事的<b>两种界面风格，可并排对照</b>。主角是性能工程师，要把一套 x86 上的 nginx 迁到鲲鹏 ARM64 并调到可上线性能。<b>风格 A · 终端 TUI</b>：十幕连续剧，可自动播放或键盘切换，含"编译翻车"转诊断的关键一幕；<b>风格 B · IDE 分屏工作台</b>：单张典型工作屏，资源管理器 │ 源码 │ Agent 三个面板，外框复用 openUBMC Studio。两者画布都固定 <span class="mono">1920×1080</span>，整台舞台等比缩放到视口——任何屏幕上看到的都是同一张设计稿。</p>
           <div class="card-links">
-            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/demo.html">打开演示</a>
+            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/tui-demo.html">并排比较</a>
+            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/demo.html">风格 A · 终端 TUI</a>
+            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/demo-studio.html">风格 B · IDE 分屏</a>
             <a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/JOURNEY.md" target="_blank" rel="noopener">故事线文档</a>
           </div>
           <div class="card-src">
             <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/demo.html" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/demo.html
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/tui-demo.html
             </a>
           </div>
         </article>
