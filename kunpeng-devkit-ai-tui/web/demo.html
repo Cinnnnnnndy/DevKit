@@ -581,6 +581,9 @@ function fitStage(){
   st.style.transform=`translate(${(innerWidth-2562*k)/2}px, ${(innerHeight-1420*k)/2}px) scale(${k})`;
 }
 addEventListener('resize',fitStage);
+/* 嵌在 iframe 里时，首帧算出的视口尺寸可能还不是最终值，
+   resize 事件也未必补发 —— 用 ResizeObserver 兜底，保证任何容器尺寸变化都重新贴合。 */
+if(window.ResizeObserver) new ResizeObserver(fitStage).observe(document.documentElement);
 /* 终端尺寸标签按真实字符网格算出来，不写死 */
 /* 背景字符场按当前真实网格生成 —— 它是"字符"，不是图片 */
 let FLOW={raf:0,t:0,d:null,cols:0,rows:0};

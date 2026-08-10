@@ -3,29 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kunpeng DevKit AI · 风格 B · IDE 分屏工作台</title>
+<title>Kunpeng DevKit AI · 风格 B · 三栏分屏工作台</title>
 <style>
 /* ══════════════════════════════════════════════════════════════════
-   风格 B —— 复用 openUBMC Studio 的 IDE 外框：
+   风格 B —— 复用 openUBMC Studio 的外框：
      topbar / activity-rail / workarea，工作区由若干 leaf-pane 分屏组成。
    本页展示最典型的一屏：资源管理器 │ 源码 │ Agent —— 三个独立面板。
-   与 demo.html（风格 A · 终端 TUI）并列，互不覆盖。
+   与 demo.html（风格 A · 单栏工作台）并列，互不覆盖。
    ══════════════════════════════════════════════════════════════════ */
 :root{
-  /* 取自 openUBMC Studio 的 design token */
-  --background:#101010; --panel-bg:#161616; --s2:#1c1c1c; --s3:#262626; --s4:#313131;
-  --fg:rgba(255,255,255,.9); --fg2:rgba(255,255,255,.6); --fg3:rgba(255,255,255,.4);
-  --fg4:rgba(255,255,255,.28);
-  --pane-border:rgba(255,255,255,.08); --hair:rgba(255,255,255,.06);
-  --state-sel:rgba(255,255,255,.08); --state-hover:rgba(255,255,255,.06);
-  --accent:#4369ef; --accent-h:#6b8cf5; --aux:#7c8db8;
-  --ok:#04d793; --warn:#ffaa3b; --danger:#ff4b7b;
-  --v4:#9B3CF6; --v3:#B977F9; --g4:#B3F141; --o4:#FA8838;
-  --kp:#ED1C24;
-  --r-sm:6px; --r-md:8px; --r-lg:12px;
-  --mono:'JetBrains Mono','Fira Code','Consolas','Noto Sans Mono CJK SC',monospace;
-  --sans:'Inter','Source Han Sans SC','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
-  --ide-bg:radial-gradient(circle at top left,rgb(98 90 215 / .22),transparent 28%),
+  /* ══ PTO 设计系统 token ══ 名称与取值均照抄 PTO_Design_System_Guide 的暗色主题，
+     本页不自造颜色：所有色值都从下面这组基元派生。 */
+  --ark-neutral-0:#0b0b0b; --ark-neutral-1:#101010; --ark-neutral-2:#141414;
+  --ark-neutral-3:#1a1a1a; --ark-neutral-4:#343434;
+  --ark-blue-500:#4369ef; --ark-blue-600:#5a92e6; --ark-domain-aux:#7c8db8;
+  --ark-green-500:#04d793; --ark-orange-500:#ffaa3b; --ark-red-500:#ff4b7b;
+
+  --background:var(--ark-neutral-1);
+  --background-elevated:var(--ark-neutral-2);
+  --surface-1:#161616; --surface-2:#1c1c1c; --surface-3:#262626; --surface-4:#313131;
+
+  --foreground:rgba(255,255,255,.90);
+  --foreground-secondary:rgba(255,255,255,.60);
+  --foreground-muted:rgba(255,255,255,.40);
+  --foreground-disabled:rgba(255,255,255,.25);
+
+  --border-subtle:var(--border-subtle);
+  --border-default:rgba(255,255,255,.10);
+  --border-strong:rgba(255,255,255,.16);
+
+  --state-hover:var(--border-subtle);
+  --state-press:rgba(255,255,255,.10);
+  --state-muted:var(--border-subtle);
+  --state-selected:rgba(67,105,239,.14);
+  --state-focus:rgba(67,105,239,.20);
+
+  --primary:var(--ark-blue-500); --primary-hover:var(--ark-blue-600);
+  --accent:var(--ark-domain-aux);
+  --success:var(--ark-green-500); --warning:var(--ark-orange-500); --danger:var(--ark-red-500);
+
+  /* 语法高亮取 PTO highlight 色阶 */
+  --hl-violet:#B977F9;   /* l0a-violet-300  */
+  --hl-green:#B3F141;    /* ub-green-400    */
+  --hl-orange:#FA8838;   /* accum-orange-400*/
+
+  --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-pill:999px;
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+  --shadow-md:0 6px 18px rgba(0,0,0,.34); --shadow-lg:0 12px 30px rgba(0,0,0,.42);
+
+  --font-mono:'JetBrains Mono','Fira Code','Consolas','Noto Sans Mono CJK SC',monospace;
+  --font-sans:'Inter','Source Han Sans SC','PingFang SC','Noto Sans SC',sans-serif;
+
+  /* 旧别名 → PTO token，正文样式不必逐条改写 */
+  --fg:var(--foreground); --fg2:var(--foreground-secondary);
+  --fg3:var(--foreground-muted); --fg4:var(--foreground-disabled);
+  --panel-bg:var(--surface-1); --s2:var(--surface-2); --s3:var(--surface-3); --s4:var(--surface-4);
+  --accent-h:var(--primary-hover); --aux:var(--accent);
+  --ok:var(--success); --warn:var(--warning);
+  --v3:var(--hl-violet); --g4:var(--hl-green); --o4:var(--hl-orange);
+  --pane-border:var(--border-default); --hair:var(--border-subtle);
+  --state-sel:var(--state-selected);
+  --r-sm:var(--radius-sm); --r-md:var(--radius-md); --r-lg:var(--radius-lg);
+  --mono:var(--font-mono); --sans:var(--font-sans);
+  --shell-bg:radial-gradient(circle at top left,rgb(98 90 215 / .22),transparent 28%),
            radial-gradient(circle at top right,rgb(60 98 235 / .18),transparent 30%),
            radial-gradient(circle at 48% 6%,rgb(65 100 218 / .05),transparent 34%),
            radial-gradient(circle at 18% 86%,rgb(65 100 218 / .03),transparent 34%),
@@ -62,20 +102,19 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
 
 /* 屏幕 = 真实 1920×1080 */
 .screen{width:1920px;height:1080px;flex:none;border-radius:4px;overflow:hidden;
-  background:var(--ide-bg);box-shadow:0 0 0 1px #0a0b0c,inset 0 0 60px rgba(0,0,0,.5);
+  background:var(--shell-bg);box-shadow:0 0 0 1px #0a0b0c,inset 0 0 60px rgba(0,0,0,.5);
   display:flex;flex-direction:column}
 
-/* ══ IDE 外框 ══ */
+/* ══ 外框 ══ */
 .topbar{height:48px;flex:none;display:flex;align-items:center;gap:12px;padding:0 14px}
 .brand{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600;letter-spacing:.01em}
-.brand .mk{width:24px;height:24px;flex:none;display:grid;place-items:center}
-.brand .mk svg{width:24px;height:24px}
+.brand .mk{width:26px;height:26px;flex:none;display:block}
 .topbar .tr{margin-left:auto;display:flex;align-items:center;gap:8px}
 .tbtn{width:30px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;
   color:var(--fg2);font-size:14px;border:1px solid transparent}
-.tbtn.on{background:var(--state-sel);border-color:rgba(255,255,255,.1);color:var(--fg)}
+.tbtn.on{background:var(--state-sel);border-color:var(--border-default);color:var(--fg)}
 
-.ide{flex:1;min-height:0;display:flex}
+.shell{flex:1;min-height:0;display:flex}
 /* 活动栏 48px —— 与 openUBMC Studio 一致 */
 .rail{flex:0 0 48px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0}
 .rail i{width:32px;height:32px;border-radius:var(--r-sm);display:grid;place-items:center;
@@ -85,20 +124,22 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
   border-radius:1px;background:var(--accent-h)}
 .rail .sp{flex:1}
 
-/* 工作区：三个 leaf-pane 分屏 */
+/* 工作区：三个 leaf-pane 分屏
+   权重：Agent 面板最大 —— 它装的是 TUI 主标签页的内容（AI PLAN + Console + 输入），
+   是这一屏的主角；源码面板只做改动预览；资源管理器最窄，只负责定位。 */
 .workarea{flex:1;min-width:0;display:grid;gap:8px;padding:6px 8px 8px 0;
-  grid-template-columns:344px minmax(0,1fr) 452px}
+  grid-template-columns:296px 470px minmax(0,1fr)}
 .pane{min-width:0;display:flex;flex-direction:column;border-radius:var(--r-md);
   border:1px solid var(--pane-border);background:color-mix(in srgb,#101010 80%,transparent);
   backdrop-filter:blur(18px) saturate(1.18);overflow:hidden}
-.pane.act{border-color:rgba(107,140,245,.42);box-shadow:0 0 0 1px rgba(107,140,245,.14)}
+.pane.act{border-color:color-mix(in srgb,var(--primary-hover) 46%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--primary-hover) 16%,transparent)}
 /* 标签行 = ide-tab-row */
 .tabrow{height:34px;flex:none;display:flex;align-items:stretch;
-  background:rgba(20,20,20,.9);border-bottom:1px solid var(--hair)}
+  background:color-mix(in srgb,var(--ark-neutral-2) 90%,transparent);border-bottom:1px solid var(--hair)}
 .tab{display:flex;align-items:center;gap:7px;padding:0 13px;font-size:12.5px;color:var(--fg3);
   border-right:1px solid var(--hair);position:relative}
 .tab .ic{font-size:12px;opacity:.75}
-.tab.on{color:var(--fg);background:rgba(255,255,255,.045)}
+.tab.on{color:var(--fg);background:var(--state-hover)}
 .tab.on::after{content:'';position:absolute;left:0;right:0;top:0;height:2px;background:var(--accent-h)}
 .tab .x{color:var(--fg4);font-size:11px;margin-left:2px}
 .tabrow .ra{margin-left:auto;display:flex;align-items:center;gap:10px;padding:0 12px;
@@ -130,36 +171,71 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
   display:flex;align-items:center;gap:6px}
 .bcrumb .sep{opacity:.5}
 .bcrumb .cur{color:var(--fg2)}
-.code{font-family:var(--mono);font-size:13.5px;line-height:1.62}
+/* 源码面板是预览：字号收小，让整段 hunk 在窄栏里能完整看到 */
+.code{font-family:var(--mono);font-size:11.5px;line-height:1.62}
 .code .cl{display:flex;border-left:2px solid transparent}
-.code .cl>.ln{width:52px;flex:none;text-align:right;padding-right:14px;
-  color:var(--fg4);font-size:12px;user-select:none}
+.code .cl>.ln{width:38px;flex:none;text-align:right;padding-right:10px;
+  color:var(--fg4);font-size:10.5px;user-select:none}
 .code .cl>.tx{white-space:pre;min-width:0;color:var(--fg2)}
-.code .cl.foc{background:rgba(255,255,255,.035)}
-.code .cl.add{background:rgba(4,215,147,.10);border-left-color:var(--ok)}
+.code .cl.foc{background:var(--state-muted)}
+.code .cl.add{background:color-mix(in srgb,var(--success) 12%,transparent);border-left-color:var(--ok)}
 .code .cl.add>.ln{color:var(--ok)}
-.code .cl.del{background:rgba(255,75,123,.10);border-left-color:var(--danger)}
+.code .cl.del{background:color-mix(in srgb,var(--danger) 12%,transparent);border-left-color:var(--danger)}
 .code .cl.del>.ln{color:var(--danger)}
 .code .cl.del>.tx{color:var(--fg3)}
 .kw{color:var(--v3)}.fn{color:var(--accent-h)}.st{color:var(--g4)}
 .nu{color:var(--o4)}.co{color:var(--fg4)}.ty{color:var(--aux)}
 .gutnote{margin:14px 4px 0;padding:9px 12px;border-radius:var(--r-sm);
-  background:rgba(255,255,255,.03);border:1px solid var(--hair);
-  font-size:12px;color:var(--fg3);display:flex;align-items:center;gap:9px}
+  background:var(--state-muted);border:1px solid var(--hair);
+  font-size:11.5px;color:var(--fg3);display:flex;flex-direction:column;gap:5px}
 .gutnote b{color:var(--ok);font-weight:600}
 
-/* ── 面板③ Agent ── */
-.ag{display:flex;flex-direction:column;gap:13px}
-.agin{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:var(--r-sm);
-  background:var(--panel-bg);border:1px solid rgba(255,255,255,.1);font-size:13px;color:var(--fg3)}
-.agin .pr{color:var(--accent-h);font-family:var(--mono);font-size:13px}
-.agin .send{margin-left:auto;font-size:11.5px;color:var(--fg);background:var(--accent);
-  border-radius:999px;padding:3px 12px;font-weight:500}
+/* ── 面板③ Agent —— 装的是 TUI 主标签页的内容，本屏主角 ── */
+.ag{display:flex;flex-direction:column;height:100%}
+.cvh{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--fg3);
+  display:flex;align-items:center;gap:9px;padding-bottom:10px;
+  border-bottom:1px solid var(--hair);margin-bottom:13px}
+.cvh .pmt{color:var(--fg4);letter-spacing:0}
+.cvh .r{margin-left:auto;letter-spacing:.04em;color:var(--fg4)}
+.goal{font-family:var(--mono);font-size:14px;color:var(--fg2);margin-bottom:12px}
+.goal .k{color:var(--fg4);margin-right:12px;font-size:12.5px}
+
+.plan{display:flex;flex-direction:column;gap:2px}
+.pstep{display:flex;gap:12px;align-items:flex-start;padding:8px 12px;border-radius:var(--r-sm)}
+.pstep.on{background:var(--state-selected);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--primary-hover) 34%,transparent)}
+.pstep .n{font-family:var(--mono);font-size:13px;color:var(--fg4);width:13px;flex:none;text-align:right}
+.pstep.on .n{color:var(--accent-h)}
+.pstep .bd{flex:1;min-width:0}
+.pstep .t1{font-family:var(--mono);font-size:14.5px;color:var(--fg)}
+.pstep .t2{font-size:12.5px;color:var(--fg4);margin-top:2px}
+.pstep .tl{font-family:var(--mono);font-size:11.5px;color:var(--fg4);flex:none;margin-top:3px}
+.tool{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--fg2);
+  background:var(--s2);border:1px solid var(--hair);border-radius:3px;padding:1px 8px;margin-top:4px}
+.est{font-family:var(--mono);font-size:12.5px;color:var(--fg4);margin:13px 0 0 12px}
+.keys{font-family:var(--mono);font-size:14px;display:flex;gap:20px;margin:11px 0 0 12px}
+.keys .pri{color:var(--accent-h)}
+.keys .dim{color:var(--fg3)}
+
+.aconsole{margin-top:20px;padding-top:14px;border-top:1px solid var(--hair)}
+.ivl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--fg3);
+  background:var(--s2);border:1px solid var(--hair);border-radius:3px;padding:2px 8px}
+.arow{display:flex;align-items:center;gap:10px;margin-top:11px;font-family:var(--mono);font-size:13.5px}
+.arow .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none}
+.arow .t2{font-size:12.5px;color:var(--fg4);font-family:var(--sans)}
+
+/* 输入框钉在面板底部，不随内容滚动 */
+.agin{flex:none;margin:0 16px 14px;display:flex;align-items:center;gap:10px;
+  padding:11px 14px;border-radius:var(--r-sm);background:var(--panel-bg);
+  border:1px solid var(--border-default);font-size:14px;color:var(--fg2)}
+.agin .pr{color:var(--accent-h);font-family:var(--mono);font-size:14px}
+.agin .cur{width:8px;height:16px;background:var(--accent-h);opacity:.75;display:inline-block}
+.agin .kbd{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--fg4);
+  background:var(--s2);border:1px solid var(--hair);border-radius:3px;padding:2px 7px}
 .caps{display:flex;flex-wrap:wrap;gap:5px}
 .cap2{font-family:var(--mono);font-size:11px;color:var(--fg2);background:var(--s2);
-  border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:3.5px 10px}
-.cap2.on{color:#cfdcff;border-color:rgba(67,105,239,.6);background:rgba(67,105,239,.16)}
-.card{border:1px solid var(--hair);border-radius:var(--r-sm);background:rgba(255,255,255,.025);
+  border:1px solid var(--border-default);border-radius:999px;padding:3.5px 10px}
+.cap2.on{color:#cfdcff;border-color:color-mix(in srgb,var(--primary) 60%,transparent);background:var(--state-selected)}
+.card{border:1px solid var(--hair);border-radius:var(--r-sm);background:var(--state-muted);
   padding:11px 12px}
 .card .ttl{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--fg);font-weight:600}
 .card .ttl .n{font-family:var(--mono);font-size:11px;color:var(--fg4);font-weight:500}
@@ -174,7 +250,7 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
 .evi{display:flex;flex-direction:column;gap:3px}
 .ev{display:flex;align-items:flex-start;gap:9px;padding:6px 9px;border-radius:var(--r-sm);
   border:1px solid transparent}
-.ev.on{background:var(--state-sel);border-color:rgba(255,255,255,.1)}
+.ev.on{background:var(--state-sel);border-color:var(--border-default)}
 .ev .n{font-family:var(--mono);font-size:11.5px;color:var(--accent-h);flex:none;width:20px}
 .ev .t1{font-size:12.5px;color:var(--fg)}
 .ev .t2{font-size:11.5px;color:var(--fg4);margin-top:1px}
@@ -183,24 +259,25 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
 .steps{display:flex;flex-direction:column;gap:7px}
 .step{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--fg2)}
 .step .dot{width:6px;height:6px;border-radius:50%;margin-top:6px;flex:none;background:var(--ok)}
-.step .dot.rn{background:var(--accent-h);box-shadow:0 0 0 3px rgba(67,105,239,.22)}
+.step .dot.rn{background:var(--accent-h);box-shadow:0 0 0 3px var(--state-focus)}
 .step .dot.wt{background:var(--fg4)}
 .step .t2{font-size:11.5px;color:var(--fg4)}
 .step .rt{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--fg4);flex:none}
 
 .acts{display:flex;gap:8px;flex-wrap:wrap}
 .abtn{font-family:var(--mono);font-size:12px;padding:6px 13px;border-radius:var(--r-sm);
-  border:1px solid rgba(255,255,255,.1);color:var(--fg2);background:var(--s2)}
+  border:1px solid var(--border-default);color:var(--fg2);background:var(--s2)}
 .abtn.pri{color:#fff;background:var(--accent);border-color:var(--accent)}
 .abtn .k{color:var(--fg4);margin-right:5px}
 .abtn.pri .k{color:rgba(255,255,255,.7)}
 
 /* ══ 状态栏 ══ */
-.statbar{height:30px;flex:none;display:flex;align-items:center;
-  font-family:var(--mono);font-size:11.5px;color:var(--fg3);
-  border-top:1px solid var(--hair);background:rgba(16,16,16,.82)}
-.statbar .sg{padding:0 13px;display:flex;align-items:center;gap:6px;height:100%}
-.statbar .sg.acc{color:#dfe8ff;background:rgba(67,105,239,.22)}
+/* 状态条不铺底色 —— 跟 openUBMC Studio 一样直接落在背景渐变上 */
+.statbar{height:34px;flex:none;display:flex;align-items:center;padding:0 6px 2px;
+  font-family:var(--mono);font-size:11.5px;color:var(--fg3)}
+.statbar .sg{padding:0 11px;display:flex;align-items:center;gap:6px}
+.statbar .sg.acc{color:#dfe8ff;background:var(--state-focus);
+  border:1px solid color-mix(in srgb,var(--primary-hover) 36%,transparent);border-radius:999px;padding:3px 12px;margin-right:4px}
 .statbar .sp{flex:1}
 .statbar .ok{color:var(--ok)}
 </style>
@@ -210,7 +287,7 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
 
   <div class="head">
     <b>Kunpeng DevKit AI</b>
-    <span class="c">风格 B · IDE 分屏工作台</span>
+    <span class="c">风格 B · 三栏分屏工作台</span>
     <span class="c">典型一屏：资源管理器 │ 源码 │ Agent</span>
     <span class="r">框架取自 openUBMC Studio</span>
   </div>
@@ -224,8 +301,8 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
       <!-- ── topbar ── -->
       <div class="topbar">
         <span class="brand">
-          <span class="mk"><svg viewBox="0 0 24 24" fill="none"><path d="M3 15.5C6.2 14 9.4 11.4 12.6 7.2c.5-.7 1.6-.4 1.6.5v3.1c0 .5.5.9 1 .7l3.1-1.2c.8-.3 1.5.6 1 1.3-2.6 3.5-6.4 6.6-11.5 8.6-.8.3-1.5-.5-1.2-1.2l.7-1.6c.2-.5-.2-1-.7-.9l-2.3.4c-.9.2-1.4-.9-.6-1.4Z" fill="#ED1C24"/></svg></span>
-          openUBMC Studio
+          <img class="mk" alt="Kunpeng" src="data:image/png;base64,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">
+          Kunpeng DevKit AI
         </span>
         <span class="tr">
           <span class="tbtn">❯_</span>
@@ -234,7 +311,7 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
         </span>
       </div>
 
-      <div class="ide">
+      <div class="shell">
         <!-- ── 活动栏 ── -->
         <nav class="rail">
           <i>⌂</i><i>◍</i><i class="on">▤</i><i>≡</i><i>⚙</i><i>⇄</i><i>▦</i>
@@ -310,84 +387,69 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
 <div class="cl"><span class="ln">94</span><span class="tx">}</span></div>
               </div>
               <div class="gutnote">仅高亮变化的 token —— 一眼看出"到底动了什么"
-                <span style="margin-left:auto">Impact&nbsp; <b>Compatibility Fixed</b> · Perf +3%</span></div>
+                <span>Impact&nbsp; <b>Compatibility Fixed</b> · Perf +3%</span></div>
             </div>
           </section>
 
-          <!-- 面板③ Agent -->
+          <!-- 面板③ Agent —— TUI 主标签页的内容，本屏最大的框 -->
           <section class="pane act">
             <div class="tabrow">
-              <div class="tab on"><span class="ic">✦</span>AGENT 工作台</div>
-              <div class="tab"><span class="ic">▤</span>Console</div>
-              <span class="ra">model qwen</span>
+              <div class="tab on"><span class="ic">■</span>MIGRATE NGINX<span class="x">✕</span></div>
+              <div class="tab"><span class="ic">✦</span>AGENT 工作台</div>
+              <div class="tab"><span class="ic">≡</span>Console</div>
+              <span class="ra">v26.0 · Kunpeng ARM64 · model qwen</span>
             </div>
+
             <div class="pbody pad">
               <div class="ag">
 
-                <div class="agin"><span class="pr">❯</span>描述你想做什么，或用 / 调命令
-                  <span class="send">发送</span></div>
+                <div class="cvh"><span class="pmt">&gt;_</span>AI PLAN
+                  <span class="r">5 tools · ~3 min</span></div>
 
-                <div>
-                  <div class="lbl" style="margin:0 0 7px">MCP 能力</div>
-                  <div class="caps">
-                    <span class="cap2 on">依赖分析</span><span class="cap2 on">指令映射</span>
-                    <span class="cap2 on">知识库检索</span><span class="cap2">交叉编译</span>
-                    <span class="cap2">补丁生成</span><span class="cap2">性能对比</span>
-                  </div>
+                <div class="goal"><span class="k">Goal</span>Migrate ./nginx&nbsp; x86_64 → Kunpeng ARM64</div>
+
+                <div class="plan">
+                  <div class="pstep on"><span class="n">1</span><span class="bd">
+                      <div class="t1">Analyze dependency</div>
+                      <div class="t2">静态扫描依赖树</div></span>
+                    <span class="tl">~20s</span></div>
+                  <div class="pstep"><span class="n">2</span><span class="bd">
+                      <div class="t1">Find incompatible API</div>
+                      <span class="tool">kunpeng_knowledge_base_search</span></span>
+                    <span class="tl">~40s</span></div>
+                  <div class="pstep"><span class="n">3</span><span class="bd">
+                      <div class="t1">Generate patches</div>
+                      <span class="tool">code_cpp_migrator</span></span>
+                    <span class="tl">~60s</span></div>
+                  <div class="pstep"><span class="n">4</span><span class="bd">
+                      <div class="t1">Build verify</div>
+                      <div class="t2">交叉编译验证</div></span>
+                    <span class="tl">~50s</span></div>
+                  <div class="pstep"><span class="n">5</span><span class="bd">
+                      <div class="t1">Benchmark</div>
+                      <div class="t2">迁移前后性能对比</div></span>
+                    <span class="tl">~30s</span></div>
                 </div>
 
-                <div class="card">
-                  <div class="ttl"><span class="n">PATCH 2/12</span>src/crypto.c:87
-                    <span class="st2">待确认</span></div>
-                  <div class="dl2">
-                    <div class="r m"><span class="s">-</span><span class="b">  _mm_pause();</span></div>
-                    <div class="r p"><span class="s">+</span><span class="b">  __asm__ volatile("yield" ::: "memory");</span></div>
-                  </div>
+                <div class="est">Estimated&nbsp; 5 tools · ~3 min</div>
+
+                <div class="keys">
+                  <span class="pri">[E] Execute</span>
+                  <span class="dim">[M] Modify Plan</span>
+                  <span class="dim">[C] Cancel</span>
                 </div>
 
-                <div>
-                  <div class="lbl" style="margin:0 0 7px">证据 · Enter 跳转验证</div>
-                  <div class="evi">
-                    <div class="ev on"><span class="n">[1]</span><span>
-                      <div class="t1">指令替换案例库 #4471</div>
-                      <div class="t2">x86 PAUSE → ARM YIELD · 自旋等待场景等价替换</div></span>
-                      <span class="go">↵</span></div>
-                    <div class="ev"><span class="n">[2]</span><span>
-                      <div class="t1">ARM ARM §B2.5</div>
-                      <div class="t2">Memory ordering &amp; hints</div></span><span class="go">↵</span></div>
-                    <div class="ev"><span class="n">[3]</span><span>
-                      <div class="t1">crypto.c:87</div>
-                      <div class="t2">当前源码位置 · 已在左侧定位</div></span><span class="go">↵</span></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="lbl" style="margin:0 0 7px">本轮执行</div>
-                  <div class="steps">
-                    <div class="step"><span class="dot"></span><span>
-                      <div>Analyze dependency</div><div class="t2">静态扫描依赖树 · 1,204 文件</div>
-                      </span><span class="rt">18s</span></div>
-                    <div class="step"><span class="dot"></span><span>
-                      <div>Find incompatible API</div><div class="t2">命中 12 处 x86 内建函数</div>
-                      </span><span class="rt">37s</span></div>
-                    <div class="step"><span class="dot rn"></span><span>
-                      <div>Generate patches</div><div class="t2">逐条出具证据，等待人工确认</div>
-                      </span><span class="rt">2/12</span></div>
-                    <div class="step"><span class="dot wt"></span><span>
-                      <div>Build verify</div><div class="t2">交叉编译验证</div>
-                      </span><span class="rt">排队</span></div>
-                  </div>
-                </div>
-
-                <div class="acts">
-                  <span class="abtn pri"><span class="k">[A]</span>Accept</span>
-                  <span class="abtn"><span class="k">[E]</span>Edit</span>
-                  <span class="abtn"><span class="k">[R]</span>Reject</span>
-                  <span class="abtn"><span class="k">[Space]</span>下一处</span>
+                <div class="aconsole">
+                  <span class="ivl">AGENT CONSOLE</span>
+                  <div class="arow"><span class="dot"></span>Understand request
+                    <span class="t2">意图已解析：迁移任务</span></div>
                 </div>
 
               </div>
             </div>
+
+            <div class="agin"><span class="pr">❯</span>把 ./nginx 迁到鲲鹏<span class="cur"></span>
+              <span class="kbd">Ctrl+P 命令面板</span></div>
           </section>
 
         </div>
@@ -422,6 +484,9 @@ function fitStage(){
   st.style.transform=`translate(${(innerWidth-2120*k)/2}px, ${(innerHeight-1364*k)/2}px) scale(${k})`;
 }
 addEventListener('resize',fitStage);
+/* 嵌在 iframe 里时，首帧算出的视口尺寸可能还不是最终值，
+   resize 事件也未必补发 —— 用 ResizeObserver 兜底，保证任何容器尺寸变化都重新贴合。 */
+if(window.ResizeObserver) new ResizeObserver(fitStage).observe(document.documentElement);
 addEventListener('load',fitStage);
 fitStage();
 </script>

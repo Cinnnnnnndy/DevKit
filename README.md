@@ -31,9 +31,9 @@
 
 | 文件 | 内容 |
 |---|---|
-| [`web/tui-demo.html`](web/tui-demo.html) | **TUI 设计 demo** — 两种风格并排比较的入口，可切换"只看 A / 只看 B"，附风格对照表 |
-| ├ [`web/demo.html`](web/demo.html) | 风格 A · **终端 TUI** — 十幕交互演示，可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点" |
-| └ [`web/demo-studio.html`](web/demo-studio.html) | 风格 B · **IDE 分屏工作台** — 典型一屏：资源管理器 │ 源码 │ Agent 三面板，外框复用 openUBMC Studio |
+| [`web/tui-demo.html`](web/tui-demo.html) | **TUI 设计 demo** — 两种风格上下排列，各占一屏，可直接对照（两者都是 TUI，差别在版式） |
+| ├ [`web/demo.html`](web/demo.html) | 风格 A · **单栏工作台** — 十幕交互演示，可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点" |
+| └ [`web/demo-studio.html`](web/demo-studio.html) | 风格 B · **三栏分屏工作台** — 典型一屏：资源管理器 │ 源码预览 │ Agent 三个面板，Agent 面板承载主标签内容 |
 | [`web/index.html`](web/index.html) | **产品规范单页** — 设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用） |
 | [`web/competitive-analysis.html`](web/competitive-analysis.html) | **TUI 竞品分析** — 7 竞品 × 22 触点 × 6 阶段旅程 |
 | [`web/visual-analysis.html`](web/visual-analysis.html) | **TUI 视觉风格分析** — 五个审美流派 + 皮肤生态 + 手法清单 |
