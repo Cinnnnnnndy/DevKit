@@ -99,7 +99,6 @@ DataTable > .datatable--hover { background: $pto-hover; }
 
 /* ── keybar：反色键位 chip + 常规文字动作，比纯文本 keybar 易扫读一个量级 ── */
 #keybar {
-    dock: bottom;
     height: 1;
     background: $pto-surface-2;
     color: $pto-fg-muted;
@@ -107,9 +106,39 @@ DataTable > .datatable--hover { background: $pto-hover; }
 }
 
 #statusbar {
-    dock: bottom;
     height: 1;
     background: $pto-surface-2;
     color: $pto-fg-secondary;
     padding: 0 2;
 }
+
+/* ── Shell 骨架 ─────────────────────────────────────────────────────────
+ * 一条垂直分割贯穿全屏（Dock 右边），一条水平分割横贯全屏（keybar 上边），
+ * 两条线各只出现一次。全宽的只有 keybar 与状态栏。
+ */
+#root  { height: 1fr; }
+#shell { height: 1fr; }
+/* 主区必须显式给 1fr。高度留 auto 时，里面 #canvases 的 1fr 没有可分配的
+ * 余量可算，会一口吃掉全部高度，把 Console 与输入框挤到屏幕外面去。 */
+#workspace { width: 1fr; height: 1fr; }
+
+#canvases { height: 1fr; }
+.canvas   { background: $pto-background; padding: 0 1; }
+/* 主力形态是「结论 ↔ 证据」，默认 60/40——结论那栏该更宽 */
+#canvas-a { width: 3fr; }
+#canvas-b { width: 2fr; border-left: solid $pto-border-subtle; }
+
+/* Console 与 Canvas 是跨职责区域，所以分隔升到 border-default */
+#console {
+    height: 5;
+    background: $pto-surface-1;
+    border-top: solid $pto-border-default;
+    color: $pto-fg-secondary;
+    padding: 0 1;
+}
+
+#evidence { color: $pto-fg-secondary; padding: 1 0; }
+
+/* 焦点不靠颜色靠边框强度——终端画不出外发光轮廓 */
+.canvas:focus-within { border: solid $pto-border-strong; }
+

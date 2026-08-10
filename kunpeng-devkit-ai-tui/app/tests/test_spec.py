@@ -41,4 +41,7 @@ def test_declares_tokens_and_degradation(name, spec):
 @pytest.mark.parametrize("name,spec", COMPONENTS)
 def test_describe_is_renderable(name, spec):
     text = spec.describe()
-    assert "→" in text and "键盘" in text and "token" in text
+    assert spec.tier.label in text and "键盘" in text and "token" in text
+    # T0 组件（keybar、状态栏）本身就在兼容底线上，降级链只有一档、没有箭头。
+    # 有下游层级的才该出现 →。
+    assert ("→" in text) == (len(spec.degradation) > 1)
