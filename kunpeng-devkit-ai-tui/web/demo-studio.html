@@ -49,6 +49,11 @@
   --hl-green:#B3F141;    /* ub-green-400    */
   --hl-orange:#FA8838;   /* accum-orange-400*/
 
+  --button-height-compact:28px; --button-gap:6px; --button-padding-x:12px;
+  --button-secondary-bg:color-mix(in srgb,var(--surface-2) 92%,white 3%);
+  --button-secondary-bg-hover:var(--surface-3);
+  --button-secondary-border:var(--border-default);
+  --button-secondary-fg:var(--foreground);
   --comp-toolbar-bg:color-mix(in srgb,var(--background) 92%,black);
   --comp-toolbar-border:var(--border-subtle);
   --comp-toolbar-height:44px;
@@ -68,7 +73,7 @@
   --accent-h:var(--primary-hover); --aux:var(--accent);
   --ok:var(--success); --warn:var(--warning);
   --v3:var(--hl-violet); --g4:var(--hl-green); --o4:var(--hl-orange);
-  --pane-border:var(--border-subtle); --hair:var(--border-subtle);
+  --pane-border:var(--border-default); --hair:var(--border-subtle);
   --state-sel:var(--state-selected);
   --r-sm:var(--radius-sm); --r-md:var(--radius-md); --r-lg:var(--radius-lg);
   --mono:var(--font-mono); --sans:var(--font-sans);
@@ -84,7 +89,7 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
   -webkit-font-smoothing:antialiased}
 
 /* ══ 舞台：与风格 A 相同的 1080p 设计画布 + 无品牌笔记本外壳 ══ */
-#stage{position:absolute;left:0;top:0;width:2120px;height:1364px;transform-origin:top left;
+#stage{position:absolute;left:0;top:0;width:2120px;height:1420px;transform-origin:top left;
   background:var(--background);display:flex;flex-direction:column;padding:26px 30px 22px;gap:14px}
 .head{display:flex;align-items:center;gap:12px;flex:none;height:44px}
 .head b{font-size:15px}
@@ -142,7 +147,7 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
 /* ── 合卡：资源管理器 + 源码同处一张 leaf-pane（BMC 的组织方式）── */
 .split2{flex:1;min-height:0;display:flex}
 .side{width:306px;flex:none;display:flex;flex-direction:column;min-height:0;
-  border-right:1px solid var(--border-subtle)}
+  border-right:1px solid var(--border-default)}
 .side .sbody{flex:1;min-height:0;overflow:auto;padding:12px 10px}
 .side .foldrow{flex:none;display:flex;align-items:center;gap:var(--space-2);
   height:34px;padding:0 14px;border-top:1px solid var(--border-subtle);
@@ -156,10 +161,16 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
 .edhd .fn{font-family:var(--font-mono);font-size:var(--font-size-body-sm);color:var(--foreground)}
 .edhd .meta{margin-left:auto;font-family:var(--font-mono);font-size:var(--font-size-label-xs);
   color:var(--foreground-muted);letter-spacing:var(--letter-spacing-label)}
-.fold{background:none;border:1px solid var(--border-subtle);cursor:pointer;
-  color:var(--foreground-muted);font-size:var(--font-size-label-xs);padding:3px 9px;
-  border-radius:var(--radius-sm);flex:none;font-family:var(--font-mono);
-  letter-spacing:var(--letter-spacing-label)}
+/* 收起按钮 = PTO secondary button */
+.fold{display:inline-flex;align-items:center;gap:var(--button-gap);
+  height:var(--button-height-compact);padding:0 var(--button-padding-x);
+  background:var(--button-secondary-bg);border:1px solid var(--button-secondary-border);
+  color:var(--button-secondary-fg);border-radius:var(--radius-sm);cursor:pointer;
+  font-family:var(--font-sans);font-size:var(--font-size-body-sm);
+  font-weight:var(--font-weight-medium);line-height:1;flex:none;
+  transition:background var(--duration,150ms) ease,border-color var(--duration,150ms) ease}
+.fold:hover{background:var(--button-secondary-bg-hover);border-color:var(--border-strong)}
+.fold .cv{font-family:var(--font-mono);font-size:10px;color:var(--foreground-muted)}
 .fold:hover{background:var(--state-hover);color:var(--foreground)}
 .edbody{flex:1;min-height:0;overflow:auto;padding:14px 16px}
 .pane{min-width:0;display:flex;flex-direction:column;border-radius:var(--r-md);
@@ -378,7 +389,7 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
               <div class="tab on"><span class="ic">▤</span>资源管理器</div>
               <div class="tab"><span class="ic">⌕</span>搜索</div>
               <span class="ra">nginx-main
-                <button class="fold" id="edfold" title="收起代码区">▾ 代码区</button>
+                <button class="fold" id="edfold" title="收起代码区"><span class="cv">▾</span>代码区</button>
               </span>
             </div>
 
@@ -536,14 +547,14 @@ body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
 /* 舞台按固定设计画布等比缩放塞进视口 —— 与风格 A 同一套 fit 逻辑 */
 function fitStage(){
   const st=document.getElementById('stage'); if(!st) return;
-  const k=Math.min(innerWidth/2120, innerHeight/1364);
-  st.style.transform=`translate(${(innerWidth-2120*k)/2}px, ${(innerHeight-1364*k)/2}px) scale(${k})`;
+  const k=Math.min(innerWidth/2120, innerHeight/1420);
+  st.style.transform=`translate(${(innerWidth-2120*k)/2}px, ${(innerHeight-1420*k)/2}px) scale(${k})`;
 }
 const _ef=document.getElementById('edfold');
 if(_ef) _ef.onclick=()=>{
   const wa=document.querySelector('.workarea');
   const on=wa.classList.toggle('folded');
-  _ef.textContent = on ? '▸ 代码区' : '▾ 代码区';
+  _ef.querySelector('.cv').textContent = on ? '▸' : '▾';
   _ef.title = on ? '展开代码区' : '收起代码区';
 };
 addEventListener('resize',fitStage);
