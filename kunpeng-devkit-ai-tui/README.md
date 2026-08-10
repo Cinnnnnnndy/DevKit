@@ -126,7 +126,7 @@
 
 `docs/VISUAL.md` 记录了完整的 web → terminal token 翻译：六级表面、四级前景透明度预合成为实色、状态叠加层预合成、五档 highlight ramp 的顺序 vs 分类纪律、以及为什么品牌蓝会和原色板里的 copy-blue 撞色（色相差 7°，最后退役了 copy-blue 并重建了域色映射）。
 
-上述 token 的速查版直接排在启动页的 [视觉规范速查 ↗](https://cinnnnnnndy.github.io/DevKit/#tokens) 一节——六级表面、预合成前景、状态叠加、域色映射、三条用色纪律、渲染分层 T0–T5，都能直接取色。
+上述 token 的速查版排在[设计系统页的「视觉规范速查」↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#cheat) 一节——六级表面、预合成前景、状态叠加、域色映射、三条用色纪律、渲染分层 T0–T5，都能直接取色。
 
 ---
 
