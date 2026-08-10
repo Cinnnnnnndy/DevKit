@@ -35,9 +35,9 @@
 
 | 页面 | 在线打开 | 仓库文件 |
 |---|---|---|
-| **TUI 设计 demo**<br><sub>两种风格并排比较的入口，可切换"并排 / 只看 A / 只看 B"，附风格对照表</sub> | [tui-demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/tui-demo.html) | [`web/tui-demo.html`](web/tui-demo.html) |
-| ├ **风格 A · 终端 TUI**<br><sub>十幕交互演示，可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点"</sub> | [demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo.html) | [`web/demo.html`](web/demo.html) |
-| └ **风格 B · IDE 分屏工作台**<br><sub>典型一屏：资源管理器 │ 源码 │ Agent 三面板，外框复用 openUBMC Studio</sub> | [demo-studio.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo-studio.html) | [`web/demo-studio.html`](web/demo-studio.html) |
+| **TUI 设计 demo**<br><sub>两种风格上下排列，各占一屏，可直接对照（两者都是 TUI，差别在版式）</sub> | [tui-demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/tui-demo.html) | [`web/tui-demo.html`](web/tui-demo.html) |
+| ├ **风格 A · 单栏工作台**<br><sub>十幕交互演示，可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点"</sub> | [demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo.html) | [`web/demo.html`](web/demo.html) |
+| └ **风格 B · 三栏分屏工作台**<br><sub>典型一屏：资源管理器 │ 源码预览 │ Agent 三个面板，Agent 面板承载主标签内容</sub> | [demo-studio.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo-studio.html) | [`web/demo-studio.html`](web/demo-studio.html) |
 | **产品规范单页**<br><sub>设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用）</sub> | [index.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html) | [`web/index.html`](web/index.html) |
 | **TUI 竞品分析**<br><sub>7 竞品 × 22 触点 × 6 阶段旅程</sub> | [competitive-analysis.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/competitive-analysis.html) | [`web/competitive-analysis.html`](web/competitive-analysis.html) |
 | **TUI 视觉风格分析**<br><sub>五个审美流派 + 皮肤生态 + 手法清单</sub> | [visual-analysis.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/visual-analysis.html) | [`web/visual-analysis.html`](web/visual-analysis.html) |
