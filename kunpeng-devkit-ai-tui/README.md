@@ -35,9 +35,9 @@
 
 | 页面 | 在线打开 | 仓库文件 |
 |---|---|---|
-| **TUI 设计 demo**<br><sub>两种风格上下排列，各占一屏，可直接对照（两者都是 TUI，差别在版式）</sub> | [tui-demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/tui-demo.html) | [`web/tui-demo.html`](web/tui-demo.html) |
-| ├ **风格 A · 单栏工作台**<br><sub>十幕交互演示，可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点"</sub> | [demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo.html) | [`web/demo.html`](web/demo.html) |
-| └ **风格 B · 三栏分屏工作台**<br><sub>典型一屏：资源管理器 │ 源码预览 │ Agent 三个面板，Agent 面板承载主标签内容</sub> | [demo-studio.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo-studio.html) | [`web/demo-studio.html`](web/demo-studio.html) |
+| **TUI 设计 demo**<br><sub>两种风格上下排列可直接对照（两者都是 TUI，差别在视觉质感）</sub> | [tui-demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/tui-demo.html) | [`web/tui-demo.html`](web/tui-demo.html) |
+| ├ **风格 A · 字符质感**<br><sub>方角、1px 描边、字符网格；十幕交互演示，可自动播放或键盘切换</sub> | [demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo.html) | [`web/demo.html`](web/demo.html) |
+| └ **风格 B · 面板质感**<br><sub>圆角卡片、描边毛玻璃、背景辉光，PTO token 配色；Agent 面板承载主标签内容</sub> | [demo-studio.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo-studio.html) | [`web/demo-studio.html`](web/demo-studio.html) |
 | **设计系统**<br><sub>Design System &amp; UX Spec：token + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用）</sub> | [index.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html) | [`web/index.html`](web/index.html) |
 | **TUI 竞品分析**<br><sub>7 竞品 × 22 触点 × 6 阶段旅程</sub> | [competitive-analysis.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/competitive-analysis.html) | [`web/competitive-analysis.html`](web/competitive-analysis.html) |
 | **TUI 视觉风格分析**<br><sub>五个审美流派 + 皮肤生态 + 手法清单</sub> | [visual-analysis.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/visual-analysis.html) | [`web/visual-analysis.html`](web/visual-analysis.html) |
