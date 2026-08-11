@@ -26,6 +26,8 @@ from textual.containers import VerticalScroll
 from textual.widgets import Static
 
 from .render import bars, bignum, blocks, braille, plots
+from rich.cells import cell_len
+
 from .render.text import fit
 from .render.ramp import sequential
 from .theme import pto_theme, pto_variables
@@ -38,23 +40,62 @@ _FG = foreground(SURFACE_1, "fg")
 _SEC = foreground(SURFACE_1, "secondary")
 
 
-def _heading(title: str, tier: str, rule: str) -> Text:
+# ── 版面：固定列网格 ────────────────────────────────────────────────────
+# 第一版把注释直接追加在图形后面，而图形宽度是不固定的（bar 长短随数值变、
+# Braille 行满宽、火焰图带前导空格），于是注释落在参差不齐的 x 上，撞进
+# 隔壁内容里——看着就是"挤"。
+#
+# 借 GUI 图标库的排法：**列位置固定，内容再短也不前移**。宁可留白，
+# 也不让同一类信息在不同行出现在不同位置——眼睛扫一列比追一行省力得多。
+#
+# 列宽只取 VISUAL.md §3 的六档间距（这里用到 space-2 / space-4 / space-6），
+# 代码里不出现裸数字缩进。
+COL_LABEL = 16   # 标签列
+COL_BODY = 36    # 图形列：W=30 + 左右各 space-5 的留白
+GUTTER = 3       # space-5：列间距——舒展优先于塞满
+
+
+def _pad_text(body: Text, width: int) -> Text:
+    """把带样式的 Text 补到固定单元格宽——按 cell 算，不是按字符数。"""
     out = Text()
-    out.append(f"\n{' '.join(title)}\n", style=f"{_MUTED} bold")
-    out.append(f"  {tier}   ", style=ACCENT)
-    out.append(f"{rule}\n", style=_MUTED)
+    out.append_text(body)
+    missing = width - cell_len(body.plain)
+    if missing > 0:
+        out.append(" " * missing)
+    return out
+
+
+def _heading(title: str, tier: str, rule: str) -> Text:
+    """组标题：上方 space-6（2 空行）拉开，下方点阵分隔线收口。
+
+    分隔线用方点而非实线——比实线轻、比留白明确（VISUAL.md 里 AwesomeTUI
+    那条"点阵分隔线"）。组与组之间必须看得出断点，否则十四种图元连成一片。
+    """
+    out = Text()
+    out.append("\n\n")                                    # space-6
+    out.append(f"{' '.join(title)}\n", style=f"{_MUTED} bold")
+    out.append(f"{' ' * GUTTER}{tier}\n", style=ACCENT)
+    out.append(f"{' ' * GUTTER}{rule}\n", style=_MUTED)
+    out.append(f"{'·' * (COL_LABEL + COL_BODY + 24)}\n", style="#3a3a3a")
     return out
 
 
 def _row(label: str, body: Text | str, note: str = "") -> Text:
+    """一行：标签列 | 图形列 | 注释列，三列都定死起点。"""
     out = Text()
     # fit 而不是 f"{label:<12}"——中文标签按字符数补空格会让整列歪掉
-    out.append("  " + fit(label, 12), style=_SEC)
-    out.append_text(body if isinstance(body, Text) else Text(body, style=_FG))
+    out.append(fit(label, COL_LABEL), style=_SEC)
+    out.append_text(_pad_text(body if isinstance(body, Text) else Text(body, style=_FG),
+                              COL_BODY))
     if note:
-        out.append(f"  {note}", style=_MUTED)
+        out.append(" " * GUTTER + note, style=_MUTED)
     out.append("\n")
     return out
+
+
+def _gap() -> Text:
+    """同组内两个图元之间留一行——space-4 的纵向档位。"""
+    return Text("\n")
 
 
 def _sample() -> list[float]:
@@ -83,6 +124,7 @@ def _compare() -> Text:
         bars.RankRow("softmax", 2.1, "1024 calls"),
         bars.RankRow("gelu", 1.6, "4096 calls"),
     ]
+    out.append_text(_gap())
     shown, more = bars.ranking(rows, W, top=3)
     for rank, (row, drawn) in enumerate(shown):
         line = Text()
@@ -91,6 +133,7 @@ def _compare() -> Text:
         out.append_text(_row("排行" if rank == 0 else "", line, row.label))
     out.append_text(_row("", Text(f"… {more} more", style=_MUTED)))
 
+    out.append_text(_gap())
     for name, series in bars.grouped(
         [("baseline", [42, 18, 62]), ("方案 A", [61, 12, 78]), ("方案 B", [55, 9, 88])], 8
     ):
@@ -101,6 +144,7 @@ def _compare() -> Text:
         out.append_text(_row("多列", line, name))
     out.append_text(_row("", Text("QPS       P99       CPU", style=_MUTED)))
 
+    out.append_text(_gap())
     before, after, delta = bars.before_after(120, 70, 12)
     line = Text()
     line.append(before, style=sequential(120, 0, 120, "memory"))
@@ -123,16 +167,19 @@ def _trend() -> Text:
         out.append_text(_row("折线 T2" if i == 0 else "",
                              Text(line, style=sequential(data[-1], 0, 100, "cpu"))))
 
+    out.append_text(_gap())
     area = braille.plot_series(data, W, 2, lo=0, hi=100, area=True)
     for i, line in enumerate(area.rows_text()):
         out.append_text(_row("面积" if i == 0 else "",
                              Text(line, style=sequential(60, 0, 100, "npu"))))
 
+    out.append_text(_gap())
     out.append_text(_row("Sparkline T1",
                          Text(blocks.sparkline(data, W, lo=0, hi=100),
                               style=sequential(data[-1], 0, 100, "cpu")),
                          "← T2 掉下来就是它"))
 
+    out.append_text(_gap())
     up = [40 + 30 * math.sin(i / 7) for i in range(60)]
     down = [20 + 15 * math.sin(i / 5 + 1) for i in range(60)]
     top, bottom = braille.mirrored(up, down, W, 1)
@@ -155,6 +202,7 @@ def _locate() -> Text:
                              Text(line, style=sequential(50, 0, 100, "npu")),
                              "Roofline" if i == 0 else ""))
 
+    out.append_text(_gap())
     frames = [
         plots.Frame("main", 100, 0, 0),
         plots.Frame("ngx_http_process", 62, 1, 0),
@@ -181,6 +229,7 @@ def _locate() -> Text:
         out.append_text(_row("", Text(f"{dropped} 帧过窄未显示", style=SEMANTIC["warning"]),
                              "← 必须显式说，否则「看全了」是错觉"))
 
+    out.append_text(_gap())
     spans = [
         plots.Span("CPU", 0, 30), plots.Span("CPU", 55, 70),
         plots.Span("NPU", 25, 80),

@@ -77,7 +77,7 @@ async def main() -> None:
     print(f"导出到 {OUT}")
 
     await shot(DevKitShell(), OUT / "shell.svg", (160, 44))
-    await shot(GalleryApp(), OUT / "gallery.svg", (86, 62))
+    await shot(GalleryApp(), OUT / "gallery.svg", (100, 82))
 
     class Degradation(App):
         """同一份数据、同一个组件，在三档终端能力下并排。"""
