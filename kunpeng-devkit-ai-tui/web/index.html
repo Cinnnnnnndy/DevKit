@@ -116,12 +116,46 @@ kbd{font-family:var(--font-mono);font-size:var(--fs-label);background:var(--surf
 pre{font-family:var(--font-mono);background:var(--ark-neutral-0);border:1px solid var(--border-subtle);
   border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);overflow-x:auto;
   font-size:12px;line-height:1.5;margin:var(--space-3) 0;color:#E8E8E8}
-/* 字符图的行高。1.2 太挤——11px 字号下每行只有 13px，泳道之间、核心分组
- * 之间上下贴住，读起来像一块整体而不是几条独立的数据行。
- * 提到 1.62 之后行与行分得开；块字符会因此出现细缝，但这些图里的行本来
- * 就是各自独立的读数（CPU/NPU/HBM 三条泳道、0-15/16-31 四组核心），
- * 缝隙正是要的分隔，不是缺陷。 */
-pre.dense{font-size:11px;line-height:1.62}
+/* ══════════ 字符图的间距：按图标网格理论重做 ══════════
+ *
+ * 先后调过 1.2 → 1.62 两个比值，都还是挤——因为问题不在数值大小，在于
+ * **没有网格**。三条现成的理论直接可用：
+ *
+ * ① 活动区 + 修剪区（Material 图标 24dp 网格里画 20dp，四周各留 2dp；
+ *    IBM Carbon 32px 网格留 2px 修剪）。关键认知是**留白属于图标本身**，
+ *    不是可以省掉的空隙——有了固定修剪区，两块图无论内容多满都不会贴住。
+ *    这里给每块 --chart-trim 的内边距，四边等距。
+ *
+ * ② 基线网格。行高取基准单位的整数倍而不是比值：比值随字号漂（11px×1.62
+ *    = 17.82px，落在半个像素上，浏览器四舍五入后行与行的间距并不相等），
+ *    整数倍不会。基准 4px，字符行占 5 格 = 20px。
+ *
+ * ③ 共同区域（Gestalt common region）。分隔相邻行不一定要花垂直空间——
+ *    给交替行一层极低对比的底色同样能分组，**且不增加高度**。这对终端
+ *    尤其值：行数是稀缺资源，能不用高度换分隔就不用。
+ */
+:root{ --grid-unit:4px; --chart-trim:calc(var(--grid-unit) * 3); }
+
+pre.dense{
+  font-size:11px;
+  line-height:calc(var(--grid-unit) * 5);   /* 20px，落在网格上 */
+  padding:var(--chart-trim);                 /* 修剪区：四边等距 */
+  margin:0;
+  border-radius:var(--radius-sm);
+  background:var(--surface-1);
+  overflow-x:auto;
+}
+/* 交替行的共同区域——用底色分组，不花高度。
+   对比压到几乎看不见：它的职责是"让眼睛知道哪几行是一组"，
+   不是让人注意到有条纹。 */
+pre.dense{
+  background-image:repeating-linear-gradient(
+    to bottom,
+    transparent 0, transparent calc(var(--grid-unit) * 5),
+    rgba(255,255,255,.018) calc(var(--grid-unit) * 5), rgba(255,255,255,.018) calc(var(--grid-unit) * 10)
+  );
+  background-position:0 var(--chart-trim);
+}
 pre .cm{color:#707070} pre .pr{color:#3d98ff} pre .ac{color:#7c8db8}
 pre .ok{color:#04d793} pre .wn{color:#ffaa3b} pre .er{color:#ff4b7b}
 pre .hb{color:#3C7CF6} pre .hv{color:#9B3CF6} pre .ho{color:#FA8838} pre .hg{color:#B3F141} pre .ha{color:#F4CB22}
