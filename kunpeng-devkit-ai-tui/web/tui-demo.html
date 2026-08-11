@@ -50,7 +50,11 @@ body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px
 .tagn{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;padding:2.5px 9px;border-radius:3px}
 .sec-a .tagn{color:#bcd7ff;background:rgba(0,119,255,.16);border:1px solid rgba(0,119,255,.45)}
 .sec-b .tagn{color:#cfdcff;background:rgba(67,105,239,.16);border:1px solid rgba(67,105,239,.5)}
-.cap h2{font-size:16px;font-weight:600}
+.cap h2{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
+.mainline,.altline{font-family:var(--mono);font-size:10.5px;font-weight:500;
+  letter-spacing:.08em;padding:2px 7px;border-radius:3px}
+.mainline{color:#bcd7ff;background:rgba(0,119,255,.16);border:1px solid rgba(0,119,255,.45)}
+.altline{color:var(--fg3);background:var(--s2);border:1px solid var(--bd2)}
 .cap .sub{font-size:12.5px;color:var(--fg3)}
 .cap .go{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--fg3);
   text-decoration:none;border:1px solid var(--bd2);border-radius:4px;padding:5px 11px;background:var(--s2)}
@@ -82,7 +86,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px
 <section class="sec sec-a" id="a">
   <div class="cap">
     <span class="tagn">风格 A</span>
-    <h2>字符质感</h2>
+    <h2>字符质感 <span class="mainline">主线</span></h2>
     <span class="sub">方角 · 1px 描边 · 字符网格 —— 全靠字符与分隔线组织</span>
     <a class="go" href="demo.html" target="_blank">整屏打开 ↗</a>
   </div>
@@ -92,7 +96,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px
 <section class="sec sec-b" id="b">
   <div class="cap">
     <span class="tagn">风格 B</span>
-    <h2>面板质感</h2>
+    <h2>面板质感 <span class="altline">备选</span></h2>
     <span class="sub">圆角卡片 · 描边毛玻璃 · 背景辉光 · PTO token 配色</span>
     <a class="go" href="demo-studio.html" target="_blank">整屏打开 ↗</a>
   </div>
