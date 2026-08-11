@@ -382,6 +382,7 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <div class="ngrp">Components · 组件与图元</div>
   <a href="#comp">组件清单</a>
   <a href="#primlib">★ 图元库 · 十四种</a>
+  <a href="#primsize">图元尺寸与排布</a>
   <a href="#prim">原语画法示例</a>
   <div class="ngrp">Patterns · 交互 Pattern</div>
   <a href="#p1">P01–P12 核心</a>
@@ -1181,6 +1182,98 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
       注意最上面那组 Metric Bar：<b>bar 走域色阶，只有数值文字转语义色</b>——
       一个 90% 的利用率本身不是错误，把两者刷成一个颜色等于宣布「数值大 = 出事了」。
     </p>
+</section>
+
+<section id="primsize">
+<div class="eyebrow">Components</div>
+<h2>图元尺寸与排布</h2>
+<p class="desc">上一节定了<b>每种图长什么样</b>，这一节定<b>每种图多大才该画</b>。起因是多图元同屏：一屏上同时挂着 braille 曲线、热力网格、gauge、双向面积、算子表、Trace 泳道，每种图的尺寸若各自临时定，结果就是没人知道某张图在一条 24 列的栏里到底该画还是不该画——<strong>「画得下」和「读得出」不是一回事</strong>。判决集中在 <code>app/devkitai/layout.py</code> 的纯函数里，不由各个 widget 自己拍。</p>
+
+<div class="grid g4">
+  <div class="card"><h4>最小可读尺寸</h4><p>低于它这张图<b>就不该画</b>，该退成 fallback 那一列写的形态。不是「缩着画」。</p></div>
+  <div class="card"><h4>推荐尺寸</h4><p>给得起就给到这个数。多数图元吃到推荐值即停，不摊成长条。</p></div>
+  <div class="card"><h4>纵横比约束</h4><p>列÷行的允许区间。越界不是拒画，是<b>把盒子裁到带内</b>再画。</p></div>
+  <div class="card"><h4>收缩优先级</h4><p>同屏并置、空间不够时<b>谁先让</b>。按降级损失排，不按重要性排。</p></div>
+</div>
+
+<div class="sublabel">格子不是像素 —— 视觉纵横比 = 列 ÷ (2 × 行)</div>
+<p class="rule">终端字符格的宽高比约 <b>1:2</b>，所以下表里所有比例都是<b>列÷行的原始格子比</b>，换算成眼睛看到的比例要再除以 2。一张 40 列 × 6 行的折线，格子比 6.7，视觉上是 <b>3.3:1</b> 的横长条——按格子数直觉去想比例，会稳定地想扁一倍。</p>
+<p class="rule">这些数<b>不取 4 的倍数</b>。页面 CSS 的 <code>--grid-unit:4px</code> / <code>--chart-trim</code> 管的是这张网页自身的排版；图元尺寸的单位是<b>字符格</b>，每个数都由图元自己的几何定死——像素数字的 11 列是「3 位 × 3 列 + 2 个间隔」，braille 曲线的 3 行是「12 个点阵行」。把它们凑成 12 和 4 就是<strong>把规格编出来</strong>，两套网格不该互相对齐。</p>
+
+<div class="sublabel">十七种画法的四个数</div>
+<p class="desc">十四节规格（<code>COMPONENT.md</code> §3.1–3.14）拆成十七种画法：§3.4 一节含折线 / 面积 / Sparkline 三种，三者行数差着数量级，合成一行没法用；Before/After 归在 §3.1 的「比大小」组里。收缩优先级 ①–④ 见下一小节。</p>
+<table>
+<thead><tr><th>组</th><th>图元</th><th>§</th><th>最小</th><th>推荐</th><th>纵横比 列÷行</th><th>收缩</th><th>画不下 → 退成</th></tr></thead>
+<tbody>
+<tr><td rowspan="4"><b>比大小</b></td><td>Metric Bar</td><td class="mono">3.1</td><td class="mono">10×1</td><td class="mono">20×1</td><td>— 恒 1 行</td><td class="mono">①</td><td>T0 数值 + 单位</td></tr>
+<tr><td>排行 Ranking</td><td class="mono">3.2</td><td class="mono">24×4</td><td class="mono">34×11</td><td>— 每行恒 1 行</td><td class="mono">③</td><td>Top-1 + 数值，尾部仍标 <code>… N more</code></td></tr>
+<tr><td>多列条形</td><td class="mono">3.3</td><td class="mono">17×3</td><td class="mono">26×4</td><td>— 行 = 系列数 + 1</td><td class="mono">②</td><td>拆成各自独立的 Metric Bar</td></tr>
+<tr><td>Before/After</td><td class="mono">3.1</td><td class="mono">24×1</td><td class="mono">32×1</td><td>— 恒 1 行</td><td class="mono">②</td><td><code>120ms → 70ms (−42%)</code> 纯文本</td></tr>
+<tr><td rowspan="4"><b>看趋势</b></td><td>折线</td><td class="mono">3.4</td><td class="mono">20×3</td><td class="mono">40×6</td><td class="mono">5 – 24</td><td class="mono">③</td><td>T1 Sparkline</td></tr>
+<tr><td>面积</td><td class="mono">3.4</td><td class="mono">20×2</td><td class="mono">40×4</td><td class="mono">8 – 30</td><td class="mono">②</td><td>T1 Sparkline</td></tr>
+<tr><td>Sparkline</td><td class="mono">3.4</td><td class="mono">8×1</td><td class="mono">20×1</td><td>— 恒 1 行</td><td class="mono">①</td><td>T0 当前值 + 峰值</td></tr>
+<tr><td>双向面积</td><td class="mono">3.5</td><td class="mono">20×2</td><td class="mono">40×4</td><td class="mono">8 – 30，行数必为偶数</td><td class="mono">②</td><td>两行数值 <code>↑ 1.30 KiB/s ↓ 346 B/s</code></td></tr>
+<tr><td rowspan="3"><b>找位置</b></td><td>散点</td><td class="mono">3.6</td><td class="mono">16×8</td><td class="mono">24×12</td><td class="mono">恒 2.0</td><td class="mono">③</td><td><b>不画</b>——退成 compute/memory-bound 判定文字</td></tr>
+<tr><td>火焰图</td><td class="mono">3.7</td><td class="mono">30×3</td><td class="mono">60×8 起</td><td>— 行 = 栈深</td><td class="mono">④</td><td>Top-N 自耗时表</td></tr>
+<tr><td>泳道 Timeline</td><td class="mono">3.8</td><td class="mono">30×3</td><td class="mono">56×6 起</td><td>— 行 = 泳道数</td><td class="mono">④</td><td>每条泳道一行占用百分比</td></tr>
+<tr><td rowspan="3"><b>看余量</b></td><td>水位</td><td class="mono">3.9</td><td class="mono">3×4</td><td class="mono">3×8</td><td class="mono">0.25 – 0.8</td><td class="mono">①</td><td><code>38.2 / 64 GiB</code> 纯文本</td></tr>
+<tr><td>进度</td><td class="mono">3.10</td><td class="mono">12×1</td><td class="mono">28×1</td><td>— 恒 1 行</td><td class="mono">①</td><td>百分比数字；未知进度改为 <code>⠹</code> + 已耗时</td></tr>
+<tr><td>分段</td><td class="mono">3.11</td><td class="mono">16×2</td><td class="mono">30×2</td><td>— 恒 2 行（含图例）</td><td class="mono">①</td><td>各段数值列表</td></tr>
+<tr><td rowspan="2"><b>读单值</b></td><td>像素数字</td><td class="mono">3.12</td><td class="mono">11×5</td><td class="mono">19×5</td><td>— 行恒 5</td><td class="mono">①</td><td>常规字号数字</td></tr>
+<tr><td>数图 Stat</td><td class="mono">3.13</td><td class="mono">18×1</td><td class="mono">32×1</td><td>— 恒 1 行</td><td class="mono">①</td><td>值 + delta 一行文本</td></tr>
+<tr><td><b>看分布</b></td><td>热力网格</td><td class="mono">3.14</td><td class="mono">16×4</td><td class="mono">32×6</td><td>— 行列由拓扑定</td><td class="mono">④</td><td>按 NUMA 聚合成 4 行，每行一个数</td></tr>
+</tbody>
+</table>
+
+<p class="rule"><b>几个数字的来历</b>，因为<strong>没有理由的尺寸下次就会被人随手改掉</strong>：Metric Bar 的 10 / 20 两档是 §3.1 写死的——10 格 × 八分块 = 80 档，刚好够把 82% 和 85% 分开；排行的 4 行是「3 个名次才叫排行」+ 1 行 <code>… N more</code>，那行是 §3.0 规则③的硬性要求不能省；火焰图的 30 列是<b>丢帧阈值</b>——30 列丢掉窄于 3.3% 的帧，60 列只丢 1.7%，所以它的宽度<b>不封顶</b>，泳道同理（宽度即时间分辨率）；热力网格的 16×4 是鲲鹏 920 六十四核的自然分块，每行 16 核 = 一个 NUMA node，所以它的行列由<b>拓扑</b>定、不吃满宽度。</p>
+<p class="rule"><b>三条硬约束，越界即失真，不是「难看一点」：</b>散点比例锁死 <code>2.0</code>（16 列 × 8 行 = 32×32 点阵，视觉正方）——它<b>两根轴都是数据轴</b>，拉扁就是把斜率画错，而 Roofline 上斜率就是结论 · 水位比例上界 <code>0.8 &lt; 1</code>，必须比它宽的时候更高，扁了就读成横向 bar，而水位答「还剩多少」、bar 答「占了多少」 · 双向面积行数<b>必为偶数</b>，奇数行劈不开上下两半，而「上下一样高 = 收发一样多」正是它唯一的读法。</p>
+
+<div class="sublabel">收缩优先级 —— 按降级损失排，不按重要性排</div>
+<p class="rule">同屏并置、空间不够时谁先让？答案不是「谁不重要谁让」，而是<b>谁掉一层损失小谁先让</b>。这跟整屏降级里「Console 先让、Canvas 后让」是同一条原则——过程信息让位给结论。同一档内先让<b>推荐面积大</b>的：从大图上收回一样多的格子，代价更小。</p>
+<table>
+<thead><tr><th>档</th><th>让出的代价</th><th>图元</th></tr></thead>
+<tbody>
+<tr><td class="mono">① 先让</td><td>掉成一行数字，<b>结论零损失</b></td><td>像素数字 · 分段 · 数图 Stat · 进度 · 水位 · Metric Bar · Sparkline</td></tr>
+<tr><td class="mono">②</td><td>掉一层<b>仍在回答同一个问题</b></td><td>面积 · 双向面积 · 多列条形 · Before/After</td></tr>
+<tr><td class="mono">③</td><td>压缩会<b>丢掉比较能力</b></td><td>排行 · 散点 · 折线</td></tr>
+<tr><td class="mono">④ 最后让</td><td><b>形状即信息</b>，压扁等于没画</td><td>火焰图 · 泳道 Timeline · 热力网格</td></tr>
+</tbody>
+</table>
+<p class="rule">① 档那七种为什么最先让，一句话：<b>Metric Bar 掉成 <code>84.3%</code> 什么都没丢</b>，像素数字掉成常规数字丢的只是「一眼可见」。④ 档相反——火焰图<b>深度方向不做降采样</b>（§3.7），压扁了栈形就没了；泳道少一行就少一条「谁在等谁」的线索。</p>
+
+<div class="sublabel">和整屏降级链对上 —— 这一节是 FRAMEWORK.md §8 的图元级对应</div>
+<p class="rule"><a href="#shell">整屏降级链</a>决定<b>给几个 Canvas、每个多宽</b>；这一节决定<b>每个 Canvas 里那张图怎么缩</b>。两者必须对得上，否则会出现「整屏还在给栏，图元级已经全线拒绝画」的空栏。所以两套判决放在同一个模块、由同一份单测同时压。Canvas 外尺寸减去左右框线与内边距（各 2 列）才是图元可用宽；行方向只减上下框线，<b>标题排在上框线里不另占行</b>。</p>
+<table>
+<thead><tr><th>整屏档位</th><th>Canvas 数</th><th>最窄 Canvas</th><th>图元可用宽</th><th>这一栏放不下</th></tr></thead>
+<tbody>
+<tr><td class="mono">≥160</td><td class="mono">3</td><td class="mono">28 列 @160</td><td class="mono">24 列</td><td><b>火焰图 · 泳道 Timeline</b></td></tr>
+<tr><td class="mono">140–159</td><td class="mono">2</td><td class="mono">45 列 @140</td><td class="mono">41 列</td><td>—</td></tr>
+<tr><td class="mono">120–139</td><td class="mono">2</td><td class="mono">38 列 @120</td><td class="mono">34 列</td><td>—</td></tr>
+<tr><td class="mono">100–119</td><td class="mono">2</td><td class="mono">39 列 @100</td><td class="mono">35 列</td><td>—</td></tr>
+<tr><td class="mono">80–99</td><td class="mono">1</td><td class="mono">77 列 @80</td><td class="mono">73 列</td><td>—</td></tr>
+<tr><td class="mono">&lt;80</td><td class="mono">1</td><td class="mono">40 列 @40</td><td class="mono">36 列</td><td>—</td></tr>
+</tbody>
+</table>
+
+<div class="note"><b>全链路最窄的 Canvas 出现在最宽的终端上。</b>160 列三分屏的第三栏只有 28 列，图元可用 <b>24 列</b>——比 40 列窄终端的单栏（36 列）<strong>还要窄 12 列</strong>。所以图元尺寸必须按<b>栏宽</b>卡，不能按终端宽度卡：「终端够宽」根本不代表「这张图放得下」。</div>
+
+<pre class="dense">终端 160 列 · 三分屏
+ <span class="cm">Dock 26 │</span> <span class="pr">Canvas A 45</span> <span class="cm">│</span> <span class="pr">Canvas B 39</span> <span class="cm">│</span> <span class="wn">Canvas C 28</span> <span class="cm">│ Inspector 22</span>
+                                            <span class="wn">└ 图元可用 24 列 ┘</span>
+
+图元最小宽度<span class="cm">（1 格 = 2 列）</span>       <span class="wn">╎ 24</span>
+ 8  <span class="b4">████</span>        <span class="wn">╎</span>   Sparkline
+10  <span class="b4">█████</span>       <span class="wn">╎</span>   Metric Bar
+12  <span class="b4">██████</span>      <span class="wn">╎</span>   进度
+16  <span class="b4">████████</span>    <span class="wn">╎</span>   散点 · 热力网格 · 分段
+20  <span class="b4">██████████</span>  <span class="wn">╎</span>   折线 · 面积 · 双向面积
+24  <span class="b4">████████████</span><span class="wn">╎</span>   排行 · Before/After        <span class="cm">← 正好卡住</span>
+30  <span class="er">███████████████</span> 火焰图 · 泳道 Timeline      <span class="er">✗ 越线 6 列</span></pre>
+
+<p class="rule">结论不是「把火焰图压进第三栏」——它俩恰恰是 <b>④ 最后让</b>那一档，最不该被压缩。结论是：<strong>三分屏时火焰图与泳道必须落在第一栏</strong>（45 列，图元可用 41 列，放得下）。第三栏本来就是「优先被牺牲」的那栏——再窄一档它就折叠成 Inspector 条了——所以它只承载 ①② 档图元。这条已写成断言，改坏了测试会红。</p>
+
+<div class="sublabel">实现</div>
+<p class="rule">规格与判决都在 <code>app/devkitai/layout.py</code>：<code>PRIMITIVES</code> 是十七种画法的规格表，<code>chart_box()</code> 把 Canvas 外尺寸换算成图元可用盒子，<code>fit_box()</code> 给出「在这个盒子里实际该画多大」——<b>返回 <code>None</code> 就是「不该画，走 fallback」</b>，<code>shrink_order()</code> 给同屏收缩顺序。跟 <code>resolve_layout()</code> 一样是纯函数，因为这类逻辑<b>平时不会有人手动把终端拖到 97 列去验</b>，不测就等于没写。<code>app/tests/test_layout.py</code> 里压了这些：规格自洽（自己在自己声明的尺寸上得画得下）· 判决永不超出给定盒子 · 低于最小尺寸必须返回「不画」· 三条硬约束各自的失真 · 六档整屏里每一档都容得下全部 ① 档图元 · 全宽度扫描 40–400 列不许出现「什么图都画不了」的空栏。</p>
 </section>
 
 <section id="prim">
