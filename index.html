@@ -237,6 +237,12 @@ body{
   .role{grid-template-columns:14px 1fr;}
   .role .du{grid-column:2}
 }
+
+/* 字符画宽度修正 —— 见 app/tools/fix_charart.py。等宽字体不含汉字与点阵，
+   回退字体的步进和 Latin 步进不成整数比（汉字 1.661×、点阵 0.831×），
+   字号改成 2ch 后正好落回 2 格和 1 格。块字符与框线本来就是 1.000×，别加。 */
+pre .fw{font-size:2ch}
+pre .hw{font-size:1ch}
 </style>
 </head>
 <body>
@@ -290,7 +296,7 @@ body{
 <pre><span class="pv-dim">╭─</span> <span class="pv-kp">▰</span> <span class="pv-fg">DEVKIT AI</span> <span class="pv-dim">─── migrate nginx ────</span>
 <span class="pv-dim">│</span> <span class="pv-ok">●</span> <span class="pv-fg">Analyze dependency</span>      <span class="pv-dim">18 libs</span>
 <span class="pv-dim">│</span> <span class="pv-ok">●</span> <span class="pv-fg">Generate patches</span>       <span class="pv-dim">12 file</span>
-<span class="pv-dim">│</span> <span class="pv-run">▶</span> <span class="pv-fg">Build verify</span>          <span class="pv-run">⠹ 2.1s</span>
+<span class="pv-dim">│</span> <span class="pv-run">▶</span> <span class="pv-fg">Build verify</span>          <span class="pv-run"><span class="fw">⠹</span> 2.1s</span>
 <span class="pv-dim">│</span> <span class="pv-dim">○ Performance check</span>
 <span class="pv-dim">├──────────────────────────────────</span>
 <span class="pv-dim">│</span> <span class="pv-fg">crypto.c</span> <span class="pv-er">████████</span><span class="pv-wn">███</span><span class="pv-dim">░░</span>  <span class="pv-er">2 crit</span>
@@ -328,7 +334,7 @@ body{
 <span class="pv-dim">│ ·</span> <span class="pv-fg">Intro</span>  <span class="pv-dim">│ ████ ████ ████ ████</span>
 <span class="pv-dim">│ ·</span> <span class="pv-fg">Form</span>   <span class="pv-dim">│ surface-1 .. surface-4</span>
 <span class="pv-dim">│ FOUNDAT. │ ──────────────────────</span>
-<span class="pv-dim">│</span> <span class="pv-run">· Chrome★</span> <span class="pv-dim">│</span> <span class="pv-cpu">████</span><span class="pv-npu">████</span><span class="pv-mem">████</span><span class="pv-io">████</span> <span class="pv-dim">domain</span>
+<span class="pv-dim">│</span> <span class="pv-run">· Chrome★</span><span class="pv-dim">│</span> <span class="pv-cpu">████</span><span class="pv-npu">████</span><span class="pv-mem">████</span><span class="pv-io">████</span> <span class="pv-dim">domain</span>
 <span class="pv-dim">│ ·</span> <span class="pv-fg">Colors</span> <span class="pv-dim">│ ──────────────────────</span>
 <span class="pv-dim">│ PATTERNS │</span> <span class="pv-fg">T0 T1 T2 T3 T4 T5</span>
 <span class="pv-dim">└──────────┴───────────────────────</span></pre>
@@ -366,8 +372,8 @@ body{
  <span class="pv-dim">-2</span>  <span class="pv-dim">.</span>  <span class="pv-dim">.</span>  <span class="pv-dim">.</span>  <span class="pv-dim">.</span>  <span class="pv-er">o</span>  <span class="pv-dim">.</span>
 <span class="pv-dim">     1  2  3  4  5  6</span>
 <span class="pv-dim">                 </span><span class="pv-er">▲</span>
-<span class="pv-er">     ⑤ 审查与决策 = 情绪最低谷</span>
-<span class="pv-dim">     七个竞品全弱 = 最大机会点</span></pre>
+<span class="pv-er">     <span class="hw">⑤</span> <span class="fw">审查与决策</span> = <span class="fw">情绪最低谷</span></span>
+<span class="pv-dim">     <span class="fw">七个竞品全弱</span> = <span class="fw">最大机会点</span></span></pre>
           </div>
           <p class="card-desc">三派七竞品（终端工作台派 / AI Coding TUI 派 / 工程观测派）× 22 触点 × 六阶段旅程。情绪最低谷落在<b>人审查 AI 改动</b>那一步——<b>没有一个产品做到 hunk 级的接受 / 拒绝</b>，这是本产品最大的机会点。附七个必须绕开的坑与差距矩阵。</p>
           <div class="card-links">
@@ -394,14 +400,14 @@ body{
             </div>
           </div>
           <div class="card-preview tall" aria-hidden="true">
-<pre><span class="pv-dim">宣传页 ▸ Splash ▸ 空态 ▸ 常态 ▸ 审查</span>
-<span class="pv-npu">▓▓▓▓</span><span class="pv-npu">▒▒▒</span><span class="pv-dim">░░</span> <span class="pv-dim">浓度递减 ──────────▶</span>
+<pre><span class="pv-dim"><span class="fw">宣传页</span> ▸ Splash ▸ <span class="fw">空态</span> ▸ <span class="fw">常态</span> ▸ <span class="fw">审查</span></span>
+<span class="pv-npu">▓▓▓▓</span><span class="pv-npu">▒▒▒</span><span class="pv-dim">░░</span> <span class="pv-dim"><span class="fw">浓度递减</span> ──────────▶</span>
 <span class="pv-dim">─────────────────────────────────</span>
-<span class="pv-fg">技术克制</span>  <span class="pv-run">◀ 主位置</span>  <span class="pv-dim">PTO·Warp·Cursor</span>
-<span class="pv-dim">粗野荧光</span>  <span class="pv-dim">借手法不借浓度</span>
-<span class="pv-dim">糖果友好</span>  <span class="pv-dim">视觉不借</span>
-<span class="pv-dim">复古磷光</span>  <span class="pv-dim">限 splash 2 秒</span>
-<span class="pv-dim">霓虹赛博</span>  <span class="pv-dim">仅演示过场</span></pre>
+<span class="pv-fg"><span class="fw">技术克制</span></span>  <span class="pv-run">◀ <span class="fw">主位置</span></span>  <span class="pv-dim">PTO·Warp·Cursor</span>
+<span class="pv-dim"><span class="fw">粗野荧光</span></span>  <span class="pv-dim"><span class="fw">借手法不借浓度</span></span>
+<span class="pv-dim"><span class="fw">糖果友好</span></span>  <span class="pv-dim"><span class="fw">视觉不借</span></span>
+<span class="pv-dim"><span class="fw">复古磷光</span></span>  <span class="pv-dim"><span class="fw">限</span> splash 2 <span class="fw">秒</span></span>
+<span class="pv-dim"><span class="fw">霓虹赛博</span></span>  <span class="pv-dim"><span class="fw">仅演示过场</span></span></pre>
           </div>
           <p class="card-desc">五个可辨识的审美流派、视觉原子的能力边界、皮肤生态、可直接取用的手法清单。结论是 DevKit 的定位：<b>主体站技术克制派，按场景向外逐级放开浓度</b>——视觉人格是「一台精密仪器，而不是一张海报」。<span class="mono">VISUAL.md §0.4</span> 的两条能力天花板修正即出自这里。</p>
           <div class="card-links">

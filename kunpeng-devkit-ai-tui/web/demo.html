@@ -541,6 +541,12 @@ pre.bgf{font-size:14px;line-height:1.5}
 #stage .pat{font-size:11.5px}
 
 
+
+/* 字符画宽度修正 —— 见 app/tools/fix_charart.py。等宽字体不含汉字与点阵，
+   回退字体的步进和 Latin 步进不成整数比（汉字 1.661×、点阵 0.831×），
+   字号改成 2ch 后正好落回 2 格和 1 格。块字符与框线本来就是 1.000×，别加。 */
+pre .fw{font-size:2ch}
+pre .hw{font-size:1ch}
 </style>
 </head>
 <body>
@@ -761,11 +767,11 @@ const ACTS=[
 <pre class="wm">${WORDMARK()}</pre>
 </div>
 <div class="bchips"><span class="ivl">AI&nbsp;TERMINAL</span> <span class="ivl">NATIVE&nbsp;TUI</span> <span class="ivl">v26.0</span> <span class="ivl">KUNPENG&nbsp;ARM64</span></div>
-<pre class="blog"><span class="cm">[ 0.004]</span> <span class="ok">ok</span>   runtime          <span class="d2">本地已就绪，无需连接服务器</span>
-<span class="cm">[ 0.011]</span> <span class="ok">ok</span>   toolchain        <span class="d2">交叉编译 x86_64 → Kunpeng ARM64</span>
-<span class="cm">[ 0.019]</span> <span class="ok">ok</span>   mcp tools        <span class="d2">2/4 已装载  cpp_migrator · knowledge_base</span>
-<span class="cm">[ 0.024]</span> <span class="wn">warn</span> capabilities     <span class="d2">3 项能力未安装</span>  <span class="cm">[Enter] 查看</span>
-<span class="cm">[ 0.031]</span> <span class="ok">ok</span>   session          <span class="d2">恢复 1 个会话  <span class="ac">migrate nginx</span>  3 天前 · 82% · <span class="wn">2 项待人工确认</span></span></pre>
+<pre class="blog"><span class="cm">[ 0.004]</span> <span class="ok">ok</span>   runtime          <span class="d2"><span class="fw">本地已就绪，无需连接服务器</span></span>
+<span class="cm">[ 0.011]</span> <span class="ok">ok</span>   toolchain        <span class="d2"><span class="fw">交叉编译</span> x86_64 → Kunpeng ARM64</span>
+<span class="cm">[ 0.019]</span> <span class="ok">ok</span>   mcp tools        <span class="d2">2/4 <span class="fw">已装载</span>  cpp_migrator · knowledge_base</span>
+<span class="cm">[ 0.024]</span> <span class="wn">warn</span> capabilities     <span class="d2">3 <span class="fw">项能力未安装</span></span>  <span class="cm">[Enter] <span class="fw">查看</span></span>
+<span class="cm">[ 0.031]</span> <span class="ok">ok</span>   session          <span class="d2"><span class="fw">恢复</span> 1 <span class="fw">个会话</span>  <span class="ac">migrate nginx</span>  3 <span class="fw">天前</span> · 82% · <span class="wn">2 <span class="fw">项待人工确认</span></span></span></pre>
 <div class="binput">
   <span class="pr p">❯</span>
   <span class="cur"></span><span class="ph">想做什么？直接说 —— 例如「把 ./nginx 迁到鲲鹏」</span>
@@ -818,9 +824,9 @@ const ACTS=[
    <div class="cm" style="font-size:11.5px">扫描与补丁生成已完成，等待编译验证…</div></div>`,
   console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span></div><pre>
  <span class="ok">●</span> Analyze dependency               <span class="cm">18 libs</span>
- <span class="ok">●</span> Find incompatible API            <span class="cm">3 hits · 知识库</span>
+ <span class="ok">●</span> Find incompatible API            <span class="cm">3 hits · <span class="fw">知识库</span></span>
  <span class="ok">●</span> Generate patches                 <span class="cm">12 files</span>
- <span class="wn">⏸</span> Build verify —— <span class="wn">需要补充 3 项配置才能继续</span>
+ <span class="wn"><span class="hw">⏸</span></span> Build verify —— <span class="wn"><span class="fw">需要补充</span> 3 <span class="fw">项配置才能继续</span></span>
  <span class="cm">○</span> Benchmark</pre>`,
   input:'', cursor:false,
   stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">22%</span>  <span class="wn">⏸ 1 任务待配置</span>'}],
@@ -856,18 +862,18 @@ Issues
  ├ atomic API        <span class="wn">⚠</span>  memory.c:223
  └ Makefile flags    <span class="ok">✓</span></pre></div>
    <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>FILE RISK${SORT([{t:'Risk',a:'▾',on:1},{t:'Name'},{t:'Loc'}])}</div>
-   <pre><span class="cm">高 ◀</span>                         <span class="cm">▶ 低</span>
+   <pre><span class="cm"><span class="fw">高</span> ◀</span>                         <span class="cm">▶ <span class="fw">低</span></span>
 <span style="color:var(--o3)">███</span> src/crypto.c      <span class="er">Critical</span>
 <span style="color:var(--o5)">██</span>  src/memory.c      <span class="wn">Warning</span>
 <span style="color:var(--o7)">█</span>   src/http.c        <span class="cm">Info</span>
 <span style="color:var(--o8)">▁</span>   conf/nginx.conf   <span class="ok">OK</span>
 
-<span class="cm">单一 accum-orange 色阶
-800→300 顺序取档
-语义色不参与数据可视化</span></pre></div>`,
+<span class="cm"><span class="fw">单一</span> accum-orange <span class="fw">色阶</span>
+800→300 <span class="fw">顺序取档</span>
+<span class="fw">语义色不参与数据可视化</span></span></pre></div>`,
   console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span></div><pre>
- <span class="ok">●</span> Build verify &nbsp;<span class="cm">配置已补齐，从暂停处继续</span>
- <span class="pr">▶</span> Generating report <span class="spin">⠹</span></pre>`,
+ <span class="ok">●</span> Build verify &nbsp;<span class="cm"><span class="fw">配置已补齐，从暂停处继续</span></span>
+ <span class="pr">▶</span> Generating report <span class="spin"><span class="fw">⠹</span></span></pre>`,
   input:'', cursor:false, stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">31%</span>  12:07'}]})},
 
 {n:'⑤',t:'审改动',
@@ -946,7 +952,7 @@ Confidence <span class="d2">█████████</span><span class="cm">�
  <span class="er">- malloc(size)</span>
  <span class="ok">+ aligned_alloc(64, size)</span>
 
-<span class="cm">影响 1 处 · 不改变语义</span></pre>
+<span class="cm"><span class="fw">影响</span> 1 <span class="fw">处</span> · <span class="fw">不改变语义</span></span></pre>
    <div style="margin-top:10px;font-size:12px"><span class="pr b">[Y] Apply &amp; rebuild</span> &nbsp;<span class="d2">[R] Review</span> &nbsp;<span class="d2">[N] Dismiss</span></div></div>`,
   console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span></div>
    <div class="rl er"><span class="sb er">FAILED</span><span class="tx">Build verify — ld: unaligned access in memory allocator</span></div>
@@ -971,8 +977,8 @@ Confidence <span class="d2">█████████</span><span class="cm">�
 CPU   <span style="color:var(--g4)">████</span><span style="color:var(--g6)">▓▓▓▓</span><span style="color:var(--g8)">░░░░</span><span style="color:var(--g6)">▓▓▓</span><span style="color:var(--g8)">░░░░░░░░░░░░░░░░░░░░░░░░</span>
 NPU   <span style="color:var(--v8)">░░░░</span><span style="color:var(--v3)">███████</span><span style="color:var(--v6)">▓▓▓▓</span><span style="color:var(--v3)">██████████</span><span style="color:var(--v8)">░░░░░░░░░</span>
 HBM   <span style="color:var(--o5)">▓▓</span><span style="color:var(--o3)">████████████████</span><span style="color:var(--o5)">▓▓▓</span><span style="color:var(--o3)">████████</span><span style="color:var(--o8)">░░░</span>
-                <span class="er">└─ ⚠ AI: HBM 持续饱和而 NPU 有气泡 → memory-bound</span>
-                   <span class="cm">置信度 89% · [↵] 查看证据</span></pre>
+                <span class="er">└─ ⚠ AI: HBM <span class="fw">持续饱和而</span> NPU <span class="fw">有气泡</span> → memory-bound</span>
+                   <span class="cm"><span class="fw">置信度</span> 89% · [↵] <span class="fw">查看证据</span></span></pre>
    <pre style="margin-top:9px">Bottleneck        <span class="cm">▾ share</span>
 attention   <span style="color:var(--o3)">█████████</span> 45%
 matmul      <span style="color:var(--o5)">███████</span>   35%
@@ -1001,19 +1007,19 @@ memcpy      <span style="color:var(--o7)">████</span>      20%</pre></di
   d:{tasks:ITEM({idx:'01',ico:'✓',ic:'ok',lb:'migrate nginx',pill:'PASS',pc:'var(--ok)'})
        +ITEM({idx:'02',ico:'▶',ic:'pr',lb:'param tuning',meta:'压测中'}),tcnt:'2'},
   canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>PARAM TUNING<span class="r">nginx @ Kunpeng920</span></div>
-   <pre>方案对比            QPS            P99     CPU          内存
+   <pre><span class="fw">方案对比</span>            QPS            P99     CPU          <span class="fw">内存</span>
 <span class="cm">baseline</span>       <span style="color:var(--o8)">████</span><span class="cm">░░░░░</span> 42k   18ms   <span style="color:var(--o6)">███</span><span class="cm">░░</span> 62%   4.2G
-<span class="ok">方案 A ★推荐</span>   <span style="color:var(--o3)">██████</span><span class="cm">░░░</span> <span class="b">61k</span>   12ms   <span style="color:var(--o4)">████</span><span class="cm">░</span> 78%   5.1G
-<span class="cm">方案 B 激进</span>    <span style="color:var(--o4)">█████</span><span class="cm">░░░░</span> 55k    <span class="ok">9ms</span>   <span style="color:var(--o3)">█████</span> 88%   <span class="wn">6.8G</span></pre>
-   <pre style="margin-top:10px"><span class="cm">方案 A 的改动与理由</span>
- worker_processes    auto → 64        <span class="cm">← 对齐 64 物理核，去掉超分</span>
- worker_connections  1024 → 8192      <span class="cm">← 匹配实测并发水位</span>
- numa 绑定            off → per-worker <span class="cm">← 消除跨 NUMA 访问（<span class="pr">↵ 见热力</span>）</span></pre>
+<span class="ok"><span class="fw">方案</span> A ★<span class="fw">推荐</span></span>   <span style="color:var(--o3)">██████</span><span class="cm">░░░</span> <span class="b">61k</span>   12ms   <span style="color:var(--o4)">████</span><span class="cm">░</span> 78%   5.1G
+<span class="cm"><span class="fw">方案</span> B <span class="fw">激进</span></span>    <span style="color:var(--o4)">█████</span><span class="cm">░░░░</span> 55k    <span class="ok">9ms</span>   <span style="color:var(--o3)">█████</span> 88%   <span class="wn">6.8G</span></pre>
+   <pre style="margin-top:10px"><span class="cm"><span class="fw">方案</span> A <span class="fw">的改动与理由</span></span>
+ worker_processes    auto → 64        <span class="cm">← <span class="fw">对齐</span> 64 <span class="fw">物理核，去掉超分</span></span>
+ worker_connections  1024 → 8192      <span class="cm">← <span class="fw">匹配实测并发水位</span></span>
+ numa <span class="fw">绑定</span>            off → per-worker <span class="cm">← <span class="fw">消除跨</span> NUMA <span class="fw">访问（</span><span class="pr">↵ <span class="fw">见热力</span></span><span class="fw">）</span></span></pre>
    <div style="margin-top:11px;font-size:12px"><span class="pr b">[Y] 应用方案 A</span> &nbsp;<span class="d2">[D] 看完整 diff</span> &nbsp;<span class="d2">[B] 再压测</span> &nbsp;<span class="d2">[C] 自定义</span></div></div>`,
   console:`<pre>
- <span class="ok">●</span> 压测 3 组配置 &nbsp;<span class="cm">wrk · 60s × 3</span>
- <span class="ok">●</span> NUMA 亲和性分析 &nbsp;<span class="cm">core 34-38 跨节点访问已定位</span>
- <span class="pr">▶</span> 生成方案对比 <span class="spin">⠹</span></pre>`,
+ <span class="ok">●</span> <span class="fw">压测</span> 3 <span class="fw">组配置</span> &nbsp;<span class="cm">wrk · 60s × 3</span>
+ <span class="ok">●</span> NUMA <span class="fw">亲和性分析</span> &nbsp;<span class="cm">core 34-38 <span class="fw">跨节点访问已定位</span></span>
+ <span class="pr">▶</span> <span class="fw">生成方案对比</span> <span class="spin"><span class="fw">⠹</span></span></pre>`,
   input:'', cursor:false,
   stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">66%</span>  12:24'}]})},
 
@@ -1032,25 +1038,25 @@ memcpy      <span style="color:var(--o7)">████</span>      20%</pre></di
       After &nbsp;<span class="ok">████████████</span> <span class="b">61k</span> &nbsp;<span class="ok">+45%</span>
 
 P99 &nbsp;&nbsp;18ms → <span class="ok">12ms</span> &nbsp;<span class="ok">−33%</span>
-NUMA &nbsp;跨节点访问 <span class="er">18%</span> → <span class="ok">2%</span></pre>
+NUMA &nbsp;<span class="fw">跨节点访问</span> <span class="er">18%</span> → <span class="ok">2%</span></pre>
    <div style="margin-top:12px" class="cm">✓ 已验证 · 压测 3 轮取中位数</div></div>
    <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>SCENARIO PROFILE</div>
-   <pre><span class="pr">▸</span> <span class="selbg"> 高并发短连接 </span>
-   <span class="cm">keepalive 短 · 连接数高</span>
+   <pre><span class="pr">▸</span> <span class="selbg"> <span class="fw">高并发短连接</span> </span>
+   <span class="cm">keepalive <span class="fw">短</span> · <span class="fw">连接数高</span></span>
 
-  长连接推送
-   <span class="cm">连接常驻 · 内存敏感</span>
+  <span class="fw">长连接推送</span>
+   <span class="cm"><span class="fw">连接常驻</span> · <span class="fw">内存敏感</span></span>
 
-  大文件传输
-   <span class="cm">吞吐优先 · IO 密集</span>
+  <span class="fw">大文件传输</span>
+   <span class="cm"><span class="fw">吞吐优先</span> · IO <span class="fw">密集</span></span>
 
-  混合负载
-   <span class="cm">按时段自适应</span></pre>
+  <span class="fw">混合负载</span>
+   <span class="cm"><span class="fw">按时段自适应</span></span></pre>
    <div style="margin-top:11px;font-size:12px"><span class="pr b">[↵] 进入场景化调优</span></div></div>`,
-  console:`<pre><span class="cm">下一步</span>
- <span class="pr">▸ [1] 针对「高并发短连接」再调一轮 &nbsp;<span class="cm">~4min</span></span>
- <span class="d2">&nbsp;&nbsp; [2] 导出本轮调优报告</span>
- <span class="d2">&nbsp;&nbsp; [3] 处理剩下 2 处人工确认项</span></pre>`,
+  console:`<pre><span class="cm"><span class="fw">下一步</span></span>
+ <span class="pr">▸ [1] <span class="fw">针对「高并发短连接」再调一轮</span> &nbsp;<span class="cm">~4min</span></span>
+ <span class="d2">&nbsp;&nbsp; [2] <span class="fw">导出本轮调优报告</span></span>
+ <span class="d2">&nbsp;&nbsp; [3] <span class="fw">处理剩下</span> 2 <span class="fw">处人工确认项</span></span></pre>`,
   input:'', cursor:false,
   stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">71%</span>  12:31'}]})},
 
@@ -1068,9 +1074,9 @@ NUMA &nbsp;跨节点访问 <span class="er">18%</span> → <span class="ok">2%</
   canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>SESSION SUMMARY</div>
    <pre><span class="cm">migrate nginx → Kunpeng ARM64</span>
 
- <span class="ok">✓ 21 issues fixed</span>        <span class="cm">自动修复</span>
- <span class="wn">⚠ 2 need manual review</span>   <span class="cm">已转待办</span>
- <span class="ok">✓ Build PASS</span>              <span class="cm">交叉编译通过</span>
+ <span class="ok">✓ 21 issues fixed</span>        <span class="cm"><span class="fw">自动修复</span></span>
+ <span class="wn">⚠ 2 need manual review</span>   <span class="cm"><span class="fw">已转待办</span></span>
+ <span class="ok">✓ Build PASS</span>              <span class="cm"><span class="fw">交叉编译通过</span></span>
  <span class="ok">✓ QPS 42k → 61k</span>          <span class="ok">+45%</span>
 
  <span class="cm">Files &nbsp;+6 modified &nbsp;·&nbsp; Tokens 48k
@@ -1080,14 +1086,14 @@ NUMA &nbsp;跨节点访问 <span class="er">18%</span> → <span class="ok">2%</
    ${TAGF([{t:'零配置启动',c:'①'},{t:'计划先行可改',c:'②'},{t:'配置用到才问',c:'③'},
      {t:'改动有证据',c:'⑤'},{t:'失败转诊断',c:'⑥'},{t:'结论标在图上',c:'⑦'},
      {t:'方案对比',c:'⑧'},{t:'待办不丢',c:'⑩'}])}
-   <pre style="margin-top:14px"><span class="cm">转入待办</span>
- <span class="wn">⚠</span> src/http.c:412 &nbsp;<span class="cm">内联汇编需人工确认</span>
- <span class="wn">⚠</span> conf/nginx.conf &nbsp;<span class="cm">worker 绑核策略待评审</span></pre></div>`,
-  console:`<pre><span class="cm">下一步</span>
- <span class="pr">▸ [1] 处理 2 项人工确认，收尾这个工程 &nbsp;<span class="cm">~5min</span></span>
- <span class="d2">&nbsp;&nbsp; [2] 迁移下一个工程 order-svc</span>
- <span class="d2">&nbsp;&nbsp; [3] 把本轮参数固化成场景 profile</span>
- <span class="pr">❯</span> 或直接说你想干什么<span class="cur"></span></pre>`,
+   <pre style="margin-top:14px"><span class="cm"><span class="fw">转入待办</span></span>
+ <span class="wn">⚠</span> src/http.c:412 &nbsp;<span class="cm"><span class="fw">内联汇编需人工确认</span></span>
+ <span class="wn">⚠</span> conf/nginx.conf &nbsp;<span class="cm">worker <span class="fw">绑核策略待评审</span></span></pre></div>`,
+  console:`<pre><span class="cm"><span class="fw">下一步</span></span>
+ <span class="pr">▸ [1] <span class="fw">处理</span> 2 <span class="fw">项人工确认，收尾这个工程</span> &nbsp;<span class="cm">~5min</span></span>
+ <span class="d2">&nbsp;&nbsp; [2] <span class="fw">迁移下一个工程</span> order-svc</span>
+ <span class="d2">&nbsp;&nbsp; [3] <span class="fw">把本轮参数固化成场景</span> profile</span>
+ <span class="pr">❯</span> <span class="fw">或直接说你想干什么</span><span class="cur"></span></pre>`,
   input:'', cursor:false,
   stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">74%</span>  12:31'}]})}
 ];
