@@ -71,8 +71,27 @@
 │   ├── COMPETITIVE-ANALYSIS.md      竞品分析（Markdown 版）
 │   └── DEMO-WIREFRAME.md            四大 Demo 的 ASCII 交互稿
 ├── web/                             可交互 HTML（自包含单文件）
+├── tools/
+│   └── kpmark.py                    从标识 PNG 重采样 demo splash 的半块点阵
 └── assets/                          README 用截图
 ```
+
+### tools/kpmark.py
+
+`web/demo.html` 开场画面的点阵标识由脚本从真实标识位图生成，不要手改 —— 它在
+`<!-- kpmark:begin -->` / `<!-- kpmark:end -->` 之间，重跑脚本会整段覆盖。
+
+```bash
+python3 tools/kpmark.py            # 预览：终端打出点阵
+python3 tools/kpmark.py --write    # 写回 web/demo.html
+```
+
+关键在于**非等比重采样**。splash 下字符格约 8.4 × 12.0 px，半块把一格纵向切两半，
+所以一个"点"是 8.4 宽 × 6.0 高 —— 宽是高的 1.4 倍。按原图 1:1 取点会横向拉宽 1.4 倍。
+脚本按 `cols/rows = 原图宽高比 × 12.0 / 8.4` 反算列行数，默认 25 列 × 18 行，
+渲染后视觉宽高比 0.973，对标识本身的 0.978 偏差 0.5%。
+
+只依赖标准库（zlib 解 PNG），不需要 Pillow。标识换了重跑一次即可。
 
 `docs/VISUAL.md` 是整套里最厚的一份（570+ 行），也是最值得先读的——所有视觉决策的推导过程和被推翻的方案都记在里面。
 
