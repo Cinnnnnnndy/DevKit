@@ -395,7 +395,6 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <div class="ngrp">Implementation · 实现实况</div>
   <a href="#impl">★ 工作台外壳</a>
   <a href="#impl-tier">降级路径并排</a>
-  <a href="#impl-prim">图元画廊</a>
   <a href="#impl-run">在本地跑起来</a>
   <div class="ngrp">Product · 产品场景与旅程</div>
   <a href="#s-mig">Migrate ★</a>
@@ -1136,7 +1135,7 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <section id="primlib">
 <div class="eyebrow">TUI Capability</div>
 <h2>图表原语库 · 十四种</h2>
-<p class="desc">图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。实现见 <code>app/devkitai/render/</code>，活样本见<a href="#impl-prim">图元画廊</a>，完整规格见 <code>docs/COMPONENT.md</code> §3。</p>
+<p class="desc">图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。实现见 <code>app/devkitai/render/</code>，完整规格见 <code>docs/COMPONENT.md</code> §3；本节末尾附程序真实输出的活样本。</p>
 
 <table>
 <thead><tr><th>组</th><th>问题</th><th>图元</th><th>渲染层</th><th>降级到</th></tr></thead>
@@ -1168,6 +1167,20 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 
 <div class="sublabel">对齐 —— 禁用裸 ljust / rjust</div>
 <p class="rule">所有图元的标签与表格列必须走 <code>render/text.py</code> 的 <code>fit()</code> / <code>pad()</code> / <code>truncate()</code>。Python 数的是<b>码位</b>，终端排的是<b>单元格</b>，一个汉字占 2 格：<code>f"{'折线':&lt;12}"</code> 实际占 14 格，<code>f"{'Sparkline':&lt;12}"</code> 占 12 格——同一张表里两种标签混用，列就是歪的。<b>这类 bug 只在中文标签下出现，纯英文界面上怎么测都测不出来</b>，所以靠纪律不靠自觉。</p>
+
+<div class="sublabel">活样本 —— python -m devkitai gallery</div>
+<p class="desc">规范写着每种图长什么样，但字符图好不好使只有渲染出来才知道。下面这张是<b>程序真跑起来导出的</b>矢量 SVG（<code>app/tools/screenshots.py</code> 生成），不是重画的 mockup——每个字符仍然是文本，颜色是运行时算出来的那一个。</p>
+<div class="im-frame"><img src="./assets/tui/gallery.svg" alt="图元画廊 · 十四种原语" loading="lazy"></div>
+<p class="rule">
+      图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。
+      三条贯穿全族的规则：<b>八分之一格精度</b>（水平方向也有 <code>▏▎▍▌▋▊▉█</code>，10 格宽的 bar 因此能分 80 档；
+      没有它 82% 和 85% 画出来一模一样，而这种数字恰恰是拿来做判断的）·
+      <b>并置必须共用量程</b>（分别归一化会让每条都填满画布，而并置的全部意义就是比较）·
+      <b>画不下的要显式说</b>（火焰图那行 <code>1 帧过窄未显示</code>——悄悄丢掉窄帧会让「我看全了」变成错觉，
+      而给窄帧兜底成 1 格又会让它们集体虚胖、把宽帧挤走）。
+      注意最上面那组 Metric Bar：<b>bar 走域色阶，只有数值文字转语义色</b>——
+      一个 90% 的利用率本身不是错误，把两者刷成一个颜色等于宣布「数值大 = 出事了」。
+    </p>
 </section>
 
 <section id="prim">
@@ -1625,23 +1638,6 @@ Sidebar：<span class="ok">● 运行中</span> · <span class="wn">⟳ 待重�
       强度改由字形 <code>░▒▓█</code> 接住——否则一张热力图会退化成一片同样的方块，
       那是<b>丢信息</b>而不是降级。AI 标注层那几个 <code>⚠</code> 始终占独立一行，不插进单元格之间：
       角标插在格后面会把整行往右挤，网格靠位置表达拓扑，一错位这张图就废了。
-    </p>
-</section>
-
-<section id="impl-prim">
-<div class="eyebrow">Implementation</div>
-<h2>图元画廊</h2>
-<p class="desc">十四种图表原语的活样本，对应 <code>COMPONENT.md</code> §3。规范写着每种图长什么样，但字符图好不好使只有渲染出来才知道。</p>
-<div class="im-frame"><img src="./assets/tui/gallery.svg" alt="图元画廊 · 十四种原语" loading="lazy"></div>
-<p class="rule">
-      图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。
-      三条贯穿全族的规则：<b>八分之一格精度</b>（水平方向也有 <code>▏▎▍▌▋▊▉█</code>，10 格宽的 bar 因此能分 80 档；
-      没有它 82% 和 85% 画出来一模一样，而这种数字恰恰是拿来做判断的）·
-      <b>并置必须共用量程</b>（分别归一化会让每条都填满画布，而并置的全部意义就是比较）·
-      <b>画不下的要显式说</b>（火焰图那行 <code>1 帧过窄未显示</code>——悄悄丢掉窄帧会让「我看全了」变成错觉，
-      而给窄帧兜底成 1 格又会让它们集体虚胖、把宽帧挤走）。
-      注意最上面那组 Metric Bar：<b>bar 走域色阶，只有数值文字转语义色</b>——
-      一个 90% 的利用率本身不是错误，把两者刷成一个颜色等于宣布「数值大 = 出事了」。
     </p>
 </section>
 
