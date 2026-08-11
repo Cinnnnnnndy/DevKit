@@ -380,6 +380,40 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#93a6c2 0%,#84b0a2 
 
 /* ⑨.5 Kunpeng 标识：半块像素还原（每字符格 = 2 垂直像素） */
 .kpm{font-family:var(--mono);white-space:pre;line-height:.86;letter-spacing:0;font-size:12px;flex:none}
+/* ── 文件树：结构照风格 B，表达用字符 ── */
+.tsearch{display:flex;align-items:center;gap:7px;height:26px;margin:2px 6px 9px;padding:0 8px;
+  background:var(--s1);border:1px solid var(--bd2);border-radius:3px;
+  font-size:11.5px;color:var(--fg4)}
+.tsearch .q{color:var(--fg4)}
+.tree2{display:flex;flex-direction:column}
+.trow{display:flex;align-items:center;gap:6px;height:22px;font-size:12px;
+  color:var(--fg2);white-space:nowrap;position:relative}
+.trow .cv{width:9px;flex:none;color:var(--fg4);font-size:9px}
+.trow .ti{width:9px;flex:none;color:var(--fg4);font-size:10px}
+.trow .tl{overflow:hidden;text-overflow:ellipsis}
+.trow .tm{margin-left:auto;margin-right:8px;font-size:10.5px;font-weight:600}
+.trow .tm.m{color:var(--o3)} .trow .tm.a{color:var(--ok)}
+.trow.dim{color:var(--fg4);font-size:10.5px;letter-spacing:.1em}
+.trow.sel{background:rgba(0,119,255,.14);color:var(--fg)}
+.trow.sel::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:2px;background:var(--pri)}
+/* 按扩展名着色 —— 与风格 B 同一套区分 */
+.trow .ti.c{color:#5a92e6} .trow .ti.h{color:#B977F9}
+.trow .ti.cf{color:var(--o3)} .trow .ti.p{color:var(--ok)}
+.tstat{margin:14px 6px 0;display:flex;flex-direction:column}
+.tstat .h{font-size:10.5px;color:var(--fg4);letter-spacing:.1em;margin-bottom:4px}
+.tstat .r{display:flex;align-items:center;height:21px;font-size:12px;color:var(--fg2)}
+.tstat .r b{margin-left:auto;font-size:11.5px}
+.tfold{display:flex;align-items:center;gap:7px;height:26px;padding:0 8px;margin-top:6px;
+  border-top:1px solid var(--bd1);font-size:12px;color:var(--fg3)}
+.tfold .cv{color:var(--fg4);font-size:9px}
+
+/* 代码区收起开关 */
+.cfold{margin-left:10px;background:var(--s2);border:1px solid var(--bd2);color:var(--fg3);
+  font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:3px;cursor:pointer}
+.cfold:hover{color:var(--fg);border-color:var(--fg4)}
+.canvases.foldcode{grid-template-columns:0 1fr !important}
+.canvases.foldcode .cvcode{display:none}
+
 .kpm i{font-style:normal}
 /* 点阵两档羽色 —— 由 tools/kpmark.py 生成的 <i class="r|g"> 使用 */
 .kpm i.r{color:var(--kp)}
@@ -618,6 +652,35 @@ const ITEM=(o)=>`<div class="item ${o.sel?'sel':''}">
   ${o.nw?'<span class="new">NEW</span>':''}
   ${o.pill?`<span class="pill" ${o.pc?`style="color:${o.pc}"`:''}>${o.pill}</span>`:''}
   ${o.meta?`<span class="meta">${o.meta}</span>`:''}</div>`;
+/* 文件树 —— 信息结构对齐风格 B 的资源管理器：chevron 展开符、按扩展名着色、
+   右侧 M/A 状态标。风格 A 是字符质感，所以图标用字符而不是 SVG。 */
+const TROW=(o)=>`<div class="trow ${o.sel?'sel':''} ${o.dim?'dim':''}" style="padding-left:${8+(o.lv||0)*13}px">
+  <span class="cv">${o.cv||''}</span><span class="ti ${o.k||''}">${o.dir?'▸':'·'}</span>
+  <span class="tl">${o.lb}</span>${o.mk?`<span class="tm ${o.mk==='A'?'a':'m'}">${o.mk}</span>`:''}</div>`;
+const DTREE=()=>`<div class="tsearch"><span class="q">⌕</span>在 nginx-main 中搜索</div>
+<div class="tree2">
+${TROW({lv:0,cv:'∨',lb:'NGINX-MAIN',dim:1})}
+${TROW({lv:1,cv:'∨',dir:1,lb:'nginx/'})}
+${TROW({lv:2,cv:'∨',dir:1,lb:'src/'})}
+${TROW({lv:3,k:'c',lb:'crypto.c',sel:1,mk:'M'})}
+${TROW({lv:3,k:'c',lb:'memory.c',mk:'M'})}
+${TROW({lv:3,k:'c',lb:'http.c'})}
+${TROW({lv:3,k:'h',lb:'ngx_core.h'})}
+${TROW({lv:2,cv:'∨',dir:1,lb:'conf/'})}
+${TROW({lv:3,k:'cf',lb:'nginx.conf',mk:'M'})}
+${TROW({lv:2,cv:'›',dir:1,lb:'auto/'})}
+${TROW({lv:2,cv:'›',dir:1,lb:'objs/'})}
+${TROW({lv:2,k:'p',lb:'kunpeng.patchset',mk:'A'})}
+${TROW({lv:2,lb:'CHANGES'})}
+${TROW({lv:2,lb:'configure'})}
+</div>
+<div class="tstat"><div class="h">迁移状态</div>
+  <div class="r">待审改动<b class="wn">10</b></div>
+  <div class="r">已接受<b class="ok">2</b></div>
+  <div class="r">需人工确认<b class="er">2</b></div></div>
+<div class="tfold"><span class="cv">›</span>补丁集</div>
+<div class="tfold"><span class="cv">›</span>TIMELINE</div>`;
+
 const SEC=(t,rows,cnt)=>`<div class="dsec"><div class="h"><span class="hash">#</span>${t}
   ${cnt?`<span class="cnt">${cnt}</span>`:''}</div>${rows}</div>`;
 
@@ -815,12 +878,8 @@ Issues
  render:()=>SHELL({
   cols:'1fr 1fr',
   d:{tasks:ITEM({idx:'01',ico:'▶',ic:'pr',lb:'migrate nginx',meta:'04:01'}),
-     proj:ITEM({idx:'01',ico:'▾',ic:'cm',lb:'nginx/'})
-       +ITEM({gut:'│ ',ico:'▾',ic:'cm',lb:'src/'})
-       +ITEM({gut:'│ │',ico:'',lb:'crypto.c',sel:true,pill:'2/12',risk:[18,'var(--o3)']})
-       +ITEM({gut:'│ │',ico:'',lb:'memory.c',risk:[12,'var(--o5)']}),
-     pcnt:'⇄ 跟随'},
-  canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>PATCH 2/12${SORT([{t:'Pending',a:'10',on:1},{t:'Accepted',a:'1'}])}</div>
+     proj:DTREE(), pcnt:'⇄ 跟随'},
+  canvas:`<div class="cv cvcode"><div class="cvh2"><span class="pmt">&gt;_</span>PATCH 2/12${SORT([{t:'Pending',a:'10',on:1},{t:'Accepted',a:'1'}])}</div>
    <div style="font-size:11.5px" class="cm">src/crypto.c:88</div>
    <div style="margin-top:7px">
      <div class="dl"><span class="ln">86</span><span class="sg cm">&nbsp;</span><span class="d2">while (spin--) {</span></div>
@@ -831,7 +890,7 @@ Issues
    <div style="margin-top:6px;font-size:10px" class="cm">仅高亮变化的 token —— 一眼看出"到底动了什么"</div>
    <div style="font-size:11.5px;margin-top:8px" class="d2">Impact &nbsp;<span class="ok">Compatibility Fixed</span> · Perf +3%</div>
    <div style="margin-top:12px;font-size:12px"><span class="pr b">[A] Accept</span> &nbsp;<span class="d2">[E] Edit</span> &nbsp;<span class="d2">[R] Reject</span> &nbsp;<span class="cm">[Space] next</span></div></div>
-   <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>EVIDENCE</div>
+   <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>EVIDENCE<button class="cfold" data-fold>▾ 代码区</button></div>
    <div class="slist">
      <div class="srow on"><span class="n ac">[1]</span><span class="bd">
        <div class="t1">指令替换案例库 #4471</div>
@@ -1165,6 +1224,13 @@ function pause(){playing=false;E('play').textContent='▶ 自动播放';E('play'
 E('next').onclick=()=>{next();pause()};
 E('prev').onclick=()=>{prev();pause()};
 E('play').onclick=()=>playing?pause():play();
+/* 每切一幕都会重绘 DOM，所以用委托绑一次，不必每幕重新挂 */
+addEventListener('click',e=>{
+  const b=e.target.closest('[data-fold]'); if(!b) return;
+  const g=b.closest('.canvases'); if(!g) return;
+  const on=g.classList.toggle('foldcode');
+  b.textContent = on ? '▸ 代码区' : '▾ 代码区';
+});
 addEventListener('keydown',e=>{
   if(e.key==='ArrowRight'){next();pause();e.preventDefault();}
   if(e.key==='ArrowLeft'){prev();pause();e.preventDefault();}
