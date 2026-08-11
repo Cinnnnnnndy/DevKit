@@ -137,22 +137,52 @@ pre{font-family:var(--font-mono);background:var(--ark-neutral-0);border:1px soli
 :root{ --grid-unit:4px; --chart-trim:calc(var(--grid-unit) * 3); }
 
 pre.dense{
+  --row:calc(var(--grid-unit) * 5);          /* 20px，落在网格上 */
   font-size:11px;
-  line-height:calc(var(--grid-unit) * 5);   /* 20px，落在网格上 */
+  line-height:var(--row);
   padding:var(--chart-trim);                 /* 修剪区：四边等距 */
   margin:0;
   border-radius:var(--radius-sm);
   background:var(--surface-1);
   overflow-x:auto;
 }
+/* ④ 承载数据的字符图再多给一格行高。
+ *
+ * 20px 对**纯文本**是合适的，对**块字符与点阵**不够：`█▇▅▃▂▁` `⣿⣤⣀` 这类
+ * 字形是贴着 em 盒画满的，上下几乎不留白，相邻两行会直接顶在一起。拉丁字母
+ * 自带上伸部/下伸部的空隙当缓冲，字符图没有——所以缺口不是"看着挤"，
+ * 是**两行数据在视觉上粘成了一块**，而这正是字符图唯一的读法所依赖的东西。
+ *
+ * 24px 仍是 4px 基准的整数倍（6 格），没有离开基线网格；条纹周期跟着 --row
+ * 走，不会和行错开。判定规则：**块字符/点阵承载数据的用 .chart，
+ * 纯文本与框线的不用**——算子表那种全是框线加文字的，20px 正合适。
+ */
+pre.dense.chart{ --row:calc(var(--grid-unit) * 6); }   /* 24px */
+
+/* ⑤ 反过来的一类：**多行拼成一张图**的，行距必须更紧。
+ *
+ * 上面那条只对「一行 = 一条独立数据」成立（热力网格的一行是一组核，Trace 的
+ * 一行是一条泳道，拉开才不粘）。但 braille 曲线的三行是**同一条曲线**被切成
+ * 三段，像素数字的五行是**同一个字**——把行距拉开，曲线会断成三条虚线带，
+ * 数字会散成五排方块。终端里这类图的行距恰好等于字形高度，所以它们本来就是
+ * 连续的；网页上得把这份连续性还回去。
+ *
+ * 12px = 3 格，仍在基线网格上，且约等于 11px 字号下块字形的实际高度——
+ * 这不是"调小一点"，是**让行距等于字形高度**，终端里本来就是这个值。
+ * 先试过 16px：点阵曲线够了（点是稀疏的，眼睛自己连得起来），但水位竖槽被
+ * 切成一节一节、像素数字的笔画断开——实心块字形必须真的贴上才连得成一列。
+ *
+ * 判定不看字形范围看**语义**：行与行之间是「并列」还是「同一张图的上下半」。
+ */
+pre.dense.tight{ --row:calc(var(--grid-unit) * 3); }   /* 12px */
 /* 交替行的共同区域——用底色分组，不花高度。
    对比压到几乎看不见：它的职责是"让眼睛知道哪几行是一组"，
    不是让人注意到有条纹。 */
 pre.dense{
   background-image:repeating-linear-gradient(
     to bottom,
-    transparent 0, transparent calc(var(--grid-unit) * 5),
-    rgba(255,255,255,.018) calc(var(--grid-unit) * 5), rgba(255,255,255,.018) calc(var(--grid-unit) * 10)
+    transparent 0, transparent var(--row),
+    rgba(255,255,255,.018) var(--row), rgba(255,255,255,.018) calc(var(--row) * 2)
   );
   background-position:0 var(--chart-trim);
 }
@@ -170,6 +200,7 @@ pre .br{color:#0077FF}
 /* domain ramps — CPU=ub-green · NET=mte-amber */
 pre .g8{color:#4D7209} pre .g6{color:#86C70F} pre .g4{color:#B3F141} pre .g3{color:#CAF57A}
 pre .a8{color:#713F12} pre .a6{color:#CA8A04} pre .a4{color:#F4CB22} pre .a3{color:#FBDC59}
+pre .s2{color:#a2a2a2}   /* foreground secondary on surface-1 —— 图元标签列 */
 pre .sel{background:#18293C}
 pre .t{color:#E8E8E8;font-weight:600}
 
@@ -1170,8 +1201,77 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <p class="rule">所有图元的标签与表格列必须走 <code>render/text.py</code> 的 <code>fit()</code> / <code>pad()</code> / <code>truncate()</code>。Python 数的是<b>码位</b>，终端排的是<b>单元格</b>，一个汉字占 2 格：<code>f"{'折线':&lt;12}"</code> 实际占 14 格，<code>f"{'Sparkline':&lt;12}"</code> 占 12 格——同一张表里两种标签混用，列就是歪的。<b>这类 bug 只在中文标签下出现，纯英文界面上怎么测都测不出来</b>，所以靠纪律不靠自觉。</p>
 
 <div class="sublabel">活样本 —— python -m devkitai gallery</div>
-<p class="desc">规范写着每种图长什么样，但字符图好不好使只有渲染出来才知道。下面这张是<b>程序真跑起来导出的</b>矢量 SVG（<code>app/tools/screenshots.py</code> 生成），不是重画的 mockup——每个字符仍然是文本，颜色是运行时算出来的那一个。</p>
-<div class="im-frame"><img src="./assets/tui/gallery.svg" alt="图元画廊 · 十四种原语" loading="lazy"></div>
+<p class="desc">规范写着每种图长什么样，但字符图好不好使只有渲染出来才知道。下面六块是<b>程序真跑出来的</b>——字符来自 <code>app/devkitai/render/</code>，颜色是 <code>ramp.sequential()</code> 运行时算出来的那一个，由 <code>app/tools/gallery_html.py</code> 导成标记，和 <code>python -m devkitai gallery</code> 同源，不是重画的 mockup。</p>
+<div class="note"><b>为什么不用截图。</b>这里原先嵌的是终端截图导出的矢量 SVG。SVG 按「一个字符 = 一个单元格」推进 x 坐标，而终端里一个汉字恰好占 2 格——浏览器不吃这套，CJK 字形的实际步进由字体定，于是<strong>中文标注全叠在了一起</strong>。改成 <code>&lt;pre&gt;</code> 由浏览器自己排字之后重叠消失，代价是<b>不能再拿 CJK 做列对齐</b>：标签列一律 ASCII，中文只许出现在行尾。这条在生成期由断言把着，违反直接报错——否则等页面上看出歪列时，已经不知道是哪一行的锅了。</div>
+<h3>比大小 <span class="badge p">T1</span> <span class="chipm">谁比谁大</span></h3>
+<pre class="dense chart"><span class="s2">Metric Bar    </span><span class="g6">████████▍░░░░░░░░░░░░░░░░░░░░░</span>   28.0%
+<span class="s2">Metric Bar    </span><span class="g4">█████████████████████▋░░░░░░░░</span><span class="wn">   72.0%</span><span class="cm">  ← 数值转语义色，bar 不变</span>
+<span class="s2">Metric Bar    </span><span class="g3">███████████████████████████▎░░</span><span class="er">   91.0%</span><span class="cm">  ← 数值转语义色，bar 不变</span>
+
+<span class="s2">Ranking       </span><span class="v3">██████████████████████████████</span>   18.6s<span class="cm">  attention_fwd</span>
+              <span class="v6">██████████▏                   </span>    6.3s<span class="cm">  matmul_4096</span>
+              <span class="v8">██████                        </span>    3.7s<span class="cm">  layernorm</span>
+              <span class="cm">… 2 more</span>
+
+<span class="s2">Grouped       </span><span class="g4">███▉     </span><span class="v6">█▋       </span><span class="o3">█████▋   </span><span class="cm">  baseline</span>
+              <span class="g3">█████▌   </span><span class="v6">█▏       </span><span class="o3">███████▏ </span><span class="cm">  scheme A</span>
+              <span class="g4">█████    </span><span class="v8">▉        </span><span class="o3">████████ </span><span class="cm">  scheme B</span>
+              <span class="cm">QPS      P99      CPU</span>
+
+<span class="s2">Before/After  </span><span class="o3">████████████</span><span class="cm">  →  </span><span class="o4">███████</span>   120ms → 70ms <span class="ok">(-42%)</span></pre>
+<p class="rule"><b>降级链：</b><code>T1 块字符 → T0 数值</code>。bar 走<b>域色阶</b>（它是数据），阈值判断只上<b>数值文字</b>（它是结论）——一个 90% 的利用率本身不是错误。</p>
+<h3>看趋势 <span class="badge p">T2</span> <span class="chipm">怎么走的</span></h3>
+<pre class="dense tight"><span class="s2">Line  T2      </span><span class="g3">⣀⠤⠤⠤⠤⠒⠒⠒⠒⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠</span>
+              <span class="g3">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠒⠤⢄⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡠⠒⠁⠀</span>
+              <span class="g3">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⣀⠤⠔⠊⠉⠉⠀⠀⠀⠀⠀</span>
+
+<span class="s2">Area  T2      </span><span class="v4">⣤⣶⣶⣶⣶⣶⣶⣷⣶⣦⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣴</span>
+              <span class="v4">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣤⣀⣀⣠⣤⣴⣶⣶⣶⣿⣿⣿⣿</span></pre>
+<pre class="dense chart"><span class="s2">Sparkline T1  </span><span class="g3">▃▂▂▂▁▁     ▁▁▁▂▂▂▂▂▂▃▃▃▄▄▅▅▆▆▇</span><span class="cm">  ← T2 掉下来就是它</span></pre>
+<pre class="dense tight"><span class="s2">Mirrored up   </span><span class="a4">⣶⣶⣾⣿⣿⣿⣿⣿⣿⣶⣶⣶⣤⣤⣤⣄⣀⣀⣤⣤⣤⣴⣶⣶⣾⣿⣿⣿⣿⣿</span><span class="cm">  ↑ 1.30 KiB/s</span>
+<span class="s2">      down    </span><span class="a6">⠛⠛⠛⠛⠛⠛⠛⠉⠉⠉⠉⠉⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠉⠉⠉⠉⠙⠛⠛</span><span class="cm">  ↓ 346 B/s</span></pre>
+<p class="rule"><b>降级链：</b><code>T2 Braille → T1 Sparkline → T0 当前值 + 峰值</code>。多系列<b>共用量程</b>，否则并置就没有意义：分别归一化会让每条都填满画布，而并置的全部意义就是比较。</p>
+<h3>找位置 <span class="badge p">T2</span> <span class="chipm">在哪儿 / 谁在等谁</span></h3>
+<pre class="dense tight"><span class="s2">Scatter       </span><span class="v4">⠀⠀⠀⠀⠀⠀⢀⠠⠄⠒⠐⠂⠢⠠⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡀⠄</span><span class="cm">  Roofline</span>
+              <span class="v4">⠀⢀⡀⠤⠐⠁⠁⠀⠀⠀⠀⠀⠀⠀⠀⠉⠂⠤⢀⡀⠀⠀⡀⣀⠠⠂⠊⠀⠀⠀</span>
+              <span class="v4">⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠈⠀⠀⠀⠀⠀⠀⠀⠀</span></pre>
+<pre class="dense chart"><span class="s2">Flame         </span><span class="g3">██████████████████████████████</span><span class="cm">  main</span>
+              <span class="v4">███████████████████</span><span class="v6">███████████</span> <span class="cm">  ngx_http_process</span>
+              <span class="o6">█████████</span>         <span class="o8">███████</span>     <span class="cm">  crypto_aes</span>
+                                            <span class="wn">  1 帧过窄未显示</span><span class="cm">  ← 必须显式说，否则「看全了」是错觉</span>
+
+<span class="s2">Timeline CPU  </span><span class="g4">█████████</span>        <span class="g4">█████</span>
+<span class="s2">Timeline NPU  </span>       <span class="v4">██████████████████</span>
+<span class="s2">Timeline HBM  </span>   <span class="o4">███████████████████████████</span></pre>
+<p class="rule"><b>降级链：</b><code>T2 Braille / T1 块字符</code>。火焰图里过窄的帧<b>宁可不画，也不虚胖</b>，并把丢掉的条数显式标出来——悄悄丢掉会让「我看全了」变成错觉。</p>
+<h3>看余量 <span class="badge p">T1</span> <span class="chipm">还剩多少</span></h3>
+<pre class="dense tight"><span class="s2">Water         </span><span class="o4">░░░                           </span><span class="cm">  38.2 / 64 GiB</span>
+              <span class="o4">▁▁▁                           </span>
+              <span class="o4">███                           </span>
+              <span class="o4">███                           </span>
+              <span class="o4">███                           </span></pre>
+<pre class="dense chart"><span class="s2">Progress      </span><span class="g4">████████████████████▍░░░░░░░░░</span><span class="cm">  68%</span>
+<span class="s2">Progress ?    </span><span class="g6">░░░██░░░░░░░░░░░░░░░░░░░░░░░░░</span><span class="cm">  ⠸ 采集中 · 不画假进度条</span>
+
+<span class="s2">Segmented     </span><span class="o6">██████████</span><span class="o4">██████</span><span class="o3">██████████████</span><span class="cm">  used 22G  cached 12G  kv 4G  free 26G</span></pre>
+<p class="rule"><b>降级链：</b><code>T1 块字符 → T0 百分比</code>。水位是「还剩多少」，bar 是「占了多少」——不是同一个问题，所以一个竖一个横。给不出进度就<b>不画进度条</b>。</p>
+<h3>读单值 <span class="badge p">T1</span> <span class="chipm">现在多少</span></h3>
+<pre class="dense tight"><span class="s2">Bignum        </span>███   █     ███               
+              █     █       █               
+              ███   █     ███               <span class="cm">  k QPS</span>
+              █ █   █     █                 
+              ███   █ █   ███               </pre>
+<pre class="dense chart"><span class="s2">Stat          </span>  61.2k   <span class="ok">   +45% </span><span class="g4">   ▁▁▁▂▃▄▅▆▇▇█</span><span class="cm">  QPS</span>
+                  12ms  <span class="ok">   -33% </span><span class="g4">   ▁▁▁▂▃▄▅▆▇▇█</span><span class="cm">  P99</span>
+                38.2GiB         <span class="o4">████████▍░░░░░</span><span class="cm">  Memory</span></pre>
+<p class="rule"><b>降级链：</b><code>T1 块字符 → T0 常规数字</code>。像素字<b>仅用于数字</b>，正文永不像素化。数图上 delta 是唯一该出现语义色的地方。</p>
+<h3>看分布 <span class="badge p">T3</span> <span class="chipm">热点在哪</span></h3>
+<pre class="dense chart"><span class="s2">0-15          </span><span class="g4">████</span><span class="g3">███████████</span><span class="g4">█</span>
+<span class="s2">16-31         </span><span class="g4">██</span><span class="g6">███</span><span class="g8">███████████</span>
+<span class="s2">32-47         </span><span class="g6">███</span><span class="g4">███</span><span class="g3">██████████</span>
+<span class="s2">48-63         </span><span class="g3">█</span><span class="g4">███</span><span class="g6">████</span><span class="g8">████████</span>
+<span class="s2">T1 fallback   ▓▓▓▓▓████████▓▓▓</span><span class="cm">  颜色没了，强度由字形接住</span></pre>
+<p class="rule"><b>降级链：</b><code>T3 真彩 → T1 灰阶 + ░▒▓█</code>。<b>颜色承载数值，位置承载拓扑</b>。掉到 T1 时颜色没了，强度由字形 <code>░▒▓█</code> 接住。</p>
 <p class="rule">
       图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。
       三条贯穿全族的规则：<b>八分之一格精度</b>（水平方向也有 <code>▏▎▍▌▋▊▉█</code>，10 格宽的 bar 因此能分 80 档；
@@ -1257,7 +1357,7 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 
 <div class="note"><b>全链路最窄的 Canvas 出现在最宽的终端上。</b>160 列三分屏的第三栏只有 28 列，图元可用 <b>24 列</b>——比 40 列窄终端的单栏（36 列）<strong>还要窄 12 列</strong>。所以图元尺寸必须按<b>栏宽</b>卡，不能按终端宽度卡：「终端够宽」根本不代表「这张图放得下」。</div>
 
-<pre class="dense">终端 160 列 · 三分屏
+<pre class="dense chart">终端 160 列 · 三分屏
  <span class="cm">Dock 26 │</span> <span class="pr">Canvas A 45</span> <span class="cm">│</span> <span class="pr">Canvas B 39</span> <span class="cm">│</span> <span class="wn">Canvas C 28</span> <span class="cm">│ Inspector 22</span>
                                             <span class="wn">└ 图元可用 24 列 ┘</span>
 
@@ -1282,14 +1382,14 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <p class="desc">全部改用 PTO 高亮色阶着色（<code>-200 → -700</code>），不再自造调色板。</p>
 
 <h3>① Braille 历史曲线 <span class="badge p">T2</span></h3>
-<pre class="dense">┌<span class="pr">cpu</span>──kunpeng920─────────────────────────21:02──<span class="cm">2000ms ▾</span>─┐
+<pre class="dense tight">┌<span class="pr">cpu</span>──kunpeng920─────────────────────────21:02──<span class="cm">2000ms ▾</span>─┐
 │ <span class="cm">⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span>  <span class="cm">64C 2.6GHz</span>      │
 │ <span class="g4">⣠⣴⣾⣿⣷⣿⣿⣷⣦⣄⣠⣴⣾⣿⣿⣿⣿⣷⣤⣀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣄⣠⣴⣶⣤⣀⣠⣴</span>  <span class="wn">62%  54°C</span>       │
 └────────────────────────────────────────────────────────┘</pre>
 <p class="rule">着色用 <code>copy-blue-400 #3C7CF6</code>。用途：CPU/NPU 利用率历史、算子 latency 趋势。采样率随面板高度自适应。</p>
 
 <h3>② 多核热力网格 <span class="badge p">T3</span> <span class="badge d">鲲鹏特化</span></h3>
-<pre class="dense">64-core heatmap   <span class="o8">▁ 0-20%</span> <span class="o7">▃ 20-40</span> <span class="o6">▅ 40-60</span> <span class="o4">▇ 60-80</span> <span class="o3">█ 80-100</span>
+<pre class="dense chart">64-core heatmap   <span class="o8">▁ 0-20%</span> <span class="o7">▃ 20-40</span> <span class="o6">▅ 40-60</span> <span class="o4">▇ 60-80</span> <span class="o3">█ 80-100</span>
  <span class="cm">0-15</span>  <span class="o3">█</span><span class="o4">▇▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃</span><span class="o8">▁</span>   NUMA0 <span class="o4">██████</span><span class="o8">░░</span> 78%
 <span class="cm">16-31</span>  <span class="o6">▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁▁</span><span class="o6">▂</span>   NUMA1 <span class="o5">████</span><span class="o8">░░░░</span> 44%
 <span class="cm">32-47</span>  <span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span>   NUMA2 <span class="o3">███████</span><span class="o8">░</span> 82% <span class="er">▚▚▚</span>
@@ -1302,7 +1402,7 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
         <span class="o3">used 22G</span>   <span class="o5">cached 12G</span>  <span class="o7">kv 4G</span>  <span class="cm">free 26G</span></pre>
 
 <h3>④ 双向面积图 <span class="badge p">T2</span></h3>
-<pre class="dense"><span class="a3">↑ up  ⣀⣠⣴⣶⣤⣀⣀⣠⣴⣿⣷⣦⣄⣀⣠⣴⣶⣤⣀⣀⣠⣴⣶⣤⣀</span>   1.30 KiB/s
+<pre class="dense tight"><span class="a3">↑ up  ⣀⣠⣴⣶⣤⣀⣀⣠⣴⣿⣷⣦⣄⣀⣠⣴⣶⣤⣀⣀⣠⣴⣶⣤⣀</span>   1.30 KiB/s
 <span class="a6">↓ down⠉⠛⠿⣿⣿⠿⠛⠉⠙⠻⢿⡿⠟⠋⠉⠛⠿⠟⠉⠛⠿⣿⠿⠛⠉</span>   346 B/s</pre>
 
 <h3>⑤ 可排序算子表 <span class="badge p">T4</span></h3>
@@ -1315,7 +1415,7 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <p class="rule">选中行背景用 <code>state-selected #18293C</code>——正是 PTO token 预合成的结果，与 Web 端视觉完全一致。</p>
 
 <h3>⑥ Trace 密度带 <span class="badge p">T3</span> <span class="badge s">分类 + 强度</span></h3>
-<pre class="dense">        0ms                                            120ms
+<pre class="dense chart">        0ms                                            120ms
 CPU     <span class="g4">████</span><span class="g6">▓▓▓▓</span><span class="g8">░░░░</span><span class="g6">▓▓▓</span><span class="g8">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
 NPU     <span class="v8">░░░░░░░</span><span class="v3">███████</span><span class="v4">████████</span><span class="v6">▓▓▓▓▓▓▓</span><span class="v3">██████████</span><span class="v8">░░░░</span>
 HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><span class="o3">████</span><span class="o5">▓▓</span><span class="o3">████████</span><span class="o5">▓▓▓▓▓▓</span><span class="o3">██████</span><span class="o6">▓▓</span><span class="o8">░░░</span>
@@ -1476,7 +1576,7 @@ Sidebar：<span class="ok">● 运行中</span> · <span class="wn">⟳ 待重�
 <p class="desc">依赖 TUI 增量能力，<strong>在 CLI 里无法实现</strong>。这是"这个产品必须是 TUI"的理由。</p>
 
 <div class="pat"><div class="hd"><span class="no">P21</span><span class="nm">Live Canvas</span><span class="sc">依赖：局部重绘 + Braille</span></div><div class="bd">
-<pre class="dense">┌<span class="pr">npu</span>──采集中────────────<span class="pr">⠹</span>─<span class="cm">500ms ▾</span>─<span class="cm">[space] 暂停</span>─┐
+<pre class="dense tight">┌<span class="pr">npu</span>──采集中────────────<span class="pr">⠹</span>─<span class="cm">500ms ▾</span>─<span class="cm">[space] 暂停</span>─┐
 │ <span class="cm">⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀</span>               │
 │ <span class="v4">⣠⣴⣾⣿⣷⣿⣿⣷⣦⣄⣠⣴⣾⣿⣿⣿⣿⣷⣤⣀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣄</span>  <span class="er">peak 94%</span>     │
 └──────────────────────────────────────────────┘</pre>
@@ -1887,7 +1987,7 @@ A: Use <span class="pr">yield</span> instruction instead of <span class="er">pau
 <p class="desc">旅程新增环节的关键屏。已有阶段的屏见 Demos 章节。</p>
 
 <h3>阶段 1 · Landing —— 开屏与初始引导</h3>
-<pre class="dense">╭──────────────────────────────────────────────────────────────╮
+<pre class="dense chart">╭──────────────────────────────────────────────────────────────╮
 │                                                              │
 │     <span class="br">██████</span>  <span class="br">███████</span> <span class="br">██</span>   <span class="br">██</span> <span class="br">██</span>  <span class="br">██</span> <span class="br">██</span> <span class="br">████████</span>               │
 │     <span class="br">██   ██</span> <span class="br">██</span>      <span class="br">██</span>   <span class="br">██</span> <span class="br">██</span> <span class="br">██</span>  <span class="br">██</span>    <span class="br">██</span>                  │
@@ -1947,7 +2047,7 @@ A: Use <span class="pr">yield</span> instruction instead of <span class="er">pau
 <p class="rule">建议必须<strong>随结果状态变化</strong>：Build 失败时第一条应是"看诊断报告"而不是"跑性能基线"。给 1–3 条、带耗时预估、首条默认高亮回车即走。<strong>禁止在阶段结束后甩回空白输入框</strong>——那是把接续成本转嫁给用户。</p>
 
 <h3>阶段 5 · 参数优化结果</h3>
-<pre class="dense">┌<span class="pr">param tuning</span>─<span class="cm">nginx @ Kunpeng920</span>───────────────────────────────────────┐
+<pre class="dense chart">┌<span class="pr">param tuning</span>─<span class="cm">nginx @ Kunpeng920</span>───────────────────────────────────────┐
 │ 方案对比                QPS         P99      CPU        内存         │
 │ <span class="cm">baseline</span>          <span class="o8">████</span><span class="cm">░░░░░</span> 42k   18ms   <span class="o6">███</span><span class="cm">░░</span> 62%   4.2G            │
 │ <span class="ok">方案 A ★推荐</span>      <span class="o3">██████</span><span class="cm">░░░</span> 61k   12ms   <span class="o4">████</span><span class="cm">░</span> 78%   5.1G            │
@@ -2012,7 +2112,7 @@ A: Use <span class="pr">yield</span> instruction instead of <span class="er">pau
 <section id="d2">
 <div class="eyebrow">Demos</div>
 <h2>Demo 2 · Performance Optimize <span class="badge w">P1</span></h2>
-<pre class="dense"><span class="pr">❯</span> optimize model.bin
+<pre class="dense chart"><span class="pr">❯</span> optimize model.bin
 ┌<span class="pr">roofline</span>─<span class="cm">Qwen-72B @ 910B</span>──────────────┐┌<span class="pr">bottleneck</span>──────<span class="pr">▾ share</span>─┐
 │ <span class="cm">GFLOPS</span>          <span class="ac">⣀⣠⣤⣴⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿</span>  │ <span class="sel">attention  <span class="er">█████████</span> 45%</span> │
 │         <span class="ac">⣠⣴⡾⠟⠋</span>       <span class="cm">compute roof</span>  │ matmul    <span class="o5">███████</span>   35%  │
@@ -2059,7 +2159,7 @@ Before <span class="er">██████████████████�
 <div class="eyebrow">Demos</div>
 <h2>Demo 4 · Observe <span class="badge">P2</span></h2>
 <p class="desc">这一屏同时消费 T2 braille、T3 热力、T4 交互三层能力，并使用 PTO 高亮色阶着色。</p>
-<pre class="dense">┌<span class="pr">cpu</span>─<span class="cm">kunpeng920</span>──────────────────────────21:02─<span class="cm">2000ms ▾</span>─┐┌<span class="pr">npu</span>─<span class="cm">910B×8</span>────────┐
+<pre class="dense chart">┌<span class="pr">cpu</span>─<span class="cm">kunpeng920</span>──────────────────────────21:02─<span class="cm">2000ms ▾</span>─┐┌<span class="pr">npu</span>─<span class="cm">910B×8</span>────────┐
 │<span class="cm">⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span>│ <span class="cm">64C 2.6GHz</span>  ││ <span class="cm">⠀⠀⢀⣀⠀⠀⠀⢀⣠⣀⠀⠀⠀</span>       │
 │<span class="g4">⣠⣴⣾⣿⣷⣿⣿⣷⣦⣄⣠⣴⣾⣿⣿⣿⣿⣷⣤⣀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣄⣠⣴⣶⣤⣀⣠⣴</span>│ <span class="wn">62%  54°C</span>   ││ <span class="v4">⣴⣿⣿⣿⣷⣦⣴⣿⣿⣿⣷⣄⣠</span>  <span class="er">88%</span>  │
 ├<span class="cm">64-core</span>──────────────────────────────────────────────────┤│ <span class="cm">HBM</span> <span class="o3">██████</span><span class="o5">██</span><span class="o8">░░</span> 78% │

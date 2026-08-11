@@ -65,7 +65,6 @@ def _add_intrinsic_size(path: pathlib.Path) -> None:
 
 
 async def main() -> None:
-    from devkitai.gallery import GalleryApp
     from devkitai.shell import DevKitShell
     from textual.app import App, ComposeResult
     from textual.containers import Horizontal
@@ -77,7 +76,11 @@ async def main() -> None:
     print(f"导出到 {OUT}")
 
     await shot(DevKitShell(), OUT / "shell.svg", (160, 44))
-    await shot(GalleryApp(), OUT / "gallery.svg", (100, 82))
+    # 画廊不再走 SVG。SVG 导出按"一个字符 = 一个单元格"推进 x 坐标，而终端里
+    # 一个汉字占 2 格——浏览器里 CJK 步进由字体定，对不上，中文标注会全叠在
+    # 一起。画廊的中文标注最多，所以最先暴露。改由 tools/gallery_html.py 导成
+    # <pre> 标记，让浏览器自己排字。shell / degradation 两张中文少且不靠列对齐，
+    # 继续用 SVG。
 
     class Degradation(App):
         """同一份数据、同一个组件，在三档终端能力下并排。"""
