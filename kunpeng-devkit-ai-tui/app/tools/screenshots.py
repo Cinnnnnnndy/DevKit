@@ -42,7 +42,26 @@ async def shot(app, path: pathlib.Path, size: tuple[int, int]) -> None:
         await pilot.pause()
         await pilot.pause()
         app.save_screenshot(str(path))
+    # Textual 只写 viewBox，不写 width/height。作为 <img> 引用时浏览器就拿不到
+    # 固有尺寸，height:auto 算出来是 0——图在页面上完全看不见，且不报错。
+    _add_intrinsic_size(path)
     print(f"  {path.name:<22} {path.stat().st_size // 1024:>4} KB  {size[0]}×{size[1]}")
+
+
+def _add_intrinsic_size(path: pathlib.Path) -> None:
+    """从 viewBox 补出 width / height，让 <img> 能算出固有尺寸。"""
+    import re
+
+    svg = path.read_text(encoding="utf-8")
+    if re.search(r'<svg[^>]*\swidth=', svg):
+        return
+    m = re.search(r'<svg[^>]*viewBox="0 0 ([\d.]+) ([\d.]+)"', svg)
+    if not m:
+        return
+    path.write_text(
+        svg.replace('<svg class="rich-terminal"',
+                    f'<svg class="rich-terminal" width="{m.group(1)}" height="{m.group(2)}"', 1),
+        encoding="utf-8")
 
 
 async def main() -> None:
