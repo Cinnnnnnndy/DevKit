@@ -381,6 +381,11 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#93a6c2 0%,#84b0a2 
 /* ⑨.5 Kunpeng 标识：半块像素还原（每字符格 = 2 垂直像素） */
 .kpm{font-family:var(--mono);white-space:pre;line-height:.86;letter-spacing:0;font-size:12px;flex:none}
 .kpm i{font-style:normal}
+/* 点阵两档羽色 —— 由 tools/kpmark.py 生成的 <i class="r|g"> 使用 */
+.kpm i.r{color:var(--kp)}
+.kpm i.g{color:var(--kp2)}
+.kpm i.rg{color:var(--kp);background:var(--kp2)}
+.kpm i.gr{color:var(--kp2);background:var(--kp)}
 .kpi{width:26px;height:26px;object-fit:contain;flex:none;image-rendering:auto}
 /* 标识两个渲染档位：T5 光栅（Kitty/Sixel/iTerm2 可用时，顶栏用）
    T1 半块像素（纯字符降级，splash 用——同时也是我们要的像素调性）*/
@@ -670,19 +675,26 @@ const ACTS=[
 <pre class="bgf" id="bgf"></pre><pre class="bgf bgw2" id="bgw2"></pre><pre class="bgf bgw1" id="bgw1"></pre>
 <div class="bootin">
 <div class="lock">
-<pre class="kpm">                               <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i>
-                          <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i>
-                     <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i> <i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
-               <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
-          <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i> <i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
-       <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
- <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
-   <i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
-         <i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
-           <i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▄</i>
-               <i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▄</i>
-                   <i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▄</i>
-                       <i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">▀</i></pre>
+<!-- kpmark:begin 由 tools/kpmark.py 生成，勿手改 -->
+<pre class="kpm" aria-label="Kunpeng DevKit AI">                      <i class="r">▄▄</i> 
+                    <i class="r">▄██</i>  
+                 <i class="r">▄██▀</i><i class="rg">▀</i><i class="g">█</i>  
+               <i class="r">▄███</i><i class="rg">▀</i><i class="g">▄█</i>   
+           <i class="r">▄▄████▀</i><i class="g">███</i>    
+         <i class="r">▄██████</i><i class="g">▄███</i>     
+      <i class="r">▄███████</i><i class="rg">▀</i><i class="g">████</i>      
+     <i class="r">███████▀</i><i class="g">▄████</i>       
+<i class="r">▄▄</i>  <i class="r">▄█████▀</i><i class="g">██████</i>        
+<i class="r">▀████████▀</i><i class="g">██████</i>         
+   <i class="r">████</i><i class="g">▄███████</i>          
+    <i class="r">▀▀</i><i class="g">▄███████</i>           
+       <i class="g">███████</i>           
+        <i class="g">▀█████▄</i>          
+           <i class="g">████▄</i>         
+            <i class="g">▀███</i>         
+               <i class="g">██▄</i>       
+                <i class="g">▀▀</i>       </pre>
+<!-- kpmark:end -->
 <pre class="wm">${WORDMARK()}</pre>
 </div>
 <div class="bchips"><span class="ivl">AI&nbsp;TERMINAL</span> <span class="ivl">NATIVE&nbsp;TUI</span> <span class="ivl">v26.0</span> <span class="ivl">KUNPENG&nbsp;ARM64</span></div>
