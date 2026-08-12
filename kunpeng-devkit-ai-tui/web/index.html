@@ -440,8 +440,8 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <div class="ngrp">Components · 组件与图元</div>
   <a href="#comp">组件清单</a>
   <a href="#primlib">★ 图元库 · 十四种</a>
-  <a href="#primsize">图元尺寸与排布</a>
   <a href="#prim">原语画法示例</a>
+  <a href="#primsize">图元尺寸与排布</a>
   <div class="ngrp">Patterns · 交互 Pattern</div>
   <a href="#p1">P01–P12 核心</a>
   <a href="#p2">P13–P20 已验证</a>
@@ -1319,16 +1319,65 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <span class="s2">48-63         </span><span class="g3">█</span><span class="g4">███</span><span class="g6">████</span><span class="g8">████████</span>
 <span class="s2">T1 fallback   ▓▓▓▓▓████████▓▓▓</span><span class="cm">  <span class="fw">颜色没了，强度由字形接住</span></span></pre>
 <p class="rule"><b>降级链：</b><code>T3 真彩 → T1 灰阶 + ░▒▓█</code>。<b>颜色承载数值，位置承载拓扑</b>。掉到 T1 时颜色没了，强度由字形 <code>░▒▓█</code> 接住。</p>
-<p class="rule">
-      图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。
-      三条贯穿全族的规则：<b>八分之一格精度</b>（水平方向也有 <code>▏▎▍▌▋▊▉█</code>，10 格宽的 bar 因此能分 80 档；
-      没有它 82% 和 85% 画出来一模一样，而这种数字恰恰是拿来做判断的）·
-      <b>并置必须共用量程</b>（分别归一化会让每条都填满画布，而并置的全部意义就是比较）·
-      <b>画不下的要显式说</b>（火焰图那行 <code>1 帧过窄未显示</code>——悄悄丢掉窄帧会让「我看全了」变成错觉，
-      而给窄帧兜底成 1 格又会让它们集体虚胖、把宽帧挤走）。
-      注意最上面那组 Metric Bar：<b>bar 走域色阶，只有数值文字转语义色</b>——
-      一个 90% 的利用率本身不是错误，把两者刷成一个颜色等于宣布「数值大 = 出事了」。
-    </p>
+</section>
+
+<section id="prim">
+<div class="eyebrow">TUI Capability</div>
+<h2>原语画法示例</h2>
+<p class="desc">全部改用 PTO 高亮色阶着色（<code>-200 → -700</code>），不再自造调色板。①②⑤ 三个是真实组件（<code>devkitai/widgets/</code>）的原样输出，边框、标题、着色全是运行时算出来的，和 <a href="#impl">工作台外壳实况</a> 用的是同一条 <code>tools/shell_html.py</code> 导出流水线——不是重画的 mockup。③④⑥ 还没包成组件，仍是 <code>render/</code> 函数的直接输出。</p>
+
+<h3>① Braille 历史曲线 <span class="badge p">T2</span></h3>
+<pre class="dense tight" aria-label="Braille 历史曲线单例"><span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">cpu · kunpeng-920</span><span style="color: #2a2a2a"> ────────────────────────────────────────┐</span>
+<span style="color: #2a2a2a">│</span><span style="color: #caf57a"><span class="fw">⠀⠀⢀⡠⠤⠒⠒⠒⠒⠢⠤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠤⠒⠒⠒⠒⠒⠤⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀</span></span><span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">│</span><span style="color: #caf57a"><span class="fw">⠔⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠔⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠒⠉⠀</span></span><span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">│</span><span style="color: #caf57a"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠒⠤⠤⠤⠤⠤⠒⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠒⠢⠤⠤⠤⠤⠒⠊⠉⠀⠀⠀⠀⠀</span></span><span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">└────────────────────────────────────────────────────────────┘</span>
+                                                              
+                                                              
+                                                              </pre>
+<p class="rule">着色按域取 <code>DOMAIN_RAMPS[cpu]</code>（ub-green），当前值决定档位、整条线一个亮度——逐点上色会让一条线出现五种亮度，读起来是噪声。用途：CPU/NPU 利用率历史、算子 latency 趋势。标题嵌在上边框、当前值/峰值/降级层嵌在下边框，见 <a href="#primlib">Canvas 层的框</a>。</p>
+
+<h3>② 多核热力网格 <span class="badge p">T3</span> <span class="badge d">鲲鹏特化</span></h3>
+<pre class="dense chart" aria-label="多核热力网格单例"><span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">64-core heatmap</span><span style="color: #2a2a2a"> ────────────────────────────────┐</span>
+<span style="color: #2a2a2a">│</span><span style="color: #737373">  0-15  </span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #b3f141">█</span><span style="color: #737373">   NUMA0 </span><span style="color: #caf57a">██████░░</span><span style="color: #a2a2a2">   80%</span>   <span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">│</span><span style="color: #737373"> 16-31  </span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #737373">   NUMA1 </span><span style="color: #4d7209">██░░░░░░</span><span style="color: #a2a2a2">   22%</span>   <span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">│</span><span style="color: #737373"> 32-47  </span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #737373">   NUMA2 </span><span style="color: #b3f141">██████░░</span><span style="color: #a2a2a2">   74%</span>   <span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">│</span>          <span style="color: #ffaa3b">⚠</span><span style="color: #ffaa3b">⚠</span><span style="color: #ffaa3b">⚠</span><span style="color: #ffaa3b">⚠</span><span style="color: #ffaa3b">⚠</span>                                   <span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">│</span><span style="color: #737373"> 48-63  </span><span style="color: #caf57a">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #737373">   NUMA3 </span><span style="color: #86c70f">██░░░░░░</span><span style="color: #a2a2a2">   31%</span>   <span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">│</span><span style="color: #ffaa3b">⚠ AI: </span><span style="color: #a2a2a2">core 34-38 <span class="fw">疑似跨</span> NUMA <span class="fw">内存访问</span></span>             <span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">│</span>                                                  <span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">└─────────────────────── </span><span style="color: #a2a2a2"><span class="fw">低</span> ▏▍▋█ <span class="fw">高</span> · T3 <span class="fw">真彩热力</span></span><span style="color: #2a2a2a"> ─┘</span>
+                                                    </pre>
+<p class="rule">色阶：单一 <code>accum-orange</code> 顺序取档（暗=闲，亮=忙）。<strong>AI 的结论单独占一行叠在数据下方</strong>——数据与判断分属两层，标注可整层开关（<code>l</code>）。鲲鹏 920 多核 + NUMA 亲和性可视化：CLI 完全做不到、而对鲲鹏调优最关键的一张图。</p>
+
+<h3>③ 分段渐变 Gauge <span class="badge p">T1</span></h3>
+<pre class="dense">Memory  <span class="o3">████████████</span><span class="o5">██████</span><span class="o7">████</span><span class="cm">░░░░░░░░</span>  38.2 / 64 GiB
+        <span class="o3">used 22G</span>   <span class="o5">cached 12G</span>  <span class="o7">kv 4G</span>  <span class="cm">free 26G</span></pre>
+
+<h3>④ 双向面积图 <span class="badge p">T2</span></h3>
+<pre class="dense tight"><span class="a3">↑ up  <span class="fw">⣀⣠⣴⣶⣤⣀⣀⣠⣴⣿⣷⣦⣄⣀⣠⣴⣶⣤⣀⣀⣠⣴⣶⣤⣀</span></span>   1.30 KiB/s
+<span class="a6">↓ down<span class="fw">⠉⠛⠿⣿⣿⠿⠛⠉⠙⠻⢿⡿⠟⠋⠉⠛⠿⠟⠉⠛⠿⣿⠿⠛⠉</span></span>   346 B/s</pre>
+
+<h3>⑤ 可排序算子表 <span class="badge p">T4</span></h3>
+<pre class="dense" aria-label="可排序算子表单例"><span style="color: #404040; background-color: #202020">┌─ </span><span style="color: #a4a4a4; background-color: #202020">kernels</span><span style="color: #404040; background-color: #202020"> ──────────────────────────────────────────────────────────┐</span>
+<span style="color: #404040; background-color: #202020">│</span><span style="color: #777777; background-color: #262626; font-weight: bold"> Kernel             </span><span style="color: #777777; background-color: #262626; font-weight: bold"> Calls    </span><span style="color: #777777; background-color: #262626; font-weight: bold"> Avg       </span> <span style="color: #e8e8e8; background-color: #262626; font-weight: bold">Total ▾</span>                   <span style="color: #404040; background-color: #202020">│</span>
+<span style="color: #404040; background-color: #202020">│</span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold"> attention_fwd      </span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold">    1024  </span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold">   18.2ms  </span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold"> ███████████ 18.6s  </span>       <span style="color: #404040; background-color: #202020">│</span>
+<span style="color: #404040; background-color: #202020">│</span> <span style="color: #7c8db8; background-color: #202020">matmul_4096</span>        <span style="color: #a4a4a4; background-color: #202020">     512  </span><span style="color: #a4a4a4; background-color: #202020">   12.4ms  </span> <span style="color: #6e0acd; background-color: #202020">████░░░░░░░</span><span style="color: #a4a4a4; background-color: #202020"> 6.3s   </span>       <span style="color: #404040; background-color: #202020">│</span>
+<span style="color: #404040; background-color: #202020">│</span> <span style="color: #7c8db8; background-color: #202020">layernorm</span>          <span style="color: #a4a4a4; background-color: #202020">    2048  </span><span style="color: #a4a4a4; background-color: #202020">    1.8ms  </span> <span style="color: #3f0675; background-color: #202020">██░░░░░░░░░</span><span style="color: #a4a4a4; background-color: #202020"> 3.7s   </span>       <span style="color: #404040; background-color: #202020">│</span>
+<span style="color: #404040; background-color: #202020">└─────────────────────────────────────────────────── </span><span style="color: #a4a4a4; background-color: #202020">3 <span class="fw">行</span> · Total ▾</span><span style="color: #404040; background-color: #202020"> ─┘</span>
+                                                                      
+                                                                      
+                                                                      
+                                                                      </pre>
+<p class="rule">按 <code>Total</code> 降序排——列头的 <code>▾</code> 标当前排序列，方向由字形而不是颜色表达，16 色降级下依然成立。选中行背景用 <code>state-selected</code>，正是 PTO token 预合成的结果，与 Web 端视觉完全一致。行数与排序状态嵌在下边框。</p>
+
+<h3>⑥ Trace 密度带 <span class="badge p">T3</span> <span class="badge s">分类 + 强度</span></h3>
+<pre class="dense chart">        0ms                                            120ms
+CPU     <span class="g4">████</span><span class="g6">▓▓▓▓</span><span class="g8">░░░░</span><span class="g6">▓▓▓</span><span class="g8">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
+NPU     <span class="v8">░░░░░░░</span><span class="v3">███████</span><span class="v4">████████</span><span class="v6">▓▓▓▓▓▓▓</span><span class="v3">██████████</span><span class="v8">░░░░</span>
+HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><span class="o3">████</span><span class="o5">▓▓</span><span class="o3">████████</span><span class="o5">▓▓▓▓▓▓</span><span class="o3">██████</span><span class="o6">▓▓</span><span class="o8">░░░</span>
+                    <span class="pr">└─ selected: attention 18.2ms · mem-bound ⚠</span></pre>
+<p class="rule"><strong>泳道身份用色阶（CPU=copy-blue · NPU=l0a-violet · HBM=accum-orange），忙闲用同色阶内的档位。</strong>这样一眼能同时读出"哪条线"和"多忙"，且色盲用户仍可通过明度差辨识强度。</p>
 </section>
 
 <section id="primsize">
@@ -1374,6 +1423,33 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 
 <p class="rule"><b>几个数字的来历</b>，因为<strong>没有理由的尺寸下次就会被人随手改掉</strong>：Metric Bar 的 10 / 20 两档是 §3.1 写死的——10 格 × 八分块 = 80 档，刚好够把 82% 和 85% 分开；排行的 4 行是「3 个名次才叫排行」+ 1 行 <code>… N more</code>，那行是 §3.0 规则③的硬性要求不能省；火焰图的 30 列是<b>丢帧阈值</b>——30 列丢掉窄于 3.3% 的帧，60 列只丢 1.7%，所以它的宽度<b>不封顶</b>，泳道同理（宽度即时间分辨率）；热力网格的 16×4 是鲲鹏 920 六十四核的自然分块，每行 16 核 = 一个 NUMA node，所以它的行列由<b>拓扑</b>定、不吃满宽度。</p>
 <p class="rule"><b>三条硬约束，越界即失真，不是「难看一点」：</b>散点比例锁死 <code>2.0</code>（16 列 × 8 行 = 32×32 点阵，视觉正方）——它<b>两根轴都是数据轴</b>，拉扁就是把斜率画错，而 Roofline 上斜率就是结论 · 水位比例上界 <code>0.8 &lt; 1</code>，必须比它宽的时候更高，扁了就读成横向 bar，而水位答「还剩多少」、bar 答「占了多少」 · 双向面积行数<b>必为偶数</b>，奇数行劈不开上下两半，而「上下一样高 = 收发一样多」正是它唯一的读法。</p>
+<pre class="dense tight" aria-label="① 散点比例锁死 2.0"><span class="s2">16x8 ok       </span><span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>  32x8 too-wide  <span class="o4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span><span class="cm">  ← <span class="fw">同一份知识点，拉宽后斜率读起来更缓</span></span>
+              <span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⡰⠒⠒⠒⠒⠒⠒⠒⠒⠂</span></span>                 <span class="o4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠔⠒⠂⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠂⠒⠒⠒⠒⠂</span></span>
+              <span class="v4"><span class="fw">⠀⠀⠀⠀⢀⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>                 <span class="o4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠊⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
+              <span class="v4"><span class="fw">⠀⠀⠀⢀⠎⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>                 <span class="o4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⢀⠔⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
+              <span class="v4"><span class="fw">⠀⠀⢠⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>                 <span class="o4"><span class="fw">⠀⠀⠀⠀⢀⠄⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
+              <span class="v4"><span class="fw">⠀⡰⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>                 <span class="o4"><span class="fw">⠀⠀⡠⠒⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
+              <span class="v4"><span class="fw">⠴⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>                 <span class="o4"><span class="fw">⠤⠊⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
+              <span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>                 <span class="o4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span></pre>
+<pre class="dense tight" aria-label="② 水位比例上界 0.8"><span class="s2">3x8 ok        </span><span class="o4">░░░</span><span class="cm">  38.2 / 64 GiB —— <span class="fw">竖着读「还剩多少」</span></span>
+              <span class="o4">░░░</span>
+              <span class="o4">░░░</span>
+              <span class="o4">███</span>
+              <span class="o4">███</span>
+              <span class="o4">███</span>
+              <span class="o4">███</span>
+              <span class="o4">███</span>
+
+<span class="s2">24x1 over     </span><span class="o4">██████████████▉░░░░░░░░░</span><span class="cm">  <span class="fw">同一个</span> 62%<span class="fw">，横着摊开就读成了「占了多少」</span>——<span class="fw">比例越界，问题都读错了</span></span></pre>
+<pre class="dense tight" aria-label="③ 双向面积行数必为偶数"><span class="s2">4 rows ok     </span><span class="a4"><span class="fw">⣀⣤⣶⣾⣿⣿⣿⣿⣶⣦⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣶⣾⣿⣿⣿⣿</span></span><span class="cm">  ↑ 1.30 KiB/s</span>
+              <span class="a4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣤⣤⣤⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿</span></span>
+              <span class="a6"><span class="fw">⣿⣿⣿⣿⣿⠿⠟⠛⠛⠛⠛⠛⠻⠿⢿⣿⣿⣿⣿⣿⡿⠿⠛⠛⠛⠛⠛⠛⠻⠿</span></span><span class="cm">  ↓ 346 B/s —— <span class="fw">上下等高，一眼看出「发得比收得多」</span></span>
+              <span class="a6"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
+
+<span class="s2">3+1 over      </span><span class="a4"><span class="fw">⠀⣀⣤⣶⣿⣿⣿⣷⣦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣶⣿⣿⣿⣷</span></span>
+              <span class="a4"><span class="fw">⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣄⡀⠀⠀⠀⠀⠀⠀⣀⣴⣾⣿⣿⣿⣿⣿⣿⣿</span></span>
+              <span class="a4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿</span></span>
+              <span class="a6"><span class="fw">⠛⠛⠛⠛⠛⠛⠛⠉⠉⠉⠉⠉⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠉⠉⠉⠉⠙⠛⠛</span></span><span class="cm">  <span class="fw">上下不等高</span>——<span class="fw">「谁更高」变成了格子数的巧合，不再是数据本身</span></span></pre>
 
 <div class="sublabel">收缩优先级 —— 按降级损失排，不按重要性排</div>
 <p class="rule">同屏并置、空间不够时谁先让？答案不是「谁不重要谁让」，而是<b>谁掉一层损失小谁先让</b>。这跟整屏降级里「Console 先让、Canvas 后让」是同一条原则——过程信息让位给结论。同一档内先让<b>推荐面积大</b>的：从大图上收回一样多的格子，代价更小。</p>
@@ -1421,53 +1497,6 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 
 <div class="sublabel">实现</div>
 <p class="rule">规格与判决都在 <code>app/devkitai/layout.py</code>：<code>PRIMITIVES</code> 是十七种画法的规格表，<code>chart_box()</code> 把 Canvas 外尺寸换算成图元可用盒子，<code>fit_box()</code> 给出「在这个盒子里实际该画多大」——<b>返回 <code>None</code> 就是「不该画，走 fallback」</b>，<code>shrink_order()</code> 给同屏收缩顺序。跟 <code>resolve_layout()</code> 一样是纯函数，因为这类逻辑<b>平时不会有人手动把终端拖到 97 列去验</b>，不测就等于没写。<code>app/tests/test_layout.py</code> 里压了这些：规格自洽（自己在自己声明的尺寸上得画得下）· 判决永不超出给定盒子 · 低于最小尺寸必须返回「不画」· 三条硬约束各自的失真 · 六档整屏里每一档都容得下全部 ① 档图元 · 全宽度扫描 40–400 列不许出现「什么图都画不了」的空栏。</p>
-</section>
-
-<section id="prim">
-<div class="eyebrow">TUI Capability</div>
-<h2>原语画法示例</h2>
-<p class="desc">全部改用 PTO 高亮色阶着色（<code>-200 → -700</code>），不再自造调色板。</p>
-
-<h3>① Braille 历史曲线 <span class="badge p">T2</span></h3>
-<pre class="dense tight">┌<span class="pr">cpu</span>──kunpeng920─────────────────────────21:02──<span class="cm">2000ms ▾</span>─┐
-│ <span class="cm"><span class="fw">⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>  <span class="cm">64C 2.6GHz</span>      │
-│ <span class="g4"><span class="fw">⣠⣴⣾⣿⣷⣿⣿⣷⣦⣄⣠⣴⣾⣿⣿⣿⣿⣷⣤⣀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣄⣠⣴⣶⣤⣀⣠⣴</span></span>  <span class="wn">62%  54°C</span>       │
-└────────────────────────────────────────────────────────┘</pre>
-<p class="rule">着色用 <code>copy-blue-400 #3C7CF6</code>。用途：CPU/NPU 利用率历史、算子 latency 趋势。采样率随面板高度自适应。</p>
-
-<h3>② 多核热力网格 <span class="badge p">T3</span> <span class="badge d">鲲鹏特化</span></h3>
-<pre class="dense chart">64-core heatmap   <span class="o8">▁ 0-20%</span> <span class="o7">▃ 20-40</span> <span class="o6">▅ 40-60</span> <span class="o4">▇ 60-80</span> <span class="o3">█ 80-100</span>
- <span class="cm">0-15</span>  <span class="o3">█</span><span class="o4">▇▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃</span><span class="o8">▁</span>   NUMA0 <span class="o4">██████</span><span class="o8">░░</span> 78%
-<span class="cm">16-31</span>  <span class="o6">▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁▁</span><span class="o6">▂</span>   NUMA1 <span class="o5">████</span><span class="o8">░░░░</span> 44%
-<span class="cm">32-47</span>  <span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span>   NUMA2 <span class="o3">███████</span><span class="o8">░</span> 82% <span class="er">▚▚▚</span>
-<span class="cm">48-63</span>  <span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span>   NUMA3 <span class="o6">███</span><span class="o8">░░░░░</span> 31%
- <span class="er">⚠ AI: core 34-38 <span class="fw">持续</span> &gt;80% · <span class="fw">疑似跨</span> NUMA <span class="fw">访问</span> · 87% [↵]</span></pre>
-<p class="rule">色阶：单一 <code>accum-orange</code> 顺序取档 <code>800→300</code>（暗=闲，亮=忙）。<strong>AI 的结论用 danger 色的 <code>▚▚▚</code> 描边单独叠加</strong>——数据与判断分属两个颜色系统。鲲鹏 920 多核 + NUMA 亲和性可视化：CLI 完全做不到、而对鲲鹏调优最关键的一张图。</p>
-
-<h3>③ 分段渐变 Gauge <span class="badge p">T1</span></h3>
-<pre class="dense">Memory  <span class="o3">████████████</span><span class="o5">██████</span><span class="o7">████</span><span class="cm">░░░░░░░░</span>  38.2 / 64 GiB
-        <span class="o3">used 22G</span>   <span class="o5">cached 12G</span>  <span class="o7">kv 4G</span>  <span class="cm">free 26G</span></pre>
-
-<h3>④ 双向面积图 <span class="badge p">T2</span></h3>
-<pre class="dense tight"><span class="a3">↑ up  <span class="fw">⣀⣠⣴⣶⣤⣀⣀⣠⣴⣿⣷⣦⣄⣀⣠⣴⣶⣤⣀⣀⣠⣴⣶⣤⣀</span></span>   1.30 KiB/s
-<span class="a6">↓ down<span class="fw">⠉⠛⠿⣿⣿⠿⠛⠉⠙⠻⢿⡿⠟⠋⠉⠛⠿⠟⠉⠛⠿⣿⠿⠛⠉</span></span>   346 B/s</pre>
-
-<h3>⑤ 可排序算子表 <span class="badge p">T4</span></h3>
-<pre class="dense">┌<span class="pr">kernels</span>─<span class="cm">filter▸</span>──────────────per-core─reverse─tree─<span class="pr">▾ total</span>─┐
-│ <span class="cm">Name              Calls   Avg      Total    Mem     Bound</span> │
-│ <span class="sel">attention_fwd      1024   18.2ms   18.6s    2.1G    <span class="er">mem</span>   </span>│
-│ matmul_4096        512   12.4ms    6.3s    1.4G    <span class="wn">comp</span>   │
-│ layernorm         2048    0.8ms    1.6s    128M    <span class="er">mem</span>    │
-└─────────────────────────────<span class="cm">▲▼ select  ↵ drill  / filter</span>──┘</pre>
-<p class="rule">选中行背景用 <code>state-selected #18293C</code>——正是 PTO token 预合成的结果，与 Web 端视觉完全一致。</p>
-
-<h3>⑥ Trace 密度带 <span class="badge p">T3</span> <span class="badge s">分类 + 强度</span></h3>
-<pre class="dense chart">        0ms                                            120ms
-CPU     <span class="g4">████</span><span class="g6">▓▓▓▓</span><span class="g8">░░░░</span><span class="g6">▓▓▓</span><span class="g8">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
-NPU     <span class="v8">░░░░░░░</span><span class="v3">███████</span><span class="v4">████████</span><span class="v6">▓▓▓▓▓▓▓</span><span class="v3">██████████</span><span class="v8">░░░░</span>
-HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><span class="o3">████</span><span class="o5">▓▓</span><span class="o3">████████</span><span class="o5">▓▓▓▓▓▓</span><span class="o3">██████</span><span class="o6">▓▓</span><span class="o8">░░░</span>
-                    <span class="pr">└─ selected: attention 18.2ms · mem-bound ⚠</span></pre>
-<p class="rule"><strong>泳道身份用色阶（CPU=copy-blue · NPU=l0a-violet · HBM=accum-orange），忙闲用同色阶内的档位。</strong>这样一眼能同时读出"哪条线"和"多忙"，且色盲用户仍可通过明度差辨识强度。</p>
 </section>
 
 <section id="p1">

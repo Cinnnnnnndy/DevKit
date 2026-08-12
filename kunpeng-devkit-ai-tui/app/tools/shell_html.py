@@ -97,9 +97,15 @@ def _tidy(html: str) -> str:
     return wrap_widths(html)
 
 
-TARGETS: dict[str, tuple[str, tuple[int, int]]] = {
-    "shell": ("工作台外壳实况", (160, 44)),
-    "degradation": ("降级路径三档并排", (150, 18)),
+#: (标题, 终端尺寸, 行距档位)。行距判据和 gallery_html.py 一致——多行拼成
+#: 一张图（braille 曲线）用 tight，一行一条独立数据（热力网格每行一组核）
+#: 用 chart，纯框线/文字表格用默认的 20px。
+TARGETS: dict[str, tuple[str, tuple[int, int], str]] = {
+    "shell": ("工作台外壳实况", (160, 44), "tight"),
+    "degradation": ("降级路径三档并排", (150, 18), "tight"),
+    "prim-braille": ("Braille 历史曲线单例", (62, 8), "tight"),
+    "prim-heatmap": ("多核热力网格单例", (52, 10), "chart"),
+    "prim-kernels": ("可排序算子表单例", (70, 10), ""),
 }
 
 
@@ -107,6 +113,95 @@ def _shell_app():
     from devkitai.shell import DevKitShell
 
     return DevKitShell()
+
+
+def _single_widget_app(build, populate=None):
+    """裹一个最小的 App，只挂一个组件——给 docs/COMPONENT.md「原语画法示例」
+    那节用。原来那节是手画的 ``┌cpu──kunpeng920─┐``，热力网格那个例子手画时
+    漏画了边框，且这类手宽算术正是全篇一直在防的那类 bug——干脆不再手画，
+    单个组件也走真实渲染。
+
+    ``populate`` 在挂载**之后**再灌数据——KernelTable 的 ``set_rows()`` 内部
+    靠 ``is_mounted`` 短路，挂载前调了也是白调。
+    """
+    from textual.app import App, ComposeResult
+
+    class _Single(App):
+        CSS_PATH = "../devkitai/theme/pto.tcss"
+
+        def get_theme_variable_defaults(self):
+            from devkitai.theme import pto_variables
+
+            return pto_variables()
+
+        def compose(self) -> ComposeResult:
+            yield build()
+
+        def on_mount(self) -> None:
+            from devkitai.theme import pto_theme
+
+            self.register_theme(pto_theme())
+            self.theme = "pto"
+            if populate is not None:
+                populate(self.query_one(build.widget_type))
+
+    return _Single()
+
+
+def _prim_braille_app():
+    from devkitai.widgets import BrailleChart
+
+    def build():
+        return BrailleChart("cpu · kunpeng-920", "cpu", rows=3, caps=FULL)
+
+    build.widget_type = BrailleChart
+
+    def populate(chart):
+        chart.extend([50 + 42 * math.sin(i / 9) for i in range(120)])
+
+    return _single_widget_app(build, populate)
+
+
+def _prim_heatmap_app():
+    from devkitai.widgets import Annotation, CoreHeatmap
+
+    def build():
+        return CoreHeatmap(64, 16, caps=FULL)
+
+    build.widget_type = CoreHeatmap
+
+    def populate(heat):
+        heat.update_utilisation([abs(50 + 45 * math.sin(i / 5.5)) % 100 for i in range(64)])
+        heat.annotate([Annotation(tuple(range(34, 39)), "warning", "疑似跨 NUMA 内存访问")])
+
+    return _single_widget_app(build, populate)
+
+
+def _prim_kernels_app():
+    from devkitai.widgets import Column, KernelTable
+
+    columns = (
+        Column("name", "Kernel", width=18),
+        Column("calls", "Calls", width=8, numeric=True),
+        Column("avg_ms", "Avg", width=9, numeric=True, fmt=lambda v: f"{v:.1f}ms"),
+        Column("total_s", "Total", width=18, bar_domain="npu", fmt=lambda v: f"{v:.1f}s"),
+    )
+    rows = [
+        {"name": "attention_fwd", "calls": 1024, "avg_ms": 18.2, "total_s": 18.6},
+        {"name": "matmul_4096", "calls": 512, "avg_ms": 12.4, "total_s": 6.3},
+        {"name": "layernorm", "calls": 2048, "avg_ms": 1.8, "total_s": 3.7},
+    ]
+
+    def build():
+        return KernelTable(columns, title="kernels")
+
+    build.widget_type = KernelTable
+
+    def populate(table):
+        table.set_rows(rows)
+        table.sort_by("total_s")
+
+    return _single_widget_app(build, populate)
 
 
 def _degradation_app():
@@ -160,13 +255,20 @@ def _degradation_app():
     return Degradation()
 
 
-BUILDERS = {"shell": _shell_app, "degradation": _degradation_app}
+BUILDERS = {
+    "shell": _shell_app,
+    "degradation": _degradation_app,
+    "prim-braille": _prim_braille_app,
+    "prim-heatmap": _prim_heatmap_app,
+    "prim-kernels": _prim_kernels_app,
+}
 
 
 async def main(name: str) -> None:
-    title, size = TARGETS[name]
+    title, size, density = TARGETS[name]
     body = await _render(BUILDERS[name](), size)
-    print(f'<pre class="dense tight" aria-label="{title}">{_tidy(body)}</pre>')
+    cls = f"dense {density}".rstrip()
+    print(f'<pre class="{cls}" aria-label="{title}">{_tidy(body)}</pre>')
 
 
 if __name__ == "__main__":
