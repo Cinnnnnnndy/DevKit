@@ -1,0 +1,24 @@
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+      ▀▀▀▀▀▀▀▀████████████████████████  [1mKUNPENG DEVKIT AI[m  ·  ● ARM64           
+      ╭─ Ask DevKit AI ──────────────────────────────────────────────────╮      
+      │  [37m[m[7;37mD[mescribe a migration, build, diagnosis, or optimization task…   │      
+      ╰───────────────────────────────────────────────────────── enter ↵─╯      
+                                                                                
+      Start with an action                                                      
+      │ ✦  Migrate a project                                                    
+      │    Analyze dependencies and create an ARM64 plan                        
+                                                                                
+      │ ◇  Scan workspace                                                       
+      │    Detect toolchains, dependencies, and MCP tools                       
+                                                                                
+      │ ↗  Resume nginx migration                                     82%       
+      ● Runtime ready  ·  ▲ 2/4 MCP tools  ·   ARM64 toolchain                  
+      enter submit  ctrl+q quit                                                 
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+                                                                                

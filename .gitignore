@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.venv/
+
+# Local Go build artifacts
+kunpeng-devkit-ai-tui/scheme-b/devkitai
+kunpeng-devkit-ai-tui/scheme-b/probe2

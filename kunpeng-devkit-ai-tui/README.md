@@ -27,6 +27,19 @@
 
 ## 快速开始
 
+### 原生 Textual Launch 原型
+
+仓库根目录已包含可运行的 Python + Textual 开场页：
+
+    cd /Users/yin/DevKit/kunpeng-devkit-ai-tui
+    uv sync
+    uv run devkitai
+
+启动后可直接输入任务并按 Enter，也可以点击三个建议动作。Ctrl+P 打开
+Textual 命令面板，Esc 清空输入，Ctrl+Q 退出。
+
+### Web 设计稿
+
 四份 HTML 是自包含的单文件，**下载后双击即可打开**，无需构建、无需联网：
 
 | 文件 | 内容 |

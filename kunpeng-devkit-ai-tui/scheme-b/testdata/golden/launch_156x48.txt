@@ -1,0 +1,48 @@
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                         ▄▄      ╭─ Ask DevKit AI ───────────────────────────────────────────────╮                          
+                                                    ▄▄▄█▀▀▄      │  [37m[m[7;37mD[mescribe a migration, build, diagnosis, or optimization task…│                          
+                                               ▄▄▄███▀ ▄█▀       ╰────────────────────────────────────────────────────── enter ↵─╯                          
+                                         ▄▄▄█████▀▀▄▄██▀                                                                                                    
+                                    ▄▄▄███████▀ ▄████▀                                                                                                      
+                                 ▄████████▀▀▄▄█████▀                                                                                                        
+                           ▄▄▄▄▄▄██████▀▀▄▄██████▀               Start with an action                                                                       
+                             ▀▀████▀▀▄▄████████▀                                                                                                            
+                                   ▄█████████▀                   │ ✦  Migrate a project                                                                     
+                                     ▀▀███████▄                  │    Analyze dependencies and create an ARM64 plan                                         
+                                         ▀▀████▄                                                                                                            
+                                             ▀▀██▄               │ ◇  Scan workspace                                                                        
+                                                 ▀▀              │    Detect toolchains, dependencies, and MCP tools                                        
+                                                                                                                                                            
+                          [1mKUNPENG[m                                │ ↗  Resume nginx migration                                  82%                           
+                          [1mDEVKIT AI[m                              │    Updated 3 days ago · 82% · 2 to review                                                
+                                                                                                                                                            
+                           ● ARM64 READY                         ● Runtime ready  ·  ▲ 2/4 MCP tools  ·   ARM64 toolchain                                   
+                                                                                                                                                            
+                                                                 ↑↓ navigate  enter submit  ctrl+q quit                                                     
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            
+                                                                                                                                                            

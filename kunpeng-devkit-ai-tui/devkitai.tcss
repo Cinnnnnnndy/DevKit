@@ -1,0 +1,463 @@
+/* PTO Design System → terminal tokens, scoped to the launch prototype. */
+$background: #101010;
+$surface-1: #161616;
+$surface-2: #1c1c1c;
+$surface-3: #262626;
+$surface-4: #313131;
+$foreground: #e8e8e8;
+$secondary: #a4a4a4;
+$muted: #777777;
+$disabled: #555555;
+$border-subtle: #242424;
+$border: #2d2d2d;
+$border-strong: #3b3b3b;
+$primary: #0077ff;
+$primary-hover: #3d98ff;
+$state-selected: #18293c;
+$success: #04d793;
+$warning: #ffaa3b;
+$kunpeng: #ed1c24;
+
+Screen {
+    layout: grid;
+    grid-size: 1;
+    layers: background content;
+    background: $background;
+    color: $foreground;
+    overflow: hidden;
+    align: center middle;
+}
+
+#halftone {
+    layer: background;
+    width: 100%;
+    height: 100%;
+    background: $background;
+}
+
+#launch {
+    layer: content;
+    width: 100%;
+    max-width: 132;
+    height: auto;
+    max-height: 90%;
+    align: center middle;
+    padding: 1;
+    background: transparent;
+}
+
+#identity {
+    width: 130;
+    height: 13;
+    layout: horizontal;
+    align: center middle;
+}
+
+/* Full-width rows so Textual centers each content block independently
+   (a Vertical's align:center pins narrow siblings to the widest child). */
+.content-row {
+    width: 100%;
+    height: auto;
+    align: center middle;
+}
+
+#brand-mark {
+    width: 36;
+    height: 13;
+    text-align: left;
+}
+
+#wordmark {
+    width: 90;
+    height: 11;
+    margin-top: 2;
+    color: #f4f4f4;
+    text-style: bold;
+    content-align: left middle;
+}
+
+#badges {
+    width: 100%;
+    height: 3;
+    align: center middle;
+}
+
+.badge {
+    width: auto;
+    height: 1;
+    margin: 0 1 0 0;
+    padding: 0 1;
+    background: $surface-4;
+    color: $foreground;
+    text-style: bold;
+}
+
+#boot-log {
+    width: 84;
+    height: 5;
+    margin: 1 0 0 0;
+    color: $secondary;
+}
+
+#prompt-box {
+    width: 84;
+    height: 5;
+    padding: 1 1;
+    margin: 1 0 0 0;
+    border: round #f4f4f4;
+    background: transparent;
+}
+
+#prompt-box:focus-within {
+    border: round #009aff;
+    background: transparent;
+}
+
+#prompt {
+    width: 3;
+    height: 1;
+    color: $primary-hover;
+    text-style: bold;
+    content-align: center middle;
+}
+
+#task-input {
+    width: 1fr;
+    height: 1;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: $foreground;
+}
+
+#task-input:focus {
+    border: none;
+    background: transparent;
+}
+
+#task-input > .input--placeholder {
+    color: $muted;
+}
+
+#task-input > .input--cursor {
+    background: $primary-hover;
+    color: $background;
+}
+
+#command-hint {
+    width: 16;
+    height: 1;
+    color: $disabled;
+    text-align: right;
+    content-align: center middle;
+}
+
+#suggestions {
+    width: 84;
+    height: 5;
+    margin-top: 1;
+    align: center middle;
+}
+
+#suggestion-label {
+    width: 76;
+    height: 1;
+    color: $disabled;
+    content-align: left middle;
+}
+
+#suggestion-buttons {
+    width: 76;
+    height: 3;
+    align: center middle;
+}
+
+.suggestion {
+    width: 24;
+    height: 3;
+    margin-right: 1;
+    padding: 0 1;
+    border: solid $border-subtle;
+    background: $background;
+    color: $muted;
+}
+
+.suggestion:hover,
+.suggestion:focus {
+    border: solid $border-strong;
+    background: $surface-3;
+    color: $foreground;
+}
+
+.suggestion.-active {
+    background: #18293c;
+    color: $primary-hover;
+}
+
+#launch-feedback {
+    width: 84;
+    height: 1;
+    color: $secondary;
+    text-align: center;
+}
+
+CommandPalette {
+    background: $surface-1;
+}
+
+.hidden {
+    display: none;
+}
+
+#chart-workspace {
+    layer: content;
+    width: 100%;
+    height: 100%;
+    background: $background;
+    padding: 1 2;
+}
+
+#workspace-header {
+    width: 100%;
+    height: 3;
+    border-bottom: solid $border;
+    align-vertical: middle;
+}
+
+#workspace-brand {
+    width: 14;
+    color: $kunpeng;
+    text-style: bold;
+}
+
+#workspace-title {
+    width: 1fr;
+    color: $foreground;
+    text-style: bold;
+}
+
+#workspace-status {
+    width: 29;
+    color: #01a7ba;
+    text-align: right;
+    text-style: bold;
+}
+
+#chart-tabs {
+    width: 100%;
+    height: 1fr;
+    background: $background;
+}
+
+#chart-tabs Tabs {
+    height: 3;
+    background: $background;
+    border-bottom: solid $border;
+}
+
+#chart-tabs Tab {
+    width: auto;
+    min-width: 14;
+    padding: 0 2;
+    color: $muted;
+    background: $background;
+}
+
+#chart-tabs Tab:hover {
+    color: $foreground;
+    background: $surface-2;
+}
+
+#chart-tabs Tab.-active {
+    color: #009aff;
+    background: $state-selected;
+    text-style: bold;
+}
+
+#chart-tabs Tab.tab-blue {
+    color: #009aff;
+}
+
+#chart-tabs Tab.tab-cyan {
+    color: #01a7ba;
+}
+
+#chart-tabs Tab.tab-violet {
+    color: #5f3cff;
+}
+
+#chart-tabs Tab.tab-magenta {
+    color: #ab43ab;
+}
+
+#chart-tabs Tab.tab-blue.-active {
+    border-bottom: heavy #009aff;
+}
+
+#chart-tabs Tab.tab-cyan.-active {
+    border-bottom: heavy #01a7ba;
+}
+
+#chart-tabs Tab.tab-violet.-active {
+    border-bottom: heavy #5f3cff;
+}
+
+#chart-tabs Tab.tab-magenta.-active {
+    border-bottom: heavy #ab43ab;
+}
+
+#chart-tabs ContentSwitcher,
+#chart-tabs TabPane {
+    width: 100%;
+    height: 1fr;
+    background: $background;
+    padding: 0;
+}
+
+#overview-pane {
+    width: 100%;
+    height: 100%;
+    padding: 1 0 0 0;
+}
+
+#metric-strip {
+    width: 100%;
+    height: 8;
+    align: center middle;
+}
+
+.metric-card {
+    width: 1fr;
+    height: 8;
+    margin-right: 1;
+    padding: 1 2 0 2;
+    border-top: solid $border;
+    border-right: solid $border;
+    border-bottom: solid $border;
+    border-left: wide $primary;
+    background: $surface-1;
+}
+
+.metric-blue {
+    border-left: wide #009aff;
+}
+
+.metric-cyan {
+    border-left: wide #01a7ba;
+}
+
+.metric-violet {
+    border-left: wide #5f3cff;
+}
+
+.metric-magenta {
+    border-left: wide #ab43ab;
+}
+
+#metric-strip .metric-card:last-child {
+    margin-right: 0;
+}
+
+#overview-main {
+    grid-size: 3 2;
+    grid-columns: 3fr 2fr 2fr;
+    grid-rows: 2fr 1fr;
+    grid-gutter: 1 1;
+    width: 100%;
+    height: 1fr;
+    padding-top: 1;
+}
+
+.overview-trend {
+    column-span: 2;
+}
+
+.diagnosis-panel {
+    border-left: wide #ff4b7b;
+}
+
+.time-chart,
+.core-heatmap,
+.resource-gauge,
+.bidirectional-area,
+.operator-race,
+.worker-table,
+.overview-panel,
+.detail-panel,
+.full-chart {
+    width: 100%;
+    height: 100%;
+    padding: 1 2 0 2;
+    border: solid $border;
+    background: $surface-1;
+    color: $secondary;
+}
+
+.time-chart:focus,
+.time-chart:hover,
+.core-heatmap:focus,
+.core-heatmap:hover,
+.resource-gauge:focus,
+.resource-gauge:hover,
+.bidirectional-area:focus,
+.bidirectional-area:hover,
+.operator-race:focus,
+.operator-race:hover,
+.worker-table:focus,
+.worker-table:hover,
+.full-chart:focus,
+.full-chart:hover {
+    border: solid $border-strong;
+}
+
+.chart-page {
+    width: 100%;
+    height: 100%;
+    padding-top: 1;
+}
+
+#cpu-page,
+#numa-page {
+    grid-size: 2 2;
+    grid-columns: 2fr 1fr;
+    grid-rows: 3fr 2fr;
+    grid-gutter: 1 1;
+}
+
+.wide-chart {
+    column-span: 2;
+}
+
+.full-chart {
+    margin-top: 1;
+    padding: 2 3;
+}
+
+.flame-graph,
+.trace-lanes,
+.operator-table {
+    color: $foreground;
+}
+
+.trace-lanes,
+.operator-table,
+.worker-table {
+    padding: 1 2 0 2;
+}
+
+#workspace-footer {
+    width: 100%;
+    height: 2;
+    color: $disabled;
+    padding-top: 1;
+}
+
+#workspace-help {
+    width: 1fr;
+}
+
+#workspace-back {
+    width: 24;
+    text-align: right;
+    color: $muted;
+}
