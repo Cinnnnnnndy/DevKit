@@ -6,6 +6,12 @@
 T4 的硬性要求在这里最直接：**每个鼠标操作都必须有键盘等价路径**——
 无鼠标的 SSH 场景是 DevKit 主战场。点列头排序 ↔ ``s`` 循环排序列；
 滚轮 ↔ 方向键；点行下钻 ↔ Enter。
+
+标题嵌在上边框、当前排序 + 行数嵌在下边框，和
+:class:`~devkitai.widgets.braille_chart.BrailleChart` 用同一套约定
+（Textual 原生 ``border_title`` / ``border_subtitle``，见
+``docs/COMPONENT.md`` "Canvas 层的框"）。原来这张表完全没有边框、
+也没地方放"这是哪张表"，四张表拼在同一屏上只能靠行数猜。
 """
 
 from __future__ import annotations
@@ -57,9 +63,17 @@ class KernelTable(DataTable):
         notes="列头点击与滚轮都必须有键盘等价——无鼠标 SSH 是主战场",
     )
 
-    def __init__(self, columns: Sequence[Column], **kwargs) -> None:
+    DEFAULT_CSS = """
+    KernelTable { border: solid $pto-border-subtle; }
+    KernelTable:focus-within { border: solid $pto-border-strong; }
+    """
+
+    def __init__(self, columns: Sequence[Column], title: str = "table", **kwargs) -> None:
         super().__init__(zebra_stripes=False, cursor_type="row", **kwargs)
         self.columns_spec = tuple(columns)
+        #: 表名——算子排行 / 进程表 / Issue 表 / 文件风险表都用这一个类，
+        #: 边框标题是唯一区分"这是哪张表"的地方。
+        self.title = title
         self._rows_raw: list[dict] = []
         self._sort_key: str = columns[0].key
         self._reverse = True
@@ -68,6 +82,7 @@ class KernelTable(DataTable):
     def on_mount(self) -> None:
         for col in self.columns_spec:
             self.add_column(self._header(col), key=col.key, width=col.width)
+        self.border_title = Text(self.title, style=foreground(SURFACE_2, "secondary"))
         self._rebuild()
 
     # ── 数据 ────────────────────────────────────────────────────────────
@@ -137,6 +152,14 @@ class KernelTable(DataTable):
         }
         for row in rows:
             self.add_row(*(self._cell(col, row, peak) for col in self.columns_spec))
+
+        sort_col = next(c.label for c in self.columns_spec if c.key == self._sort_key)
+        arrow = "▾" if self._reverse else "▴"
+        filtered = f"/{self._filter} · " if self._filter else ""
+        self.border_subtitle = Text(
+            f"{filtered}{len(rows)} 行 · {sort_col} {arrow}",
+            style=foreground(SURFACE_2, "secondary"),
+        )
 
     def _cell(self, col: Column, row: dict, peak: dict[str, float]) -> Text:
         raw = row.get(col.key)

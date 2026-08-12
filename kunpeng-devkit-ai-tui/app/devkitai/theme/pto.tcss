@@ -52,12 +52,6 @@ Screen {
     margin-bottom: 1;
 }
 
-/* 分区标题：全大写 + 字距，靠 muted 档与正文拉开层级，不靠字号（终端只有一级） */
-.panel-title {
-    color: $pto-fg-muted;
-    text-style: bold;
-}
-
 .meta { color: $pto-fg-secondary; }
 .rule { color: $pto-rule; }
 
@@ -75,12 +69,11 @@ Screen {
     border: round $pto-border-strong;
 }
 
-/* ── Canvas 层：数据区不加任何装饰，边框只做边界 ─────────────────────── */
-
-#chart-cpu, #chart-npu, #heatmap {
-    height: auto;
-    background: $pto-surface-1;
-}
+/* ── Canvas 层：直角边框 + 标题嵌在上边框，标题用 border_title/border_subtitle
+ * 原生属性、颜色在 Python 里按 foreground() 算——不在这里重复一份。三个
+ * Canvas 组件（BrailleChart / CoreHeatmap / KernelTable）各自在自己的
+ * DEFAULT_CSS 里声明同一条 border 规则，这里不需要再按 id 单独指定。
+ * "内嵌块直角"（COMPONENT.md）：圆角只留给真正浮起的 .panel。 */
 
 DataTable {
     background: $pto-surface-1;

@@ -1,7 +1,6 @@
 """组件层的行为测试：宽度计算、对齐、排序稳定性。"""
 
 import pytest
-from rich.cells import cell_len
 
 from devkitai.tiers import Capabilities, Tier
 from devkitai.widgets import Annotation, Column, CoreHeatmap, BrailleChart, KernelTable
@@ -14,18 +13,97 @@ def _render_lines(widget) -> list[str]:
     return widget.render().plain.split("\n")
 
 
-def test_chart_border_accounts_for_double_width_cjk():
-    """含中文的串必须按 cell 宽度算，不能按 len()。
+# ── 标题在框线里 —— border_title / border_subtitle ─────────────────────────
+# 手画边框那版靠 cell_len 去凑 "─" 的填充长度，中文标签一多就会算错、边框
+# 折行（这类 bug 只在中文下出现，纯英文界面上测不出来，跟 web 端字符画
+# 对齐事故是同一类）。原生边框把这类算术交给 Rich 内部处理，所以这里不用
+# 再测"宽度算对了没有"——测的是"标题真的进了 border_title/subtitle，
+# 不是又悄悄退回到手画"。
+def test_chart_title_lives_in_the_border_not_the_content():
+    """标题必须走 border_title，不能出现在 render() 的内容区里。
 
-    "当前 / 峰值"每个汉字占 2 格，用 len() 算出来的底边框会短 4 格、整行折行。
-    这类 bug 只在中文标签下出现，纯英文界面上测不出来。
+    内容区是数据（braille 曲线），混进标题文字就是退回手画那版的老路。
+    """
+    chart = BrailleChart("cpu · kunpeng-920", "cpu", rows=2, caps=TRUECOLOR)
+    chart.extend([50.0] * 40)
+    assert chart.border_title is None  # 还没 on_mount，尚未设置
+    body = chart.render().plain
+    assert "cpu" not in body, "标题混进内容区了——应该只在 border_title 里"
+
+
+def test_chart_subtitle_carries_cjk_status_and_updates_with_data():
+    """底边框状态随数据变，且含中文（"当前"/"峰值"/层名）也能正常设置。
+
+    过去这类中文状态字符串是手画边框自己拼 "└─...─┘" 时最容易算错宽度的
+    地方；现在它只是传给 border_subtitle 的一个 Text，宽度由 Rich 自己管。
     """
     chart = BrailleChart("cpu", "cpu", rows=2, caps=TRUECOLOR)
-    chart.extend([50.0] * 40)
-    width = 60
-    footer = chart._footer(width, 50.0, 90.0)
-    assert cell_len(footer.plain) == width
-    assert cell_len(footer.plain) != len(footer.plain), "这个断言要真的踩到 CJK"
+    chart.extend([50.0] * 10)
+    chart.render()
+    first = chart.border_subtitle
+    assert "当前" in first and "峰值" in first and "T2" in first
+
+    chart.extend([90.0])
+    chart.render()
+    assert chart.border_subtitle != first, "峰值变了，subtitle 必须跟着变"
+
+
+def test_frozen_chart_marks_it_in_the_subtitle():
+    chart = BrailleChart("cpu", "cpu", rows=2, caps=TRUECOLOR)
+    chart.extend([50.0] * 10)
+    chart.frozen = True
+    chart.render()
+    assert "冻结" in chart.border_subtitle
+
+
+def test_heatmap_title_is_set_once_and_subtitle_tracks_tier():
+    """CoreHeatmap 原来完全没有边框——标题只是内容区顶上一行文字。
+
+    补边框之后必须真的用上 border_title/subtitle，不能只是加了个框、
+    文字还留在原地。``on_mount`` 手动调一次而不整套挂 App——它只碰
+    ``self.cores`` / ``self.border_title``，不依赖真实挂载上下文。
+    """
+    heat = CoreHeatmap(16, 16, caps=TRUECOLOR)
+    heat.on_mount()
+    assert "16-core" in heat.border_title
+    heat.update_utilisation([50.0] * 16)
+    body = heat.render().plain
+    assert "T3" in heat.border_subtitle
+    assert "16-core heatmap" not in body, "标题不该留在内容区"
+
+
+def test_kernel_table_title_identifies_which_table_this_is():
+    """KernelTable 一个类服务四种表，边框标题是唯一区分"这是哪张表"的地方。"""
+    table = KernelTable((Column("name", "Kernel"),), title="进程表")
+    assert table.title == "进程表"
+
+
+@pytest.mark.asyncio
+async def test_chart_renders_inside_a_running_app_without_crashing():
+    """真的挂进一个 App、跑一帧——不只是调用 render()，而是走 Textual 完整的
+    布局 + 边框合成路径。这条覆盖的正是原生边框相对手画版本最大的差异：
+    宽度计算不再是我们自己的算术，得在真实合成器里跑过一遍才算数。
+    """
+    from textual.app import App, ComposeResult
+
+    from devkitai.theme import pto_variables
+
+    class _Host(App):
+        # 样式表在 mount 之前就解析，$pto-* 必须从这里进去——只在 on_mount
+        # 里注册主题会撞上 UnresolvedVariableError（shell.py 已经踩过一次）。
+        def get_theme_variable_defaults(self) -> dict[str, str]:
+            return pto_variables()
+
+        def compose(self) -> ComposeResult:
+            yield BrailleChart("cpu · kunpeng-920", "cpu", rows=3, caps=TRUECOLOR)
+
+    app = _Host()
+    async with app.run_test(size=(40, 10)) as pilot:
+        chart = app.query_one(BrailleChart)
+        chart.extend([50.0 + i for i in range(40)])
+        await pilot.pause()
+        assert chart.border_title is not None
+        assert "cpu" in chart.border_title
 
 
 def test_chart_degrades_through_the_declared_chain():

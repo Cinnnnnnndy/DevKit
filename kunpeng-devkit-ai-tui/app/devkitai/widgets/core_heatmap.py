@@ -9,6 +9,12 @@
 
 降级：T3 → T1 灰阶 + 字形梯度（``░▒▓█``）。颜色被抽掉之后强度由字形接住，
 否则热力图会退化成一片同样的方块，那是丢信息不是降级。
+
+标题嵌在上边框（Textual 原生 ``border_title`` / ``border_subtitle``），
+和 :class:`~devkitai.widgets.braille_chart.BrailleChart` 用同一套约定——
+见 ``docs/COMPONENT.md`` "Canvas 层的框"。这个组件原来完全没有边框，
+标题只是内容区顶上一行文字，和有边框的 BrailleChart 并排摆在同一个
+Canvas 里会看着不成一套。
 """
 
 from __future__ import annotations
@@ -57,7 +63,11 @@ class CoreHeatmap(Static):
     )
 
     DEFAULT_CSS = """
-    CoreHeatmap { height: auto; background: $pto-surface-1; }
+    CoreHeatmap {
+        height: auto; background: $pto-surface-1;
+        border: solid $pto-border-subtle;
+    }
+    CoreHeatmap:focus-within { border: solid $pto-border-strong; }
     """
 
     show_annotations: reactive[bool] = reactive(True)
@@ -79,6 +89,11 @@ class CoreHeatmap(Static):
         self._numa: list[float] = []
         self._annotations: list[Annotation] = []
         self._caps = caps
+
+    def on_mount(self) -> None:
+        # 标题是身份（多少核），构造时就定了——只设一次，同 BrailleChart。
+        self.border_title = Text(f"{self.cores}-core heatmap",
+                                  style=foreground(SURFACE_1, "secondary"))
 
     # ── 数据 ────────────────────────────────────────────────────────────
     def update_utilisation(self, values: Sequence[float]) -> None:
@@ -120,11 +135,12 @@ class CoreHeatmap(Static):
         muted = foreground(SURFACE_1, "muted")
         secondary = foreground(SURFACE_1, "secondary")
 
-        out = Text()
+        # 图例 + 当前降级层随 tier 变，挪进下边框；标题（核数）不变，
+        # on_mount 里设过一次就够了。
         legend = "▁ idle  ▃ low  ▅ mid  █ hot" if not truecolor else "低 ▏▍▋█ 高"
-        out.append(f"{self.cores}-core heatmap", style=secondary)
-        out.append(f"        {legend}   {tier.label}\n", style=muted)
+        self.border_subtitle = Text(f"{legend} · {tier.label}", style=secondary)
 
+        out = Text()
         group = max(1, self.cores // 4)
         for start in range(0, self.cores, self.per_row):
             row = self._util[start : start + self.per_row]

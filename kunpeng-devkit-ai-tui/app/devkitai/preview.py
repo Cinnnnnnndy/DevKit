@@ -77,12 +77,12 @@ class PreviewApp(App):
         yield Label(self._banner(), id="statusbar")
         with VerticalScroll(id="main"):
             with Horizontal():
-                yield BrailleChart("cpu──kunpeng-920", "cpu", id="chart-cpu",
+                yield BrailleChart("cpu · kunpeng-920", "cpu", id="chart-cpu",
                                    caps=self._caps)
-                yield BrailleChart("npu──ascend", "npu", id="chart-npu",
+                yield BrailleChart("npu · ascend", "npu", id="chart-npu",
                                    caps=self._caps)
             yield CoreHeatmap(64, 16, id="heatmap", caps=self._caps)
-            yield KernelTable(COLUMNS, id="kernels")
+            yield KernelTable(COLUMNS, title="kernels", id="kernels")
             yield Static(self._specs(), id="specs", classes="panel")
         yield Footer()
 

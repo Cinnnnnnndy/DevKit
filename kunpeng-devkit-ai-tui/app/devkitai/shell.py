@@ -132,10 +132,10 @@ class DevKitShell(App):
                     yield TabBar(TASKS, id="tabs")
                     with Horizontal(id="canvases"):
                         with VerticalScroll(id="canvas-a", classes="canvas"):
-                            yield BrailleChart("cpu──kunpeng-920", "cpu",
+                            yield BrailleChart("cpu · kunpeng-920", "cpu",
                                                id="chart-cpu", caps=self._caps)
                             yield CoreHeatmap(64, 16, id="heatmap", caps=self._caps)
-                            yield KernelTable(KERNEL_COLUMNS, id="kernels")
+                            yield KernelTable(KERNEL_COLUMNS, title="kernels", id="kernels")
                         with VerticalScroll(id="canvas-b", classes="canvas"):
                             yield Static(_evidence(), id="evidence")
                     yield Static(_console(), id="console", classes="panel")
