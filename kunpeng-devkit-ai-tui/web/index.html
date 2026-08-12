@@ -368,7 +368,7 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
 
 
 /* ══════════ 实现实况 ══════════
- * 图是 python -m devkitai 真跑起来后由 Textual 的 save_screenshot() 导出的
+ * 图是 bun run devkitai 真跑起来后由 OpenTUI 渲染器导出的
  * 矢量 SVG——字符仍是文本、颜色是运行时算出来的那一个，不是重画的 mockup。
  * 由 app/tools/screenshots.py 生成：手工截图一旦落地就和代码脱钩，改了组件
  * 不改图，图就开始撒谎。
@@ -376,7 +376,7 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
 .im-frame{border:1px solid var(--border-subtle);border-radius:var(--radius-md);
   background:var(--surface-1);padding:10px;overflow-x:auto;margin:14px 0 12px}
 .im-frame img{display:block;width:100%;height:auto;min-width:660px}
-/* 外链而不是内联。内联的 Textual SVG 会把浏览器的 HTML 解析器带崩——
+/* 外链而不是内联。内联的 TUI SVG 会把浏览器的 HTML 解析器带崩——
  * 第二张之后的内容连同它所在的 section 一起被吞掉，DOM 里只剩两张图。
  * Python 的 HTMLParser 更宽松，看不出这个问题，所以本地校验一路放行。
  * 外链还顺带把这一页从 443KB 压回 30KB。 */
@@ -803,7 +803,7 @@ Save       →  P12 Session Summary<span class="fw">（升级：验证闭环</sp
 <tr><th>PTO 用法</th><th>TUI 替代编码</th></tr>
 <tr><td>mono 表示 ID / 算子名</td><td>accent 色 <code>#7C8DB8</code></td></tr>
 <tr><td>mono 表示数值 / 指标</td><td><strong>右对齐 + 固定小数位</strong> + secondary 色</td></tr>
-<tr><td>mono 表示代码</td><td>缩进 2 格 + 语法高亮（Textual 可直接用 Rich Syntax）</td></tr>
+<tr><td>mono 表示代码</td><td>缩进 2 格 + 语法高亮（OpenTUI 可直接用 ink.Syntax 原语）</td></tr>
 <tr><td>sans 表示叙述文本</td><td>默认态，不加任何修饰</td></tr>
 </table>
 <pre><span class="cm"><span class="fw">推荐终端字体（需含</span> Braille U+2800–28FF <span class="fw">与</span> CJK<span class="fw">）：</span></span>
@@ -1056,13 +1056,13 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
               <tr>
                 <td class="k">Chrome<br><span style="color:var(--fg-disabled)">结构</span></td>
                 <td>Header · Dock（任务 / 工程树 / 工具）· Tab Bar · 状态栏 · 浮层 · 列表 · 表单 · 命令面板</td>
-                <td><b>真 UI 组件</b><br><span class="ck-mono">Textual Widget + TCSS</span></td>
+                <td><b>真 UI 组件</b><br><span class="ck-mono">React + OpenTUI 组件</span></td>
                 <td>表面层级 · 边框强度 · 圆角 · <b>hover / selected / focus / disabled 四态</b> · 图标 · 徽标计数 · 缩进引导线 · 滚动条指示</td>
               </tr>
               <tr>
                 <td class="k">Canvas<br><span style="color:var(--fg-disabled)">读数</span></td>
                 <td>Braille 曲线 · 热力网格 · Trace 密度带 · Gauge / Sparkline · 散点 · diff · 日志 · 代码</td>
-                <td><b>字符网格</b><br><span class="ck-mono">Rich renderable</span></td>
+                <td><b>字符网格</b><br><span class="ck-mono">@opentui/core 缓冲绘制</span></td>
                 <td>渲染分层 T1–T3 · 域色映射 · 顺序 / 分类色阶纪律 · 等宽对齐</td>
               </tr>
             </tbody>
@@ -1130,7 +1130,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <section id="chrome">
 <div class="eyebrow">Foundation · 最容易做错的一条</div>
 <h2>Chrome 层 vs Canvas 层 —— 不是所有东西都用字符拼</h2>
-<p class="desc">TUI 常被误解成"全部由 ASCII 拼出来的界面"。<strong>不是。</strong>现代 TUI 框架（Textual / OpenTUI）提供的是<strong>真正的 UI 组件系统</strong>——有表面层、边框、圆角、状态、图标、徽标、滚动条。字符拼接只是其中一种渲染手段，且只该用在特定地方。</p>
+<p class="desc">TUI 常被误解成"全部由 ASCII 拼出来的界面"。<strong>不是。</strong>现代 TUI 框架（OpenTUI）提供的是<strong>真正的 UI 组件系统</strong>——有表面层、边框、圆角、状态、图标、徽标、滚动条。字符拼接只是其中一种渲染手段，且只该用在特定地方。</p>
 
 <div class="note d"><b>反面案例就在我们自己的稿子里。</b>早期的 Demo 把 Dock、工程树、任务列表全做成了裸文本行——没有选中态的层次、没有 hover、没有图标、没有徽标、缩进靠空格对齐。<strong>那不是 TUI，那是把 CLI 输出塞进了一个框里。</strong>参照 MobaXterm：它的左侧面板有分组标题、图标、悬停高亮、计数——这些都是 UI 组件该有的东西，TUI 一样做得到。</div>
 
@@ -1139,11 +1139,11 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><th>层</th><th>包含</th><th>渲染方式</th><th>必须具备</th></tr>
 <tr><td style="color:var(--primary-hover)"><strong>Chrome 层</strong><br><span style="color:var(--foreground-muted)">框架 / 结构</span></td>
 <td>Header · Dock（任务/工程树/工具/知识库）· Tab Bar · 状态栏 · 浮层与模态 · 列表（Plan / Evidence / 下一步 / 能力）· 表单与输入 · 命令面板</td>
-<td><strong>真 UI 组件</strong><br>Textual Widget + TCSS</td>
+<td><strong>真 UI 组件</strong><br>React + OpenTUI 组件</td>
 <td>表面层级 · 边框强度 · 圆角 · <strong>hover / selected / focus / disabled 四态</strong> · 图标 · 徽标与计数 · 缩进引导线 · 滚动条指示</td></tr>
 <tr><td style="color:var(--warning)"><strong>Canvas 层</strong><br><span style="color:var(--foreground-muted)">数据 / 读数</span></td>
 <td>Braille 曲线 · 热力网格 · Trace 密度带 · Gauge / Sparkline · 散点图 · diff · 日志 · 代码</td>
-<td><strong>字符网格</strong><br>Rich renderable / 自定义 render</td>
+<td><strong>字符网格</strong><br>@opentui/core 缓冲绘制 / 自定义 render</td>
 <td>渲染分层 T1–T3 · 域色映射 · 顺序/分类色阶纪律 · 等宽对齐</td></tr>
 </table>
 
@@ -1174,7 +1174,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td>Header chip</td><td>状态点 + 文本，pill 形态</td><td class="mono">radius-pill · surface-3 · border-subtle</td></tr>
 </table>
 
-<div class="note"><b>为什么这条重要：</b>① <strong>状态表达</strong>——字符拼不出 hover/selected 的层次感，而"我现在选中的是哪一项"是工作台的基本诉求；② <strong>自适应</strong>——组件能随宽度伸缩截断，字符对齐依赖固定列宽，一变窄就崩；③ <strong>可维护</strong>——TCSS 改一处全局生效，字符拼接每处都要重算列宽（本规范里那些 ASCII 框就是靠脚本算宽度才对齐的，这恰恰说明它不适合做框架）。<br><br>
+<div class="note"><b>为什么这条重要：</b>① <strong>状态表达</strong>——字符拼不出 hover/selected 的层次感，而"我现在选中的是哪一项"是工作台的基本诉求；② <strong>自适应</strong>——组件能随宽度伸缩截断，字符对齐依赖固定列宽，一变窄就崩；③ <strong>可维护</strong>——style props 改一处全局生效，字符拼接每处都要重算列宽（本规范里那些 ASCII 框就是靠脚本算宽度才对齐的，这恰恰说明它不适合做框架）。<br><br>
 反过来，<strong>数据区也不能用组件</strong>：64 核热力网格如果用 64 个 div，密度、对齐、性能全都做不到——那里就该是字符网格。<strong>两层各司其职，边界清晰。</strong></div>
 </section>
 
@@ -1182,84 +1182,84 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="eyebrow">TUI Capability</div>
 <h2>框架选型</h2>
 <p class="desc">关键前提：<strong>DevKit AI 已通过 MCP over streamableHttp（:8000）暴露能力</strong>，TUI 本质是客户端。实现语言与 Agent Runtime 解耦，选型可纯按"渲染能力 + 设计系统落地成本 + 团队栈"决策。</p>
-<div class="note"><b>已定：Python / Textual。</b>FTXUI 是 C++ 库，与技术栈方向不符，<strong>已排除</strong>（其 Canvas 双层绘图 API 的分层思路仍值得在自建 braille 封装时借鉴）。下表保留 OpenTUI 作为对照——它是 OpenCode 的底层引擎，其会话层与流式渲染实现仍是重要参考来源。</div>
+<div class="note"><b>已定：TypeScript 5.9 + React 19 + OpenTUI 0.5.1 + Bun。</b>FTXUI 是 C++ 库，与技术栈方向不符，<strong>已排除</strong>（其 Canvas 双层绘图 API 的分层思路仍值得在自建 braille 封装时借鉴）。Textual（Python）曾作为候选但已排除——OpenTUI 与 OpenCode 同栈，生态复用优势决定性。</div>
 <table>
-<tr><th>维度</th><th style="color:var(--primary-hover)">Textual（Python）★ 已选</th><th>OpenTUI（TypeScript）· 对照</th></tr>
-<tr><td>生态位</td><td>Textualize 出品，基于 Rich，Python TUI 生态最大</td><td>Zig 编写的原生 TUI 核心 + TypeScript 绑定，另提供 C ABI；<strong>OpenCode 生产环境在跑</strong></td></tr>
-<tr><td><strong>样式系统</strong></td><td><strong>TCSS —— CSS 子集，含变量、选择器、伪类</strong></td><td>组件式架构 + 灵活布局；样式为 style props</td></tr>
-<tr><td><strong>设计 token 落地</strong></td><td><strong>内置主题系统</strong>（predefined themes），变量可直接承载 PTO token</td><td>需自建 token 层</td></tr>
-<tr><td>内置组件</td><td>Button / Tree / DataTable / Input / TextArea / Select / Switch / ProgressBar / Sparkline / Digits / Log / Markdown / Collapsible / Tabs …</td><td><code>@opentui/core</code> 提供命令式 API 与全部原语；<code>@opentui/react</code>、<code>@opentui/solid</code> 提供 reconciler</td></tr>
-<tr><td><strong>Command Palette</strong></td><td><strong>内置模糊搜索命令面板</strong>（<kbd>Ctrl+P</kbd>），可扩展自定义命令 —— 直接兑现 P09</td><td>需自建</td></tr>
-<tr><td>Canvas / 图形</td><td>Rich 提供渲染原语，braille 画布需薄封装</td><td>核心含缓冲级绘制；<code>@opentui/three</code> 提供 Three.js WebGPU 渲染器</td></tr>
-<tr><td>鼠标 / 动画</td><td>✓ 完整鼠标 + <code>animate()</code> 缓动</td><td>✓ 主打 correctness / stability / performance</td></tr>
-<tr><td>Web 部署</td><td><strong><code>textual serve</code> + Textual Web</strong>：同一份代码跑进浏览器</td><td>—</td></tr>
-<tr><td>与 DevKit 生态</td><td><strong>Python 贴近 AI / 编译分析 / 数据处理工具链</strong></td><td>需 IPC 或 C ABI 桥接</td></tr>
-<tr><td>OpenCode 复用</td><td>低（可通过 MCP 复用能力，不复用代码）</td><td>高（同栈）</td></tr>
+<tr><th>维度</th><th style="color:var(--primary-hover)">OpenTUI（TypeScript）★ 已选</th><th>Textual（Python）· 对照</th></tr>
+<tr><td>生态位</td><td>Zig 编写的原生 TUI 核心 + TypeScript 绑定，另提供 C ABI；<strong>OpenCode 生产环境在跑</strong></td><td>Textualize 出品，基于 Rich，Python TUI 生态最大</td></tr>
+<tr><td><strong>样式系统</strong></td><td><strong>组件式架构 + 灵活布局；样式为 style props</strong></td><td>TCSS —— CSS 子集，含变量、选择器、伪类</td></tr>
+<tr><td><strong>设计 token 落地</strong></td><td><strong>React 组件 props + theme context</strong>，PTO token 通过 theme provider 注入</td><td>内置主题系统（predefined themes），变量可直接承载 PTO token</td></tr>
+<tr><td>内置组件</td><td><strong><code>@opentui/core</code> 提供命令式 API 与全部原语；<code>@opentui/react</code> 提供 reconciler</strong></td><td>Button / Tree / DataTable / Input / TextArea / Select / Tabs …</td></tr>
+<tr><td>Canvas / 图形</td><td><strong>核心含缓冲级绘制；<code>@opentui/three</code> 提供 Three.js WebGPU 渲染器</strong></td><td>Rich 提供渲染原语，braille 画布需薄封装</td></tr>
+<tr><td>鼠标 / 动画</td><td><strong>✓ 主打 correctness / stability / performance</strong></td><td>✓ 完整鼠标 + animate() 缓动</td></tr>
+<tr><td>OpenCode 复用</td><td><strong>高（同栈）——Agent 流式渲染、工具调用展示、会话管理可直接复用</strong></td><td>低（可通过 MCP 复用能力，不复用代码）</td></tr>
+<tr><td>与 DevKit 生态</td><td>通过 MCP 客户端对接 DevKit Intelligence；Bun 运行时性能优异</td><td>Python 贴近 AI / 编译分析 / 数据处理工具链</td></tr>
 </table>
 
-<div class="note"><b>为什么 Textual 是对的选择——决定性理由是设计系统落地成本。</b>本规范 Foundation 六节把 PTO token 体系完整翻译成了 TUI token，而 Textual 的 TCSS 是 CSS 子集、且有原生主题变量系统，<strong>这套 token 可以近乎 1:1 写成 TCSS 变量文件</strong>，Web 端与终端端共用同一份设计语言、同一套命名、同一套 review 流程。换任何其它框架都要先自建一层 token 系统再手工映射，一致性只能靠人肉维护。<br><br>
-次要理由：内置模糊命令面板（<kbd>Ctrl+P</kbd>）直接兑现 P09，省掉一个组件；<code>textual serve</code> 让同一份代码跑进浏览器，评审和文档嵌入零成本；DataTable / Tree / Tabs / Collapsible / Sparkline 覆盖了组件清单的大半；Python 生态本身就贴着编译分析与 AI 工具链，将来要接 profiler 解析、IR 处理都顺手。</div>
+<div class="note"><b>为什么 OpenTUI 是对的选择——决定性理由是生态复用与渲染能力。</b>OpenTUI 是 OpenCode 的底层引擎，Agent 流式渲染节奏、工具调用展示折叠策略、会话切换与上下文管理的交互实现<strong>可以直接复用</strong>，不需要从零开始造。React 19 的 reconciler 让组件逻辑与声明式 UI 天然吻合，PTO token 通过 theme provider 注入，Web 端与终端端共用同一份设计语言。<br><br>
+次要理由：<code>@opentui/core</code> 核心含缓冲级绘制能力，braille / 热力等图表原语的底座更坚实；Bun 的启动速度和运行效率在 SSH 低带宽场景下表现优异；TypeScript 的类型系统确保组件契约与 PTO token 的类型安全。</div>
 
-<div class="note warn"><b>Textual 路线要自己补的三块。</b>① <strong>Braille 画布</strong>——Rich 有渲染原语但无现成 braille canvas，T2 层（历史曲线、双向面积图、Roofline）需要薄封装一层 <code>DrawPoint</code> 式 API，这是 Phase 0 的主要工作量，可参考 FTXUI 的 <code>DrawPoint</code>/<code>DrawBlock</code> 双层分法。② <strong>热力网格</strong>——T3 层的 NUMA 网格、Trace 密度带需自定义 Widget。③ <strong>可拖拽分栏</strong>——P23 的布局预设需在 Horizontal 容器上自建拖拽。<br><br>
-从 OpenTUI / OpenCode 可借鉴（而非直接复用）的是：Agent 流式渲染节奏、工具调用展示折叠策略、会话切换与上下文管理的交互实现。</div>
+<div class="note warn"><b>OpenTUI 路线要自己补的三块。</b>① <strong>Command Palette</strong>——需自建模糊搜索命令面板以兑现 P09（Textual 内置此组件，OpenTUI 需要自行实现）。② <strong>热力网格</strong>——T3 层的 NUMA 网格、Trace 密度带需自定义 Widget。③ <strong>可拖拽分栏</strong>——P23 的布局预设需自建拖拽交互。</div>
 
 <div class="sublabel">建议架构（渲染与智能解耦）</div>
-<pre>  <span class="pr">Textual TUI Shell</span>   ← <span class="fw">渲染</span> T0–T4 · <span class="fw">交互</span> · <span class="fw">布局</span> · <span class="fw">快捷键</span>
-        │              <span class="cm">TCSS <span class="fw">变量文件</span> = PTO token <span class="fw">直译</span></span>
+<pre>  <span class="pr">React 19 + OpenTUI Shell</span>  ← <span class="fw">渲染</span> T0–T4 · <span class="fw">交互</span> · <span class="fw">布局</span> · <span class="fw">快捷键</span>
+        │                    <span class="cm">theme provider = PTO token <span class="fw">注入</span></span>
         │  MCP / HTTP :8000 · streamableHttp
-  <span class="ac">Agent Runtime</span>       ← Agent Loop · <span class="fw">会话</span> · <span class="fw">上下文</span> · <span class="fw">工具编排</span>
+  <span class="ac">Agent Runtime</span>             ← Agent Loop · <span class="fw">会话</span> · <span class="fw">上下文</span> · <span class="fw">工具编排</span>
         │
-  <span class="wn">DevKit Tools</span>        ← code_cpp_migrator · database_sql_migrator
-                        sql_syntax_repair · kunpeng_knowledge_base_search
-                        profiler · <span class="fw">诊断器</span></pre>
+  <span class="wn">DevKit Tools</span>              ← code_cpp_migrator · database_sql_migrator
+                              sql_syntax_repair · kunpeng_knowledge_base_search
+                              profiler · <span class="fw">诊断器</span></pre>
 
-<div class="sublabel">TCSS 落地示例</div>
-<pre><span class="cm"># pto.tcss —— <span class="fw">由本规范第</span> Foundation <span class="fw">节直接生成</span></span>
-$background: #101010;      $surface-1: #161616;
-$surface-2: #1c1c1c;       $surface-3: #262626;
-$foreground: #e8e8e8;      <span class="cm"># .90 <span class="fw">预合成</span></span>
-$foreground-secondary: #a4a4a4;
-$foreground-muted: #777777;
-$primary: #0077ff;         $success: #04d793;
-$warning: #ffaa3b;         $danger: #ff4b7b;
+<div class="sublabel">Token 落地示例</div>
+<pre><span class="cm">// theme.ts —— <span class="fw">由本规范第</span> Foundation <span class="fw">节直接生成</span></span>
+export const ptoTheme = {
+  background:  '#101010',  surface1: '#161616',
+  surface2:    '#1c1c1c',  surface3: '#262626',
+  foreground:  '#e8e8e8',  <span class="cm">// .90 <span class="fw">预合成</span></span>
+  fgSecondary: '#a4a4a4',
+  fgMuted:     '#777777',
+  primary: '#0077ff',      success: '#04d793',
+  warning: '#ffaa3b',      danger:  '#ff4b7b',
+} as const;
 
-KernelTable {
-    background: $surface-1;
-    border: round $surface-3;   <span class="cm"># radius-lg → ╭╮╰╯</span>
-    padding: 1 2;               <span class="cm"># space-4 → 1 row / 2 col</span>
-}
-KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># state-selected</span></pre>
+<span class="cm">// <span class="fw">组件消费</span> token</span>
+&lt;KernelTable
+  style={{ background: theme.surface1,
+           border: `round ${theme.surface3}`,  <span class="cm">// radius-lg → ╭╮╰╯</span>
+           padding: '1 2' }}                   <span class="cm">// space-4 → 1 row / 2 col</span>
+  selectedStyle={{ background: '#18293c' }}    <span class="cm">// state-selected</span>
+/&gt;</pre>
 </section>
 
 <section id="comp">
 <div class="eyebrow">Components</div>
 <h2>组件清单</h2>
 <table>
-<tr><th>组件</th><th>用途</th><th>Tier</th><th>Pattern</th><th>Textual 基座</th></tr>
-<tr><td>Agent Timeline</td><td>任务状态流</td><td>T0</td><td>P01</td><td class="mono">Static + Rich</td></tr>
-<tr><td>Plan Card</td><td>任务规划</td><td>T0</td><td>P02</td><td class="mono">Container</td></tr>
-<tr><td>Evidence List</td><td>证据 + 置信度</td><td>T1</td><td>P03</td><td class="mono">ListView</td></tr>
+<tr><th>组件</th><th>用途</th><th>Tier</th><th>Pattern</th><th>OpenTUI 基座</th></tr>
+<tr><td>Agent Timeline</td><td>任务状态流</td><td>T0</td><td>P01</td><td class="mono">@opentui/react 组件</td></tr>
+<tr><td>Plan Card</td><td>任务规划</td><td>T0</td><td>P02</td><td class="mono">Container 组件</td></tr>
+<tr><td>Evidence List</td><td>证据 + 置信度</td><td>T1</td><td>P03</td><td class="mono">List 组件</td></tr>
 <tr><td>Diagnosis Graph</td><td>因果链路</td><td>T0</td><td>P04</td><td class="mono">Tree（定制渲染）</td></tr>
-<tr><td>Diff View</td><td>代码/配置变更</td><td>T0</td><td>P05</td><td class="mono">RichLog + Syntax</td></tr>
+<tr><td>Diff View</td><td>代码/配置变更</td><td>T0</td><td>P05</td><td class="mono">Text + Syntax</td></tr>
 <tr><td>Metric Bar / Ranking</td><td>指标</td><td>T1</td><td>P06</td><td class="mono">ProgressBar / 定制</td></tr>
-<tr><td>Sparkline</td><td>内嵌迷你趋势</td><td>T1</td><td>P06</td><td class="mono">Sparkline（内置）</td></tr>
+<tr><td>Sparkline</td><td>内嵌迷你趋势</td><td>T1</td><td>P06</td><td class="mono">定制 braille 组件</td></tr>
 <tr><td>Trace View</td><td>时序泳道</td><td>T3</td><td>P07</td><td class="mono">定制 Widget</td></tr>
-<tr><td>Knowledge Card</td><td>检索问答</td><td>T0</td><td>P08</td><td class="mono">Markdown</td></tr>
-<tr><td>Command Palette</td><td>命令入口</td><td>T4</td><td>P09</td><td class="mono">内置 CommandPalette</td></tr>
-<tr><td>Approval Bar</td><td>确认操作</td><td>T0</td><td>P10</td><td class="mono">Horizontal + Button</td></tr>
-<tr><td>Tool Card</td><td>工具调用</td><td>T0</td><td>P11</td><td class="mono">Collapsible</td></tr>
-<tr><td>Summary Card</td><td>会话总结</td><td>T0</td><td>P12</td><td class="mono">Container</td></tr>
-<tr><td>Selector Popup</td><td>模型/模式/索引选择</td><td>T4</td><td>P13–15</td><td class="mono">ModalScreen + OptionList</td></tr>
+<tr><td>Knowledge Card</td><td>检索问答</td><td>T0</td><td>P08</td><td class="mono">Markdown 组件</td></tr>
+<tr><td>Command Palette</td><td>命令入口</td><td>T4</td><td>P09</td><td class="mono">定制（需自建）</td></tr>
+<tr><td>Approval Bar</td><td>确认操作</td><td>T0</td><td>P10</td><td class="mono">Flex + Button</td></tr>
+<tr><td>Tool Card</td><td>工具调用</td><td>T0</td><td>P11</td><td class="mono">Collapsible 组件</td></tr>
+<tr><td>Summary Card</td><td>会话总结</td><td>T0</td><td>P12</td><td class="mono">Container 组件</td></tr>
+<tr><td>Selector Popup</td><td>模型/模式/索引选择</td><td>T4</td><td>P13–15</td><td class="mono">Modal + OptionList</td></tr>
 <tr><td>Side Block</td><td>侧链问答</td><td>T0</td><td>P16</td><td class="mono">定制 Widget</td></tr>
-<tr><td>Collapsible Op Row</td><td>工具操作折叠行</td><td>T0</td><td>P18</td><td class="mono">Collapsible（内置）</td></tr>
-<tr><td>Context Gauge</td><td>上下文/额度水位</td><td>T1</td><td>P20</td><td class="mono">ProgressBar</td></tr>
-<tr><td>Live Canvas</td><td>实时曲线</td><td>T2</td><td>P21</td><td class="mono">定制（braille 封装）</td></tr>
+<tr><td>Collapsible Op Row</td><td>工具操作折叠行</td><td>T0</td><td>P18</td><td class="mono">Collapsible 组件</td></tr>
+<tr><td>Context Gauge</td><td>上下文/额度水位</td><td>T1</td><td>P20</td><td class="mono">ProgressBar 组件</td></tr>
+<tr><td>Live Canvas</td><td>实时曲线</td><td>T2</td><td>P21</td><td class="mono">@opentui/core 缓冲绘制</td></tr>
 <tr><td>Heatmap Grid</td><td>NUMA / 风险 / 密度</td><td>T3</td><td>P26</td><td class="mono">定制 Widget</td></tr>
-<tr><td>Sortable Table</td><td>算子/进程/Issue 排行</td><td>T4</td><td>P24</td><td class="mono">DataTable（内置）</td></tr>
-<tr><td>Split Container</td><td>Workspace 布局</td><td>T4</td><td>P23</td><td class="mono">Horizontal + 定制拖拽</td></tr>
-<tr><td>Overlay</td><td>Palette / Approval</td><td>T4</td><td>P25</td><td class="mono">ModalScreen（内置）</td></tr>
+<tr><td>Sortable Table</td><td>算子/进程/Issue 排行</td><td>T4</td><td>P24</td><td class="mono">Table 组件</td></tr>
+<tr><td>Split Container</td><td>Workspace 布局</td><td>T4</td><td>P23</td><td class="mono">Flex + 定制拖拽</td></tr>
+<tr><td>Overlay</td><td>Palette / Approval</td><td>T4</td><td>P25</td><td class="mono">Modal 组件</td></tr>
 </table>
-<div class="note"><b>组件评审门槛（继承 PTO preview-gate 流程）：</b>每个组件实现时必须声明：所属渲染层（T0–T4）、降级路径、键盘等价操作、使用的 PTO token。<strong>禁止在业务模块里直接造新样式</strong>——需要新样式先做 preview 页确认没有可用组件，再加入 <code>pto.tcss</code>。</div>
+<div class="note"><b>组件评审门槛（继承 PTO preview-gate 流程）：</b>每个组件实现时必须声明：所属渲染层（T0–T4）、降级路径、键盘等价操作、使用的 PTO token。<strong>禁止在业务模块里直接造新样式</strong>——需要新样式先做 preview 页确认没有可用组件，再加入 <code>theme.ts</code>。</div>
 </section>
 
 <section id="primlib">
@@ -1664,7 +1664,7 @@ NPU           <span class="v4">█████████</span>
 <div class="pat"><div class="hd"><span class="no">P08</span><span class="nm">Knowledge Retrieval</span><span class="sc">知识库问答</span></div><div class="bd">
 <p class="rule">回答必带 citation 且可跳转；答案可一键落到当前代码上下文。作为其它 Agent 的内部工具时，Tool Card 要显式展示这次检索。</p></div></div>
 
-<div class="pat"><div class="hd"><span class="no">P09</span><span class="nm">Command Palette</span><span class="sc">Ctrl+P · Textual 内置</span></div><div class="bd">
+<div class="pat"><div class="hd"><span class="no">P09</span><span class="nm">Command Palette</span><span class="sc">Ctrl+P · 需自建</span></div><div class="bd">
 <pre><span class="pr">❯</span> mig▌
   /migrate         <span class="fw">迁移工程</span>
   /migrate-sql     SQL <span class="fw">迁移</span>
@@ -1771,7 +1771,7 @@ Sidebar<span class="fw">：</span><span class="ok">● <span class="fw">运行�
 <p class="rule">避免"一套布局适配所有场景"——诊断需要大日志区，调优需要大图表区。</p></div></div>
 
 <div class="pat"><div class="hd"><span class="no">P24</span><span class="nm">Sortable / Filterable Table</span><span class="sc">依赖：焦点 + 列头</span></div><div class="bd">
-<p class="rule">列头点击/快捷键排序（<code>▾</code> 标记）、行内筛选表达式、多选批量操作。用于算子排行、进程表、Issue 表、文件风险表。Textual <code>DataTable</code> 直接支持。</p></div></div>
+<p class="rule">列头点击/快捷键排序（<code>▾</code> 标记）、行内筛选表达式、多选批量操作。用于算子排行、进程表、Issue 表、文件风险表。基于 <code>@opentui/core</code> Table 原语实现。</p></div></div>
 
 <div class="pat"><div class="hd"><span class="no">P25</span><span class="nm">Non-destructive Overlay</span><span class="sc">依赖：浮层缓冲</span></div><div class="bd">
 <pre class="dense"><span class="cm">│ Agent Console  ▶ Generate Patch <span class="fw">⠹</span>    ← <span class="fw">底层继续运行（压暗）</span></span>
@@ -1978,7 +1978,7 @@ Sidebar<span class="fw">：</span><span class="ok">● <span class="fw">运行�
 <section id="impl">
 <div class="eyebrow">Implementation</div>
 <h2>实况 · 工作台外壳</h2>
-<p class="desc">下面每一屏都是 <code>python -m devkitai</code> <b>真实跑起来之后导出的</b>——走 Textual 合成器渲染的同一条路，颜色是运行时真正算出来的那一个，<b>不是重画的 mockup</b>。由 <code>app/tools/shell_html.py</code> 导成 <code>&lt;pre&gt;</code> 而不是 SVG 截图：<b>字符可以选中复制</b>、行距归页面的网格管、宽度由 <code>tools.fix_charart</code> 掰正，而且比 SVG 小五倍。手工截图一旦落地就和代码脱钩，改了组件不改图，图就开始撒谎。</p>
+<p class="desc">下面每一屏都是 <code>bun run devkitai</code> <b>真实跑起来之后导出的</b>——走 OpenTUI 渲染器渲染的同一条路，颜色是运行时真正算出来的那一个，<b>不是重画的 mockup</b>。由 <code>app/tools/shell_html.py</code> 导成 <code>&lt;pre&gt;</code> 而不是 SVG 截图：<b>字符可以选中复制</b>、行距归页面的网格管、宽度由 <code>tools.fix_charart</code> 掰正，而且比 SVG 小五倍。手工截图一旦落地就和代码脱钩，改了组件不改图，图就开始撒谎。</p>
 <pre class="dense tight" aria-label="工作台外壳实况">                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #04d793; background-color: #1c1c1c"> ✓ </span><span style="color: #3d98ff; background-color: #1c1c1c; font-weight: bold">1 migrate nginx </span><span style="color: #0077ff; background-color: #1c1c1c">▔▔</span> <span style="color: #3d98ff; background-color: #1c1c1c"> ▶ </span><span style="color: #777777; background-color: #1c1c1c">2 optimize qwen-72b </span> <span style="color: #777777; background-color: #1c1c1c"> ○ </span><span style="color: #777777; background-color: #1c1c1c">3 diagnose crash.log </span> <span style="color: #777777; background-color: #1c1c1c"> <span class="hw">⏸</span> </span><span style="color: #777777; background-color: #1c1c1c">4 migrate order-svc </span> <span style="color: #777777; background-color: #1c1c1c"> + </span>                                    
   <span style="color: #e8e8e8; background-color: #1c1c1c"> ▮ </span><span style="color: #ed1c24; background-color: #1c1c1c"> ▪ </span><span style="color: #777777; background-color: #1c1c1c">KUNPENG </span><span style="color: #1c1c1c; background-color: #e8e8e8"> DEVKIT</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">cpu · kunpeng-920</span><span style="color: #2a2a2a"> ────────────────────────────────────────────────────────┐</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">EVIDENCE</span><span style="color: #2a2a2a"> ──────────────────────────────────────┐</span> 
   <span style="color: #777777; background-color: #1c1c1c"> ▯ </span><span style="color: #777777"> T A S K S</span><span style="color: #7c8db8">  4</span>       <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #4d7209"><span class="fw">⠤⠒⠒⠒⠒⠢⠤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠤⠒⠒⠒⠒⠒⠤⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠔⠒⠒⠒⠒⠤⠤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span><span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4"> src/crypto.c:223</span>                               <span style="color: #2a2a2a">│</span> 
@@ -2075,20 +2075,20 @@ Sidebar<span class="fw">：</span><span class="ok">● <span class="fw">运行�
 <div class="im-run">
     <h3>在本地跑起来</h3>
 <pre><i># <span class="fw">它是终端应用，浏览器里跑不了</span>——<span class="fw">上面的图是它的真实输出</span></i>
-cd kunpeng-devkit-ai-tui/app &amp;&amp; pip install -e '.[dev]'
+cd kunpeng-devkit-ai-tui/app &amp;&amp; bun install
 
-<b>python -m devkitai</b>            <i># <span class="fw">工作台外壳</span></i>
-<b>python -m devkitai gallery</b>    <i># <span class="fw">图元画廊</span></i>
-<b>python -m devkitai preview</b>    <i># <span class="fw">组件预览页，按</span> t <span class="fw">现场切换渲染层</span></i>
-<b>pytest</b>                        <i># 159 <span class="fw">个测试</span></i>
+<b>bun run devkitai</b>              <i># <span class="fw">工作台外壳</span></i>
+<b>bun run devkitai gallery</b>      <i># <span class="fw">图元画廊</span></i>
+<b>bun run devkitai preview</b>      <i># <span class="fw">组件预览页，按</span> t <span class="fw">现场切换渲染层</span></i>
+<b>bun test</b>                      <i># <span class="fw">测试</span></i>
 
 <i># <span class="fw">强制降级，验证上面那张并排图不是摆拍</span></i>
-DEVKITAI_NO_BRAILLE=1 python -m devkitai   <i># T2 → T1</i>
-NO_COLOR=1            python -m devkitai   <i># T3 → T1 <span class="fw">灰阶</span></i>
-TERM=dumb             python -m devkitai   <i># <span class="fw">一路到</span> T0</i>
+DEVKITAI_NO_BRAILLE=1 bun run devkitai   <i># T2 → T1</i>
+NO_COLOR=1            bun run devkitai   <i># T3 → T1 <span class="fw">灰阶</span></i>
+TERM=dumb             bun run devkitai   <i># <span class="fw">一路到</span> T0</i>
 
 <i># <span class="fw">重新导出本页的图</span></i>
-python tools/screenshots.py</pre>
+bun run screenshots</pre>
   </div>
 </section>
 
@@ -2490,13 +2490,13 @@ Before <span class="er">██████████████████�
 <h2>Roadmap</h2>
 <table>
 <tr><th>阶段</th><th>内容</th><th>优先级</th></tr>
-<tr><td>Phase 0</td><td><strong>渲染底座 + token 落地</strong>：Textual Shell 骨架，把本规范 Foundation 节生成 <code>pto.tcss</code>；打通 T1–T3 三原语（Braille 曲线 / NUMA 热力 / DataTable）+ MCP 客户端连 :8000</td><td><span class="badge d">先做</span></td></tr>
+<tr><td>Phase 0</td><td><strong>渲染底座 + token 落地</strong>：React 19 + OpenTUI Shell 骨架，本规范 Foundation 节生成 <code>theme.ts</code>；打通 T1–T3 三原语（Braille 曲线 / NUMA 热力 / Table）+ MCP 客户端连 :8000</td><td><span class="badge d">先做</span></td></tr>
 <tr><td>Phase 1</td><td>四大 Demo：Migration（P0）· Optimize（P1）· Diagnose（P1）· Observe（P2）</td><td><span class="badge d">Now</span></td></tr>
 <tr><td>Phase 2</td><td>Agent Runtime UX：MCP 工具调用展示、多 Agent 协作、Context/Memory 管理（P19/P20）</td><td><span class="badge w">Next</span></td></tr>
-<tr><td>Phase 3</td><td>插件生态 + 研发映射（Pattern → Textual Widget → Backend API）+ textual-serve 在线演示</td><td><span class="badge">Later</span></td></tr>
+<tr><td>Phase 3</td><td>插件生态 + 研发映射（Pattern → OpenTUI Component → Backend API）</td><td><span class="badge">Later</span></td></tr>
 </table>
 <div class="note"><b>为什么 Phase 0 要先行：</b>本规范最有价值的几个 pattern（P21 Live Canvas、P26 AI Annotation、NUMA 热力）全部依赖渲染底座能力。如果先做业务 Demo 再补渲染，大概率退化成"带框线的 CLI"。建议两周先把 token 文件 + 三个原语跑通，再往上叠场景。</div>
-<pre>Kunpeng DevKit AI = <span class="pr">PTO Design System</span> + <span class="ac">Textual <span class="fw">渲染底座</span></span>
+<pre>Kunpeng DevKit AI = <span class="pr">PTO Design System</span> + <span class="ac">React 19 + OpenTUI <span class="fw">渲染底座</span></span>
               + <span class="wn">OpenCode Agent Loop</span> + <span class="er">DevKit Intelligence</span></pre>
 </section>
 
@@ -2505,7 +2505,7 @@ Kunpeng DevKit AI · Design System &amp; UX Spec v0.6 · Concept Design · 2026-
 设计系统：PTO Design System 4.1（529 tokens · Dark-first · Inter + JetBrains Mono）<br>
 能力基线：鲲鹏 DevKit AI 用户手册（产品概览 / 安装部署 / MCP / SQL 迁移 / 语法修复 / 知识库 / Cline 配置）<br>
 Pattern 来源：CodeArts CLI/TUI 交互研究库（/model · /codebase · /runmode · /btw · /lsp-toggle · HAI CLI）<br>
-渲染参照：btop · ratatui demo　　框架：Textual（主选）· OpenTUI（备选）· FTXUI
+渲染参照：btop · ratatui demo　　框架：React 19 + OpenTUI 0.5.1 + TypeScript 5.9 + Bun
 </footer>
 </main>
 </div>
