@@ -242,6 +242,11 @@ pre .t{color:#E8E8E8;font-weight:600}
 .card:hover{background:var(--state-hover);border-color:var(--border-strong)}
 .card h4{font-size:13px;font-weight:600;color:var(--foreground);margin-bottom:var(--space-2)}
 .card p{font-size:var(--fs-body-sm);color:var(--foreground-secondary);margin:var(--space-2) 0}
+.fig{position:relative;margin:var(--space-4) 0}
+.fig-t{position:absolute;top:-0.6em;left:var(--space-4);padding:0 var(--space-2);
+  background:var(--background);font-size:11px;color:var(--foreground-secondary);
+  line-height:1;z-index:1;white-space:nowrap}
+.fig pre.dense{margin:0}
 .stat{background:var(--surface-1);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:var(--space-4)}
 .stat b{display:block;font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
 .stat span{font-size:var(--fs-body-sm);color:var(--foreground-muted)}
@@ -1296,6 +1301,7 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 
 <div class="note"><b>为什么用 <code>&lt;pre&gt;</code> 而不是截图。</b>SVG 按「一个字符 = 一个单元格」推进 x 坐标，浏览器里 CJK 字形的实际步进由字体定，于是<strong>中文标注全叠在一起</strong>。改成 <code>&lt;pre&gt;</code> 由浏览器自己排字，代价是<b>标签列一律 ASCII、中文只许行尾</b>——这条在生成期由断言把着，违反直接报错。</div>
 <h3>比大小 <span class="badge p">T1</span> <span class="chipm">谁比谁大</span></h3>
+<div class="fig"><span class="fig-t">Metric Bar · Ranking · Grouped · Before/After</span>
 <pre class="dense chart"><span class="s2">Metric Bar    </span><span class="g8">███▋░░░░░░░░░░░░░░░░░░░░░░░░░░</span>   12.0%
 <span class="s2">Metric Bar    </span><span class="g6">████████▍░░░░░░░░░░░░░░░░░░░░░</span>   28.0%
 <span class="s2">Metric Bar    </span><span class="g4">████████████████▎░░░░░░░░░░░░░</span>   54.0%
@@ -1315,8 +1321,10 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
               <span class="cm">QPS      P99      CPU</span>
 
 <span class="s2">Before/After  </span><span class="o3">████████████</span><span class="cm">  →  </span><span class="o4">███████</span>   120ms → 70ms <span class="ok">(-42%)</span></pre>
+</div>
 <p class="rule"><b>降级链：</b><code>T1 块字符 → T0 数值</code>。bar 走<b>域色阶</b>（它是数据），阈值判断只上<b>数值文字</b>（它是结论）——一个 90% 的利用率本身不是错误。</p>
 <div class="sublabel">组件实例 · 可排序算子表 <span class="badge p">T4</span></div>
+<div class="fig"><span class="fig-t">KernelTable</span>
 <pre class="dense" aria-label="可排序算子表单例"><span style="color: #404040; background-color: #202020">┌─ </span><span style="color: #a4a4a4; background-color: #202020">kernels</span><span style="color: #404040; background-color: #202020"> ──────────────────────────────────────────────────────────┐</span>
 <span style="color: #404040; background-color: #202020">│</span><span style="color: #777777; background-color: #262626; font-weight: bold"> Kernel             </span><span style="color: #777777; background-color: #262626; font-weight: bold"> Calls    </span><span style="color: #777777; background-color: #262626; font-weight: bold"> Avg       </span> <span style="color: #e8e8e8; background-color: #262626; font-weight: bold">Total ▾</span>                   <span style="color: #404040; background-color: #202020">│</span>
 <span style="color: #404040; background-color: #202020">│</span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold"> attention_fwd      </span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold">    1024  </span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold">   18.2ms  </span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold"> ███████████ 18.6s  </span>       <span style="color: #404040; background-color: #202020">│</span>
@@ -1327,8 +1335,10 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 
 
                                                                       </pre>
+</div>
 <p class="rule">按 <code>Total</code> 降序排——列头的 <code>▾</code> 标当前排序列，方向由字形而不是颜色表达，16 色降级下依然成立。选中行背景用 <code>state-selected</code>，正是 PTO token 预合成的结果。行数与排序状态嵌在下边框。</p>
 <h3>看趋势 <span class="badge p">T2</span> <span class="chipm">怎么走的</span></h3>
+<div class="fig"><span class="fig-t">Line · Area</span>
 <pre class="dense tight"><span class="s2">Line  T2      </span><span class="g3"><span class="fw">⠀⢀⣀⣀⣀⠤⠔⠒⠤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀</span></span>
               <span class="g3"><span class="fw">⠔⠁⠀⠀⠀⠀⠀⠀⠀⠈⢆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⠁</span></span>
               <span class="g3"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⠤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠎⠀⠀</span></span>
@@ -1340,13 +1350,19 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
               <span class="v4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿</span></span>
               <span class="v4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣄⠀⠀⠀⠀⠀⣀⣤⣴⣾⣿⣿⣿⣿</span></span>
               <span class="v4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣠⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿</span></span></pre>
+</div>
+<div class="fig"><span class="fig-t">Sparkline</span>
 <pre class="dense chart"><span class="s2">Sparkline T1  </span><span class="g3">▃▂▂▂▁▁     ▁▁▁▂▂▂▂▂▂▃▃▃▄▄▅▅▆▆▇</span><span class="cm">  ← T2 <span class="fw">掉下来就是它</span></span></pre>
+</div>
+<div class="fig"><span class="fig-t">Mirrored</span>
 <pre class="dense tight"><span class="s2">Mirrored up   </span><span class="a4"><span class="fw">⣀⣤⣶⣾⣿⣿⣿⣿⣶⣦⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣶⣾⣿⣿⣿⣿</span></span><span class="cm">  ↑ 1.30 KiB/s</span>
               <span class="a4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣤⣤⣤⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿</span></span>
 <span class="s2">      down    </span><span class="a6"><span class="fw">⣿⣿⣿⣿⣿⠿⠟⠛⠛⠛⠛⠛⠻⠿⢿⣿⣿⣿⣿⣿⡿⠿⠛⠛⠛⠛⠛⠛⠻⠿</span></span><span class="cm">  ↓ 346 B/s</span>
               <span class="a6"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span></pre>
+</div>
 <p class="rule"><b>降级链：</b><code>T2 Braille → T1 Sparkline → T0 当前值 + 峰值</code>。多系列<b>共用量程</b>，否则并置就没有意义：分别归一化会让每条都填满画布，而并置的全部意义就是比较。</p>
 <div class="sublabel">组件实例 · Braille 历史曲线 <span class="badge p">T2</span></div>
+<div class="fig"><span class="fig-t">BrailleChart</span>
 <pre class="dense tight" aria-label="Braille 历史曲线单例"><span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">cpu · kunpeng-920</span><span style="color: #2a2a2a"> ────────────────────────────────────────┐</span>
 <span style="color: #2a2a2a">│</span><span style="color: #caf57a"><span class="fw">⠀⠀⢀⡠⠤⠒⠒⠒⠒⠢⠤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠤⠒⠒⠒⠒⠒⠤⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀</span></span><span style="color: #2a2a2a">│</span>
 <span style="color: #2a2a2a">│</span><span style="color: #caf57a"><span class="fw">⠔⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠔⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠒⠉⠀</span></span><span style="color: #2a2a2a">│</span>
@@ -1355,8 +1371,10 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 
 
                                                               </pre>
+</div>
 <p class="rule">着色按域取 <code>DOMAIN_RAMPS[cpu]</code>（ub-green），当前值决定档位、整条线一个亮度——逐点上色会让一条线出现五种亮度，读起来是噪声。标题嵌在上边框、当前值/峰值/降级层嵌在下边框，见 <a href="#primlib">Canvas 层的框</a>。</p>
 <h3>找位置 <span class="badge p">T2</span> <span class="chipm">在哪儿 / 谁在等谁</span></h3>
+<div class="fig"><span class="fig-t">Scatter</span>
 <pre class="dense tight"><span class="s2">Scatter       </span><span class="v4"><span class="fw">⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀</span></span><span class="cm">  Roofline</span>
               <span class="v4"><span class="fw">⠀⠀⢀⠃⠱⠀⠀⠀⠀⠀⡌⠘⠄⠀⠀⠀</span></span>
               <span class="v4"><span class="fw">⠀⠀⠔⠀⠀⠅⠀⠀⠀⢐⠀⠀⢑⠀⠀⠀</span></span>
@@ -1365,6 +1383,8 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
               <span class="v4"><span class="fw">⠔⠁⠀⠀⠀⠀⠐⠦⠃⠀⠀⠀⠀⠀⠣⠃</span></span>
               <span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
               <span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span></pre>
+</div>
+<div class="fig"><span class="fig-t">Flame · Timeline</span>
 <pre class="dense chart"><span class="s2">Flame         </span><span class="g3">██████████████████████████████</span><span class="cm">  main</span>
               <span class="v4">███████████████████</span><span class="v6">███████████</span> <span class="cm">  ngx_http_process</span>
               <span class="o6">█████████</span>         <span class="o8">███████</span>     <span class="cm">  crypto_aes</span>
@@ -1377,43 +1397,57 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <span class="s2">Timeline HBM  </span>   <span class="o4">███████████████████████████</span>
 <span class="s2">Timeline PCIe </span> <span class="a4">███████</span>           <span class="a4">████████</span>
 <span class="s2">Timeline DMA  </span>     <span class="a4">█████████</span></pre>
+</div>
 <p class="rule"><b>降级链：</b><code>T2 Braille / T1 块字符</code>。火焰图里过窄的帧<b>宁可不画，也不虚胖</b>，并把丢掉的条数显式标出来——悄悄丢掉会让「我看全了」变成错觉。</p>
 <div class="sublabel">组件实例 · Trace 密度带 <span class="badge p">T3</span> <span class="badge s">分类 + 强度</span></div>
+<div class="fig"><span class="fig-t">TraceDensity</span>
 <pre class="dense chart">        0ms                                            120ms
 CPU     <span class="g4">████</span><span class="g6">▓▓▓▓</span><span class="g8">░░░░</span><span class="g6">▓▓▓</span><span class="g8">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
 NPU     <span class="v8">░░░░░░░</span><span class="v3">███████</span><span class="v4">████████</span><span class="v6">▓▓▓▓▓▓▓</span><span class="v3">██████████</span><span class="v8">░░░░</span>
 HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><span class="o3">████</span><span class="o5">▓▓</span><span class="o3">████████</span><span class="o5">▓▓▓▓▓▓</span><span class="o3">██████</span><span class="o6">▓▓</span><span class="o8">░░░</span>
                     <span class="pr">└─ selected: attention 18.2ms · mem-bound ⚠</span></pre>
+</div>
 <p class="rule"><strong>泳道身份用色阶（CPU=copy-blue · NPU=l0a-violet · HBM=accum-orange），忙闲用同色阶内的档位。</strong>一眼同时读出"哪条线"和"多忙"，色盲用户仍可通过明度差辨识强度。</p>
 <h3>看余量 <span class="badge p">T1</span> <span class="chipm">还剩多少</span></h3>
+<div class="fig"><span class="fig-t">Water</span>
 <pre class="dense tight"><span class="s2">Water         </span><span class="o4">░░░                           </span><span class="cm">  38.2 / 64 GiB</span>
               <span class="o4">▁▁▁                           </span>
               <span class="o4">███                           </span>
               <span class="o4">███                           </span>
               <span class="o4">███                           </span></pre>
+</div>
+<div class="fig"><span class="fig-t">Progress · Segmented</span>
 <pre class="dense chart"><span class="s2">Progress      </span><span class="g4">████████████████████▍░░░░░░░░░</span><span class="cm">  68%</span>
 <span class="s2">Progress ?    </span><span class="g6">░░░██░░░░░░░░░░░░░░░░░░░░░░░░░</span><span class="cm">  <span class="fw">⠸</span> <span class="fw">采集中</span> · <span class="fw">不画假进度条</span></span>
 
 <span class="s2">Segmented     </span><span class="o6">██████████</span><span class="o4">██████</span><span class="o3">██████████████</span><span class="cm">  used 22G  cached 12G  kv 4G  free 26G</span></pre>
+</div>
 <p class="rule"><b>降级链：</b><code>T1 块字符 → T0 百分比</code>。水位是「还剩多少」，bar 是「占了多少」——不是同一个问题，所以一个竖一个横。给不出进度就<b>不画进度条</b>。</p>
 <h3>读单值 <span class="badge p">T1</span> <span class="chipm">现在多少</span></h3>
+<div class="fig"><span class="fig-t">Bignum</span>
 <pre class="dense tight"><span class="s2">Bignum        </span>███   █     ███               
               █     █       █               
               ███   █     ███               <span class="cm">  k QPS</span>
               █ █   █     █                 
               ███   █ █   ███               </pre>
+</div>
+<div class="fig"><span class="fig-t">Stat</span>
 <pre class="dense chart"><span class="s2">Stat          </span>  61.2k   <span class="ok">   +45% </span><span class="g4">   ▁▁▁▂▃▄▅▆▇▇█</span><span class="cm">  QPS</span>
                   12ms  <span class="ok">   -33% </span><span class="g4">   ▁▁▁▂▃▄▅▆▇▇█</span><span class="cm">  P99</span>
                 38.2GiB         <span class="o4">████████▍░░░░░</span><span class="cm">  Memory</span></pre>
+</div>
 <p class="rule"><b>降级链：</b><code>T1 块字符 → T0 常规数字</code>。像素字<b>仅用于数字</b>，正文永不像素化。数图上 delta 是唯一该出现语义色的地方。</p>
 <h3>看分布 <span class="badge p">T3</span> <span class="chipm">热点在哪</span></h3>
+<div class="fig"><span class="fig-t">Heatmap</span>
 <pre class="dense chart"><span class="s2">0-15          </span><span class="g4">████</span><span class="g3">███████████</span><span class="g4">█</span>
 <span class="s2">16-31         </span><span class="g4">██</span><span class="g6">███</span><span class="g8">███████████</span>
 <span class="s2">32-47         </span><span class="g6">███</span><span class="g4">███</span><span class="g3">██████████</span>
 <span class="s2">48-63         </span><span class="g3">█</span><span class="g4">███</span><span class="g6">████</span><span class="g8">████████</span>
 <span class="s2">T1 fallback   ▓▓▓▓▓████████▓▓▓</span><span class="cm">  <span class="fw">颜色没了，强度由字形接住</span></span></pre>
+</div>
 <p class="rule"><b>降级链：</b><code>T3 真彩 → T1 灰阶 + ░▒▓█</code>。<b>颜色承载数值，位置承载拓扑</b>。掉到 T1 时颜色没了，强度由字形 <code>░▒▓█</code> 接住。</p>
 <div class="sublabel">组件实例 · 多核热力网格 <span class="badge p">T3</span> <span class="badge d">鲲鹏特化</span></div>
+<div class="fig"><span class="fig-t">CoreHeatmap</span>
 <pre class="dense chart" aria-label="多核热力网格单例"><span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">64-core heatmap</span><span style="color: #2a2a2a"> ────────────────────────────────┐</span>
 <span style="color: #2a2a2a">│</span><span style="color: #737373">  0-15  </span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #b3f141">█</span><span style="color: #737373">   NUMA0 </span><span style="color: #caf57a">██████░░</span><span style="color: #a2a2a2">   80%</span>   <span style="color: #2a2a2a">│</span>
 <span style="color: #2a2a2a">│</span><span style="color: #737373"> 16-31  </span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #737373">   NUMA1 </span><span style="color: #4d7209">██░░░░░░</span><span style="color: #a2a2a2">   22%</span>   <span style="color: #2a2a2a">│</span>
@@ -1424,6 +1458,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 <span style="color: #2a2a2a">│</span>                                                  <span style="color: #2a2a2a">│</span>
 <span style="color: #2a2a2a">└─────────────────────── </span><span style="color: #a2a2a2"><span class="fw">低</span> ▏▍▋█ <span class="fw">高</span> · T3 <span class="fw">真彩热力</span></span><span style="color: #2a2a2a"> ─┘</span>
                                                     </pre>
+</div>
 <p class="rule"><strong>AI 的结论单独占一行叠在数据下方</strong>——数据与判断分属两层，标注可整层开关（<code>l</code>）。鲲鹏 920 多核 + NUMA 亲和性可视化：CLI 完全做不到、而对鲲鹏调优最关键的一张图。</p>
 </section>
 
@@ -1472,6 +1507,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 
 <p class="rule"><b>几个数字的来历</b>，因为<strong>没有理由的尺寸下次就会被人随手改掉</strong>：Metric Bar 的 10 / 20 两档是 §3.1 写死的——10 格 × 八分块 = 80 档，刚好够把 82% 和 85% 分开；排行的 4 行是「3 个名次才叫排行」+ 1 行 <code>… N more</code>，那行是 §3.0 规则③的硬性要求不能省；火焰图的 30 列是<b>丢帧阈值</b>——30 列丢掉窄于 3.3% 的帧，60 列只丢 1.7%，所以它的宽度<b>不封顶</b>，泳道同理（宽度即时间分辨率）；热力网格的 16×4 是鲲鹏 920 六十四核的自然分块，每行 16 核 = 一个 NUMA node，所以它的行列由<b>拓扑</b>定、不吃满宽度。</p>
 <p class="rule"><b>三条硬约束，越界即失真，不是「难看一点」：</b>散点比例锁死 <code>2.0</code>（16 列 × 8 行 = 32×32 点阵，视觉正方）——它<b>两根轴都是数据轴</b>，拉扁就是把斜率画错，而 Roofline 上斜率就是结论 · 水位比例上界 <code>0.8 &lt; 1</code>，必须比它宽的时候更高，扁了就读成横向 bar，而水位答「还剩多少」、bar 答「占了多少」 · 双向面积行数<b>必为偶数</b>，奇数行劈不开上下两半，而「上下一样高 = 收发一样多」正是它唯一的读法。</p>
+<div class="fig"><span class="fig-t">Scatter · aspect 2.0</span>
 <pre class="dense tight" aria-label="① 散点比例锁死 2.0"><span class="s2">16x8 ok       </span><span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>  32x8 too-wide  <span class="o4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span><span class="cm">  ← <span class="fw">同一份知识点，拉宽后斜率读起来更缓</span></span>
               <span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⡰⠒⠒⠒⠒⠒⠒⠒⠒⠂</span></span>                 <span class="o4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠔⠒⠂⠒⠒⠒⠒⠒⠒⠒⠒⠒⠒⠂⠒⠒⠒⠒⠂</span></span>
               <span class="v4"><span class="fw">⠀⠀⠀⠀⢀⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>                 <span class="o4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠊⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
@@ -1480,6 +1516,8 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
               <span class="v4"><span class="fw">⠀⡰⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>                 <span class="o4"><span class="fw">⠀⠀⡠⠒⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
               <span class="v4"><span class="fw">⠴⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>                 <span class="o4"><span class="fw">⠤⠊⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
               <span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>                 <span class="o4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span></pre>
+</div>
+<div class="fig"><span class="fig-t">Water · aspect &le; 0.8</span>
 <pre class="dense tight" aria-label="② 水位比例上界 0.8"><span class="s2">3x8 ok        </span><span class="o4">░░░</span><span class="cm">  38.2 / 64 GiB —— <span class="fw">竖着读「还剩多少」</span></span>
               <span class="o4">░░░</span>
               <span class="o4">░░░</span>
@@ -1490,6 +1528,8 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
               <span class="o4">███</span>
 
 <span class="s2">24x1 over     </span><span class="o4">██████████████▉░░░░░░░░░</span><span class="cm">  <span class="fw">同一个</span> 62%<span class="fw">，横着摊开就读成了「占了多少」</span>——<span class="fw">比例越界，问题都读错了</span></span></pre>
+</div>
+<div class="fig"><span class="fig-t">Mirrored · even rows</span>
 <pre class="dense tight" aria-label="③ 双向面积行数必为偶数"><span class="s2">4 rows ok     </span><span class="a4"><span class="fw">⣀⣤⣶⣾⣿⣿⣿⣿⣶⣦⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣶⣾⣿⣿⣿⣿</span></span><span class="cm">  ↑ 1.30 KiB/s</span>
               <span class="a4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣤⣤⣤⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿</span></span>
               <span class="a6"><span class="fw">⣿⣿⣿⣿⣿⠿⠟⠛⠛⠛⠛⠛⠻⠿⢿⣿⣿⣿⣿⣿⡿⠿⠛⠛⠛⠛⠛⠛⠻⠿</span></span><span class="cm">  ↓ 346 B/s —— <span class="fw">上下等高，一眼看出「发得比收得多」</span></span>
@@ -1499,6 +1539,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
               <span class="a4"><span class="fw">⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣄⡀⠀⠀⠀⠀⠀⠀⣀⣴⣾⣿⣿⣿⣿⣿⣿⣿</span></span>
               <span class="a4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣶⣶⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿</span></span>
               <span class="a6"><span class="fw">⠛⠛⠛⠛⠛⠛⠛⠉⠉⠉⠉⠉⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠉⠉⠉⠉⠙⠛⠛</span></span><span class="cm">  <span class="fw">上下不等高</span>——<span class="fw">「谁更高」变成了格子数的巧合，不再是数据本身</span></span></pre>
+</div>
 
 <div class="sublabel">收缩优先级 —— 按降级损失排，不按重要性排</div>
 <p class="rule">同屏并置、空间不够时谁先让？答案不是「谁不重要谁让」，而是<b>谁掉一层损失小谁先让</b>。这跟整屏降级里「Console 先让、Canvas 后让」是同一条原则——过程信息让位给结论。同一档内先让<b>推荐面积大</b>的：从大图上收回一样多的格子，代价更小。</p>
@@ -1529,6 +1570,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 
 <div class="note"><b>全链路最窄的 Canvas 出现在最宽的终端上。</b>160 列三分屏的第三栏只有 28 列，图元可用 <b>24 列</b>——比 40 列窄终端的单栏（36 列）<strong>还要窄 12 列</strong>。所以图元尺寸必须按<b>栏宽</b>卡，不能按终端宽度卡：「终端够宽」根本不代表「这张图放得下」。</div>
 
+<div class="fig"><span class="fig-t">Layout · 160col</span>
 <pre class="dense chart"><span class="fw">终端</span> 160 <span class="fw">列</span> · <span class="fw">三分屏</span>
  <span class="cm">Dock 26 │</span> <span class="pr">Canvas A 45</span> <span class="cm">│</span> <span class="pr">Canvas B 39</span> <span class="cm">│</span> <span class="wn">Canvas C 28</span> <span class="cm">│ Inspector 22</span>
                                             <span class="wn">└ <span class="fw">图元可用</span> 24 <span class="fw">列</span> ┘</span>
@@ -1541,6 +1583,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 20  <span class="b4">██████████</span>  <span class="wn">╎</span>   <span class="fw">折线</span> · <span class="fw">面积</span> · <span class="fw">双向面积</span>
 24  <span class="b4">████████████</span><span class="wn">╎</span>   <span class="fw">排行</span> · Before/After        <span class="cm">← <span class="fw">正好卡住</span></span>
 30  <span class="er">███████████████</span> <span class="fw">火焰图</span> · <span class="fw">泳道</span> Timeline      <span class="er">✗ <span class="fw">越线</span> 6 <span class="fw">列</span></span></pre>
+</div>
 
 <p class="rule">结论不是「把火焰图压进第三栏」——它俩恰恰是 <b>④ 最后让</b>那一档，最不该被压缩。结论是：<strong>三分屏时火焰图与泳道必须落在第一栏</strong>（45 列，图元可用 41 列，放得下）。第三栏本来就是「优先被牺牲」的那栏——再窄一档它就折叠成 Inspector 条了——所以它只承载 ①② 档图元。这条已写成断言，改坏了测试会红。</p>
 
