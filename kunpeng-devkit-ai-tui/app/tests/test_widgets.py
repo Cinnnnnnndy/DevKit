@@ -219,3 +219,26 @@ def test_sort_by_same_column_toggles_direction():
     first = table._reverse
     table.sort_by("name")
     assert table._reverse is not first
+
+
+# ── Console / Evidence —— 同一份 border_title 约定，不只三个原语 ───────────
+# 这两块原来把标题（"AGENT CONSOLE"/"EVIDENCE"）硬编码在 Static 的内容字符串
+# 第一行，和它们自己的正文同色同重——VISUAL.md §2 的 title-2 该有的区分完全
+# 没做。挪进 border_title 之后，Static.content（构造时给的原始字符串）里
+# 不该再看见这两个词。
+@pytest.mark.asyncio
+async def test_console_and_evidence_titles_live_in_the_border_not_the_content():
+    from devkitai.shell import DevKitShell
+
+    app = DevKitShell()
+    async with app.run_test(size=(160, 44)) as pilot:
+        await pilot.pause()
+        console = app.query_one("#console")
+        evidence = app.query_one("#evidence")
+
+        assert console.border_title and "AGENT CONSOLE" in console.border_title
+        assert console.border_subtitle and "Ctrl+J" in console.border_subtitle
+        assert "AGENT CONSOLE" not in console.content
+
+        assert evidence.border_title and "EVIDENCE" in evidence.border_title
+        assert "EVIDENCE" not in evidence.content

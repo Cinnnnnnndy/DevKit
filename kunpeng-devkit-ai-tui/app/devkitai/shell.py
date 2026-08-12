@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import math
 
+from rich.text import Text
 from textual import events
 from textual.app import App, ComposeResult
 from textual.geometry import Size
@@ -36,6 +37,7 @@ from textual.widgets import Static
 from .layout import DockMode, InspectorMode, Layout, resolve_layout
 from .theme import pto_theme, pto_variables
 from .tiers import detect
+from .tokens import SURFACE_1, foreground
 from .widgets import (
     Annotation,
     BrailleChart,
@@ -163,6 +165,16 @@ class DevKitShell(App):
 
         self.query_one("#kernels", KernelTable).set_rows(KERNELS)
 
+        # "AGENT CONSOLE"/"EVIDENCE" 原来是硬编码进内容字符串里的纯文本，和它们
+        # 下面的步骤行/证据行同一个颜色、同一个字重——title-2 该有的"嵌入面板
+        # 上边框"（VISUAL.md §2）完全没做，标题和正文长得一样。现在挪进
+        # border_title/subtitle，和 Canvas 层那三个组件用同一套约定
+        # （见 docs/COMPONENT.md「Canvas 层的框」）。
+        secondary_on_1 = foreground(SURFACE_1, "secondary")
+        self.query_one("#console").border_title = Text("AGENT CONSOLE", style=secondary_on_1)
+        self.query_one("#console").border_subtitle = Text("Ctrl+J", style=secondary_on_1)
+        self.query_one("#evidence").border_title = Text("EVIDENCE", style=secondary_on_1)
+
         status = self.query_one("#status", StatusBar)
         status.workspace, status.context_pct, status.blocked_tasks = "Migrate", 72, 1
 
@@ -218,9 +230,12 @@ class DevKitShell(App):
 
 
 def _evidence() -> str:
-    """Canvas B 始终承载"结论的依据"——这是 P03 Evidence 在框架层的常驻位置。"""
+    """Canvas B 始终承载"结论的依据"——这是 P03 Evidence 在框架层的常驻位置。
+
+    标题不在这份字符串里——"EVIDENCE" 走 border_title（见 on_mount），
+    不再和下面这几行证据文字同一个颜色、同一个字重挤在内容区第一行。
+    """
     return (
-        " EVIDENCE\n\n"
         " src/crypto.c:223\n"
         "  - _mm_pause();\n"
         "  + asm volatile(\"yield\");\n\n"
@@ -233,8 +248,8 @@ def _evidence() -> str:
 
 
 def _console() -> str:
+    """同上：标题（"AGENT CONSOLE" + 快捷键提示）挪进了 border_title/subtitle。"""
     return (
-        " AGENT CONSOLE                      [Ctrl+J]\n"
         " ● Scan project        1,204 files\n"
         " ● Search KB           3 hits\n"
         " ▶ Generate patch  ⠹   cpp_migrator\n"

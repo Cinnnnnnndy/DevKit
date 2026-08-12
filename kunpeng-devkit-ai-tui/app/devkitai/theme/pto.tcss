@@ -22,12 +22,6 @@ Screen {
     padding: 1 2;          /* SPACE[4] = (2 col, 1 row) */
 }
 
-#dock .section {
-    color: $pto-fg-muted;
-    text-style: bold;
-    margin-bottom: 1;
-}
-
 #dock ListItem {
     padding: 0 1;          /* SPACE[2] */
     color: $pto-fg-secondary;
@@ -130,7 +124,13 @@ DataTable > .datatable--hover { background: $pto-hover; }
     padding: 0 1;
 }
 
-#evidence { color: $pto-fg-secondary; padding: 1 0; }
+/* 边框 + border_title="EVIDENCE"（shell.py on_mount）——原来标题是内容字符串
+ * 里硬编码的第一行，和下面的证据文字同色同重，没有任何层级区分。 */
+#evidence {
+    color: $pto-fg-secondary;
+    padding: 0 1;
+    border: solid $pto-border-subtle;
+}
 
 /* 焦点不靠颜色靠边框强度——终端画不出外发光轮廓 */
 .canvas:focus-within { border: solid $pto-border-strong; }
