@@ -11,7 +11,7 @@
 
 一套把 **Kunpeng DevKit AI 做成原生 TUI 应用**的设计方案，包含产品定位、用户旅程、交互 Pattern 库、视觉系统、竞品分析和一个可点击的十幕演示。
 
-它不是一份 PPT，是一套**可以直接拿去实现的规范**：颜色给到预合成后的实色十六进制、组件给到 CSS 行为、渲染能力给到分层降级策略、Pattern 给到编号和适用条件。
+它不是一份 PPT，是一套**可以直接拿去实现的规范**：颜色给到预合成后的实色十六进制、组件给到 React + OpenTUI 的行为与状态契约、渲染能力给到分层降级策略、Pattern 给到编号和适用条件。
 
 **产品形态先钉死一条**——这是**原生 TUI 应用**，不是 CLI 命令集合，不是 IDE 里的终端面板，不是聊天窗口套壳：
 
@@ -83,14 +83,16 @@
                  │
    PTO Design System（529 tokens · Dark-first）   ← docs/VISUAL.md
                  │
-   Textual / TCSS（渲染底座）                       ← docs/TUI-CAPABILITY.md
+   React 19 + OpenTUI 0.5.1（组件与渲染底座）
+                 │
+   TypeScript 5.9 + Bun（开发与构建）
                  │
    DevKit Intelligence（MCP 工具）
    code_cpp_migrator · database_sql_migrator
    kunpeng_knowledge_base_search · profiler
 ```
 
-框架选型结论：**Python + Textual**。FTXUI 是 C++ 已排除；OpenTUI（Zig + TS）作为备选记录在 `docs/TUI-CAPABILITY.md`。
+框架选型结论：使用 **TypeScript 5.9、React 19、`@opentui/core` 0.5.1、`@opentui/react` 0.5.1 和 Bun**。
 
 ---
 
@@ -124,7 +126,8 @@
 
 当前是 **概念设计（Concept Design）** 阶段，尚未进入实现。文档中已明确标注的待验证项：
 
-- Textual 在 199×43 网格下的全屏重绘性能（尤其是 SSH 低带宽场景）
+- OpenTUI 0.5.1 在宽屏、窄屏及 SSH 低带宽场景下的局部重绘性能
+- 160×50 宽屏与 58×32 窄屏布局的可用性及降级策略
 - 终端图形协议（T5）在目标环境的实际可用比例
 - Braille 密度渲染在中文等宽字体下的对齐表现
 
