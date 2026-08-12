@@ -223,15 +223,17 @@ PRIMITIVES: Mapping[str, PrimitiveSize] = {
     # （扁到极致就是 Sparkline，本来就是它的降级形态）。
     "line": PrimitiveSize("3.4", "折线", 20, 3, 40, 6, (5.0, 24.0),
                           Shrink.LATE, "T1 Sparkline"),
-    # 面积从底边填起，比折线少一行也读得出——但更扁，所以比例带整体右移。
-    "area": PrimitiveSize("3.4", "面积", 20, 2, 40, 4, (8.0, 30.0),
+    # 面积从底边填起，比折线少一行也读得出，所以最小值比折线低一行。
+    # 比例带和折线**一样**：两者是同一套几何，只差填不填，没有理由要求面积更扁——
+    # 早先给它 (8, 30) 是拍脑袋，结果 30 列时最多只能画 3 行，图挤成一条。
+    "area": PrimitiveSize("3.4", "面积", 20, 2, 40, 5, (5.0, 24.0),
                           Shrink.EARLY, "T1 Sparkline"),
     # 8 列 = 8 个采样点。再少就不是趋势，是三个数。
     "sparkline": PrimitiveSize("3.4", "Sparkline", 8, 1, 20, 1, None,
                                Shrink.FIRST, "T0 当前值 + 峰值"),
     # 上下各 1 行是底线，且**上下行数必须相等**——不等的话"上下一样高"就不
     # 代表"收发一样多"，而这张图的全部意义就是对称比较（§3.5）。
-    "mirrored": PrimitiveSize("3.5", "双向面积", 20, 2, 40, 4, (8.0, 30.0),
+    "mirrored": PrimitiveSize("3.5", "双向面积", 20, 2, 40, 4, (5.0, 24.0),
                               Shrink.EARLY, "两行数值：↑ 1.30 KiB/s ↓ 346 B/s",
                               rows_step=2),
 

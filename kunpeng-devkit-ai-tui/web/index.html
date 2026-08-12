@@ -1231,13 +1231,17 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <p class="desc">规范写着每种图长什么样，但字符图好不好使只有渲染出来才知道。下面六块是<b>程序真跑出来的</b>——字符来自 <code>app/devkitai/render/</code>，颜色是 <code>ramp.sequential()</code> 运行时算出来的那一个，由 <code>app/tools/gallery_html.py</code> 导成标记，和 <code>python -m devkitai gallery</code> 同源，不是重画的 mockup。</p>
 <div class="note"><b>为什么不用截图。</b>这里原先嵌的是终端截图导出的矢量 SVG。SVG 按「一个字符 = 一个单元格」推进 x 坐标，而终端里一个汉字恰好占 2 格——浏览器不吃这套，CJK 字形的实际步进由字体定，于是<strong>中文标注全叠在了一起</strong>。改成 <code>&lt;pre&gt;</code> 由浏览器自己排字之后重叠消失，代价是<b>不能再拿 CJK 做列对齐</b>：标签列一律 ASCII，中文只许出现在行尾。这条在生成期由断言把着，违反直接报错——否则等页面上看出歪列时，已经不知道是哪一行的锅了。</div>
 <h3>比大小 <span class="badge p">T1</span> <span class="chipm">谁比谁大</span></h3>
-<pre class="dense chart"><span class="s2">Metric Bar    </span><span class="g6">████████▍░░░░░░░░░░░░░░░░░░░░░</span>   28.0%
+<pre class="dense chart"><span class="s2">Metric Bar    </span><span class="g8">███▋░░░░░░░░░░░░░░░░░░░░░░░░░░</span>   12.0%
+<span class="s2">Metric Bar    </span><span class="g6">████████▍░░░░░░░░░░░░░░░░░░░░░</span>   28.0%
+<span class="s2">Metric Bar    </span><span class="g4">████████████████▎░░░░░░░░░░░░░</span>   54.0%
 <span class="s2">Metric Bar    </span><span class="g4">█████████████████████▋░░░░░░░░</span><span class="wn">   72.0%</span><span class="cm">  ← <span class="fw">数值转语义色，</span>bar <span class="fw">不变</span></span>
 <span class="s2">Metric Bar    </span><span class="g3">███████████████████████████▎░░</span><span class="er">   91.0%</span><span class="cm">  ← <span class="fw">数值转语义色，</span>bar <span class="fw">不变</span></span>
 
 <span class="s2">Ranking       </span><span class="v3">██████████████████████████████</span>   18.6s<span class="cm">  attention_fwd</span>
               <span class="v6">██████████▏                   </span>    6.3s<span class="cm">  matmul_4096</span>
               <span class="v8">██████                        </span>    3.7s<span class="cm">  layernorm</span>
+              <span class="v8">███▍                          </span>    2.1s<span class="cm">  softmax</span>
+              <span class="v8">██▋                           </span>    1.6s<span class="cm">  gelu</span>
               <span class="cm">… 2 more</span>
 
 <span class="s2">Grouped       </span><span class="g4">███▉     </span><span class="v6">█▋       </span><span class="o3">█████▋   </span><span class="cm">  baseline</span>
@@ -1248,28 +1252,44 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <span class="s2">Before/After  </span><span class="o3">████████████</span><span class="cm">  →  </span><span class="o4">███████</span>   120ms → 70ms <span class="ok">(-42%)</span></pre>
 <p class="rule"><b>降级链：</b><code>T1 块字符 → T0 数值</code>。bar 走<b>域色阶</b>（它是数据），阈值判断只上<b>数值文字</b>（它是结论）——一个 90% 的利用率本身不是错误。</p>
 <h3>看趋势 <span class="badge p">T2</span> <span class="chipm">怎么走的</span></h3>
-<pre class="dense tight"><span class="s2">Line  T2      </span><span class="g3"><span class="fw">⣀⠤⠤⠤⠤⠒⠒⠒⠒⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠</span></span>
-              <span class="g3"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠒⠤⢄⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡠⠒⠁⠀</span></span>
-              <span class="g3"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⣀⠤⠔⠊⠉⠉⠀⠀⠀⠀⠀</span></span>
+<pre class="dense tight"><span class="s2">Line  T2      </span><span class="g3"><span class="fw">⠀⢀⣀⣀⣀⠤⠔⠒⠤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀</span></span>
+              <span class="g3"><span class="fw">⠔⠁⠀⠀⠀⠀⠀⠀⠀⠈⢆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⠁</span></span>
+              <span class="g3"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⠤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠎⠀⠀</span></span>
+              <span class="g3"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠒⢄⠀⠀⠀⠀⠀⣀⠤⠔⠊⠁⠀⠀⠀</span></span>
+              <span class="g3"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⠤⡠⠔⠊⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
 
-<span class="s2">Area  T2      </span><span class="v4"><span class="fw">⣤⣶⣶⣶⣶⣶⣶⣷⣶⣦⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣴</span></span>
-              <span class="v4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣤⣀⣀⣠⣤⣴⣶⣶⣶⣿⣿⣿⣿</span></span></pre>
+<span class="s2">Area  T2      </span><span class="v4"><span class="fw">⠀⢀⣀⣀⣀⣤⣴⣶⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀</span></span>
+              <span class="v4"><span class="fw">⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿</span></span>
+              <span class="v4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿</span></span>
+              <span class="v4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣄⠀⠀⠀⠀⠀⣀⣤⣴⣾⣿⣿⣿⣿</span></span>
+              <span class="v4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣠⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿</span></span></pre>
 <pre class="dense chart"><span class="s2">Sparkline T1  </span><span class="g3">▃▂▂▂▁▁     ▁▁▁▂▂▂▂▂▂▃▃▃▄▄▅▅▆▆▇</span><span class="cm">  ← T2 <span class="fw">掉下来就是它</span></span></pre>
-<pre class="dense tight"><span class="s2">Mirrored up   </span><span class="a4"><span class="fw">⣶⣶⣾⣿⣿⣿⣿⣿⣿⣶⣶⣶⣤⣤⣤⣄⣀⣀⣤⣤⣤⣴⣶⣶⣾⣿⣿⣿⣿⣿</span></span><span class="cm">  ↑ 1.30 KiB/s</span>
-<span class="s2">      down    </span><span class="a6"><span class="fw">⠛⠛⠛⠛⠛⠛⠛⠉⠉⠉⠉⠉⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠉⠉⠉⠉⠙⠛⠛</span></span><span class="cm">  ↓ 346 B/s</span></pre>
+<pre class="dense tight"><span class="s2">Mirrored up   </span><span class="a4"><span class="fw">⣀⣤⣶⣾⣿⣿⣿⣿⣶⣦⣄⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣶⣾⣿⣿⣿⣿</span></span><span class="cm">  ↑ 1.30 KiB/s</span>
+              <span class="a4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣦⣤⣤⣤⣤⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿</span></span>
+<span class="s2">      down    </span><span class="a6"><span class="fw">⣿⣿⣿⣿⣿⠿⠟⠛⠛⠛⠛⠛⠻⠿⢿⣿⣿⣿⣿⣿⡿⠿⠛⠛⠛⠛⠛⠛⠻⠿</span></span><span class="cm">  ↓ 346 B/s</span>
+              <span class="a6"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span></pre>
 <p class="rule"><b>降级链：</b><code>T2 Braille → T1 Sparkline → T0 当前值 + 峰值</code>。多系列<b>共用量程</b>，否则并置就没有意义：分别归一化会让每条都填满画布，而并置的全部意义就是比较。</p>
 <h3>找位置 <span class="badge p">T2</span> <span class="chipm">在哪儿 / 谁在等谁</span></h3>
-<pre class="dense tight"><span class="s2">Scatter       </span><span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⢀⠠⠄⠒⠐⠂⠢⠠⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡀⠄</span></span><span class="cm">  Roofline</span>
-              <span class="v4"><span class="fw">⠀⢀⡀⠤⠐⠁⠁⠀⠀⠀⠀⠀⠀⠀⠀⠉⠂⠤⢀⡀⠀⠀⡀⣀⠠⠂⠊⠀⠀⠀</span></span>
-              <span class="v4"><span class="fw">⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠈⠀⠀⠀⠀⠀⠀⠀⠀</span></span></pre>
+<pre class="dense tight"><span class="s2">Scatter       </span><span class="v4"><span class="fw">⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀</span></span><span class="cm">  Roofline</span>
+              <span class="v4"><span class="fw">⠀⠀⢀⠃⠱⠀⠀⠀⠀⠀⡌⠘⠄⠀⠀⠀</span></span>
+              <span class="v4"><span class="fw">⠀⠀⠔⠀⠀⠅⠀⠀⠀⢐⠀⠀⢑⠀⠀⠀</span></span>
+              <span class="v4"><span class="fw">⠀⢀⠂⠀⠀⠨⠀⠀⠀⡂⠀⠀⠀⡂⠀⠀</span></span>
+              <span class="v4"><span class="fw">⠀⠔⠀⠀⠀⠀⢅⠀⢐⠀⠀⠀⠀⢐⠀⠀</span></span>
+              <span class="v4"><span class="fw">⠔⠁⠀⠀⠀⠀⠐⠦⠃⠀⠀⠀⠀⠀⠣⠃</span></span>
+              <span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
+              <span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span></pre>
 <pre class="dense chart"><span class="s2">Flame         </span><span class="g3">██████████████████████████████</span><span class="cm">  main</span>
               <span class="v4">███████████████████</span><span class="v6">███████████</span> <span class="cm">  ngx_http_process</span>
               <span class="o6">█████████</span>         <span class="o8">███████</span>     <span class="cm">  crypto_aes</span>
+              <span class="a8">███████</span>           <span class="a8">████</span>        <span class="cm">  aes_encrypt</span>
+              <span class="g8">█████</span>                         <span class="cm">  neon_xor</span>
                                             <span class="wn">  1 <span class="fw">帧过窄未显示</span></span><span class="cm">  ← <span class="fw">必须显式说，否则「看全了」是错觉</span></span>
 
 <span class="s2">Timeline CPU  </span><span class="g4">█████████</span>        <span class="g4">█████</span>
 <span class="s2">Timeline NPU  </span>       <span class="v4">██████████████████</span>
-<span class="s2">Timeline HBM  </span>   <span class="o4">███████████████████████████</span></pre>
+<span class="s2">Timeline HBM  </span>   <span class="o4">███████████████████████████</span>
+<span class="s2">Timeline PCIe </span> <span class="a4">███████</span>           <span class="a4">████████</span>
+<span class="s2">Timeline DMA  </span>     <span class="a4">█████████</span></pre>
 <p class="rule"><b>降级链：</b><code>T2 Braille / T1 块字符</code>。火焰图里过窄的帧<b>宁可不画，也不虚胖</b>，并把丢掉的条数显式标出来——悄悄丢掉会让「我看全了」变成错觉。</p>
 <h3>看余量 <span class="badge p">T1</span> <span class="chipm">还剩多少</span></h3>
 <pre class="dense tight"><span class="s2">Water         </span><span class="o4">░░░                           </span><span class="cm">  38.2 / 64 GiB</span>
@@ -1337,9 +1357,9 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <tr><td>多列条形</td><td class="mono">3.3</td><td class="mono">17×3</td><td class="mono">26×4</td><td>— 行 = 系列数 + 1</td><td class="mono">②</td><td>拆成各自独立的 Metric Bar</td></tr>
 <tr><td>Before/After</td><td class="mono">3.1</td><td class="mono">24×1</td><td class="mono">32×1</td><td>— 恒 1 行</td><td class="mono">②</td><td><code>120ms → 70ms (−42%)</code> 纯文本</td></tr>
 <tr><td rowspan="4"><b>看趋势</b></td><td>折线</td><td class="mono">3.4</td><td class="mono">20×3</td><td class="mono">40×6</td><td class="mono">5 – 24</td><td class="mono">③</td><td>T1 Sparkline</td></tr>
-<tr><td>面积</td><td class="mono">3.4</td><td class="mono">20×2</td><td class="mono">40×4</td><td class="mono">8 – 30</td><td class="mono">②</td><td>T1 Sparkline</td></tr>
+<tr><td>面积</td><td class="mono">3.4</td><td class="mono">20×2</td><td class="mono">40×5</td><td class="mono">5 – 24</td><td class="mono">②</td><td>T1 Sparkline</td></tr>
 <tr><td>Sparkline</td><td class="mono">3.4</td><td class="mono">8×1</td><td class="mono">20×1</td><td>— 恒 1 行</td><td class="mono">①</td><td>T0 当前值 + 峰值</td></tr>
-<tr><td>双向面积</td><td class="mono">3.5</td><td class="mono">20×2</td><td class="mono">40×4</td><td class="mono">8 – 30，行数必为偶数</td><td class="mono">②</td><td>两行数值 <code>↑ 1.30 KiB/s ↓ 346 B/s</code></td></tr>
+<tr><td>双向面积</td><td class="mono">3.5</td><td class="mono">20×2</td><td class="mono">40×4</td><td class="mono">5 – 24，行数必为偶数</td><td class="mono">②</td><td>两行数值 <code>↑ 1.30 KiB/s ↓ 346 B/s</code></td></tr>
 <tr><td rowspan="3"><b>找位置</b></td><td>散点</td><td class="mono">3.6</td><td class="mono">16×8</td><td class="mono">24×12</td><td class="mono">恒 2.0</td><td class="mono">③</td><td><b>不画</b>——退成 compute/memory-bound 判定文字</td></tr>
 <tr><td>火焰图</td><td class="mono">3.7</td><td class="mono">30×3</td><td class="mono">60×8 起</td><td>— 行 = 栈深</td><td class="mono">④</td><td>Top-N 自耗时表</td></tr>
 <tr><td>泳道 Timeline</td><td class="mono">3.8</td><td class="mono">30×3</td><td class="mono">56×6 起</td><td>— 行 = 泳道数</td><td class="mono">④</td><td>每条泳道一行占用百分比</td></tr>

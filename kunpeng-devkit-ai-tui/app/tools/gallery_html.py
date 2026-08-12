@@ -30,6 +30,14 @@ from devkitai.render.ramp import sequential
 from devkitai.tokens import SEMANTIC
 
 W = 30           # 图元统一宽度，便于横向对照
+#: 多行图元统一的高度。低于这个数看不出形状——三行的 braille 曲线只有 12 个
+#: 点阵行，波形被压成一条毛边。画廊是拿来"看效果"的，不是省地方的。
+ROWS = 5
+#: 散点例外：它**两根轴都是数据轴**，拉扁就是把斜率画错，所以列必须等于
+#: 2 × 行（见 layout.PRIMITIVES["scatter"] 的比例锁）。于是它比别的图窄一半、
+#: 高一倍——这个差别本身就是规格的展示。
+SQ_H = 8
+SQ_W = SQ_H * 2
 LABEL = 14       # 标签列（ASCII，用于列对齐）
 
 #: 色值 → 页面 CSS 里已有的 span class。两边本来就是同一套 PTO 色阶，
@@ -182,7 +190,7 @@ def _sample() -> list[float]:
 def compare() -> list[Row]:
     """比大小：条形 · 排行 · 多列 · Before/After。"""
     rows = []
-    for value in (28.0, 72.0, 91.0):
+    for value in (12.0, 28.0, 54.0, 72.0, 91.0):
         level = bars.threshold_level(value)
         r = Row().label("Metric Bar")
         r.add(bars.bar(value, 0, 100, W), sequential(value, 0, 100, "cpu"))
@@ -195,9 +203,10 @@ def compare() -> list[Row]:
     ranked = [
         bars.RankRow("attention_fwd", 18.6, ""), bars.RankRow("matmul_4096", 6.3, ""),
         bars.RankRow("layernorm", 3.7, ""), bars.RankRow("softmax", 2.1, ""),
-        bars.RankRow("gelu", 1.6, ""),
+        bars.RankRow("gelu", 1.6, ""), bars.RankRow("rmsnorm", 1.1, ""),
+        bars.RankRow("rope", 0.7, ""),
     ]
-    shown, more = bars.ranking(ranked, W, top=3)
+    shown, more = bars.ranking(ranked, W, top=5)
     for i, (row, drawn) in enumerate(shown):
         r = Row().label("Ranking" if i == 0 else "")
         r.add(drawn.ljust(W), sequential(row.value, 0, shown[0][0].value, "npu"))
@@ -233,13 +242,13 @@ def compare() -> list[Row]:
 def trend() -> list[Row]:
     """看趋势：折线 · 面积 · Sparkline · 双向。"""
     rows, data = [], _sample()
-    curve = braille.plot_series(data, W, 3, lo=0, hi=100)
+    curve = braille.plot_series(data, W, ROWS, lo=0, hi=100)
     for i, line in enumerate(curve.rows_text()):
         rows.append(Row(TIGHT).label("Line  T2" if i == 0 else "")
                     .add(line, sequential(data[-1], 0, 100, "cpu")))
 
     rows.append(Row(None))
-    area = braille.plot_series(data, W, 2, lo=0, hi=100, area=True)
+    area = braille.plot_series(data, W, ROWS, lo=0, hi=100, area=True)
     for i, line in enumerate(area.rows_text()):
         rows.append(Row(TIGHT).label("Area  T2" if i == 0 else "")
                     .add(line, sequential(60, 0, 100, "npu")))
@@ -253,21 +262,30 @@ def trend() -> list[Row]:
     rows.append(Row(None))
     up = [40 + 30 * math.sin(i / 7) for i in range(60)]
     down = [20 + 15 * math.sin(i / 5 + 1) for i in range(60)]
-    top, bottom = braille.mirrored(up, down, W, 1)
+    top, bottom = braille.mirrored(up, down, W, ROWS // 2)
     # 箭头 ↑↓ 是 East-Asian Ambiguous 宽度，在 CJK 字体下会渲染成双宽——
     # 放进标签列会把整列顶歪。标签列只留 ASCII，方向标记挪到行尾。
-    rows.append(Row(TIGHT).label("Mirrored up").add(top.rows_text()[0],
-                sequential(70, 0, 100, "io")).tail("↑ 1.30 KiB/s"))
-    rows.append(Row(TIGHT).label("      down").add(bottom.rows_text()[0],
-                sequential(30, 0, 100, "io")).tail("↓ 346 B/s"))
+    # 上下两半各自都是多行的，得整幅吐出来——只取第 0 行的话 rows_each 加了也白加
+    for i, line in enumerate(top.rows_text()):
+        r = Row(TIGHT).label("Mirrored up" if i == 0 else "")
+        r.add(line, sequential(70, 0, 100, "io"))
+        if i == 0:
+            r.tail("↑ 1.30 KiB/s")
+        rows.append(r)
+    for i, line in enumerate(bottom.rows_text()):
+        r = Row(TIGHT).label("      down" if i == 0 else "")
+        r.add(line, sequential(30, 0, 100, "io"))
+        if i == 0:
+            r.tail("↓ 346 B/s")
+        rows.append(r)
     return rows
 
 
 def locate() -> list[Row]:
     """找位置：散点 · 火焰图 · 泳道。"""
     rows = []
-    points = [(i / 40, 0.3 + 0.6 * math.sin(i / 9) ** 2) for i in range(40)]
-    sc = plots.scatter(points, W, 3, x=plots.Axis(0, 1), y=plots.Axis(0, 1))
+    points = [(i / 60, 0.3 + 0.6 * math.sin(i / 9) ** 2) for i in range(60)]
+    sc = plots.scatter(points, SQ_W, SQ_H, x=plots.Axis(0, 1), y=plots.Axis(0, 1))
     for i, line in enumerate(sc.rows_text()):
         r = Row(TIGHT).label("Scatter" if i == 0 else "").add(line, sequential(50, 0, 100, "npu"))
         if i == 0:
@@ -278,7 +296,9 @@ def locate() -> list[Row]:
     frames = [
         plots.Frame("main", 100, 0, 0), plots.Frame("ngx_http_process", 62, 1, 0),
         plots.Frame("ssl_handshake", 38, 1, 62), plots.Frame("crypto_aes", 30, 2, 0),
-        plots.Frame("memcpy", 22, 2, 62), plots.Frame("tiny_leaf", 0.3, 3, 0),
+        plots.Frame("memcpy", 22, 2, 62), plots.Frame("aes_encrypt", 24, 3, 0),
+        plots.Frame("memmove", 14, 3, 62), plots.Frame("neon_xor", 18, 4, 0),
+        plots.Frame("tiny_leaf", 0.3, 4, 62),
     ]
     domains = ("cpu", "npu", "memory", "io")
     for depth, row in enumerate(plots.flame(frames, W)):
@@ -300,11 +320,14 @@ def locate() -> list[Row]:
 
     rows.append(Row(None))
     spans = [plots.Span("CPU", 0, 30), plots.Span("CPU", 55, 70),
-             plots.Span("NPU", 25, 80), plots.Span("HBM", 10, 95)]
+             plots.Span("NPU", 25, 80), plots.Span("HBM", 10, 95),
+             plots.Span("PCIe", 5, 28), plots.Span("PCIe", 62, 88),
+             plots.Span("DMA", 18, 45)]
     for lane, cells in plots.timeline(spans, W):
         r = Row().label(f"Timeline {lane}")
         cursor = 0
-        domain = {"CPU": "cpu", "NPU": "npu", "HBM": "memory"}[lane]
+        domain = {"CPU": "cpu", "NPU": "npu", "HBM": "memory",
+                  "PCIe": "io", "DMA": "io"}[lane]
         for _, start, cells_w in cells:
             r.add(" " * max(0, start - cursor))
             r.add("█" * cells_w, sequential(70, 0, 100, domain))
