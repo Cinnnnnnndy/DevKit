@@ -421,6 +421,7 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
 <nav id="nav">
   <div class="ngrp">Overview · 总览</div>
   <a href="#intro">Introduction</a>
+  <a href="#cgt">CLI / GUI / TUI</a>
   <a href="#form">形态：原生 TUI</a>
   <a href="#ia">信息架构</a>
   <a href="#base">现有能力基线</a>
@@ -440,7 +441,6 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <div class="ngrp">Components · 组件与图元</div>
   <a href="#comp">组件清单</a>
   <a href="#primlib">★ 图元库 · 十四种</a>
-  <a href="#prim">原语画法示例</a>
   <a href="#primsize">图元尺寸与排布</a>
   <div class="ngrp">Patterns · 交互 Pattern</div>
   <a href="#p1">P01–P12 核心</a>
@@ -490,6 +490,71 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
 </div>
 <pre>  <span class="pr">AI Agent</span>  +  <span class="ac">DevKit Tool Runtime</span>  +  <span class="wn">Engineering Visualization</span>
      <span class="fw">大脑</span>              <span class="fw">手</span>                     <span class="fw">眼</span></pre>
+</section>
+
+<section id="cgt">
+<div class="eyebrow">Overview · 三种人机界面</div>
+<h2>CLI / GUI / TUI —— 定义与边界</h2>
+<p class="desc">三个缩写经常被混用，但它们代表三种<strong>根本不同的交互模型</strong>。理解差异是理解"为什么选 TUI"的前提。<br><small>参考：<a href="https://www.ssvex.com/posts/what-is-cli-gui-tui" target="_blank">What is CLI, GUI, TUI?</a></small></p>
+
+<table>
+<tr><th></th><th>CLI · Command Line Interface</th><th>GUI · Graphical User Interface</th><th>TUI · Text-based User Interface</th></tr>
+<tr><td><b>定义</b></td>
+  <td>用户在提示符后键入命令，程序输出文本结果后退出（或等待下一条命令）</td>
+  <td>在窗口系统中用像素渲染图形控件，鼠标驱动为主</td>
+  <td>在终端模拟器的<strong>全屏字符网格</strong>中绘制界面，拥有布局、焦点、事件循环</td></tr>
+<tr><td><b>渲染介质</b></td>
+  <td>顺序文本流——只能向下追加</td>
+  <td>像素画布——任意坐标、任意分辨率</td>
+  <td>字符单元格画布——行×列寻址，亚字符精度（braille 8×）</td></tr>
+<tr><td><b>运行环境</b></td>
+  <td>Shell / 管道 / CI</td>
+  <td>窗口管理器（X11 / Wayland / macOS / Windows）</td>
+  <td>终端模拟器（本地或 SSH 远程）</td></tr>
+<tr><td><b>输入模型</b></td>
+  <td>命令 + 参数 + 管道</td>
+  <td>鼠标优先，键盘辅助</td>
+  <td><strong>键盘优先，鼠标可选</strong></td></tr>
+<tr><td><b>状态</b></td>
+  <td>无状态——执行完即退出</td>
+  <td>有状态——窗口常驻</td>
+  <td>有状态——进程常驻，全屏接管</td></tr>
+<tr><td><b>布局能力</b></td>
+  <td>无——输出是线性日志</td>
+  <td>自由像素布局</td>
+  <td>面板分栏、浮层、弹窗、独立滚动区</td></tr>
+<tr><td><b>代表产品</b></td>
+  <td class="mono">grep · git · curl · gcc</td>
+  <td class="mono">VS Code · Chrome · Figma</td>
+  <td class="mono">vim · htop · lazygit · k9s</td></tr>
+</table>
+
+<pre>
+  <span class="cm"><span class="fw">能力递增</span>  ──────────────────────────────────────────────▸</span>
+
+  <span class="s1">┌─ CLI ──────┐</span>  <span class="s2">┌─ TUI ──────────────────┐</span>  <span class="pr">┌─ GUI ──────────────────┐</span>
+  <span class="s1">│ echo hello │</span>  <span class="s2">│  <span class="fw">┌全屏┐</span> <span class="fw">┌面板┐</span> <span class="fw">┌实时┐</span>  │</span>  <span class="pr">│  <span class="fw">窗口 · 像素 · 动画</span>    │</span>
+  <span class="s1">│ $?=0, exit │</span>  <span class="s2">│  │    │ │    │ <span class="fw">│曲线│</span>  │</span>  <span class="pr">│  <span class="fw">无限画布 · 矢量渲染</span>   │</span>
+  <span class="s1">│ <span class="fw">无布局</span>     │</span>  <span class="s2">│  └────┘ └────┘ └────┘  │</span>  <span class="pr">│  <span class="fw">依赖显示服务器</span>        │</span>
+  <span class="s1">└────────────┘</span>  <span class="s2">└────────────────────────┘</span>  <span class="pr">└────────────────────────┘</span>
+  <span class="cm"><span class="fw">一次性进程</span>        <span class="fw">常驻 · 终端内 · 可远程</span>     <span class="fw">常驻 · 需窗口系统</span></span></pre>
+
+<div class="sublabel">TUI 的关键特征</div>
+<div class="grid g2">
+<div class="card"><h4>TUI 能做、CLI 做不到的</h4>
+<p><strong>全屏布局</strong>——多面板并排、独立滚动、焦点切换，不只是向下追加文本</p>
+<p><strong>实时刷新</strong>——局部重绘，500ms 级更新周期，数据变了画面就变</p>
+<p><strong>交互状态</strong>——选中、展开、排序、筛选、模态对话框——CLI 只能用管道 <code>| less</code> 凑</p>
+<p><strong>色彩与密度</strong>——24-bit 真彩、braille 8× 亚字符精度、块字符渐变</p></div>
+<div class="card"><h4>TUI 能做、GUI 做不到的</h4>
+<p><strong>SSH 直达</strong>——不需要 X11 转发、VNC、远程桌面，一条 SSH 就是完整体验</p>
+<p><strong>零依赖</strong>——不需要显示服务器、窗口管理器、GPU 驱动，headless 服务器直接跑</p>
+<p><strong>带宽极低</strong>——传输的是字符差分，不是像素帧，高延迟网络下依然流畅</p>
+<p><strong>可脚本化</strong>——终端天然支持 <code>tmux</code> 录制、<code>expect</code> 自动化、管道衔接</p></div>
+</div>
+
+<div class="note"><b>TUI 不是 CLI 的美化版，也不是 GUI 的降级版。</b>它是一种<strong>独立的交互范式</strong>：在终端的字符网格内构建完整的应用体验——有布局、有状态、有实时、有交互。CLI 太轻（无布局、无状态），GUI 太重（需要窗口系统、无法 SSH 直用）。<strong>TUI 恰好站在"服务器上做工程"这个场景的最优点上。</strong></div>
+<div class="note"><b>常见误解纠正：</b>① "TUI 就是带颜色的 CLI"——错，CLI 没有布局和事件循环，TUI 有。② "TUI 是简陋的 GUI"——错，TUI 不依赖显示服务器，能在纯 SSH 下提供完整体验，这是 GUI 做不到的。③ "TUI 过时了"——错，lazygit、k9s、btop 等现代 TUI 工具正在快速增长，因为云原生与远程开发场景天然需要终端内的完整体验。</div>
 </section>
 
 <section id="form">
@@ -1194,7 +1259,8 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <section id="primlib">
 <div class="eyebrow">TUI Capability</div>
 <h2>图表原语库 · 十四种</h2>
-<p class="desc">图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。实现见 <code>app/devkitai/render/</code>，完整规格见 <code>docs/COMPONENT.md</code> §3；本节末尾附程序真实输出的活样本。</p>
+<p class="desc">图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。全部改用 PTO 高亮色阶着色（<code>-200 → -700</code>），不再自造调色板。实现见 <code>app/devkitai/render/</code>，完整规格见 <code>docs/COMPONENT.md</code> §3。</p>
+<p class="desc">下面每组附两类活样本：<b>画法</b>由 <code>gallery_html.py</code> 从 <code>render/</code> 函数直接导出，展示原语本身；标有 <b>组件实例</b> 的是 <code>devkitai/widgets/</code> 的运行时真实输出——边框、标题、着色全是程序算出来的，和 <a href="#impl">工作台外壳实况</a> 用的是同一条 <code>tools/shell_html.py</code> 导出流水线，不是重画的 mockup。</p>
 
 <table>
 <thead><tr><th>组</th><th>问题</th><th>图元</th><th>渲染层</th><th>降级到</th></tr></thead>
@@ -1227,9 +1293,7 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <div class="sublabel">对齐 —— 禁用裸 ljust / rjust</div>
 <p class="rule">所有图元的标签与表格列必须走 <code>render/text.py</code> 的 <code>fit()</code> / <code>pad()</code> / <code>truncate()</code>。Python 数的是<b>码位</b>，终端排的是<b>单元格</b>，一个汉字占 2 格：<code>f"{'折线':&lt;12}"</code> 实际占 14 格，<code>f"{'Sparkline':&lt;12}"</code> 占 12 格——同一张表里两种标签混用，列就是歪的。<b>这类 bug 只在中文标签下出现，纯英文界面上怎么测都测不出来</b>，所以靠纪律不靠自觉。</p>
 
-<div class="sublabel">活样本 —— python -m devkitai gallery</div>
-<p class="desc">规范写着每种图长什么样，但字符图好不好使只有渲染出来才知道。下面六块是<b>程序真跑出来的</b>——字符来自 <code>app/devkitai/render/</code>，颜色是 <code>ramp.sequential()</code> 运行时算出来的那一个，由 <code>app/tools/gallery_html.py</code> 导成标记，和 <code>python -m devkitai gallery</code> 同源，不是重画的 mockup。</p>
-<div class="note"><b>为什么不用截图。</b>这里原先嵌的是终端截图导出的矢量 SVG。SVG 按「一个字符 = 一个单元格」推进 x 坐标，而终端里一个汉字恰好占 2 格——浏览器不吃这套，CJK 字形的实际步进由字体定，于是<strong>中文标注全叠在了一起</strong>。改成 <code>&lt;pre&gt;</code> 由浏览器自己排字之后重叠消失，代价是<b>不能再拿 CJK 做列对齐</b>：标签列一律 ASCII，中文只许出现在行尾。这条在生成期由断言把着，违反直接报错——否则等页面上看出歪列时，已经不知道是哪一行的锅了。</div>
+<div class="note"><b>为什么用 <code>&lt;pre&gt;</code> 而不是截图。</b>SVG 按「一个字符 = 一个单元格」推进 x 坐标，浏览器里 CJK 字形的实际步进由字体定，于是<strong>中文标注全叠在一起</strong>。改成 <code>&lt;pre&gt;</code> 由浏览器自己排字，代价是<b>标签列一律 ASCII、中文只许行尾</b>——这条在生成期由断言把着，违反直接报错。</div>
 <h3>比大小 <span class="badge p">T1</span> <span class="chipm">谁比谁大</span></h3>
 <pre class="dense chart"><span class="s2">Metric Bar    </span><span class="g8">███▋░░░░░░░░░░░░░░░░░░░░░░░░░░</span>   12.0%
 <span class="s2">Metric Bar    </span><span class="g6">████████▍░░░░░░░░░░░░░░░░░░░░░</span>   28.0%
@@ -1251,6 +1315,18 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 
 <span class="s2">Before/After  </span><span class="o3">████████████</span><span class="cm">  →  </span><span class="o4">███████</span>   120ms → 70ms <span class="ok">(-42%)</span></pre>
 <p class="rule"><b>降级链：</b><code>T1 块字符 → T0 数值</code>。bar 走<b>域色阶</b>（它是数据），阈值判断只上<b>数值文字</b>（它是结论）——一个 90% 的利用率本身不是错误。</p>
+<div class="sublabel">组件实例 · 可排序算子表 <span class="badge p">T4</span></div>
+<pre class="dense" aria-label="可排序算子表单例"><span style="color: #404040; background-color: #202020">┌─ </span><span style="color: #a4a4a4; background-color: #202020">kernels</span><span style="color: #404040; background-color: #202020"> ──────────────────────────────────────────────────────────┐</span>
+<span style="color: #404040; background-color: #202020">│</span><span style="color: #777777; background-color: #262626; font-weight: bold"> Kernel             </span><span style="color: #777777; background-color: #262626; font-weight: bold"> Calls    </span><span style="color: #777777; background-color: #262626; font-weight: bold"> Avg       </span> <span style="color: #e8e8e8; background-color: #262626; font-weight: bold">Total ▾</span>                   <span style="color: #404040; background-color: #202020">│</span>
+<span style="color: #404040; background-color: #202020">│</span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold"> attention_fwd      </span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold">    1024  </span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold">   18.2ms  </span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold"> ███████████ 18.6s  </span>       <span style="color: #404040; background-color: #202020">│</span>
+<span style="color: #404040; background-color: #202020">│</span> <span style="color: #7c8db8; background-color: #202020">matmul_4096</span>        <span style="color: #a4a4a4; background-color: #202020">     512  </span><span style="color: #a4a4a4; background-color: #202020">   12.4ms  </span> <span style="color: #6e0acd; background-color: #202020">████░░░░░░░</span><span style="color: #a4a4a4; background-color: #202020"> 6.3s   </span>       <span style="color: #404040; background-color: #202020">│</span>
+<span style="color: #404040; background-color: #202020">│</span> <span style="color: #7c8db8; background-color: #202020">layernorm</span>          <span style="color: #a4a4a4; background-color: #202020">    2048  </span><span style="color: #a4a4a4; background-color: #202020">    1.8ms  </span> <span style="color: #3f0675; background-color: #202020">██░░░░░░░░░</span><span style="color: #a4a4a4; background-color: #202020"> 3.7s   </span>       <span style="color: #404040; background-color: #202020">│</span>
+<span style="color: #404040; background-color: #202020">└─────────────────────────────────────────────────── </span><span style="color: #a4a4a4; background-color: #202020">3 <span class="fw">行</span> · Total ▾</span><span style="color: #404040; background-color: #202020"> ─┘</span>
+
+
+
+                                                                      </pre>
+<p class="rule">按 <code>Total</code> 降序排——列头的 <code>▾</code> 标当前排序列，方向由字形而不是颜色表达，16 色降级下依然成立。选中行背景用 <code>state-selected</code>，正是 PTO token 预合成的结果。行数与排序状态嵌在下边框。</p>
 <h3>看趋势 <span class="badge p">T2</span> <span class="chipm">怎么走的</span></h3>
 <pre class="dense tight"><span class="s2">Line  T2      </span><span class="g3"><span class="fw">⠀⢀⣀⣀⣀⠤⠔⠒⠤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀</span></span>
               <span class="g3"><span class="fw">⠔⠁⠀⠀⠀⠀⠀⠀⠀⠈⢆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⠁</span></span>
@@ -1269,6 +1345,16 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <span class="s2">      down    </span><span class="a6"><span class="fw">⣿⣿⣿⣿⣿⠿⠟⠛⠛⠛⠛⠛⠻⠿⢿⣿⣿⣿⣿⣿⡿⠿⠛⠛⠛⠛⠛⠛⠻⠿</span></span><span class="cm">  ↓ 346 B/s</span>
               <span class="a6"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span></pre>
 <p class="rule"><b>降级链：</b><code>T2 Braille → T1 Sparkline → T0 当前值 + 峰值</code>。多系列<b>共用量程</b>，否则并置就没有意义：分别归一化会让每条都填满画布，而并置的全部意义就是比较。</p>
+<div class="sublabel">组件实例 · Braille 历史曲线 <span class="badge p">T2</span></div>
+<pre class="dense tight" aria-label="Braille 历史曲线单例"><span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">cpu · kunpeng-920</span><span style="color: #2a2a2a"> ────────────────────────────────────────┐</span>
+<span style="color: #2a2a2a">│</span><span style="color: #caf57a"><span class="fw">⠀⠀⢀⡠⠤⠒⠒⠒⠒⠢⠤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠤⠒⠒⠒⠒⠒⠤⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀</span></span><span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">│</span><span style="color: #caf57a"><span class="fw">⠔⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠔⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠒⠉⠀</span></span><span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">│</span><span style="color: #caf57a"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠒⠤⠤⠤⠤⠤⠒⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠒⠢⠤⠤⠤⠤⠒⠊⠉⠀⠀⠀⠀⠀</span></span><span style="color: #2a2a2a">│</span>
+<span style="color: #2a2a2a">└────────────────────────────────────────────────────────────┘</span>
+
+
+                                                              </pre>
+<p class="rule">着色按域取 <code>DOMAIN_RAMPS[cpu]</code>（ub-green），当前值决定档位、整条线一个亮度——逐点上色会让一条线出现五种亮度，读起来是噪声。标题嵌在上边框、当前值/峰值/降级层嵌在下边框，见 <a href="#primlib">Canvas 层的框</a>。</p>
 <h3>找位置 <span class="badge p">T2</span> <span class="chipm">在哪儿 / 谁在等谁</span></h3>
 <pre class="dense tight"><span class="s2">Scatter       </span><span class="v4"><span class="fw">⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⡀⠀⠀⠀⠀</span></span><span class="cm">  Roofline</span>
               <span class="v4"><span class="fw">⠀⠀⢀⠃⠱⠀⠀⠀⠀⠀⡌⠘⠄⠀⠀⠀</span></span>
@@ -1291,6 +1377,13 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <span class="s2">Timeline PCIe </span> <span class="a4">███████</span>           <span class="a4">████████</span>
 <span class="s2">Timeline DMA  </span>     <span class="a4">█████████</span></pre>
 <p class="rule"><b>降级链：</b><code>T2 Braille / T1 块字符</code>。火焰图里过窄的帧<b>宁可不画，也不虚胖</b>，并把丢掉的条数显式标出来——悄悄丢掉会让「我看全了」变成错觉。</p>
+<div class="sublabel">组件实例 · Trace 密度带 <span class="badge p">T3</span> <span class="badge s">分类 + 强度</span></div>
+<pre class="dense chart">        0ms                                            120ms
+CPU     <span class="g4">████</span><span class="g6">▓▓▓▓</span><span class="g8">░░░░</span><span class="g6">▓▓▓</span><span class="g8">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
+NPU     <span class="v8">░░░░░░░</span><span class="v3">███████</span><span class="v4">████████</span><span class="v6">▓▓▓▓▓▓▓</span><span class="v3">██████████</span><span class="v8">░░░░</span>
+HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><span class="o3">████</span><span class="o5">▓▓</span><span class="o3">████████</span><span class="o5">▓▓▓▓▓▓</span><span class="o3">██████</span><span class="o6">▓▓</span><span class="o8">░░░</span>
+                    <span class="pr">└─ selected: attention 18.2ms · mem-bound ⚠</span></pre>
+<p class="rule"><strong>泳道身份用色阶（CPU=copy-blue · NPU=l0a-violet · HBM=accum-orange），忙闲用同色阶内的档位。</strong>一眼同时读出"哪条线"和"多忙"，色盲用户仍可通过明度差辨识强度。</p>
 <h3>看余量 <span class="badge p">T1</span> <span class="chipm">还剩多少</span></h3>
 <pre class="dense tight"><span class="s2">Water         </span><span class="o4">░░░                           </span><span class="cm">  38.2 / 64 GiB</span>
               <span class="o4">▁▁▁                           </span>
@@ -1319,25 +1412,7 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <span class="s2">48-63         </span><span class="g3">█</span><span class="g4">███</span><span class="g6">████</span><span class="g8">████████</span>
 <span class="s2">T1 fallback   ▓▓▓▓▓████████▓▓▓</span><span class="cm">  <span class="fw">颜色没了，强度由字形接住</span></span></pre>
 <p class="rule"><b>降级链：</b><code>T3 真彩 → T1 灰阶 + ░▒▓█</code>。<b>颜色承载数值，位置承载拓扑</b>。掉到 T1 时颜色没了，强度由字形 <code>░▒▓█</code> 接住。</p>
-</section>
-
-<section id="prim">
-<div class="eyebrow">TUI Capability</div>
-<h2>原语画法示例</h2>
-<p class="desc">全部改用 PTO 高亮色阶着色（<code>-200 → -700</code>），不再自造调色板。①②⑤ 三个是真实组件（<code>devkitai/widgets/</code>）的原样输出，边框、标题、着色全是运行时算出来的，和 <a href="#impl">工作台外壳实况</a> 用的是同一条 <code>tools/shell_html.py</code> 导出流水线——不是重画的 mockup。③④⑥ 还没包成组件，仍是 <code>render/</code> 函数的直接输出。</p>
-
-<h3>① Braille 历史曲线 <span class="badge p">T2</span></h3>
-<pre class="dense tight" aria-label="Braille 历史曲线单例"><span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">cpu · kunpeng-920</span><span style="color: #2a2a2a"> ────────────────────────────────────────┐</span>
-<span style="color: #2a2a2a">│</span><span style="color: #caf57a"><span class="fw">⠀⠀⢀⡠⠤⠒⠒⠒⠒⠢⠤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠤⠒⠒⠒⠒⠒⠤⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀</span></span><span style="color: #2a2a2a">│</span>
-<span style="color: #2a2a2a">│</span><span style="color: #caf57a"><span class="fw">⠔⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠔⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠒⠉⠀</span></span><span style="color: #2a2a2a">│</span>
-<span style="color: #2a2a2a">│</span><span style="color: #caf57a"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠒⠤⠤⠤⠤⠤⠒⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠒⠢⠤⠤⠤⠤⠒⠊⠉⠀⠀⠀⠀⠀</span></span><span style="color: #2a2a2a">│</span>
-<span style="color: #2a2a2a">└────────────────────────────────────────────────────────────┘</span>
-                                                              
-                                                              
-                                                              </pre>
-<p class="rule">着色按域取 <code>DOMAIN_RAMPS[cpu]</code>（ub-green），当前值决定档位、整条线一个亮度——逐点上色会让一条线出现五种亮度，读起来是噪声。用途：CPU/NPU 利用率历史、算子 latency 趋势。标题嵌在上边框、当前值/峰值/降级层嵌在下边框，见 <a href="#primlib">Canvas 层的框</a>。</p>
-
-<h3>② 多核热力网格 <span class="badge p">T3</span> <span class="badge d">鲲鹏特化</span></h3>
+<div class="sublabel">组件实例 · 多核热力网格 <span class="badge p">T3</span> <span class="badge d">鲲鹏特化</span></div>
 <pre class="dense chart" aria-label="多核热力网格单例"><span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">64-core heatmap</span><span style="color: #2a2a2a"> ────────────────────────────────┐</span>
 <span style="color: #2a2a2a">│</span><span style="color: #737373">  0-15  </span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #b3f141">█</span><span style="color: #737373">   NUMA0 </span><span style="color: #caf57a">██████░░</span><span style="color: #a2a2a2">   80%</span>   <span style="color: #2a2a2a">│</span>
 <span style="color: #2a2a2a">│</span><span style="color: #737373"> 16-31  </span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #737373">   NUMA1 </span><span style="color: #4d7209">██░░░░░░</span><span style="color: #a2a2a2">   22%</span>   <span style="color: #2a2a2a">│</span>
@@ -1348,37 +1423,10 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 <span style="color: #2a2a2a">│</span>                                                  <span style="color: #2a2a2a">│</span>
 <span style="color: #2a2a2a">└─────────────────────── </span><span style="color: #a2a2a2"><span class="fw">低</span> ▏▍▋█ <span class="fw">高</span> · T3 <span class="fw">真彩热力</span></span><span style="color: #2a2a2a"> ─┘</span>
                                                     </pre>
-<p class="rule">色阶：单一 <code>accum-orange</code> 顺序取档（暗=闲，亮=忙）。<strong>AI 的结论单独占一行叠在数据下方</strong>——数据与判断分属两层，标注可整层开关（<code>l</code>）。鲲鹏 920 多核 + NUMA 亲和性可视化：CLI 完全做不到、而对鲲鹏调优最关键的一张图。</p>
-
-<h3>③ 分段渐变 Gauge <span class="badge p">T1</span></h3>
-<pre class="dense">Memory  <span class="o3">████████████</span><span class="o5">██████</span><span class="o7">████</span><span class="cm">░░░░░░░░</span>  38.2 / 64 GiB
-        <span class="o3">used 22G</span>   <span class="o5">cached 12G</span>  <span class="o7">kv 4G</span>  <span class="cm">free 26G</span></pre>
-
-<h3>④ 双向面积图 <span class="badge p">T2</span></h3>
-<pre class="dense tight"><span class="a3">↑ up  <span class="fw">⣀⣠⣴⣶⣤⣀⣀⣠⣴⣿⣷⣦⣄⣀⣠⣴⣶⣤⣀⣀⣠⣴⣶⣤⣀</span></span>   1.30 KiB/s
-<span class="a6">↓ down<span class="fw">⠉⠛⠿⣿⣿⠿⠛⠉⠙⠻⢿⡿⠟⠋⠉⠛⠿⠟⠉⠛⠿⣿⠿⠛⠉</span></span>   346 B/s</pre>
-
-<h3>⑤ 可排序算子表 <span class="badge p">T4</span></h3>
-<pre class="dense" aria-label="可排序算子表单例"><span style="color: #404040; background-color: #202020">┌─ </span><span style="color: #a4a4a4; background-color: #202020">kernels</span><span style="color: #404040; background-color: #202020"> ──────────────────────────────────────────────────────────┐</span>
-<span style="color: #404040; background-color: #202020">│</span><span style="color: #777777; background-color: #262626; font-weight: bold"> Kernel             </span><span style="color: #777777; background-color: #262626; font-weight: bold"> Calls    </span><span style="color: #777777; background-color: #262626; font-weight: bold"> Avg       </span> <span style="color: #e8e8e8; background-color: #262626; font-weight: bold">Total ▾</span>                   <span style="color: #404040; background-color: #202020">│</span>
-<span style="color: #404040; background-color: #202020">│</span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold"> attention_fwd      </span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold">    1024  </span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold">   18.2ms  </span><span style="color: #3d98ff; background-color: #18293c; font-weight: bold"> ███████████ 18.6s  </span>       <span style="color: #404040; background-color: #202020">│</span>
-<span style="color: #404040; background-color: #202020">│</span> <span style="color: #7c8db8; background-color: #202020">matmul_4096</span>        <span style="color: #a4a4a4; background-color: #202020">     512  </span><span style="color: #a4a4a4; background-color: #202020">   12.4ms  </span> <span style="color: #6e0acd; background-color: #202020">████░░░░░░░</span><span style="color: #a4a4a4; background-color: #202020"> 6.3s   </span>       <span style="color: #404040; background-color: #202020">│</span>
-<span style="color: #404040; background-color: #202020">│</span> <span style="color: #7c8db8; background-color: #202020">layernorm</span>          <span style="color: #a4a4a4; background-color: #202020">    2048  </span><span style="color: #a4a4a4; background-color: #202020">    1.8ms  </span> <span style="color: #3f0675; background-color: #202020">██░░░░░░░░░</span><span style="color: #a4a4a4; background-color: #202020"> 3.7s   </span>       <span style="color: #404040; background-color: #202020">│</span>
-<span style="color: #404040; background-color: #202020">└─────────────────────────────────────────────────── </span><span style="color: #a4a4a4; background-color: #202020">3 <span class="fw">行</span> · Total ▾</span><span style="color: #404040; background-color: #202020"> ─┘</span>
-                                                                      
-                                                                      
-                                                                      
-                                                                      </pre>
-<p class="rule">按 <code>Total</code> 降序排——列头的 <code>▾</code> 标当前排序列，方向由字形而不是颜色表达，16 色降级下依然成立。选中行背景用 <code>state-selected</code>，正是 PTO token 预合成的结果，与 Web 端视觉完全一致。行数与排序状态嵌在下边框。</p>
-
-<h3>⑥ Trace 密度带 <span class="badge p">T3</span> <span class="badge s">分类 + 强度</span></h3>
-<pre class="dense chart">        0ms                                            120ms
-CPU     <span class="g4">████</span><span class="g6">▓▓▓▓</span><span class="g8">░░░░</span><span class="g6">▓▓▓</span><span class="g8">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>
-NPU     <span class="v8">░░░░░░░</span><span class="v3">███████</span><span class="v4">████████</span><span class="v6">▓▓▓▓▓▓▓</span><span class="v3">██████████</span><span class="v8">░░░░</span>
-HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><span class="o3">████</span><span class="o5">▓▓</span><span class="o3">████████</span><span class="o5">▓▓▓▓▓▓</span><span class="o3">██████</span><span class="o6">▓▓</span><span class="o8">░░░</span>
-                    <span class="pr">└─ selected: attention 18.2ms · mem-bound ⚠</span></pre>
-<p class="rule"><strong>泳道身份用色阶（CPU=copy-blue · NPU=l0a-violet · HBM=accum-orange），忙闲用同色阶内的档位。</strong>这样一眼能同时读出"哪条线"和"多忙"，且色盲用户仍可通过明度差辨识强度。</p>
+<p class="rule"><strong>AI 的结论单独占一行叠在数据下方</strong>——数据与判断分属两层，标注可整层开关（<code>l</code>）。鲲鹏 920 多核 + NUMA 亲和性可视化：CLI 完全做不到、而对鲲鹏调优最关键的一张图。</p>
 </section>
+
+<!-- #prim merged into #primlib -->
 
 <section id="primsize">
 <div class="eyebrow">Components</div>
