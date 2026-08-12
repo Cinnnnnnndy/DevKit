@@ -1301,26 +1301,29 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 
 <div class="note"><b>为什么用 <code>&lt;pre&gt;</code> 而不是截图。</b>SVG 按「一个字符 = 一个单元格」推进 x 坐标，浏览器里 CJK 字形的实际步进由字体定，于是<strong>中文标注全叠在一起</strong>。改成 <code>&lt;pre&gt;</code> 由浏览器自己排字，代价是<b>标签列一律 ASCII、中文只许行尾</b>——这条在生成期由断言把着，违反直接报错。</div>
 <h3>比大小 <span class="badge p">T1</span> <span class="chipm">谁比谁大</span></h3>
-<div class="fig"><span class="fig-t">Metric Bar · Ranking · Grouped · Before/After</span>
+<div class="fig"><span class="fig-t">Metric Bar</span>
 <pre class="dense chart"><span class="s2">Metric Bar    </span><span class="g8">███▋░░░░░░░░░░░░░░░░░░░░░░░░░░</span>   12.0%
 <span class="s2">Metric Bar    </span><span class="g6">████████▍░░░░░░░░░░░░░░░░░░░░░</span>   28.0%
 <span class="s2">Metric Bar    </span><span class="g4">████████████████▎░░░░░░░░░░░░░</span>   54.0%
 <span class="s2">Metric Bar    </span><span class="g4">█████████████████████▋░░░░░░░░</span><span class="wn">   72.0%</span><span class="cm">  ← <span class="fw">数值转语义色，</span>bar <span class="fw">不变</span></span>
-<span class="s2">Metric Bar    </span><span class="g3">███████████████████████████▎░░</span><span class="er">   91.0%</span><span class="cm">  ← <span class="fw">数值转语义色，</span>bar <span class="fw">不变</span></span>
-
-<span class="s2">Ranking       </span><span class="v3">██████████████████████████████</span>   18.6s<span class="cm">  attention_fwd</span>
+<span class="s2">Metric Bar    </span><span class="g3">███████████████████████████▎░░</span><span class="er">   91.0%</span><span class="cm">  ← <span class="fw">数值转语义色，</span>bar <span class="fw">不变</span></span></pre>
+</div>
+<div class="fig"><span class="fig-t">Ranking</span>
+<pre class="dense chart"><span class="s2">Ranking       </span><span class="v3">██████████████████████████████</span>   18.6s<span class="cm">  attention_fwd</span>
               <span class="v6">██████████▏                   </span>    6.3s<span class="cm">  matmul_4096</span>
               <span class="v8">██████                        </span>    3.7s<span class="cm">  layernorm</span>
               <span class="v8">███▍                          </span>    2.1s<span class="cm">  softmax</span>
               <span class="v8">██▋                           </span>    1.6s<span class="cm">  gelu</span>
-              <span class="cm">… 2 more</span>
-
-<span class="s2">Grouped       </span><span class="g4">███▉     </span><span class="v6">█▋       </span><span class="o3">█████▋   </span><span class="cm">  baseline</span>
+              <span class="cm">… 2 more</span></pre>
+</div>
+<div class="fig"><span class="fig-t">Grouped</span>
+<pre class="dense chart"><span class="s2">Grouped       </span><span class="g4">███▉     </span><span class="v6">█▋       </span><span class="o3">█████▋   </span><span class="cm">  baseline</span>
               <span class="g3">█████▌   </span><span class="v6">█▏       </span><span class="o3">███████▏ </span><span class="cm">  scheme A</span>
               <span class="g4">█████    </span><span class="v8">▉        </span><span class="o3">████████ </span><span class="cm">  scheme B</span>
-              <span class="cm">QPS      P99      CPU</span>
-
-<span class="s2">Before/After  </span><span class="o3">████████████</span><span class="cm">  →  </span><span class="o4">███████</span>   120ms → 70ms <span class="ok">(-42%)</span></pre>
+              <span class="cm">QPS      P99      CPU</span></pre>
+</div>
+<div class="fig"><span class="fig-t">Before/After</span>
+<pre class="dense chart"><span class="s2">Before/After  </span><span class="o3">████████████</span><span class="cm">  →  </span><span class="o4">███████</span>   120ms → 70ms <span class="ok">(-42%)</span></pre>
 </div>
 <p class="rule"><b>降级链：</b><code>T1 块字符 → T0 数值</code>。bar 走<b>域色阶</b>（它是数据），阈值判断只上<b>数值文字</b>（它是结论）——一个 90% 的利用率本身不是错误。</p>
 <div class="sublabel">组件实例 · 可排序算子表 <span class="badge p">T4</span></div>
@@ -1338,14 +1341,15 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
 </div>
 <p class="rule">按 <code>Total</code> 降序排——列头的 <code>▾</code> 标当前排序列，方向由字形而不是颜色表达，16 色降级下依然成立。选中行背景用 <code>state-selected</code>，正是 PTO token 预合成的结果。行数与排序状态嵌在下边框。</p>
 <h3>看趋势 <span class="badge p">T2</span> <span class="chipm">怎么走的</span></h3>
-<div class="fig"><span class="fig-t">Line · Area</span>
+<div class="fig"><span class="fig-t">Line</span>
 <pre class="dense tight"><span class="s2">Line  T2      </span><span class="g3"><span class="fw">⠀⢀⣀⣀⣀⠤⠔⠒⠤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀</span></span>
               <span class="g3"><span class="fw">⠔⠁⠀⠀⠀⠀⠀⠀⠀⠈⢆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⠁</span></span>
               <span class="g3"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⠤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠎⠀⠀</span></span>
               <span class="g3"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠒⢄⠀⠀⠀⠀⠀⣀⠤⠔⠊⠁⠀⠀⠀</span></span>
-              <span class="g3"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⠤⡠⠔⠊⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
-
-<span class="s2">Area  T2      </span><span class="v4"><span class="fw">⠀⢀⣀⣀⣀⣤⣴⣶⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀</span></span>
+              <span class="g3"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⠤⡠⠔⠊⠀⠀⠀⠀⠀⠀⠀⠀</span></span></pre>
+</div>
+<div class="fig"><span class="fig-t">Area</span>
+<pre class="dense tight"><span class="s2">Area  T2      </span><span class="v4"><span class="fw">⠀⢀⣀⣀⣀⣤⣴⣶⣤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀</span></span>
               <span class="v4"><span class="fw">⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿</span></span>
               <span class="v4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⣿⣿</span></span>
               <span class="v4"><span class="fw">⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣄⠀⠀⠀⠀⠀⣀⣤⣴⣾⣿⣿⣿⣿</span></span>
@@ -1384,15 +1388,16 @@ KernelTable &gt; .row--selected { background: #18293c; }  <span class="cm"># sta
               <span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>
               <span class="v4"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span></pre>
 </div>
-<div class="fig"><span class="fig-t">Flame · Timeline</span>
+<div class="fig"><span class="fig-t">Flame</span>
 <pre class="dense chart"><span class="s2">Flame         </span><span class="g3">██████████████████████████████</span><span class="cm">  main</span>
               <span class="v4">███████████████████</span><span class="v6">███████████</span> <span class="cm">  ngx_http_process</span>
               <span class="o6">█████████</span>         <span class="o8">███████</span>     <span class="cm">  crypto_aes</span>
               <span class="a8">███████</span>           <span class="a8">████</span>        <span class="cm">  aes_encrypt</span>
               <span class="g8">█████</span>                         <span class="cm">  neon_xor</span>
-                                            <span class="wn">  1 <span class="fw">帧过窄未显示</span></span><span class="cm">  ← <span class="fw">必须显式说，否则「看全了」是错觉</span></span>
-
-<span class="s2">Timeline CPU  </span><span class="g4">█████████</span>        <span class="g4">█████</span>
+                                            <span class="wn">  1 <span class="fw">帧过窄未显示</span></span><span class="cm">  ← <span class="fw">必须显式说，否则「看全了」是错觉</span></span></pre>
+</div>
+<div class="fig"><span class="fig-t">Timeline</span>
+<pre class="dense chart"><span class="s2">Timeline CPU  </span><span class="g4">█████████</span>        <span class="g4">█████</span>
 <span class="s2">Timeline NPU  </span>       <span class="v4">██████████████████</span>
 <span class="s2">Timeline HBM  </span>   <span class="o4">███████████████████████████</span>
 <span class="s2">Timeline PCIe </span> <span class="a4">███████</span>           <span class="a4">████████</span>
@@ -1416,11 +1421,12 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
               <span class="o4">███                           </span>
               <span class="o4">███                           </span></pre>
 </div>
-<div class="fig"><span class="fig-t">Progress · Segmented</span>
+<div class="fig"><span class="fig-t">Progress</span>
 <pre class="dense chart"><span class="s2">Progress      </span><span class="g4">████████████████████▍░░░░░░░░░</span><span class="cm">  68%</span>
-<span class="s2">Progress ?    </span><span class="g6">░░░██░░░░░░░░░░░░░░░░░░░░░░░░░</span><span class="cm">  <span class="fw">⠸</span> <span class="fw">采集中</span> · <span class="fw">不画假进度条</span></span>
-
-<span class="s2">Segmented     </span><span class="o6">██████████</span><span class="o4">██████</span><span class="o3">██████████████</span><span class="cm">  used 22G  cached 12G  kv 4G  free 26G</span></pre>
+<span class="s2">Progress ?    </span><span class="g6">░░░██░░░░░░░░░░░░░░░░░░░░░░░░░</span><span class="cm">  <span class="fw">⠸</span> <span class="fw">采集中</span> · <span class="fw">不画假进度条</span></span></pre>
+</div>
+<div class="fig"><span class="fig-t">Segmented</span>
+<pre class="dense chart"><span class="s2">Segmented     </span><span class="o6">██████████</span><span class="o4">██████</span><span class="o3">██████████████</span><span class="cm">  used 22G  cached 12G  kv 4G  free 26G</span></pre>
 </div>
 <p class="rule"><b>降级链：</b><code>T1 块字符 → T0 百分比</code>。水位是「还剩多少」，bar 是「占了多少」——不是同一个问题，所以一个竖一个横。给不出进度就<b>不画进度条</b>。</p>
 <h3>读单值 <span class="badge p">T1</span> <span class="chipm">现在多少</span></h3>
