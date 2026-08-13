@@ -27,6 +27,27 @@
 
 ## 快速开始
 
+### 可运行 TUI Demo
+
+本地开发的两个探索方案统一放在 [`demo/`](demo/)：
+
+Python + Textual（方案 A）：
+
+    cd kunpeng-devkit-ai-tui/demo/python-textual
+    uv sync
+    uv run devkitai
+
+启动后输入 `/chart` 可打开性能图表工作区。
+
+Go + Charmbracelet（方案 B）：
+
+    cd kunpeng-devkit-ai-tui/demo/go-charmbracelet
+    go run ./cmd/devkitai
+
+两个方案的目录、运行方式与规格入口见 [`demo/README.md`](demo/README.md)。
+
+### Web 设计稿
+
 四份 HTML 是自包含的单文件，**下载后双击即可打开**，无需构建、无需联网：
 
 | 文件 | 内容 |
@@ -56,6 +77,10 @@
 ```
 .
 ├── README.md                        本文件
+├── demo/                            本地新增的可运行 TUI 原型
+│   ├── python-textual/              方案 A · Python + Textual
+│   ├── go-charmbracelet/            方案 B · Go + Bubble Tea
+│   └── docs/                        两个方案的实现规格
 ├── docs/                            设计规范（Markdown）
 │   ├── OVERVIEW.md                  产品定位 · 愿景 · 用户角色 · 信息架构
 │   ├── PRD.md                       六大核心场景需求
