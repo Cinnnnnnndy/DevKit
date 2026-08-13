@@ -3,7 +3,7 @@
 Kunpeng DevKit AI 的 **方案 B：Charm Flow**（Go + Bubble Tea v2）Launch 首屏原型。
 以「任务输入 + 建议动作」为核心，Charm 式的轻量交互与状态反馈，作为后续工作台的应用骨架。
 
-实现依据：`../spec_B.md`（视觉与交互规格）。
+实现依据：[`../docs/spec_B.md`](../docs/spec_B.md)（视觉与交互规格）。
 
 ## 运行
 

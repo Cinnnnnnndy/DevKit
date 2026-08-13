@@ -9,7 +9,7 @@
 项目目录：
 
 ```
-/Users/yin/DevKit/kunpeng-devkit-ai-tui
+/Users/yin/DevKit/kunpeng-devkit-ai-tui/demo/python-textual
 ```
 
 原始 Web 设计稿：
@@ -52,7 +52,7 @@ kunpeng-devkit-ai-tui/
 ## 启动方式
 
 ```bash
-cd /Users/yin/DevKit/kunpeng-devkit-ai-tui
+cd /Users/yin/DevKit/kunpeng-devkit-ai-tui/demo/python-textual
 uv sync
 uv run devkitai
 ```
@@ -198,7 +198,7 @@ Suggestions 本身是横向容器，去掉 max-width 后内部居中即可。
 6. 实现迁移、编译、诊断和优化页面。
 7. 将页面切换改成 Textual Screen 或 ContentSwitcher 架构。
 
-当前启动页代码集中在 `DevKit/kunpeng-devkit-ai-tui/devkitai.py`，样式集中在 `DevKit/kunpeng-devkit-ai-tui/devkitai.tcss`。
+当前启动页代码集中在 `DevKit/kunpeng-devkit-ai-tui/demo/python-textual/devkitai.py`，样式集中在 `DevKit/kunpeng-devkit-ai-tui/demo/python-textual/devkitai.tcss`。
 
 ## 方案 A：Chart Workspace 详细规格
 

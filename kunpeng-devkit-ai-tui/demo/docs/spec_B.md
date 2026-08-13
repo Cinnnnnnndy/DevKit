@@ -728,7 +728,7 @@ charm.land/bubbles/v2
 为避免与方案 A 的 Python 文件混杂，方案 B 放入独立目录：
 
 ```text
-scheme-b/
+demo/go-charmbracelet/
 ├── cmd/devkitai/main.go
 ├── internal/app/
 │   ├── model.go
@@ -943,7 +943,7 @@ Charm Flow 的活力来自状态反馈、色彩和响应速度。持续字符闪
 
 ## 22. 实施顺序
 
-1. 建立 `scheme-b` Go module 与基础 Bubble Tea app。
+1. 建立 `demo/go-charmbracelet` Go module 与基础 Bubble Tea app。
 2. 定义 theme tokens 和颜色降级。
 3. 实现响应式 Launch layout。
 4. 实现准确的 compact Kunpeng brand。
@@ -983,4 +983,3 @@ Charm Flow 的活力来自状态反馈、色彩和响应速度。持续字符闪
 - VHS：<https://github.com/charmbracelet/vhs>
 - 方案 A 视觉规范：`docs/VISUAL.md`
 - 原始交互 Demo：`web/demo.html`
-

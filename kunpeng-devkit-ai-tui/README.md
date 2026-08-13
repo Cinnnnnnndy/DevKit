@@ -27,16 +27,24 @@
 
 ## 快速开始
 
-### 原生 Textual Launch 原型
+### 可运行 TUI Demo
 
-仓库根目录已包含可运行的 Python + Textual 开场页：
+本地开发的两个探索方案统一放在 [`demo/`](demo/)：
 
-    cd /Users/yin/DevKit/kunpeng-devkit-ai-tui
+Python + Textual（方案 A）：
+
+    cd kunpeng-devkit-ai-tui/demo/python-textual
     uv sync
     uv run devkitai
 
-启动后可直接输入任务并按 Enter，也可以点击三个建议动作。Ctrl+P 打开
-Textual 命令面板，Esc 清空输入，Ctrl+Q 退出。
+启动后输入 `/chart` 可打开性能图表工作区。
+
+Go + Charmbracelet（方案 B）：
+
+    cd kunpeng-devkit-ai-tui/demo/go-charmbracelet
+    go run ./cmd/devkitai
+
+两个方案的目录、运行方式与规格入口见 [`demo/README.md`](demo/README.md)。
 
 ### Web 设计稿
 
@@ -69,6 +77,10 @@ Textual 命令面板，Esc 清空输入，Ctrl+Q 退出。
 ```
 .
 ├── README.md                        本文件
+├── demo/                            本地新增的可运行 TUI 原型
+│   ├── python-textual/              方案 A · Python + Textual
+│   ├── go-charmbracelet/            方案 B · Go + Bubble Tea
+│   └── docs/                        两个方案的实现规格
 ├── docs/                            设计规范（Markdown）
 │   ├── OVERVIEW.md                  产品定位 · 愿景 · 用户角色 · 信息架构
 │   ├── PRD.md                       六大核心场景需求
