@@ -4,22 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kunpeng DevKit AI · TUI 竞品分析</title>
+<script>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.setAttribute('data-theme','light')}})()</script>
 <style>
 :root{
   --background:#101010; --bg-elev:#141414;
   --surface-1:#161616; --surface-2:#1c1c1c; --surface-3:#262626; --surface-4:#313131;
-  --fg:rgba(255,255,255,.90); --fg2:rgba(255,255,255,.60);
-  --fg3:rgba(255,255,255,.40); --fg4:rgba(255,255,255,.25);
-  --bd1:rgba(255,255,255,.06); --bd2:rgba(255,255,255,.10); --bd3:rgba(255,255,255,.16);
+  --fg:rgba(255,255,255,.90); --fg2:rgba(255,255,255,.68);
+  --fg3:rgba(255,255,255,.55); --fg4:rgba(255,255,255,.38);
+  --bd1:rgba(255,255,255,.10); --bd2:rgba(255,255,255,.14); --bd3:rgba(255,255,255,.18);
   --primary:#0077ff; --primary-h:#3d98ff; --accent:#7c8db8;
   --ok:#04d793; --warn:#ffaa3b; --danger:#ff4b7b;
   --hl-b:#3C7CF6; --hl-v:#9B3CF6; --hl-o:#FA8838; --hl-g:#B3F141; --hl-a:#F4CB22;
+  --cell-bg:rgba(255,255,255,.015); --cell-bg2:rgba(255,255,255,.03); --cell-bg3:rgba(255,255,255,.04);
+  --cell-border:rgba(255,255,255,.06); --cell-border2:rgba(255,255,255,.1);
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px;
   --r-sm:6px; --r-md:8px; --r-lg:12px; --r-xl:16px; --r-pill:999px;
   --fast:100ms; --base:200ms; --slow:350ms; --ease:cubic-bezier(.4,0,.2,1);
   --sans:'Inter','Source Han Sans SC','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
   --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
 }
+html[data-theme="light"] {
+  --background:#fafafa; --bg-elev:#fafafa;
+  --surface-1:#fff; --surface-2:#f8f8f8; --surface-3:#fff; --surface-4:#fff;
+  --fg:rgba(0,0,0,.88); --fg2:rgba(0,0,0,.62);
+  --fg3:rgba(0,0,0,.48); --fg4:rgba(0,0,0,.32);
+  --bd1:rgba(0,0,0,.08); --bd2:rgba(0,0,0,.12); --bd3:rgba(0,0,0,.18);
+  --primary:#0062cc; --primary-h:#0055b3; --accent:#556688;
+  --ok:#00995f; --warn:#cc7700; --danger:#cc2255;
+  --hl-b:#2266dd; --hl-v:#7722dd; --hl-o:#dd6611; --hl-g:#779922; --hl-a:#cc9911;
+  --cell-bg:rgba(0,0,0,.015); --cell-bg2:rgba(0,0,0,.03); --cell-bg3:rgba(0,0,0,.04);
+  --cell-border:rgba(0,0,0,.06); --cell-border2:rgba(0,0,0,.1);
+}
+html[data-theme="light"] .hstat{background:#fff}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:60px}
 body{background:var(--background);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.65;
@@ -32,10 +48,11 @@ a{color:var(--primary-h);text-decoration:none}
   text-shadow:0 0 12px rgba(0,119,255,.35)}
 .scan{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.35;
   background:repeating-linear-gradient(180deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px)}
+html[data-theme="light"] .scan{opacity:.10}
 #pfield{position:absolute;inset:0;width:100%;height:100%;z-index:0}
 
 /* ══ topbar ══ */
-.top{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(20,20,20,.88);
+.top{position:fixed;top:0;left:0;right:0;height:52px;background:var(--bg-elev);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--bd1);display:flex;align-items:center;
   gap:var(--s3);padding:0 var(--s5);z-index:60}
 .logo{width:22px;height:22px;border-radius:var(--r-sm);background:var(--primary);
@@ -45,8 +62,19 @@ a{color:var(--primary-h);text-decoration:none}
 .logo i:nth-child(3){opacity:.6}.logo i:nth-child(4){opacity:.32}
 .top b{font-size:14px;font-weight:700}
 .chip{font-family:var(--mono);font-size:11px;color:var(--fg3);background:var(--surface-2);
-  border:1px solid var(--bd1);border-radius:var(--r-sm);padding:2px 7px}
+  border-radius:var(--r-sm);padding:2px 7px}
 .top .r{margin-left:auto;font-size:11px;color:var(--fg3);font-family:var(--mono)}
+
+/* theme toggle */
+.theme-btn{width:30px;height:30px;border-radius:var(--r-sm);border:1px solid var(--bd2);
+  background:var(--surface-2);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:14px;line-height:1;padding:0;transition:all var(--fast) var(--ease);margin-left:var(--s2);
+  color:var(--fg2);flex-shrink:0}
+.theme-btn:hover{background:var(--surface-3);border-color:var(--bd3);color:var(--fg)}
+.theme-btn .theme-icon-light,
+.theme-btn .theme-icon-dark{display:none;line-height:1;pointer-events:none}
+html[data-theme="dark"] .theme-btn .theme-icon-light{display:inline}
+html[data-theme="light"] .theme-btn .theme-icon-dark{display:inline}
 
 /* ══ hero ══ */
 .hero{position:relative;min-height:82vh;display:flex;align-items:center;justify-content:center;
@@ -58,7 +86,7 @@ a{color:var(--primary-h);text-decoration:none}
 .hero h1 em{font-style:normal;color:var(--primary-h)}
 .hero p{color:var(--fg2);font-size:15px;max-width:62ch;margin:0 auto var(--s6)}
 .hero-stats{display:flex;gap:var(--s3);justify-content:center;flex-wrap:wrap;margin-top:var(--s6)}
-.hstat{background:rgba(22,22,22,.72);border:1px solid var(--bd2);border-radius:var(--r-lg);
+.hstat{background:rgba(22,22,22,.72);border-radius:var(--r-lg);
   padding:var(--s3) var(--s5);min-width:116px;backdrop-filter:blur(4px)}
 .hstat b{display:block;font-family:var(--mono);font-size:26px;font-weight:700;line-height:1.2}
 .hstat span{font-size:11px;color:var(--fg3);letter-spacing:.06em}
@@ -70,7 +98,7 @@ a{color:var(--primary-h);text-decoration:none}
 .floornav{position:fixed;right:var(--s5);top:50%;transform:translateY(-50%);z-index:50;
   display:flex;flex-direction:column;gap:9px}
 .floornav a{display:flex;align-items:center;gap:9px;justify-content:flex-end;
-  font-family:var(--mono);font-size:10px;color:var(--fg4);transition:color var(--fast) var(--ease)}
+  font-family:var(--mono);font-size:10.5px;color:var(--fg4);transition:color var(--fast) var(--ease)}
 .floornav a i{width:14px;height:2px;background:var(--fg4);display:block;
   transition:all var(--base) var(--ease)}
 .floornav a:hover{color:var(--fg2)}
@@ -90,96 +118,96 @@ h3{font-size:16px;font-weight:600;margin:var(--s6) 0 var(--s3)}
 .sub::after{content:'';flex:1;height:1px;background:var(--bd1)}
 p{margin:var(--s3) 0;color:var(--fg2)}
 strong,b{color:var(--fg);font-weight:600}
-code{font-family:var(--mono);font-size:12px;background:var(--surface-2);border:1px solid var(--bd1);
+code{font-family:var(--mono);font-size:12px;background:var(--surface-2);
   padding:1px 6px;border-radius:var(--r-sm);color:var(--fg);white-space:nowrap}
 
 /* ══ cards ══ */
 .grid{display:grid;gap:var(--s3);margin:var(--s4) 0}
 .g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
-.card{background:var(--surface-1);border:1px solid var(--bd2);border-radius:var(--r-lg);padding:var(--s4);
+.card{background:var(--surface-1);border-radius:var(--r-lg);padding:var(--s4);
   transition:all var(--fast) var(--ease)}
-.card:hover{background:var(--surface-2);border-color:var(--bd3)}
+.card:hover{background:var(--surface-2)}
 .card h4{font-size:13px;font-weight:600;margin-bottom:var(--s2)}
 .card p{font-size:12.5px;margin:var(--s2) 0}
 .pcard{position:relative;overflow:hidden}
 .pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--tint,var(--primary))}
 .pname{display:flex;align-items:baseline;gap:var(--s2);margin-bottom:var(--s1)}
 .pname b{font-size:15px}
-.pname .ver{font-family:var(--mono);font-size:10px;color:var(--fg4)}
-.plane{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+.pname .ver{font-family:var(--mono);font-size:11px;color:var(--fg4)}
+.plane{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
   color:var(--tint,var(--primary));margin-bottom:var(--s3)}
 
 /* ══ 布局线框简图 ══ */
-.wf{background:#0a0a0a;border:1px solid var(--bd2);border-radius:8px;overflow:hidden;
+.wf{background:var(--surface-1);border-radius:8px;overflow:hidden;
   display:flex;flex-direction:column;height:150px;margin:0 0 var(--s3);
-  font-family:var(--mono);font-size:8.5px;line-height:1.2;user-select:none}
+  font-family:var(--mono);font-size:10.5px;line-height:1.3;user-select:none}
 .wf .row{display:flex;flex:1;min-height:0}
 .wf .col{display:flex;flex-direction:column;min-width:0}
-.wf .z{border:1px solid var(--bd1);margin:1px;display:flex;flex-direction:column;
+.wf .z{margin:1px;display:flex;flex-direction:column;
   align-items:center;justify-content:center;color:var(--fg4);text-align:center;
   padding:1px 3px;overflow:hidden;min-width:0;border-radius:2px}
 .wf .z br{display:none}
 .wf .z.fx{flex:none}
 .wf .col>.z{flex:1}
 .wf .row>.z{flex:1}
-.wf .z.hi{background:rgba(0,119,255,.13);border-color:rgba(0,119,255,.42);color:var(--primary-h);font-weight:600}
-.wf .z.sh{background:rgba(255,255,255,.035)}
-.wf .z.dash{border-style:dashed;border-color:var(--bd3);color:var(--fg3)}
-.wf .z.warn{background:rgba(255,75,123,.08);border-color:rgba(255,75,123,.3);color:var(--danger)}
-.wfcap{font-size:10.5px;color:var(--fg4);margin:-6px 0 var(--s3);font-family:var(--mono)}
+.wf .z.hi{background:rgba(0,119,255,.13);color:var(--primary-h);font-weight:600}
+.wf .z.sh{background:var(--cell-bg2)}
+.wf .z.dash{color:var(--fg3)}
+.wf .z.warn{background:rgba(255,75,123,.08);color:var(--danger)}
+.wfcap{font-size:11px;color:var(--fg4);margin:-6px 0 var(--s3);font-family:var(--mono)}
 .wfcap b{color:var(--primary-h);font-weight:500}
 .wfleg{display:flex;gap:var(--s4);flex-wrap:wrap;font-size:11px;color:var(--fg3);margin:var(--s3) 0}
 .wfleg span{display:flex;align-items:center;gap:6px}
-.wfleg i{width:16px;height:11px;border-radius:2px;border:1px solid var(--bd1);display:block}
+.wfleg i{width:16px;height:11px;border-radius:2px;display:block}
 
 /* ══ badges ══ */
-.b{display:inline-block;font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:var(--r-pill);
-  background:var(--surface-2);border:1px solid var(--bd2);color:var(--fg2);margin:2px 3px 2px 0}
-.b.p{color:var(--primary-h);border-color:rgba(0,119,255,.32)}
-.b.s{color:var(--ok);border-color:rgba(4,215,147,.3)}
-.b.w{color:var(--warn);border-color:rgba(255,170,59,.3)}
-.b.d{color:var(--danger);border-color:rgba(255,75,123,.3)}
+.b{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:var(--r-pill);
+  background:var(--surface-2);color:var(--fg2);margin:2px 3px 2px 0}
+.b.p{color:var(--primary-h)}
+.b.s{color:var(--ok)}
+.b.w{color:var(--warn)}
+.b.d{color:var(--danger)}
 
 /* ══ tables ══ */
 table{width:100%;border-collapse:collapse;margin:var(--s3) 0;font-size:12.5px}
-th{text-align:left;font-size:10.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+th{text-align:left;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
   color:var(--fg3);padding:var(--s2) var(--s3);border-bottom:1px solid var(--bd2);white-space:nowrap}
 td{padding:var(--s2) var(--s3);border-bottom:1px solid var(--bd1);vertical-align:top;color:var(--fg2)}
-tr:hover td{background:rgba(255,255,255,.02)}
+tr:hover td{background:var(--cell-bg2)}
 td:first-child{color:var(--fg);font-weight:500}
 .mono{font-family:var(--mono)}
-.tp{font-family:var(--mono);font-size:10.5px;color:var(--accent);white-space:nowrap}
+.tp{font-family:var(--mono);font-size:11px;color:var(--accent);white-space:nowrap}
 
 /* ══ journey ══ */
 .jrow{display:grid;grid-template-columns:96px repeat(6,1fr);gap:1px;background:var(--bd1);
-  border:1px solid var(--bd1);border-radius:var(--r-lg);overflow:hidden;margin:var(--s4) 0;font-size:11.5px}
+  border-radius:var(--r-lg);overflow:hidden;margin:var(--s4) 0;font-size:11.5px}
 .jrow>div{background:var(--background);padding:var(--s3)}
 .jrow .jh{background:var(--surface-2);font-weight:600;color:var(--fg);font-size:11px}
-.jrow .jl{background:var(--surface-2);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+.jrow .jl{background:var(--surface-2);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
   color:var(--fg3);display:flex;align-items:center}
 .jrow ul{list-style:none;color:var(--fg2)}
 .jrow li{margin:3px 0;padding-left:9px;position:relative;line-height:1.5}
 .jrow li::before{content:'';position:absolute;left:0;top:8px;width:3px;height:3px;border-radius:50%;
   background:var(--fg4)}
 .fric{color:var(--danger)} .oppo{color:var(--ok)}
-.emo{margin:var(--s4) 0;background:var(--surface-1);border:1px solid var(--bd2);
+.emo{margin:var(--s4) 0;background:var(--surface-1);
   border-radius:var(--r-lg);padding:var(--s4)}
 
 /* ══ callouts ══ */
-.note{background:rgba(0,119,255,.09);border:1px solid rgba(0,119,255,.26);border-radius:var(--r-lg);
+.note{background:rgba(0,119,255,.09);border-radius:var(--r-lg);
   padding:var(--s3) var(--s4);margin:var(--s4) 0;font-size:13px;color:var(--fg2)}
 .note b{color:var(--primary-h)}
-.note.w{background:rgba(255,170,59,.09);border-color:rgba(255,170,59,.26)}
+.note.w{background:rgba(255,170,59,.09)}
 .note.w b{color:var(--warn)}
-.note.d{background:rgba(255,75,123,.08);border-color:rgba(255,75,123,.26)}
+.note.d{background:rgba(255,75,123,.08)}
 .note.d b{color:var(--danger)}
-.note.s{background:rgba(4,215,147,.08);border-color:rgba(4,215,147,.26)}
+.note.s{background:rgba(4,215,147,.08)}
 .note.s b{color:var(--ok)}
 .rule{font-size:12.5px;color:var(--fg2);border-left:2px solid var(--bd3);padding-left:var(--s3);margin:var(--s3) 0}
 
 /* ══ opportunity cards（游戏化计分板）══ */
-.opp{background:var(--surface-1);border:1px solid var(--bd2);border-radius:var(--r-lg);
+.opp{background:var(--surface-1);border-radius:var(--r-lg);
   padding:var(--s4);margin:var(--s3) 0;display:flex;gap:var(--s4);align-items:flex-start}
 .opp .n{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--primary-h);
   line-height:1;min-width:44px;text-shadow:0 0 14px rgba(0,119,255,.4)}
@@ -190,7 +218,7 @@ td:first-child{color:var(--fg);font-weight:500}
 .meter i.on{background:var(--primary-h);box-shadow:0 0 6px rgba(0,119,255,.5)}
 .meter.g i.on{background:var(--ok);box-shadow:0 0 6px rgba(4,215,147,.45)}
 
-pre{font-family:var(--mono);background:#0b0b0b;border:1px solid var(--bd1);border-radius:var(--r-lg);
+pre{font-family:var(--mono);background:var(--surface-1);border-radius:var(--r-lg);
   padding:var(--s4);overflow-x:auto;font-size:11.5px;line-height:1.5;color:#E8E8E8;margin:var(--s3) 0}
 pre .cm{color:#707070} pre .pr{color:#3d98ff} pre .ok{color:#04d793}
 pre .wn{color:#ffaa3b} pre .er{color:#ff4b7b} pre .ac{color:#7c8db8}
@@ -203,6 +231,193 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 .kplock{display:flex;align-items:center;gap:0;margin-bottom:14px}
 .kplock .nm{font-family:var(--mono,monospace);font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--fg2,#a4a4a4)}
 .kplock .sep{opacity:.35;margin:0 9px}
+
+/* ══ 示意图组件 ══ */
+.diag{background:var(--surface-1);border-radius:var(--r-lg);
+  padding:var(--s4);margin:var(--s4) 0;overflow:hidden;position:relative}
+.diag-cap{font-size:11px;color:var(--fg3);font-family:var(--mono);margin-bottom:var(--s3);
+  letter-spacing:.04em;display:flex;align-items:center;gap:var(--s3)}
+.diag-cap::after{content:'';flex:1;height:1px;background:var(--bd1)}
+
+/* Cell Grid 示意图 */
+.diag-grid{display:flex;flex-direction:column;gap:0;font-family:var(--mono)}
+.diag-grid .grow{display:flex;gap:0}
+.diag-grid .gcell{width:28px;height:24px;border:1px solid var(--cell-border2);
+  display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--fg4);
+  background:var(--cell-bg);transition:all var(--fast) var(--ease);position:relative}
+.diag-grid .gcell.hi{background:rgba(0,119,255,.15);border-color:rgba(0,119,255,.45);color:var(--primary-h)}
+.diag-grid .gcell.edge{background:rgba(255,75,123,.1);border-color:rgba(255,75,123,.35);color:var(--danger)}
+.diag-grid .gcell.half{background:rgba(255,170,59,.1);border-color:rgba(255,170,59,.3);
+  border-style:dashed;color:var(--warn)}
+.diag-grid .gcol-label{text-align:center;font-size:10.5px;color:var(--fg4);padding-top:4px}
+.diag-grid .gcol-label.hi{color:var(--primary-h);font-weight:600}
+.diag-grid .gcol-label.edge{color:var(--danger)}
+.diag-grid .gcol-label.warn{color:var(--warn)}
+
+/* Braille dot matrix */
+.diag-braille{display:flex;gap:var(--s5);align-items:center;flex-wrap:wrap}
+.diag-braille .dot-matrix{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);
+  gap:3px;width:56px;height:96px}
+.diag-braille .dot{width:22px;height:20px;border-radius:50%;background:var(--surface-4);
+  transition:all var(--base) var(--ease)}
+.diag-braille .dot.on{background:var(--primary-h);box-shadow:0 0 10px rgba(0,119,255,.5)}
+.diag-braille .arrow-block{font-family:var(--mono);font-size:20px;color:var(--fg3)}
+.diag-braille .result{font-family:var(--mono);font-size:48px;color:var(--primary-h);
+  line-height:1;text-shadow:0 0 20px rgba(0,119,255,.3)}
+
+/* 并排对比 */
+.diag-compare{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+.diag-compare .side{background:var(--surface-2);border-radius:var(--r-md);
+  padding:var(--s3)}
+.diag-compare .side h5{font-size:11px;font-weight:600;margin-bottom:var(--s2);
+  font-family:var(--mono);letter-spacing:.04em}
+.diag-compare .side.bad h5{color:var(--danger)}
+.diag-compare .side.good h5{color:var(--ok)}
+.diag-vs{display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:13px;font-weight:700;color:var(--fg3);padding:var(--s2) 0}
+.diag-vs span{padding:var(--s1) var(--s3);background:var(--surface-1);
+  border-radius:var(--r-pill)}
+
+/* 两层画布 */
+.diag-layers{position:relative;background:var(--surface-1);border-radius:var(--r-md);
+  padding:var(--s3);min-height:220px}
+.diag-layers .layer{position:relative;border-radius:var(--r-sm);padding:var(--s2);margin:var(--s2) 0}
+.diag-layers .layer-top{background:rgba(0,119,255,.06);
+  min-height:90px}
+.diag-layers .layer-label{font-family:var(--mono);font-size:11px;color:var(--primary-h);
+  letter-spacing:.06em;margin-bottom:var(--s2)}
+.diag-layers .layer-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px}
+.diag-layers .layer-grid .lgc{border:1px solid var(--cell-border2);font-family:var(--mono);
+  font-size:10.5px;color:var(--fg4);text-align:center;padding:4px 0;border-radius:1px}
+.diag-layers .layer-grid .lgc.hi{background:rgba(0,119,255,.12);color:var(--primary-h);
+  border-color:rgba(0,119,255,.3)}
+.diag-layers .layer-plus{text-align:center;font-family:var(--mono);font-size:16px;color:var(--fg3);
+  padding:var(--s2) 0}
+.diag-layers .layer-bottom{background:rgba(4,215,147,.05);
+  min-height:60px;display:flex;align-items:center;justify-content:center}
+.diag-layers .layer-bottom .raster{width:70%;height:40px;
+  background:linear-gradient(90deg,rgba(4,215,147,.15) 0%,rgba(0,119,255,.15) 50%,rgba(156,59,246,.15) 100%);
+  border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;color:var(--fg3)}
+.diag-layers .layer-bottom .label{font-family:var(--mono);font-size:11px;color:var(--ok)}
+
+/* 产品谱系 */
+.diag-spectrum{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3)}
+.diag-spectrum .lvl{background:var(--surface-2);border-radius:var(--r-md);
+  padding:var(--s3);text-align:center;position:relative;overflow:hidden}
+.diag-spectrum .lvl .lvl-num{font-family:var(--mono);font-size:36px;font-weight:700;line-height:1;
+  margin-bottom:var(--s2);opacity:.25}
+.diag-spectrum .lvl:nth-child(1) .lvl-num{color:var(--fg)}
+.diag-spectrum .lvl:nth-child(2) .lvl-num{color:var(--hl-o)}
+.diag-spectrum .lvl:nth-child(3) .lvl-num{color:var(--hl-g)}
+.diag-spectrum .lvl h5{font-size:12px;font-weight:600;margin-bottom:var(--s2)}
+.diag-spectrum .lvl .lvl-viz{height:80px;display:flex;align-items:center;justify-content:center;
+  margin:var(--s2) 0;font-family:var(--mono)}
+.diag-spectrum .lvl:nth-child(1) .lvl-viz{font-size:10.5px;color:var(--fg3);
+  background:var(--cell-bg2);border-radius:var(--r-sm)}
+.diag-spectrum .lvl:nth-child(2) .lvl-viz{font-size:22px;color:var(--hl-o);
+  background:rgba(250,136,56,.04);border-radius:var(--r-sm);
+  letter-spacing:2px}
+.diag-spectrum .lvl:nth-child(3) .lvl-viz{background:rgba(179,241,65,.03);
+  border-radius:var(--r-sm);display:flex;gap:3px}
+.diag-spectrum .lvl:nth-child(3) .lvl-viz .lvl-txt{flex:1;font-size:10.5px;color:var(--fg4);
+  display:flex;align-items:center;justify-content:center;background:var(--cell-bg2)}
+.diag-spectrum .lvl:nth-child(3) .lvl-viz .lvl-img{flex:1.2;
+  background:linear-gradient(135deg,rgba(179,241,65,.08),rgba(0,119,255,.12));
+  display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--hl-g)}
+.diag-spectrum .lvl .lvl-tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-top:var(--s2)}
+.diag-spectrum .lvl .lvl-tags span{font-size:11px;padding:2px 7px;border-radius:var(--r-pill);
+  background:var(--surface-3);color:var(--fg3)}
+
+/* 管线对比 */
+.diag-pipeline{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)}
+.diag-pipeline .pipe{background:var(--surface-2);border-radius:var(--r-md);
+  padding:var(--s3)}
+.diag-pipeline .pipe h5{font-size:11px;font-weight:600;margin-bottom:var(--s3);font-family:var(--mono)}
+.diag-pipeline .pipe-steps{display:flex;align-items:center;gap:4px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:11px}
+.diag-pipeline .pipe-steps .step{background:var(--surface-3);
+  padding:5px 9px;border-radius:var(--r-sm);color:var(--fg2);white-space:nowrap}
+.diag-pipeline .pipe-steps .step.hi{background:rgba(0,119,255,.1);
+  color:var(--primary-h)}
+.diag-pipeline .pipe-steps .arr{color:var(--fg4);font-weight:700}
+.diag-pipeline .pipe.bad h5{color:var(--danger)}
+
+/* 协议降级链 */
+.diag-fallback{display:flex;align-items:center;gap:0;padding:var(--s3) 0;flex-wrap:wrap;
+  font-family:var(--mono)}
+.diag-fallback .fnode{background:var(--surface-2);padding:var(--s2) var(--s3);
+  border-radius:var(--r-md);font-size:11px;color:var(--fg);white-space:nowrap;
+  position:relative;z-index:1}
+.diag-fallback .fnode.best{background:rgba(4,215,147,.1);color:var(--ok)}
+.diag-fallback .fnode.last{background:var(--cell-bg2);color:var(--fg3)}
+.diag-fallback .farr{font-size:14px;color:var(--fg4);padding:0 var(--s1);flex-shrink:0}
+.diag-fallback .farrow-down{display:flex;flex-direction:column;align-items:center;
+  font-size:11px;color:var(--fg4);font-family:var(--mono);padding:0 var(--s1)}
+
+/* TUI vs GUI layout 树 */
+.diag-layout-tree{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+.diag-layout-tree .lt{background:var(--surface-2);border-radius:var(--r-md);
+  padding:var(--s3);font-family:var(--mono);font-size:11px}
+.diag-layout-tree .lt h5{font-size:11px;font-weight:600;margin-bottom:var(--s3)}
+.diag-layout-tree .lt ul{list-style:none;padding-left:var(--s3)}
+.diag-layout-tree .lt li{margin:4px 0;padding:4px 8px;border-radius:var(--r-sm);position:relative}
+.diag-layout-tree .lt li.root{background:rgba(0,119,255,.1);
+  color:var(--primary-h);font-weight:600;margin-bottom:var(--s2)}
+.diag-layout-tree .lt li.branch{background:var(--surface-3);
+  color:var(--fg2);margin-left:var(--s3)}
+.diag-layout-tree .lt li.leaf{background:var(--cell-bg2);
+  color:var(--fg3);margin-left:var(--s5)}
+.diag-layout-tree .lt li.leaf-pixel{background:rgba(4,215,147,.08);
+  color:var(--ok);margin-left:var(--s5)}
+.diag-layout-tree .lt .conn{color:var(--fg4);padding-left:var(--s3)}
+
+/* 箭头标注 */
+.diag-annotate{position:relative}
+.diag-annotate .annot{display:flex;align-items:flex-start;gap:var(--s2);margin:var(--s2) 0;
+  font-size:11px;font-family:var(--mono)}
+.diag-annotate .annot .arr{color:var(--primary-h);flex-shrink:0}
+.diag-annotate .annot .txt{color:var(--fg3)}
+.diag-annotate .annot .txt b{color:var(--fg)}
+
+/* 格子计数图 */
+.diag-count-grid{background:var(--surface-1);border-radius:var(--r-md);
+  padding:var(--s3);text-align:center}
+.diag-count-grid .mini-grid{display:grid;grid-template-columns:repeat(20,1fr);gap:1px;
+  max-width:300px;margin:0 auto var(--s2)}
+.diag-count-grid .mini-grid .mg{aspect-ratio:1;background:var(--cell-bg3);
+  border-radius:1px;min-width:10px}
+.diag-count-grid .mini-grid .mg.hi{background:rgba(0,119,255,.2)}
+.diag-count-grid .count-label{font-family:var(--mono);font-size:11px;color:var(--fg3)}
+.diag-count-grid .count-label b{color:var(--primary-h)}
+
+/* 分辨率 token 层级 */
+.diag-token-stack{display:flex;flex-direction:column;gap:var(--s2);max-width:500px;margin:0 auto}
+.diag-token-stack .tk{display:flex;align-items:center;gap:var(--s3);padding:var(--s2) var(--s3);
+  border-radius:var(--r-md);font-family:var(--mono);font-size:11px}
+.diag-token-stack .tk:nth-child(1){background:rgba(0,119,255,.08)}
+.diag-token-stack .tk:nth-child(2){background:rgba(250,136,56,.06)}
+.diag-token-stack .tk:nth-child(3){background:rgba(179,241,65,.06)}
+.diag-token-stack .tk .tk-num{font-size:16px;font-weight:700;min-width:24px;text-align:center}
+.diag-token-stack .tk:nth-child(1) .tk-num{color:var(--primary-h)}
+.diag-token-stack .tk:nth-child(2) .tk-num{color:var(--hl-o)}
+.diag-token-stack .tk:nth-child(3) .tk-num{color:var(--hl-g)}
+.diag-token-stack .tk .tk-desc{color:var(--fg2);font-size:11px}
+.diag-token-stack .tk .tk-val{color:var(--fg3);font-size:11px;margin-left:auto}
+.diag-token-stack .tk-arrow{text-align:center;color:var(--fg4);font-size:14px}
+
+/* 能力决策树 */
+.diag-tree{font-family:var(--mono);font-size:11px;padding:var(--s2)}
+.diag-tree .tnode{display:flex;align-items:center;gap:var(--s2);padding:var(--s1) 0}
+.diag-tree .tnode .tbullet{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.diag-tree .tnode .tbullet.q{background:var(--warn);box-shadow:0 0 6px rgba(255,170,59,.3)}
+.diag-tree .tnode .tbullet.a{background:var(--ok);box-shadow:0 0 6px rgba(4,215,147,.3)}
+.diag-tree .tnode .tbullet.e{background:var(--fg4)}
+.diag-tree .tindent{padding-left:var(--s5);border-left:1px solid var(--bd1);margin-left:9px}
+.diag-tree .tpath{color:var(--ok);font-weight:600}
+.diag-tree .tpath.alt{color:var(--warn)}
+.diag-tree .tpath.last{color:var(--fg3)}
 </style>
 </head>
 <body>
@@ -211,22 +426,26 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 <div class="top">
   <img class="kpmark" alt="Kunpeng" src="data:image/png;base64,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">
   <b>Kunpeng DevKit AI</b><span class="chip">TUI 竞品分析</span>
-  <span class="chip">UX 视角 · 7 竞品 · 22 触点</span>
+  <span class="chip">UX 视角 · 8 竞品 · 22 触点</span>
+  <button id="themeToggle" class="theme-btn" title="切换亮色/暗色主题" aria-label="切换主题">
+    <span class="theme-icon-light">☀️</span><span class="theme-icon-dark">🌙</span>
+  </button>
   <span class="r">2026-08 · for Kunpeng DevKit AI</span>
 </div>
 
 <nav class="floornav" id="fnav">
   <a href="#f1"><span>方法与范围</span><i></i></a>
-  <a href="#f2"><span>竞品全景</span><i></i></a>
-  <a href="#f3"><span>旅程地图</span><i></i></a>
-  <a href="#f4"><span>触点对比</span><i></i></a>
-  <a href="#f5"><span>模式识别</span><i></i></a>
-  <a href="#f6"><span>SWOT</span><i></i></a>
-  <a href="#f7"><span>差距矩阵</span><i></i></a>
-  <a href="#f8"><span>行业分歧</span><i></i></a>
-  <a href="#f9"><span>机会点</span><i></i></a>
-  <a href="#f10"><span>补充观察</span><i></i></a>
-  <a href="#f11"><span>资料库</span><i></i></a>
+  <a href="#f2"><span>分辨率模型</span><i></i></a>
+  <a href="#f3"><span>竞品全景</span><i></i></a>
+  <a href="#f4"><span>旅程地图</span><i></i></a>
+  <a href="#f5"><span>触点对比</span><i></i></a>
+  <a href="#f6"><span>模式识别</span><i></i></a>
+  <a href="#f7"><span>SWOT</span><i></i></a>
+  <a href="#f8"><span>差距矩阵</span><i></i></a>
+  <a href="#f9"><span>行业分歧</span><i></i></a>
+  <a href="#f10"><span>机会点</span><i></i></a>
+  <a href="#f11"><span>补充观察</span><i></i></a>
+  <a href="#f12"><span>资料库</span><i></i></a>
 </nav>
 
 <!-- ══════ HERO ══════ -->
@@ -235,14 +454,14 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
   <div class="hero-in">
     <div class="kplock"><img class="kpmark" alt="Kunpeng" src="data:image/png;base64,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"><span class="nm">Kunpeng DevKit AI</span><span class="nm sep">/</span><span class="nm">Competitive Analysis</span></div>
     <h1>终端里的工作台<br>该长什么样<em>？</em></h1>
-    <p>横跨终端工作台、AI Coding TUI、工程观测三派，拆解 7 个产品的框架结构、交互模型与布局系统。
+    <p>横跨终端工作台、AI Coding TUI、工程观测、Hybrid TUI 四派，拆解 8 个产品的框架结构、交互模型与布局系统。
        目标是为 Kunpeng DevKit AI 找到可借鉴的模式、必须绕开的坑，以及尚未形成范式的创新空间。</p>
     <div class="hero-stats">
-      <div class="hstat"><b class="pixel" style="color:var(--primary-h)">7</b><span>竞品</span></div>
+      <div class="hstat"><b class="pixel" style="color:var(--primary-h)">8</b><span>竞品</span></div>
       <div class="hstat"><b class="pixel" style="color:var(--ok)">22</b><span>触点</span></div>
       <div class="hstat"><b class="pixel" style="color:var(--warn)">6</b><span>旅程阶段</span></div>
       <div class="hstat"><b class="pixel" style="color:var(--danger)">7</b><span>反面教训</span></div>
-      <div class="hstat"><b class="pixel" style="color:var(--accent)">4</b><span>行业分歧点</span></div>
+      <div class="hstat"><b class="pixel" style="color:var(--accent)">5</b><span>行业分歧点</span></div>
     </div>
   </div>
   <div class="scrollhint">▼ scroll</div>
@@ -256,31 +475,414 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 
   <div class="grid g3">
     <div class="card"><h4>目标</h4><p>为 Kunpeng DevKit AI 的框架、交互、布局决策提供依据。不做泛泛的产品测评，只回答"我们该怎么做"。</p></div>
-    <div class="card"><h4>为什么跨三派</h4><p>同派内部差异小，跨派才能暴露<strong>行业分歧点</strong>——那些尚未形成统一范式的地方，就是创新空间。</p></div>
+    <div class="card"><h4>为什么跨四派</h4><p>同派内部差异小，跨派才能暴露<strong>行业分歧点</strong>——那些尚未形成统一范式的地方，就是创新空间。新增 Yazi 不是因为它做文件管理，而是它展示了 Cell 布局 + Pixel 渲染共存的真实产品形态，这是理解现代 TUI 能力边界的关键参照。</p></div>
     <div class="card"><h4>证据标准</h4><p>结论尽量附来源；官方文档与源码优先于二手评测；痛点取自 issue 与用户原话，不用"界面老"这类空话。</p></div>
   </div>
 
-  <div class="sub">竞品名单 · 三派</div>
+  <div class="sub">竞品名单 · 四派</div>
   <table>
     <tr><th>派系</th><th>竞品</th><th>选入理由</th><th>主要贡献的维度</th></tr>
     <tr><td style="color:var(--hl-b)">终端工作台派</td><td class="mono">MobaXterm · Zellij</td><td>多会话工作台的两种极端：GUI 停靠面板 vs 可编程 UI 插件</td><td>框架结构 · 布局系统 · 键位体系</td></tr>
     <tr><td style="color:var(--hl-v)">AI Coding TUI 派</td><td class="mono">OpenCode · Claude Code</td><td>直接同类；且二者在渲染架构、Plan、权限上做了完全不同的选择</td><td>Agent 交互流 · 权限 · 审查 · 上下文</td></tr>
     <tr><td style="color:var(--hl-o)">工程观测派</td><td class="mono">btop · k9s · lazygit</td><td>信息密度与图表原语的天花板；且都是"选中联动"的成熟范例</td><td>数据密度 · 可视化技法 · 下钻联动</td></tr>
+    <tr><td style="color:var(--hl-g)">Hybrid TUI 派 🆕</td><td class="mono">Yazi</td><td>Cell UI + 真实 pixel graphics 的代表；展示现代 TUI 的双重分辨率边界</td><td>分辨率模型 · 图片渲染协议 · capability adaptation</td></tr>
   </table>
 
-  <div class="note"><b>一句话说清三派的空间范式差异：</b>btop 是<strong>多盒同屏全常驻</strong>，k9s 是<strong>单主视图 + 栈式下钻</strong>，lazygit 是<strong>侧栏列表 + 主区 detail 联动</strong>，Zellij 是<strong>可无限递归的 pane 树</strong>，而两个 AI Coding TUI <strong>都放弃了分屏</strong>。这个分歧本身就是最重要的发现之一。</div>
+  <div class="note"><b>一句话说清四派的空间范式差异：</b>btop 是<strong>多盒同屏全常驻</strong>，k9s 是<strong>单主视图 + 栈式下钻</strong>，lazygit 是<strong>侧栏列表 + 主区 detail 联动</strong>，Zellij 是<strong>可无限递归的 pane 树</strong>，两个 AI Coding TUI <strong>都放弃了分屏</strong>，而 Yazi 展示了 <strong>Cell 布局层与 Pixel 渲染层可以在同一界面中共存</strong>。这个分歧本身就是最重要的发现之一。</div>
+
+  <div class="diag">
+    <div class="diag-cap">四派空间范式 · 一眼对比</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s3);font-size:10.5px">
+      <div style="background:var(--surface-2);border:1px solid var(--bd1);border-radius:var(--r-md);padding:var(--s2);text-align:center">
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--hl-b);margin-bottom:var(--s1)">终端工作台派</div>
+        <div style="border:1px solid var(--bd1);border-radius:var(--r-sm);padding:3px;margin-bottom:2px">
+          <div style="display:flex;gap:1px;height:16px">
+            <div style="flex:1;background:var(--cell-bg3);border:1px solid var(--cell-border);border-radius:1px"></div>
+            <div style="flex:1;background:var(--cell-bg3);border:1px solid var(--cell-border);border-radius:1px"></div>
+          </div>
+          <div style="display:flex;gap:1px;height:10px;margin-top:1px">
+            <div style="flex:1;background:var(--cell-bg3);border:1px solid var(--cell-border);border-radius:1px"></div>
+            <div style="flex:1;background:var(--cell-bg3);border:1px solid var(--cell-border);border-radius:1px"></div>
+            <div style="flex:0.7;background:rgba(0,119,255,.15);border:1px solid rgba(0,119,255,.3);border-radius:1px"></div>
+          </div>
+        </div>
+        <div style="font-size:10.5px;color:var(--fg3)">多 pane · 可递归</div>
+      </div>
+      <div style="background:var(--surface-2);border:1px solid var(--bd1);border-radius:var(--r-md);padding:var(--s2);text-align:center">
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--hl-v);margin-bottom:var(--s1)">AI Coding 派</div>
+        <div style="border:1px solid var(--bd1);border-radius:var(--r-sm);padding:3px">
+          <div style="height:20px;background:var(--cell-bg2);border:1px solid var(--cell-border);border-radius:1px;margin-bottom:1px"></div>
+          <div style="height:8px;background:rgba(0,119,255,.08);border:1px dashed rgba(0,119,255,.2);border-radius:1px"></div>
+        </div>
+        <div style="font-size:10.5px;color:var(--fg3);margin-top:3px">单栏 · 无分屏</div>
+      </div>
+      <div style="background:var(--surface-2);border:1px solid var(--bd1);border-radius:var(--r-md);padding:var(--s2);text-align:center">
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--hl-o);margin-bottom:var(--s1)">工程观测派</div>
+        <div style="border:1px solid var(--bd1);border-radius:var(--r-sm);padding:3px;margin-bottom:2px">
+          <div style="display:flex;gap:1px;height:16px">
+            <div style="width:30%;background:var(--cell-bg3);border:1px solid var(--cell-border);border-radius:1px"></div>
+            <div style="flex:1;background:rgba(250,136,56,.08);border:1px solid rgba(250,136,56,.2);border-radius:1px"></div>
+          </div>
+          <div style="display:flex;gap:1px;height:10px;margin-top:1px">
+            <div style="width:30%;background:var(--cell-bg3);border:1px solid var(--cell-border);border-radius:1px"></div>
+            <div style="flex:1;background:rgba(250,136,56,.08);border:1px solid rgba(250,136,56,.2);border-radius:1px"></div>
+          </div>
+        </div>
+        <div style="font-size:10.5px;color:var(--fg3)">侧栏联动 · master-detail</div>
+      </div>
+      <div style="background:var(--surface-2);border:1px solid var(--bd1);border-radius:var(--r-md);padding:var(--s2);text-align:center">
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--hl-g);margin-bottom:var(--s1)">Hybrid TUI 派</div>
+        <div style="border:1px solid var(--bd1);border-radius:var(--r-sm);padding:3px;margin-bottom:2px">
+          <div style="display:flex;gap:1px;height:20px">
+            <div style="width:45%;background:var(--cell-bg3);border:1px solid var(--cell-border);border-radius:1px"></div>
+            <div style="flex:1;background:rgba(179,241,65,.06);border:1px solid rgba(179,241,65,.12);border-radius:1px;display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--hl-g)">IMG</div>
+          </div>
+        </div>
+        <div style="font-size:10.5px;color:var(--fg3)">Cell + Pixel 共存</div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">四种空间范式 → 四种完全不同的"界面是什么"的理解 → <b style="color:var(--primary-h)">行业尚未收敛</b></p>
+  </div>
 </section>
 
-<!-- ══════ F2 竞品全景 ══════ -->
+<!-- ══════ F2 分辨率模型 ══════ -->
 <section class="floor" id="f2">
   <div class="fnum">FLOOR 02</div>
+  <h2>TUI 分辨率模型 · Cell 是区别于 GUI 的根本约束</h2>
+  <p class="lead">现代 TUI 不能再简单分成"低分辨率字符界面"和 GUI 两类。更准确的做法，是看它的<strong>主 UI plane 到底用什么分辨率表达</strong>。TUI 产品没有固定的 1920×1080——它跟着 Terminal 窗口变化，现代图形协议则可能让某个区域额外获得 pixel resolution。</p>
+
+  <div class="sub">三档分类</div>
+  <table>
+    <tr><th>类型</th><th>代表产品</th><th>主界面分辨率</th><th>图形分辨率</th></tr>
+    <tr><td style="color:var(--hl-b)">纯 Cell TUI</td><td class="mono">OpenCode · Lazygit</td><td><code>columns × rows</code></td><td>基本没有独立 pixel plane</td></tr>
+    <tr><td style="color:var(--hl-o)">Sub-cell TUI</td><td class="mono">btop</td><td>仍是 <code>columns × rows</code></td><td>用 Braille/block 把一个 cell 再细分</td></tr>
+    <tr><td style="color:var(--hl-g)">Hybrid TUI</td><td class="mono">Yazi + Kitty/WezTerm/iTerm2</td><td>UI 是 <code>columns × rows</code></td><td>图片区域可以是真实 raster pixels</td></tr>
+  </table>
+
+  <h3>纯 Cell TUI · OpenCode</h3>
+  <p>OpenCode 使用 OpenTUI 作为底层 UI core，支持 component、layout 等现代 UI 抽象，但最终仍是在 terminal 中绘制。假设 Terminal 窗口 1440×900 px，字体 cell 约 9×18 px，布局坐标约 <strong>160 columns × 50 rows</strong>。它看到的不是 <code>x=183px, y=764px</code>，而是 <code>column=18, row=42, width=124 cells</code>。Panel、border、input、scroll——这些元素的边缘仍然只能落在整数 column。设计语言越来越 GUI-like，但空间分辨率仍是纯 Cell。</p>
+  <div class="note"><b>关键洞察：</b>OpenCode 同时有 Desktop App，恰好说明同一个产品逻辑可以有 TUI frontend 和真正的 GUI frontend。</div>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：Cell Grid 整数列约束 — UI 边缘只能落在整数 column</div>
+    <div class="diag-compare">
+      <div class="side bad"><h5>GUI 连续坐标</h5>
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--fg3);line-height:1.8">
+          x = 183.7 px<br>y = 764.2 px<br>width = 1034.5 px<br>height = 72.0 px
+        </div>
+      </div>
+      <div class="side good"><h5>TUI Cell 坐标</h5>
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--fg2);line-height:1.8">
+          column = 18<br>row = 42<br>width = 124 cells<br>height = 4 rows
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:var(--s3)">
+      <div class="diag-grid">
+        <div style="display:flex;gap:0;margin-bottom:2px">
+          <div style="width:28px"></div><div class="gcol-label" style="width:28px">71</div><div class="gcol-label" style="width:28px">72</div><div class="gcol-label edge" style="width:28px">73</div><div class="gcol-label hi" style="width:28px">74</div><div class="gcol-label edge" style="width:28px">75</div><div class="gcol-label" style="width:28px">76</div><div class="gcol-label" style="width:28px">77</div>
+        </div>
+        <div class="grow"><div style="width:28px;font-size:10.5px;color:var(--fg4);text-align:right;padding-right:6px;line-height:24px">r1</div><div class="gcell">A</div><div class="gcell">B</div><div class="gcell edge">C</div><div class="gcell hi">D</div><div class="gcell edge">E</div><div class="gcell">F</div><div class="gcell">G</div></div>
+        <div class="grow"><div style="width:28px;font-size:10.5px;color:var(--fg4);text-align:right;padding-right:6px;line-height:24px">r2</div><div class="gcell"></div><div class="gcell"></div><div class="gcell edge" style="border-bottom:2px solid var(--danger)">│</div><div class="gcell hi" style="border-bottom:2px solid var(--danger)">│</div><div class="gcell edge" style="border-bottom:2px solid var(--danger)">│</div><div class="gcell"></div><div class="gcell"></div></div>
+        <div class="grow"><div style="width:28px;font-size:10.5px;color:var(--fg4);text-align:right;padding-right:6px;line-height:24px">r3</div><div class="gcell"></div><div class="gcell"></div><div class="gcell edge">x</div><div class="gcell hi">x</div><div class="gcell edge">x</div><div class="gcell"></div><div class="gcell"></div></div>
+      </div>
+      <div style="display:flex;gap:var(--s4);margin-top:var(--s3);font-size:11px">
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:rgba(0,119,255,.2);border:1px solid rgba(0,119,255,.45);border-radius:2px"></span> UI 边缘可落</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:rgba(255,75,123,.1);border:1px solid rgba(255,75,123,.35);border-radius:2px"></span> UI 边缘可落</span>
+        <span style="display:flex;align-items:center;gap:6px;color:var(--warn)"><span style="width:12px;height:12px;background:rgba(255,170,59,.1);border:1px dashed rgba(255,170,59,.3);border-radius:2px"></span> 73.4 — 不可落 ✕</span>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3)">Panel border、divider、selection 边缘只能落在 <b style="color:var(--primary-h)">column 73 / 74 / 75</b>，不能落在 <b style="color:var(--warn)">73.4 columns</b>。这就是 Cell TUI 的空间约束本质。</p>
+  </div>
+
+  <h3>纯 Cell TUI · Lazygit</h3>
+  <p>120×40 cells 的 Terminal 中，Lazygit 的<strong>逻辑 UI resolution 就是 120×40 = 最多 4,800 个"空间格子"</strong>。当然每个格子还携带 glyph、foreground、background、bold、underline——所以不是 4800 个黑白像素，但 <strong>geometry resolution 就是这个量级</strong>。</p>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：Lazygit 的空间分辨率 — 120×40 = 4,800 个格子</div>
+    <div class="diag-count-grid">
+      <div class="mini-grid">
+        <div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div>
+        <div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div>
+        <div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div>
+        <div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg hi"></div><div class="mg hi"></div><div class="mg hi"></div><div class="mg hi"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div>
+        <div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg hi"></div><div class="mg hi"></div><div class="mg hi"></div><div class="mg hi"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div>
+        <div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg hi"></div><div class="mg hi"></div><div class="mg hi"></div><div class="mg hi"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div>
+        <div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div>
+        <div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div><div class="mg"></div>
+      </div>
+      <div class="count-label">… 120 columns × 40 rows = <b>4,800</b> 个空间格子</div>
+    </div>
+    <div style="display:flex;gap:var(--s2);margin-top:var(--s3);flex-wrap:wrap;font-size:11px;font-family:var(--mono);justify-content:center">
+      <span style="background:var(--surface-2);border:1px solid var(--bd1);padding:3px 8px;border-radius:var(--r-sm)">glyph: A</span>
+      <span style="background:var(--surface-2);border:1px solid var(--bd1);padding:3px 8px;border-radius:var(--r-sm)">fg: #FFF</span>
+      <span style="background:var(--surface-2);border:1px solid var(--bd1);padding:3px 8px;border-radius:var(--r-sm)">bg: #0b0b0b</span>
+      <span style="background:var(--surface-2);border:1px solid var(--bd1);padding:3px 8px;border-radius:var(--r-sm);font-weight:700">bold</span>
+      <span style="background:var(--surface-2);border:1px solid var(--bd1);padding:3px 8px;border-radius:var(--r-sm);text-decoration:underline">underline</span>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">每个格子不是 1 bit 黑白像素，而是 <b style="color:var(--primary-h)">glyph + 颜色 + 样式</b> 的多维信息单元</p>
+  </div>
+
+  <h3>Sub-cell TUI · btop</h3>
+  <p>btop 使用 <strong>Unicode Braille 字符</strong>画 graph。一个 Braille glyph 内部可表达 <strong>2×4 = 8 个 dot</strong>。40×10 cells 的 graph 区域，普通 grid 只有 40×10，用 Braille 则视觉采样网格 ≈ <strong>80×40 dots</strong>——比纯字符精细很多。</p>
+  <div class="note"><b>但仍不是 pixel graphics：</b>程序只发送 <code>U+28XX Braille glyph</code>，Terminal Emulator 再用字体 rasterize。管线是 data → dot pattern → Unicode char → cell → font raster → pixels，而非 data → drawPixel(x, y)。</div>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：Unicode Braille — 一个 glyph = 2×4 dot pattern</div>
+    <div class="diag-braille">
+      <div>
+        <div style="font-size:10.5px;color:var(--fg3);margin-bottom:var(--s2);font-family:var(--mono)">dot pattern<br>二进制 →</div>
+        <div class="dot-matrix">
+          <div class="dot on"></div><div class="dot on"></div>
+          <div class="dot on"></div><div class="dot on"></div>
+          <div class="dot on"></div><div class="dot on"></div>
+          <div class="dot on"></div><div class="dot"></div>
+        </div>
+      </div>
+      <div class="arrow-block">→ U+28FF →</div>
+      <div class="result">⣿</div>
+      <div class="arrow-block">→ raster →</div>
+      <div style="font-family:var(--mono);font-size:10.5px;color:var(--fg3);text-align:center">
+        <div style="font-size:32px;line-height:1;color:var(--primary-h)">⣿</div>
+        pixels on screen
+      </div>
+    </div>
+    <div class="diag-pipeline" style="margin-top:var(--s4)">
+      <div class="pipe bad"><h5>Braille glyph 路径（不是 pixel graphics）</h5>
+        <div class="pipe-steps">
+          <span class="step">data</span><span class="arr">→</span>
+          <span class="step">2×4 dot pattern</span><span class="arr">→</span>
+          <span class="step hi">选 Unicode Braille char</span><span class="arr">→</span>
+          <span class="step">Terminal cell</span><span class="arr">→</span>
+          <span class="step">font raster</span><span class="arr">→</span>
+          <span class="step">pixels</span>
+        </div>
+        <p style="font-size:10.5px;color:var(--fg4);margin-top:var(--s2)">6 步间接管线，最终精度受限于 font rendering</p>
+      </div>
+      <div class="pipe"><h5 style="color:var(--ok)">真正的 pixel graphics 路径</h5>
+        <div class="pipe-steps">
+          <span class="step hi">data</span><span class="arr">→</span>
+          <span class="step hi">drawPixel(x, y)</span>
+        </div>
+        <p style="font-size:10.5px;color:var(--fg4);margin-top:var(--s2)">1 步直接管线，pixel-addressable</p>
+      </div>
+    </div>
+    <div style="margin-top:var(--s3);font-size:11px;color:var(--fg3);text-align:center">
+      40 cols × 10 rows graph 区域 → 用 Braille → 有效视觉采样 ≈ <b style="color:var(--hl-o)">80 × 40 dots</b>（~4× 提升）
+    </div>
+  </div>
+
+  <h3>Hybrid TUI · Yazi 🆕</h3>
+  <p>Yazi 是现在最典型的双重分辨率产品。左侧文件树仍是 <strong>Cell resolution</strong>，右侧 preview 通过 Kitty/iTerm2/Sixel 协议渲染<strong>真实 raster image</strong>。假设 preview 占 60 cols × 30 rows，每 cell 9×18 px，viewport 就是 540×540 px。</p>
+  <div class="note"><b>双重分辨率模型：</b>Layout plane → 160×50 cells；Image preview plane → ~540×540 pixels。<strong>位置用 cell 定位，内容用 pixel 渲染。</strong></div>
+
+  <table>
+    <tr><th>协议</th><th>类型</th><th>支持终端</th></tr>
+    <tr><td class="mono">Kitty Graphics Protocol</td><td>raster graphics, pixel positioning</td><td>Kitty</td></tr>
+    <tr><td class="mono">iTerm2 Inline Image</td><td>inline image</td><td>iTerm2, WezTerm</td></tr>
+    <tr><td class="mono">Sixel</td><td>bitmap graphics</td><td>WezTerm, mlterm</td></tr>
+    <tr><td class="mono">Überzug++</td><td>external window overlay</td><td>various</td></tr>
+    <tr><td class="mono">Chafa</td><td>character approximation fallback</td><td>any</td></tr>
+  </table>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：Yazi 双重分辨率模型 — Cell 布局 + Pixel 渲染共存</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)">
+      <div style="background:var(--surface-2);border:1px solid var(--bd1);border-radius:var(--r-md);padding:var(--s3)">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--primary-h);margin-bottom:var(--s2)">Layout Plane · Cell Grid</div>
+        <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:1px">
+          <div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">dir</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">dir</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div>
+          <div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">dir</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">dir</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid rgba(0,119,255,.3);font-size:10.5px;color:var(--primary-h);text-align:center;padding:6px 0;background:rgba(0,119,255,.1)">sel</div>
+          <div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">dir</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">dir</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div>
+          <div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">dir</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">dir</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div><div style="border:1px solid var(--cell-border2);font-size:10.5px;color:var(--fg4);text-align:center;padding:6px 0">file</div>
+        </div>
+        <div style="font-size:10.5px;color:var(--fg3);margin-top:var(--s2);text-align:center">位置用 cell 定位（整数 column）</div>
+      </div>
+      <div style="background:rgba(4,215,147,.04);border:1px solid rgba(4,215,147,.2);border-radius:var(--r-md);padding:var(--s3);display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--ok);margin-bottom:var(--s2)">Preview Plane · Pixels</div>
+        <div style="width:90%;aspect-ratio:1;background:linear-gradient(135deg,rgba(179,241,65,.06),rgba(0,119,255,.08),rgba(156,59,246,.06));border:1px solid var(--cell-border);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+          <div style="position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(0,119,255,.08) 0%,transparent 60%),radial-gradient(circle at 70% 60%,rgba(179,241,65,.06) 0%,transparent 50%)"></div>
+          <span style="font-family:var(--mono);font-size:10.5px;color:var(--ok);z-index:1">raster image<br>~540×540 px</span>
+        </div>
+        <div style="font-size:10.5px;color:var(--fg3);margin-top:var(--s2);text-align:center">内容用 pixel 渲染</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:var(--s2);font-family:var(--mono);font-size:12px;font-weight:700;color:var(--fg3)">= 同一界面 · 两种分辨率模型共存</div>
+  </div>
+
+  <div class="diag">
+    <div class="diag-cap">协议降级链：Yazi 的 Capability Adaptation</div>
+    <div class="diag-fallback">
+      <div class="fnode best">Kitty Graphics</div><div class="farr">→</div>
+      <div class="fnode" style="background:rgba(4,215,147,.06);color:var(--ok)">iTerm2 Inline</div><div class="farr">→</div>
+      <div class="fnode" style="color:var(--hl-o)">Sixel</div><div class="farr">→</div>
+      <div class="fnode" style="color:var(--fg2)">Überzug++</div><div class="farr">→</div>
+      <div class="fnode" style="color:var(--fg3)">Chafa<br><span style="font-size:10.5px">half-block approx</span></div><div class="farr">→</div>
+      <div class="fnode last">textual<br><span style="font-size:10.5px">fallback</span></div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s2);text-align:center">从 <b style="color:var(--ok)">真实 raster</b> 逐级退化到 <b style="color:var(--fg3)">纯文本</b>——按终端能力自动选择，无需用户干预</p>
+  </div>
+
+  <h3>两层画布模型</h3>
+  <p>今天的 Terminal 实际上可以理解成"两层画布"：</p>
+
+  <div class="diag">
+    <div class="diag-cap">核心示意图：Terminal 的两层画布模型</div>
+    <div class="diag-layers">
+      <div class="layer layer-top">
+        <div class="layer-label">TEXT / CELL PLANE — 格子层</div>
+        <div class="layer-grid">
+          <div class="lgc hi">A</div><div class="lgc">B</div><div class="lgc">C</div><div class="lgc"></div><div class="lgc"></div><div class="lgc"></div><div class="lgc"></div><div class="lgc"></div>
+          <div class="lgc"></div><div class="lgc"></div><div class="lgc"></div><div class="lgc hi">@</div><div class="lgc hi">#</div><div class="lgc"></div><div class="lgc"></div><div class="lgc"></div>
+        </div>
+      </div>
+      <div class="layer-plus">+</div>
+      <div class="layer layer-bottom">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:var(--s2);width:100%">
+          <div class="layer-label" style="color:var(--ok)">GRAPHICS / PIXEL PLANE — 像素层</div>
+          <div class="raster">arbitrary raster pixels</div>
+          <div style="font-size:10.5px;color:var(--fg4);margin-top:2px">Kitty · iTerm2 · Sixel 协议承载</div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">这个模型比"Terminal = 字符屏幕"准确得多——<b style="color:var(--primary-h)">格子层管布局</b>，<b style="color:var(--ok)">像素层管内容表现力</b></p>
+  </div>
+
+  <h3>产品谱系：按空间表达能力排</h3>
+  <div class="diag">
+    <div class="diag-cap">三档能力谱系对比 — 从纯 Cell 到 Hybrid Raster</div>
+    <div class="diag-spectrum">
+      <div class="lvl">
+        <div class="lvl-num">L1</div>
+        <h5>Character-only</h5>
+        <div class="lvl-viz">A B C D<br>E F G H<br>I J K L</div>
+        <div class="lvl-tags">
+          <span>Lazygit</span><span>OpenCode</span>
+        </div>
+        <p style="font-size:10.5px;color:var(--fg3);margin-top:var(--s2)">160×50 cells<br>glyph + fg + bg + style</p>
+      </div>
+      <div class="lvl">
+        <div class="lvl-num">L2</div>
+        <h5>Sub-cell Graphics</h5>
+        <div class="lvl-viz">⣿⣷⣶⣤⣀⠀<br>⠀⣠⣾⣿⣿⣿<br>⣴⣿⣿⠟⠉⠀</div>
+        <div class="lvl-tags">
+          <span>btop</span>
+        </div>
+        <p style="font-size:10.5px;color:var(--fg3);margin-top:var(--s2)">160×50 cells<br>Braille ~320×200 dots</p>
+      </div>
+      <div class="lvl">
+        <div class="lvl-num">L3</div>
+        <h5>Hybrid Raster TUI</h5>
+        <div class="lvl-viz">
+          <div class="lvl-txt">dir<br>dir<br>file</div>
+          <div class="lvl-img">IMG</div>
+        </div>
+        <div class="lvl-tags">
+          <span>Yazi+Kitty</span>
+        </div>
+        <p style="font-size:10.5px;color:var(--fg3);margin-top:var(--s2)">Layout: 160×50 cells<br>Preview: 540×540 px</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>TUI vs GUI：Layout Model 的根本差异</h3>
+  <div class="diag">
+    <div class="diag-cap">为什么 AI TUI 没变成"小型 Figma"</div>
+    <div class="diag-layout-tree">
+      <div class="lt">
+        <h5 style="color:var(--primary-h)">TUI Layout System</h5>
+        <ul>
+          <li class="root">Layout System</li>
+          <li class="conn">│</li>
+          <li class="branch">Cell Grid (离散)</li>
+          <li class="conn">├─</li>
+          <li class="leaf">Text → Cell</li>
+          <li class="conn">└─</li>
+          <li class="leaf-pixel">Image region → Pixels</li>
+        </ul>
+        <p style="font-size:10.5px;color:var(--fg4);margin-top:var(--s2)">位置只能是整数 column<br>不能是 317.5px</p>
+      </div>
+      <div class="lt">
+        <h5 style="color:var(--ok)">GUI Layout System</h5>
+        <ul>
+          <li class="root" style="background:rgba(4,215,147,.08);color:var(--ok)">Layout System</li>
+          <li class="conn">│</li>
+          <li class="branch" style="background:rgba(4,215,147,.05);color:var(--fg2)">Continuous Geometry (连续)</li>
+          <li class="conn">├─</li>
+          <li class="leaf">Text → sub-pixel</li>
+          <li class="conn">├─</li>
+          <li class="leaf">Vector → any scale</li>
+          <li class="conn">└─</li>
+          <li class="leaf">Raster → any size</li>
+        </ul>
+        <p style="font-size:10.5px;color:var(--fg4);margin-top:var(--s2)">位置可以是任意浮点数<br>317.5px, 7px radius, 32.7px x</p>
+      </div>
+    </div>
+    <div class="note w" style="margin-top:var(--s3)"><b>关键结论：</b>pixel graphics 解决了 <strong>content rendering resolution</strong>，但没解决 <strong>UI layout model</strong>。Yazi 图片虽高清，sidebar 宽度仍是整数 column。这就是目前 TUI → GUI 真正还没跨过去的边界。</div>
+  </div>
+
+  <h3>三层 Resolution Token 模型</h3>
+  <div class="diag">
+    <div class="diag-cap">从 TUI Design System 视角：分辨率不是单一值，而是三套 Token</div>
+    <div class="diag-token-stack">
+      <div class="tk">
+        <span class="tk-num">①</span>
+        <span class="tk-desc"><b>Layout Resolution</b> — 布局分辨率</span>
+        <span class="tk-val">cols × rows<br>e.g. 160 × 50 cells</span>
+      </div>
+      <div class="tk-arrow">↓ 推导 ↓</div>
+      <div class="tk">
+        <span class="tk-num">②</span>
+        <span class="tk-desc"><b>Cell Resolution</b> — 单元格物理像素</span>
+        <span class="tk-val">单个 cell 的 px 尺寸<br>e.g. 9 × 18 px/cell</span>
+      </div>
+      <div class="tk-arrow">↓ 查询终端能力 ↓</div>
+      <div class="tk">
+        <span class="tk-num">③</span>
+        <span class="tk-desc"><b>Graphics Resolution</b> — 图形协议支持</span>
+        <span class="tk-val">pixel-addressable?<br>none / sixel / iTerm / kitty</span>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s4);text-align:center">组件能力由这三层 <b style="color:var(--primary-h)">共同决定</b>，而非单一"分辨率"数值</p>
+  </div>
+
+  <div class="diag">
+    <div class="diag-cap">Capability Adaptation 决策树 — Image Preview 组件示例</div>
+    <div class="diag-tree">
+      <div class="tnode"><span class="tbullet q"></span> <b>终端支持 Kitty Graphics?</b></div>
+      <div class="tindent">
+        <div class="tnode"><span class="tbullet a"></span> <span class="tpath">YES → raster (Kitty protocol)</span> — 最高精度</div>
+      </div>
+      <div class="tnode" style="padding-left:4px"><span class="tbullet q"></span> <b>终端支持 Sixel?</b></div>
+      <div class="tindent">
+        <div class="tnode"><span class="tbullet a"></span> <span class="tpath alt">YES → raster (Sixel)</span> — 色深受限</div>
+      </div>
+      <div class="tnode" style="padding-left:4px"><span class="tbullet q"></span> <b>终端支持 iTerm2 Inline?</b></div>
+      <div class="tindent">
+        <div class="tnode"><span class="tbullet a"></span> <span class="tpath alt">YES → raster (iTerm2 protocol)</span> — 简单但生态窄</div>
+      </div>
+      <div class="tnode" style="padding-left:4px"><span class="tbullet q"></span> <b>Unicode 可用?</b></div>
+      <div class="tindent">
+        <div class="tnode"><span class="tbullet a"></span> <span class="tpath" style="color:var(--warn)">YES → half-block approximation</span> — Braille/block 字符近似</div>
+      </div>
+      <div class="tnode" style="padding-left:4px"><span class="tbullet e"></span> <span class="tpath last">ELSE → textual fallback</span> — 纯文本描述</div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">
+      每次查询一次 <b style="color:var(--primary-h)">capability detection</b> → 全组件复用结果 → 不必让用户手动选择
+    </p>
+  </div>
+</section>
+
+<!-- ══════ F3 竞品全景 ══════ -->
+<section class="floor" id="f3">
+  <div class="fnum">FLOOR 03</div>
   <h2>竞品全景</h2>
   <p class="lead">每个产品配一张<strong>结构简图</strong>：区域划分即空间范式。看图就能读出四种截然不同的答案——多盒同屏、栈式下钻、侧栏联动、无面板对话流。</p>
   <div class="wfleg">
-    <span><i style="background:rgba(0,119,255,.13);border-color:rgba(0,119,255,.42)"></i>该产品的招牌区域</span>
-    <span><i style="background:rgba(255,75,123,.08);border-color:rgba(255,75,123,.3)"></i>已知痛点所在</span>
-    <span><i style="border-style:dashed;border-color:var(--bd3)"></i>按需出现（浮层 / 插入式）</span>
-    <span><i style="background:rgba(255,255,255,.035)"></i>常驻辅助区</span>
+    <span><i style="background:rgba(0,119,255,.13)"></i>该产品的招牌区域</span>
+    <span><i style="background:rgba(255,75,123,.08)"></i>已知痛点所在</span>
+    <span><i></i>按需出现（浮层 / 插入式）</span>
+    <span><i style="background:var(--cell-bg2)"></i>常驻辅助区</span>
   </div>
 
   <div class="grid g2">
@@ -289,12 +891,12 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <div class="pname"><b>MobaXterm</b><span class="ver">v26.4 · Windows · 闭源</span></div>
       <div class="wf">
   <div class="row fx" style="flex:none;height:12px"><div class="z sh">menu bar</div></div>
-  <div class="row fx" style="flex:none;height:24px"><div class="z warn">R I B B O N &nbsp;大工具栏<br><span style="font-size:7.5px">十几分组 · 上百图标 · 无搜索入口</span></div></div>
+  <div class="row fx" style="flex:none;height:24px"><div class="z warn">R I B B O N &nbsp;大工具栏<br><span style="font-size:10.5px">十几分组 · 上百图标 · 无搜索入口</span></div></div>
   <div class="row">
     <div class="col" style="width:32%"><div class="z sh">会话树</div><div class="z hi">SFTP 面板<br>跟随终端目录</div></div>
     <div class="col" style="flex:1">
       <div class="row fx" style="flex:none;height:12px"><div class="z sh">Tab │ Tab │ +</div></div>
-      <div class="row"><div class="z">终端<br><span style="font-size:7.5px;color:var(--fg4)">分屏 3 档 · 最多 4 格</span></div></div>
+      <div class="row"><div class="z">终端<br><span style="font-size:10.5px;color:var(--fg4)">分屏 3 档 · 最多 4 格</span></div></div>
     </div>
   </div>
   <div class="row fx" style="flex:none;height:11px"><div class="z sh">status bar</div></div>
@@ -328,9 +930,9 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <div class="col" style="flex:1">
       <div class="z sh" style="flex:1.3">对话流（单栏）<br>工具结果默认折叠<br><span style="color:var(--fg4)">无侧栏 · 无分屏</span></div>
       <div class="row fx" style="flex:none;height:30px">
-        <div class="z" style="flex:.5;border-color:transparent"></div>
+        <div class="z" style="flex:.5"></div>
         <div class="z dash" style="flex:2">overlay 覆盖层<br>/diff · palette · approval</div>
-        <div class="z" style="flex:.5;border-color:transparent"></div>
+        <div class="z" style="flex:.5"></div>
       </div>
     </div>
   </div>
@@ -348,7 +950,7 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <div class="wf">
   <div class="row">
     <div class="col" style="flex:1"><div class="z sh">消息区 · 工具调用<br><span style="color:var(--danger)">完整 diff 内联（无折叠）</span></div></div>
-    <div class="col" style="width:34%"><div class="z warn">sidebar<br>文件 / 工具<br><span style="font-size:7.5px">不能默认隐藏</span></div></div>
+    <div class="col" style="width:34%"><div class="z warn">sidebar<br>文件 / 工具<br><span style="font-size:10.5px">不能默认隐藏</span></div></div>
   </div>
   <div class="row fx" style="flex:none;height:14px"><div class="z">输入区（多行 · readline 键位）</div></div>
   <div class="row fx" style="flex:none;height:12px"><div class="z sh">status：session · model · agent · auto</div></div>
@@ -362,10 +964,10 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <div class="plane">工程观测派</div>
       <div class="pname"><b>btop</b><span class="ver">C++ · 多平台</span></div>
       <div class="wf">
-  <div class="row fx" style="flex:none;height:44px"><div class="z hi">cpu &nbsp;braille 曲线 + 多核网格<br><span style="font-size:7.5px">键位画在边框上 · 可点击</span></div></div>
+  <div class="row fx" style="flex:none;height:44px"><div class="z hi">cpu &nbsp;braille 曲线 + 多核网格<br><span style="font-size:10.5px">键位画在边框上 · 可点击</span></div></div>
   <div class="row">
     <div class="col" style="width:44%"><div class="z sh">mem + disks</div><div class="z sh">net</div></div>
-    <div class="col" style="flex:1"><div class="z">proc<br><span style="font-size:7.5px;color:var(--fg4)">可排序 · 可过滤 · 树视图</span></div></div>
+    <div class="col" style="flex:1"><div class="z">proc<br><span style="font-size:10.5px;color:var(--fg4)">可排序 · 可过滤 · 树视图</span></div></div>
   </div>
 </div>
 <div class="wfcap"><b>多盒同屏全常驻</b> · preset（p/P）打包「布局 + 渲染精度」9 套循环</div>
@@ -378,10 +980,10 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <div class="pname"><b>k9s</b><span class="ver">Go · tview</span></div>
       <div class="wf">
   <div class="row fx" style="flex:none;height:30px">
-    <div class="z sh">clusterInfo<br>ctx/user/CPU</div><div class="z hi">6 行键位网格<br><span style="font-size:7.5px">随导航栈变化</span></div><div class="z sh">logo</div>
+    <div class="z sh">clusterInfo<br>ctx/user/CPU</div><div class="z hi">6 行键位网格<br><span style="font-size:10.5px">随导航栈变化</span></div><div class="z sh">logo</div>
   </div>
   <div class="row fx" style="flex:none;height:15px"><div class="z dash">: 命令行（激活时插入 · 补全）</div></div>
-  <div class="row"><div class="z">content：表格 / 树 / 日志 / Pulses<br><span style="font-size:7.5px;color:var(--fg4)">单一主视图 · 栈式下钻</span></div></div>
+  <div class="row"><div class="z">content：表格 / 树 / 日志 / Pulses<br><span style="font-size:10.5px;color:var(--fg4)">单一主视图 · 栈式下钻</span></div></div>
   <div class="row fx" style="flex:none;height:12px"><div class="z hi">crumbs 面包屑（同一个栈）</div></div>
   <div class="row fx" style="flex:none;height:10px"><div class="z sh">flash</div></div>
 </div>
@@ -399,7 +1001,7 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <div class="z sh">1 Status</div><div class="z hi">2 Files</div><div class="z sh">3 Branches</div><div class="z sh">4 Commits</div><div class="z sh">5 Stash</div>
     </div>
     <div class="col" style="flex:1">
-      <div class="row" style="flex:1.5"><div class="z hi" style="flex:1.5">main<br><span style="font-size:7.5px">选中项的 diff</span></div><div class="z sh" style="flex:1">secondary<br><span style="font-size:7.5px">staged</span></div></div>
+      <div class="row" style="flex:1.5"><div class="z hi" style="flex:1.5">main<br><span style="font-size:10.5px">选中项的 diff</span></div><div class="z sh" style="flex:1">secondary<br><span style="font-size:10.5px">staged</span></div></div>
       <div class="row fx" style="flex:none;height:22px"><div class="z hi">command log · 打出真实 git 命令</div></div>
     </div>
   </div>
@@ -412,17 +1014,40 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <p class="rule">招牌三条：<strong>上下文相关键位</strong>（24 个 context，底部提示随之重绘）；<strong>screenMode 当缩放</strong>（<code>+</code>/<code>_</code> 循环）；<strong>portrait 自动重排</strong>（≤84 列侧栏转竖排）——TUI 里少见的真响应式断点。</p>
       <p><span class="b s">command log 教学式透明</span><span class="b s">reflog undo/redo</span><span class="b d">鼠标挡住原生复制</span></p>
     </div>
-    <div class="card" style="border-style:dashed;border-color:var(--bd3)">
+    <div class="card">
+      <div class="plane" style="color:var(--hl-g)">Hybrid TUI 派 🆕</div>
+      <div class="pname"><b>Yazi</b><span class="ver">Rust · MIT</span></div>
+      <div class="wf">
+  <div class="row" style="flex:1">
+    <div class="col" style="width:25%"><div class="z sh">directories</div></div>
+    <div class="col" style="width:35%"><div class="z sh">files</div><div class="z hi">photo.jpg</div><div class="z sh">report.pdf</div></div>
+    <div class="col" style="flex:1">
+      <div class="z hi" style="text-align:center;padding:6px 0">
+        ┌────────────┐<br>
+        │ REAL IMAGE │<br>
+        │  (raster)  │<br>
+        └────────────┘
+      </div>
+    </div>
+  </div>
+  <div class="row fx" style="flex:none;height:14px"><div class="z sh">input · status</div></div>
+</div>
+<div class="wfcap"><b>双重分辨率共存：</b>左侧 Cell 布局 + 右侧 Pixel 渲染 · 协议降级链（Kitty → iTerm2 → Sixel → Chafa → text）</div>
+      <p><strong>Hybrid TUI 的代表。</strong>图片 preview 通过 Kitty/iTerm2/Sixel 协议实现真实 raster 渲染，但文件树的 layout 仍是 cell-based。展示了现代 TUI 的能力边界。</p>
+      <p class="rule">核心启示：<strong>位置用 cell 定位，内容用 pixel 渲染</strong>——chart / diff / 架构图区域可借鉴此模型按终端能力自适应升级渲染精度。</p>
+      <p><span class="b s">协议降级链</span><span class="b s">Cell + Pixel 共存</span></p>
+    </div>
+    <div class="card">
       <div class="plane" style="color:var(--fg3)">对照基线</div>
       <div class="pname"><b>Kunpeng DevKit AI</b><span class="ver">本产品 · 概念设计</span></div>
-      <div class="wf" style="border-color:var(--bd3)">
+      <div class="wf">
   <div class="row fx" style="flex:none;height:12px"><div class="z sh">Header · 目标架构 · 连接状态</div></div>
   <div class="row">
     <div class="col fx" style="width:9px"><div class="z sh" style="padding:0">▮</div></div>
-    <div class="col" style="width:26%"><div class="z sh">TASKS</div><div class="z hi">PROJECT<br><span style="font-size:7.5px">⇄ 跟随 Agent</span></div><div class="z sh">TOOLS</div></div>
+    <div class="col" style="width:26%"><div class="z sh">TASKS</div><div class="z hi">PROJECT<br><span style="font-size:10.5px">⇄ 跟随 Agent</span></div><div class="z sh">TOOLS</div></div>
     <div class="col" style="flex:1">
       <div class="row fx" style="flex:none;height:11px"><div class="z sh">Tab bar：多任务</div></div>
-      <div class="row" style="flex:1.4"><div class="z hi">Canvas A<br><span style="font-size:7.5px">结论</span></div><div class="z hi">Canvas B<br><span style="font-size:7.5px">证据</span></div></div>
+      <div class="row" style="flex:1.4"><div class="z hi">Canvas A<br><span style="font-size:10.5px">结论</span></div><div class="z hi">Canvas B<br><span style="font-size:10.5px">证据</span></div></div>
       <div class="row fx" style="flex:none;height:20px"><div class="z sh">Agent Console</div></div>
     </div>
   </div>
@@ -436,9 +1061,9 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
   </div>
 </section>
 
-<!-- ══════ F3 旅程 ══════ -->
-<section class="floor" id="f3">
-  <div class="fnum">FLOOR 03</div>
+<!-- ══════ F4 旅程 ══════ -->
+<section class="floor" id="f4">
+  <div class="fnum">FLOOR 04</div>
   <h2>用户旅程地图</h2>
   <p class="lead">场景：<strong>工程师在一个 TUI 工作台里完成一次完整任务</strong>——从启动到收尾。这张图是干净的单场景全景，竞品横向对比在下一层展开（两者必须分开，否则旅程会退化成功能矩阵）。</p>
 
@@ -486,10 +1111,10 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <defs><linearGradient id="eg" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="#04d793" stop-opacity=".22"/>
         <stop offset="100%" stop-color="#ff4b7b" stop-opacity=".16"/></linearGradient></defs>
-      <line x1="40" y1="75" x2="670" y2="75" stroke="rgba(255,255,255,.10)" stroke-dasharray="3 4"/>
-      <text x="14" y="34" fill="rgba(255,255,255,.30)" font-size="10" font-family="monospace">+2</text>
-      <text x="14" y="79" fill="rgba(255,255,255,.30)" font-size="10" font-family="monospace">0</text>
-      <text x="14" y="128" fill="rgba(255,255,255,.30)" font-size="10" font-family="monospace">−2</text>
+      <line x1="40" y1="75" x2="670" y2="75" stroke="var(--cell-border2)" stroke-dasharray="3 4"/>
+      <text x="14" y="34" fill="var(--fg4)" font-size="10" font-family="monospace">+2</text>
+      <text x="14" y="79" fill="var(--fg4)" font-size="10" font-family="monospace">0</text>
+      <text x="14" y="128" fill="var(--fg4)" font-size="10" font-family="monospace">−2</text>
       <path d="M70,75 L190,100 L310,52 L430,100 L550,124 L660,100"
             fill="none" stroke="#3d98ff" stroke-width="2"/>
       <path d="M70,75 L190,100 L310,52 L430,100 L550,124 L660,100 L660,140 L70,140 Z" fill="url(#eg)"/>
@@ -500,23 +1125,23 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
         <rect x="423" y="93" width="14" height="14" fill="#ffaa3b"/>
         <rect x="543" y="117" width="14" height="14" fill="#ff4b7b"/>
         <rect x="653" y="93" width="14" height="14" fill="#ffaa3b"/>
-        <text x="70" y="20" fill="rgba(255,255,255,.45)" text-anchor="middle">①启动</text>
-        <text x="190" y="20" fill="rgba(255,255,255,.45)" text-anchor="middle">②方向感</text>
+        <text x="70" y="20" fill="var(--fg3)" text-anchor="middle">①启动</text>
+        <text x="190" y="20" fill="var(--fg3)" text-anchor="middle">②方向感</text>
         <text x="310" y="20" fill="#04d793" text-anchor="middle">③表达意图 ▲最高</text>
-        <text x="430" y="20" fill="rgba(255,255,255,.45)" text-anchor="middle">④等待观察</text>
+        <text x="430" y="20" fill="var(--fg3)" text-anchor="middle">④等待观察</text>
         <text x="550" y="20" fill="#ff4b7b" text-anchor="middle" font-weight="bold">⑤审查决策 ▼最低</text>
-        <text x="655" y="20" fill="rgba(255,255,255,.45)" text-anchor="middle">⑥收尾</text>
+        <text x="655" y="20" fill="var(--fg3)" text-anchor="middle">⑥收尾</text>
       </g>
     </svg>
   </div>
 
-  <div class="note d"><b>情绪最低谷 = 最大设计机会：审查与决策（⑤）。</b>这不是拍脑袋——三派七个产品在这一步<strong>全都有具体的、被反复提交的 issue</strong>：OpenCode 的 500 行 diff 刷屏无折叠、两个 AI TUI 都<strong>没有 hunk 级 accept/reject</strong>、Claude Code 的 checkpoint <strong>不覆盖 bash 与 subagent 的改动</strong>（官方自陈，等于给了假安全感）、权限确认粒度只有"这次/永久"两档。<strong>整个行业在"人怎么高效审查 AI 的产出"这件事上都很弱</strong>——而这恰好是工程领域最不能含糊的一环。</div>
+  <div class="note d"><b>情绪最低谷 = 最大设计机会：审查与决策（⑤）。</b>这不是拍脑袋——跨四派八个产品在这一步<strong>全都有具体的、被反复提交的 issue</strong>：OpenCode 的 500 行 diff 刷屏无折叠、两个 AI TUI 都<strong>没有 hunk 级 accept/reject</strong>、Claude Code 的 checkpoint <strong>不覆盖 bash 与 subagent 的改动</strong>（官方自陈，等于给了假安全感）、权限确认粒度只有"这次/永久"两档。<strong>整个行业在"人怎么高效审查 AI 的产出"这件事上都很弱</strong>——而这恰好是工程领域最不能含糊的一环。</div>
   <div class="note s"><b>情绪最高点 = 可借鉴的标杆：表达意图（③）。</b>自然语言输入 + <code>@</code> 引用 + 用到才问的配置收集，是这一代 AI TUI 相对传统工具最明确的体验跃升。Kunpeng DevKit AI 应当保住这个高点，不要退回表单。</div>
 </section>
 
-<!-- ══════ F4 触点对比 ══════ -->
-<section class="floor" id="f4">
-  <div class="fnum">FLOOR 04</div>
+<!-- ══════ F5 触点对比 ══════ -->
+<section class="floor" id="f5">
+  <div class="fnum">FLOOR 05</div>
   <h2>触点级深度对比 · 22 项</h2>
   <p class="lead">每个触点只对应<strong>一个维度</strong>——如果不同竞品的答案无法用同一把尺子描述，就拆成两个触点。<span style="color:var(--ok)">绿</span>=值得抄，<span style="color:var(--danger)">红</span>=明确的坑。</p>
 
@@ -555,6 +1180,8 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>并行与后台<div class="tp">tp-04-c</div></td><td><strong>Claude</strong> 体系最完整：subagent → fork/branch → 后台会话（supervisor 守护 + <strong>自动 git worktree 隔离</strong>）+ agent view 分组表格 · <strong>OpenCode</strong> 父子会话原地导航（<code>up</code>/<code>left</code>/<code>right</code> 下钻横切）· <strong>Zellij</strong> 靠 pane/tab</td><td><span class="b s">worktree 隔离是硬招</span></td></tr>
     <tr><td>进度与用量<div class="tp">tp-04-d</div></td><td><strong>Claude</strong> <code>/context</code> 彩色网格 + <code>/autocompact</code> 阈值 + statusline 自绘进度条 · <strong>OpenCode</strong> <strong>未找到上下文用量可视化</strong> · <strong>lazygit</strong> appStatus spinner</td><td><span class="b w">用量可视化仍稀缺</span></td></tr>
     <tr><td>渲染精度分档<div class="tp">tp-04-e</div></td><td><strong>btop</strong> 三套符号矩阵 braille / block / tty，<strong>可按盒子分别设定</strong>，且 preset 同时切布局与精度 · <strong>k9s</strong> 只有块字符 sparkline · AI 派几乎无图表</td><td><span class="b s">★ 分档 + 打包进 preset</span></td></tr>
+    <tr><td>分辨率档位 🆕</td><td><strong>btop</strong> Sub-cell（Braille 把 cell 切细 ~2×）· <strong>Yazi</strong> Hybrid（Cell 布局 + Pixel 预览，协议链 fallback）· <strong>OpenCode/Lazygit</strong> 纯 Cell——全部 UI 边缘只能落在整数 column</td><td><span class="b s">分辨率分档是 capability adaptation 基础</span></td></tr>
+    <tr><td>图形协议降级链 🆕</td><td><strong>Yazi</strong>：Kitty → iTerm2 → Sixel → Überzug++ → Chafa → textual fallback · AI 派无图形输出需求</td><td><span class="b s">★ 按终端能力自动退化的协议链</span></td></tr>
   </table>
 
   <div class="sub">⑤ 审查与决策 <span style="color:var(--danger);font-weight:600">— 情绪最低谷</span></div>
@@ -577,9 +1204,9 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
   </table>
 </section>
 
-<!-- ══════ F5 模式 ══════ -->
-<section class="floor" id="f5">
-  <div class="fnum">FLOOR 05</div>
+<!-- ══════ F6 模式 ══════ -->
+<section class="floor" id="f6">
+  <div class="fnum">FLOOR 06</div>
   <h2>模式识别</h2>
 
   <div class="sub">通用模式 · 多个竞品收敛到同一答案</div>
@@ -606,6 +1233,10 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <div class="card"><h4>M6 · 零前置启动</h4>
       <p><strong>表现</strong>：除 MobaXterm 外全部产品都是敲命令直接进工作台。</p>
       <p><strong>为什么有效</strong>：把配置成本从"开始前"挪到"需要时"，让第一次使用的门槛趋近于零。MobaXterm 的先建 Session 是上一代范式的遗留。</p></div>
+    <div class="card"><h4>M7 🆕 · 渲染能力按区域退化</h4>
+      <p><strong>表现</strong>：btop 按盒子设定 braille / block / tty；Yazi 按协议链 fallback（Kitty → iTerm2 → Sixel → half-block → textual）。</p>
+      <p><strong>为什么有效</strong>：不在整个应用层面做"最低共同能力"的妥协，而是允许不同面板按终端实际能力各自选择最优渲染精度。</p>
+      <p class="rule">代价：产品需维护 capability detection + fallback 逻辑，且不同终端的渲染效果会有差异——这是 TUI Design System 的 capability adaptation 问题。</p></div>
   </div>
 
   <div class="sub">独特设计 · 值得单独记住</div>
@@ -624,6 +1255,8 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>lazygit</td><td><strong>command log</strong>：把每个按键背后的真实命令打出来</td><td>既是调试面板也是学习通道，顺带建立信任</td><td><span class="b s">高</span> Agent 工具调用透明化</td></tr>
     <tr><td>lazygit</td><td><strong>portraitMode 自动重排</strong>（≤84 列侧栏转竖排）</td><td>TUI 里少见的真响应式断点</td><td><span class="b s">高</span> 降级链设计</td></tr>
     <tr><td>MobaXterm</td><td><strong>SFTP 跟随终端目录</strong></td><td>环境自己跟上，省掉用户手动定位</td><td><span class="b s">高</span> 但官方标 experimental 且不稳，实现留空间</td></tr>
+    <tr><td>Yazi 🆕</td><td><strong>协议降级链</strong>：Kitty → iTerm2 → Sixel → Überzug++ → Chafa → textual</td><td>不同终端能力差异大，统一 fallback 保证任何环境下都能用</td><td><span class="b s">高</span> 不同面板按终端能力自动选渲染精度</td></tr>
+    <tr><td>Yazi 🆕</td><td><strong>双重分辨率共存</strong>：左侧文件树 Cell，右侧预览 Pixel</td><td>同一个界面里两种分辨率模型并存</td><td><span class="b s">高</span> chart/diff 区域可在 Kitty-capable terminal 上升级为 raster</td></tr>
   </table>
 
   <div class="sub">反面教训 · 七个必须绕开的坑</div>
@@ -639,9 +1272,9 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
   </table>
 </section>
 
-<!-- ══════ F6 SWOT ══════ -->
-<section class="floor" id="f6">
-  <div class="fnum">FLOOR 06</div>
+<!-- ══════ F7 SWOT ══════ -->
+<section class="floor" id="f7">
+  <div class="fnum">FLOOR 07</div>
   <h2>SWOT · 体验视角</h2>
   <p class="lead">只取与我们决策相关的四个最有参考价值的竞品。S/W 聚焦体验层面；O/T 关联到我方可执行的动作。</p>
 
@@ -669,29 +1302,37 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <p><b class="fric">W</b> 默认独占 8 个 Ctrl 键（最高频吐槽）；鼠标不能拖拽调尺寸；边框妨碍复制；资源占用高于 tmux；KDL 有学习成本。</p>
       <p><b>O</b> 它把 UI 做成插件，但插件生态很小——说明<strong>可编程 UI 的价值不在生态而在自用的布局灵活性</strong>，我们不必追生态。</p>
       <p><b>T</b> 若团队已用 tmux/Zellij，我们的多任务框架会与之功能重叠，需想清楚边界。</p></div>
+
+    <div class="card"><h4 style="color:var(--hl-g)">Yazi 🆕</h4>
+      <p><b class="oppo">S</b> 双重分辨率共存（Cell 布局 + Pixel 渲染）；完善的协议降级链（Kitty → iTerm2 → Sixel → Chafa → text）；图片解码与 downscale 高效。</p>
+      <p><b class="fric">W</b> 不是 AI 工作台，交互模型不直接可搬；pixel 区域无法参与 layout 计算（sidebar 仍是整数 column）。</p>
+      <p><b>O</b> 它的双重分辨率模型可直接参考——DevKit 的 chart/diff/架构图区域可在 Kitty-capable terminal 上升级为 raster 渲染。</p>
+      <p><b>T</b> Hybrid 模式依赖 terminal 能力，不是所有用户都有 Kitty/WezTerm——必须维护 capability detection + fallback。</p></div>
   </div>
 </section>
 
-<!-- ══════ F7 差距矩阵 ══════ -->
-<section class="floor" id="f7">
-  <div class="fnum">FLOOR 07</div>
+<!-- ══════ F8 差距矩阵 ══════ -->
+<section class="floor" id="f8">
+  <div class="fnum">FLOOR 08</div>
   <h2>差距矩阵</h2>
 
   <div class="sub">能力矩阵</div>
   <table>
-    <tr><th>能力</th><th>Kunpeng DevKit AI<br>（规范）</th><th>Claude Code</th><th>OpenCode</th><th>Zellij</th><th>lazygit</th><th>差距说明</th></tr>
-    <tr><td>自然语言意图</td><td class="oppo">✓ 规划中</td><td>✓ 成熟</td><td>✓ 成熟</td><td>✕</td><td>✕</td><td>行业标配</td></tr>
-    <tr><td>Plan 先行 + 可改</td><td class="oppo">✓ P02</td><td>✓ 完整</td><td>△ 仅权限更严</td><td>✕</td><td>✕</td><td>Claude 领先，我们对齐</td></tr>
-    <tr><td>命令面板</td><td class="oppo">✓ P09（Textual 内置）</td><td>△ <code>/</code> 菜单</td><td>✓ ctrl+p</td><td>△ 模式菜单</td><td>△ <code>?</code> 菜单</td><td>Textual 内置省一个组件</td></tr>
-    <tr><td>多任务并行</td><td class="oppo">✓ P29</td><td>✓ 最完整</td><td>△ 父子会话</td><td>✓ pane/tab</td><td>✕</td><td>需补 worktree 隔离</td></tr>
-    <tr><td>分屏 + 布局预设</td><td class="oppo">✓ P23 + 框架</td><td class="fric">✕</td><td class="fric">✕ not planned</td><td>✓ 最强</td><td>△ screenMode</td><td><strong>AI 派空白 = 我们的差异化</strong></td></tr>
-    <tr><td>选中联动</td><td class="oppo">✓ P22</td><td class="fric">✕</td><td class="fric">✕</td><td>✕</td><td>✓ 标杆</td><td><strong>AI 派空白 = 我们的差异化</strong></td></tr>
-    <tr><td>数据可视化图元</td><td class="oppo">✓ T1–T3 八原语</td><td class="fric">✕</td><td class="fric">✕</td><td>✕</td><td>△ commit graph</td><td><strong>AI 派空白 = 我们的差异化</strong></td></tr>
-    <tr><td>hunk 级审查</td><td class="fric">✕ 未规划</td><td class="fric">✕</td><td class="fric">✕</td><td>—</td><td>✓ 行/hunk 级</td><td><strong>全 AI 行业缺失 = 机会</strong></td></tr>
-    <tr><td>配置补齐流程</td><td class="oppo">✓ P27</td><td>△ 权限弹窗</td><td>△ question 权限</td><td>✕</td><td>✕</td><td><strong>无人做成一等公民 = 机会</strong></td></tr>
-    <tr><td>上下文用量可视化</td><td class="oppo">✓ P20</td><td>✓ <code>/context</code></td><td class="fric">✕ 未找到</td><td>—</td><td>—</td><td>Claude 领先</td></tr>
-    <tr><td>撤销回滚</td><td>△ /undo 规划中</td><td>△ 不覆盖 bash</td><td>✓ git snapshot</td><td>—</td><td>✓ reflog</td><td>需明确覆盖边界</td></tr>
-    <tr><td>窄屏降级</td><td class="oppo">✓ 六档降级链</td><td>—</td><td class="fric">✕ 侧栏挤</td><td>△</td><td>✓ portrait</td><td>我们最完整</td></tr>
+    <tr><th>能力</th><th>Kunpeng DevKit AI<br>（规范）</th><th>Claude Code</th><th>OpenCode</th><th>Zellij</th><th>lazygit</th><th>Yazi 🆕</th><th>差距说明</th></tr>
+    <tr><td>自然语言意图</td><td class="oppo">✓ 规划中</td><td>✓ 成熟</td><td>✓ 成熟</td><td>✕</td><td>✕</td><td>—</td><td>行业标配</td></tr>
+    <tr><td>Plan 先行 + 可改</td><td class="oppo">✓ P02</td><td>✓ 完整</td><td>△ 仅权限更严</td><td>✕</td><td>✕</td><td>—</td><td>Claude 领先，我们对齐</td></tr>
+    <tr><td>命令面板</td><td class="oppo">✓ P09（Textual 内置）</td><td>△ <code>/</code> 菜单</td><td>✓ ctrl+p</td><td>△ 模式菜单</td><td>△ <code>?</code> 菜单</td><td>—</td><td>Textual 内置省一个组件</td></tr>
+    <tr><td>多任务并行</td><td class="oppo">✓ P29</td><td>✓ 最完整</td><td>△ 父子会话</td><td>✓ pane/tab</td><td>✕</td><td>—</td><td>需补 worktree 隔离</td></tr>
+    <tr><td>分屏 + 布局预设</td><td class="oppo">✓ P23 + 框架</td><td class="fric">✕</td><td class="fric">✕ not planned</td><td>✓ 最强</td><td>△ screenMode</td><td>—</td><td><strong>AI 派空白 = 我们的差异化</strong></td></tr>
+    <tr><td>选中联动</td><td class="oppo">✓ P22</td><td class="fric">✕</td><td class="fric">✕</td><td>✕</td><td>✓ 标杆</td><td>—</td><td><strong>AI 派空白 = 我们的差异化</strong></td></tr>
+    <tr><td>数据可视化图元</td><td class="oppo">✓ T1–T3 八原语</td><td class="fric">✕</td><td class="fric">✕</td><td>✕</td><td>△ commit graph</td><td>—</td><td><strong>AI 派空白 = 我们的差异化</strong></td></tr>
+    <tr><td>hunk 级审查</td><td class="fric">✕ 未规划</td><td class="fric">✕</td><td class="fric">✕</td><td>—</td><td>✓ 行/hunk 级</td><td>—</td><td><strong>全 AI 行业缺失 = 机会</strong></td></tr>
+    <tr><td>配置补齐流程</td><td class="oppo">✓ P27</td><td>△ 权限弹窗</td><td>△ question 权限</td><td>✕</td><td>✕</td><td>—</td><td><strong>无人做成一等公民 = 机会</strong></td></tr>
+    <tr><td>上下文用量可视化</td><td class="oppo">✓ P20</td><td>✓ <code>/context</code></td><td class="fric">✕ 未找到</td><td>—</td><td>—</td><td>—</td><td>Claude 领先</td></tr>
+    <tr><td>撤销回滚</td><td>△ /undo 规划中</td><td>△ 不覆盖 bash</td><td>✓ git snapshot</td><td>—</td><td>✓ reflog</td><td>—</td><td>需明确覆盖边界</td></tr>
+    <tr><td>窄屏降级</td><td class="oppo">✓ 六档降级链</td><td>—</td><td class="fric">✕ 侧栏挤</td><td>△</td><td>✓ portrait</td><td>—</td><td>我们最完整</td></tr>
+    <tr><td>渲染精度分档 🆕</td><td class="fric">✕ 未规划</td><td class="fric">✕ 纯 Cell</td><td class="fric">✕ 纯 Cell</td><td class="fric">✕ 纯 Cell</td><td class="fric">✕ 纯 Cell</td><td class="oppo">✓ braille+pixel</td><td>目前仅 btop + Yazi 具备</td></tr>
+    <tr><td>双重分辨率 🆕</td><td class="fric">✕ 未规划</td><td class="fric">✕</td><td class="fric">✕</td><td class="fric">✕</td><td class="fric">✕</td><td class="oppo">✓ Cell+Pixel</td><td>Hybrid TUI 能力边界</td></tr>
   </table>
 
   <div class="sub">体验矩阵</div>
@@ -706,9 +1347,9 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
   </table>
 </section>
 
-<!-- ══════ F8 分歧 ══════ -->
-<section class="floor" id="f8">
-  <div class="fnum">FLOOR 08</div>
+<!-- ══════ F9 分歧 ══════ -->
+<section class="floor" id="f9">
+  <div class="fnum">FLOOR 09</div>
   <h2>行业分歧点 = 创新空间</h2>
   <p class="lead">不仅看"我们 vs 竞品"，也看竞品之间在哪些问题上给出了<strong>完全不同的答案</strong>。尚未形成统一范式的地方，就是可以自主选择甚至定义的地方。</p>
 
@@ -728,12 +1369,16 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <div class="card"><h4>分歧④ 发现性：常驻提示还是按需唤起</h4>
       <p><strong>Zellij / k9s / lazygit</strong> 常驻提示条（Zellij 为此付约 5MB）｜ <strong>Claude / OpenCode</strong> 按需（<code>?</code> / which-key）｜ <strong>btop</strong> 第三条路：把键位画在它作用的那个盒子边框上</p>
       <p class="rule"><strong>我们的判断</strong>：采 btop 的空间化思路 + lazygit 的上下文化——<strong>底栏只放全局与当前 Workspace 的键，面板级操作提示画在面板边框上</strong>。既不占一整行，又不需要用户去别处找。</p></div>
+
+    <div class="card"><h4>分歧⑤ 🆕 分辨率：纯 Cell 还是 Hybrid</h4>
+      <p><strong>OpenCode / Lazygit</strong> 纯 Cell（全部 UI 边缘只能落在整数 column）｜ <strong>btop</strong> Sub-cell（Braille 把一个 cell 再细分 2×4 dot）｜ <strong>Yazi</strong> Hybrid（Cell 布局 + Pixel 渲染共存）</p>
+      <p class="rule"><strong>我们的判断</strong>：Hybrid 是趋势但不是万能药——pixel graphics 解决了 content rendering 精度，但<strong>没解决 layout model</strong>（Yazi 的 sidebar 宽度仍是整数 column，不能是 317.5px）。AI 工作台的核心价值在 layout model 而非 rendering resolution，但 <strong>chart / diff / 架构图预览场景值得做 capability adaptation</strong>：在 Kitty-capable terminal 上把这些区域升级为 raster 渲染，在普通 terminal 上 fallback 到 braille/block。</p></div>
   </div>
 </section>
 
-<!-- ══════ F9 机会 ══════ -->
-<section class="floor" id="f9">
-  <div class="fnum">FLOOR 09</div>
+<!-- ══════ F10 机会 ══════ -->
+<section class="floor" id="f10">
+  <div class="fnum">FLOOR 10</div>
   <h2>洞察与机会点</h2>
   <p class="lead">按<strong>差异化价值 × 实现成本</strong>排序。前三条是我们能建立护城河的地方，后面是必须补齐的行业基线。</p>
 
@@ -759,8 +1404,8 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
   <div class="opp"><div class="n pixel">04</div><div>
     <h4>数据可视化：把观测派的密度带进 AI 工作台
       <span class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></h4>
-    <p>两个 AI Coding TUI 几乎没有图表能力，而 btop 的 braille/block/tty 三档分级 + 按盒子设定精度是成熟方案。</p>
-    <p><strong>我们的打法</strong>：T0–T4 渲染分层已定义。可直接借鉴 btop 的两点——<strong>渲染精度分档打包进 Workspace 预设</strong>（切视角时同时切精度）；<strong>颜色承载额外维度</strong>（btop 用明度编码"离选中行的距离"，我们用色阶编码利用率）。</p></div></div>
+    <p>两个 AI Coding TUI 几乎没有图表能力，而 btop 的 braille/block/tty 三档分级 + 按盒子设定精度是成熟方案。Yazi 更进一步——在 Kitty/WezTerm/iTerm2 capable terminal 上把 preview 区域升级为真实 raster 渲染。</p>
+    <p><strong>我们的打法</strong>：T0–T4 渲染分层已定义。可直接借鉴 btop 的两点——<strong>渲染精度分档打包进 Workspace 预设</strong>（切视角时同时切精度）；<strong>颜色承载额外维度</strong>（btop 用明度编码"离选中行的距离"，我们用色阶编码利用率）。更进一步：在 Kitty-capable terminal 上把 chart / 架构图 / 拓扑图区域升级为 pixel rendering（参考 Yazi 的双重分辨率模型），普通 terminal fallback 到 btop 式 braille/block。<strong>不同面板可以有不同的渲染精度档位</strong>——这是 M7 的核心启示。</p></div></div>
 
   <div class="opp"><div class="n pixel">05</div><div>
     <h4>终端原生能力的逃生舱：抄 Claude 的 <code>[</code>
@@ -790,9 +1435,9 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 </section>
 
 
-<!-- ══════ F10 补充观察 ══════ -->
-<section class="floor" id="f10">
-  <div class="fnum">FLOOR 10</div>
+<!-- ══════ F11 补充观察 ══════ -->
+<section class="floor" id="f11">
+  <div class="fnum">FLOOR 11</div>
   <h2>补充观察 · 实拍截图里的九个具体做法</h2>
   <p class="lead">来自 MobaXterm、OpenCode（splash / diff）、opencode-kanban、SysWatch、euporie、TUI 媒体库、SimUtil、Rebels in the Sky、term-rex、Pinstar 的实拍界面。这些是<strong>比"空间范式"更细一层的实现细节</strong>，但每一条都直接对应我们的某个待解问题。</p>
 
@@ -824,7 +1469,7 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <p>OpenCode 启动页在像素 Logo 下直接列出核心命令与快捷键：<code>/help /editor /models /init /compact /sessions</code> + 对应 <code>ctrl+x ?</code>。</p>
       <p class="rule">我们的 Landing 屏已有"最近 / 建议"两行。可再补一列<strong>常用命令速查</strong>——首屏是唯一一次用户愿意读说明的时刻，别浪费。</p></div>
 
-    <div class="card" style="grid-column:1/-1;border-color:rgba(255,170,59,.35);background:rgba(255,170,59,.05)">
+    <div class="card" style="grid-column:1/-1;background:rgba(255,170,59,.05)">
       <h4 style="color:var(--warning)">⑦ 推翻一个假设：终端能渲染真图形 <span class="b w">补入 T5 层</span></h4>
       <p>此前整份规范默认"终端只能画字符"，所以把复杂图表都往字符网格上压。<strong>这个前提是错的。</strong>实拍证据：<code>euporie</code> 在终端里渲染 <strong>matplotlib 图表、LaTeX 公式、HTML/CSS 表格</strong>，还有按钮/开关/滑块/下拉/颜色选择器等<strong>真 UI 控件</strong>；TUI 媒体库渲染<strong>电影海报</strong>；SimUtil 把<strong>手机模拟器画面</strong>嵌进面板；甚至有人在终端里跑 Pokémon（55 FPS）。</p>
       <table style="margin-top:10px">
@@ -837,7 +1482,7 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     </div>
 
     <div class="card"><h4 style="color:var(--ok)">⑧ 反色键位 chip <span class="b s">已用到 Demo</span></h4>
-      <p><em>Rebels in the Sky</em> 底栏把按键做成<strong>反色小块</strong>、动作用常规文字：<span style="background:var(--surface-4);color:var(--fg);padding:0 5px;border-radius:3px;font-family:var(--mono);font-size:10px">Esc</span> Quit &nbsp;<span style="background:var(--surface-4);color:var(--fg);padding:0 5px;border-radius:3px;font-family:var(--mono);font-size:10px">↑/↓</span> Select &nbsp;<span style="background:var(--surface-4);color:var(--fg);padding:0 5px;border-radius:3px;font-family:var(--mono);font-size:10px">↵</span> Confirm</p>
+      <p><em>Rebels in the Sky</em> 底栏把按键做成<strong>反色小块</strong>、动作用常规文字：<span style="background:var(--surface-4);color:var(--fg);padding:0 5px;border-radius:3px;font-family:var(--mono);font-size:10.5px">Esc</span> Quit &nbsp;<span style="background:var(--surface-4);color:var(--fg);padding:0 5px;border-radius:3px;font-family:var(--mono);font-size:10.5px">↑/↓</span> Select &nbsp;<span style="background:var(--surface-4);color:var(--fg);padding:0 5px;border-radius:3px;font-family:var(--mono);font-size:10.5px">↵</span> Confirm</p>
       <p class="rule">比纯文本 keybar 易扫读一个量级，且不占额外行。零成本，直接抄。</p></div>
 
     <div class="card"><h4>⑨ 节点画布 + 鼠标交互</h4>
@@ -850,9 +1495,9 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
   </div>
 </section>
 
-<!-- ══════ F11 资料库 ══════ -->
-<section class="floor" id="f11">
-  <div class="fnum">FLOOR 11</div>
+<!-- ══════ F12 资料库 ══════ -->
+<section class="floor" id="f12">
+  <div class="fnum">FLOOR 12</div>
   <h2>研究资料库</h2>
   <p class="lead">持续跟踪用。分为三类：样本库（找竞品）、深度来源（读实现）、设计参考（借形态）。</p>
 
@@ -864,7 +1509,7 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>痛点来源</td><td>GitHub issue + HN 讨论</td><td>用户原话优于评测结论——"EXPLICITLY STATE IN THE DOCUMENTATION THAT CLOSING BTOP OVERWRITES YOUR CONFIGURATION"这种句子比任何"配置管理体验欠佳"都有信息量</td><td>七条反面教训全部有 issue 链接</td></tr>
     <tr><td>设计参考</td><td>PTO Design System 4.1</td><td>本产品视觉体系的直接来源（529 tokens · Dark-first）</td><td>web→terminal 翻译见 VISUAL.md</td></tr>
     <tr><td>设计参考</td><td>CodeArts CLI/TUI 研究库</td><td>AI CLI 六阶段生命周期 · /model /codebase /runmode /btw /lsp-toggle 五个已验证方案</td><td>已移植为 P13–P20</td></tr>
-    <tr><td>形态参考</td><td>实拍截图</td><td>opencode-kanban（面板边框标题 · 卡片列表）· SysWatch（Insights 面板 · 编号 Tab · keybar）· OpenCode diff（token 级高亮）· Rebels in the Sky / term-rex（描边块字 splash · 反色键位 chip）· Pinstar（节点画布 + 鼠标）</td><td>见 FLOOR 10</td></tr>
+    <tr><td>形态参考</td><td>实拍截图</td><td>opencode-kanban（面板边框标题 · 卡片列表）· SysWatch（Insights 面板 · 编号 Tab · keybar）· OpenCode diff（token 级高亮）· Rebels in the Sky / term-rex（描边块字 splash · 反色键位 chip）· Pinstar（节点画布 + 鼠标）</td><td>见 FLOOR 11</td></tr>
     <tr><td>组件形态参考</td><td>Specify CLI</td><td><strong>状态徽章 = 行首反色 chip + 左侧色轨</strong>（FAILED / SUCCEEDED / WARNING），正文保持中性</td><td>兑现"语义色只上短标签不上整行"，已用于 Agent Console</td></tr>
     <tr><td><strong>能力上限参考</strong></td><td><strong>终端图形协议</strong></td><td><code>euporie</code>（matplotlib / LaTeX / HTML 表格 / 真 UI 控件）· TUI 媒体库（海报）· SimUtil（模拟器画面）</td><td><span class="b w">推翻了"终端只能画字符"的前提</span>，已补为 T5 层</td></tr>
   </table>
@@ -929,6 +1574,18 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     for(const s of secs){if(s.getBoundingClientRect().top<180)cur=s.id}
     links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur));};
   addEventListener('scroll',spy,{passive:true});spy();
+})();
+</script>
+<script>
+(function(){
+  var btn=document.getElementById('themeToggle');
+  var html=document.documentElement;
+  btn.addEventListener('click',function(){
+    var cur=html.getAttribute('data-theme');
+    var next=cur==='light'?'dark':'light';
+    html.setAttribute('data-theme',next);
+    try{localStorage.setItem('theme',next)}catch(e){}
+  });
 })();
 </script>
 </body>

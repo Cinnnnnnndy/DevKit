@@ -1,0 +1,20 @@
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+              ╭─ [1mKunpeng DevKit AI[m ──────────────────╮              
+              │  Terminal is too small               │              
+              │  Current 68×20 · Required 72×24      │              
+              │  Resize the window to continue.      │              
+              ╰──────────────────────────────────────╯              
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    

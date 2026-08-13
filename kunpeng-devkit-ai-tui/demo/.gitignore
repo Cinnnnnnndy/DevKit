@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.venv/
+
+# Local Go build artifacts
+go-charmbracelet/devkitai
+go-charmbracelet/probe2
