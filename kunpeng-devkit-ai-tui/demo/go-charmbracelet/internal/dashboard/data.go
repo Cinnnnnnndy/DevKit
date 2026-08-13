@@ -238,6 +238,13 @@ func minInt(a, b int) int {
 	return b
 }
 
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 // makeTraceLanes builds the deterministic 36-lane request trace.
 func makeTraceLanes() []TraceLane {
 	var lanes []TraceLane

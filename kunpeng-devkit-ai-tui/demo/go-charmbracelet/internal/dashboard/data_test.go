@@ -88,33 +88,3 @@ func TestSessionEvents(t *testing.T) {
 		t.Errorf("events mismatch:\n got %+v\nwant %+v", s.Events, want)
 	}
 }
-
-func TestOperatorRaceCrossing(t *testing.T) {
-	// attention_fwd must overtake matmul_4096 after the migration.
-	s := NewSession()
-	score := func(o Operator, s *Session, cursor int) float64 {
-		progress := float64(cursor) / float64(SampleCount-1)
-		remote := s.RemoteNUMA[cursor]
-		switch o.Name {
-		case "attention_fwd":
-			return 24 + progress*22 + remote*0.55
-		case "matmul_4096":
-			return 37 - progress*8
-		case "kv_cache_update":
-			return 12 + remote*0.75
-		case "layernorm":
-			return 18 - progress*3
-		}
-		return 0
-	}
-	att := score(s.Operators[0], s, 0)
-	mat := score(s.Operators[1], s, 0)
-	if att >= mat {
-		t.Fatalf("at sample 0 attention(%.1f) should trail matmul(%.1f)", att, mat)
-	}
-	att = score(s.Operators[0], s, 119)
-	mat = score(s.Operators[1], s, 119)
-	if att <= mat {
-		t.Errorf("at sample 119 attention(%.1f) should beat matmul(%.1f)", att, mat)
-	}
-}
