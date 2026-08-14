@@ -3,7 +3,7 @@
 > 面向鲲鹏迁移 / 开发 / 诊断 / 调优的 **AI Native Terminal Engineering Workspace** 的完整设计文档集。
 > 版本 0.9 · 概念设计阶段 · 2026-08
 
-![启动页](assets/demo-splash.png)
+![启动页](kunpeng-devkit-ai-tui/assets/demo-splash.png)
 
 ---
 
@@ -27,25 +27,33 @@
 
 ## 快速开始
 
-四份 HTML 是自包含的单文件，**下载后双击即可打开**，无需构建、无需联网：
+**在线入口 ▸ [cinnnnnnndy.github.io/DevKit](https://cinnnnnnndy.github.io/DevKit/)**
 
-| 文件 | 内容 |
-|---|---|
-| [`web/demo.html`](web/demo.html) | **十幕交互演示** — 可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点" |
-| [`web/index.html`](web/index.html) | **产品规范单页** — 设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用） |
-| [`web/competitive-analysis.html`](web/competitive-analysis.html) | **TUI 竞品分析** — 7 竞品 × 22 触点 × 6 阶段旅程 |
-| [`web/visual-analysis.html`](web/visual-analysis.html) | **TUI 视觉风格分析** — 五个审美流派 + 皮肤生态 + 手法清单 |
+项目启动页，把六份可交互 HTML、十一份设计规范、整套视觉 token 收在一页，点开即看。
 
-想在浏览器里直接看，可以开启 GitHub Pages（Settings → Pages → Deploy from branch → `main` / `root`），之后访问 `https://<user>.github.io/<repo>/web/demo.html`。
+六份 HTML 也各有独立地址，可以单独打开或直接分享；它们是自包含的单文件，**下载后双击也能开**，无需构建、无需联网：
+
+| 页面 | 在线打开 | 仓库文件 |
+|---|---|---|
+| **TUI 设计 demo**<br><sub>两种风格上下排列可直接对照（两者都是 TUI，差别在视觉质感）</sub> | [tui-demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/tui-demo.html) | [`web/tui-demo.html`](kunpeng-devkit-ai-tui/web/tui-demo.html) |
+| ├ **风格 A · 字符质感**<br><sub>方角、1px 描边、字符网格；十幕交互演示，可自动播放或键盘切换</sub> | [demo.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo.html) | [`web/demo.html`](kunpeng-devkit-ai-tui/web/demo.html) |
+| └ **风格 B · 面板质感**<br><sub>圆角卡片、描边毛玻璃、背景辉光，PTO token 配色；Agent 面板承载主标签内容</sub> | [demo-studio.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/demo-studio.html) | [`web/demo-studio.html`](kunpeng-devkit-ai-tui/web/demo-studio.html) |
+| **设计系统**<br><sub>Design System &amp; UX Spec：token + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用）</sub> | [index.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html) | [`web/index.html`](kunpeng-devkit-ai-tui/web/index.html) |
+| **TUI 竞品分析**<br><sub>7 竞品 × 22 触点 × 6 阶段旅程</sub> | [competitive-analysis.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/competitive-analysis.html) | [`web/competitive-analysis.html`](kunpeng-devkit-ai-tui/web/competitive-analysis.html) |
+| **TUI 视觉风格分析**<br><sub>五个审美流派 + 皮肤生态 + 手法清单</sub> | [visual-analysis.html ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/visual-analysis.html) | [`web/visual-analysis.html`](kunpeng-devkit-ai-tui/web/visual-analysis.html) |
+
+几个常用深链：[设计系统 · Chrome vs Canvas ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#chrome) · [设计系统 · Colors ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#color) · [设计系统 · 渲染分层 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#tier) · [竞品 · 机会点 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/competitive-analysis.html#f9) · [视觉 · 我们的定位 ↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/visual-analysis.html#v7)
+
+> 站点走 Pages 的分支模式发布（Settings → Pages → Deploy from a branch），发布分支在那里指定，推上去就会自动重新构建。仓库根的 `index.html` **就是**启动页，所以站点根打开即入口；根目录的 `.nojekyll` 关掉了 Jekyll——没有它时 Pages 会拿 README 渲染成首页，点开站点根看到的是这份文档而不是启动页。六份 HTML 按仓库里的路径原样访问，在线地址与仓库路径一一对应。旧的 `/launch.html` 保留成重定向壳，之前分享出去的链接仍然有效。
 
 <table>
 <tr>
-<td width="50%"><img src="assets/demo-report.png" alt="迁移报告"><br><sub><b>④ 出报告</b> — 文件风险热力用单一色阶顺序取档，一眼定位到 crypto.c</sub></td>
-<td width="50%"><img src="assets/demo-review.png" alt="审改动"><br><sub><b>⑤ 审改动</b> — 每条改动都附知识库案例编号与 ARM 手册章节，可跳转验证</sub></td>
+<td width="50%"><img src="kunpeng-devkit-ai-tui/assets/demo-report.png" alt="迁移报告"><br><sub><b>④ 出报告</b> — 文件风险热力用单一色阶顺序取档，一眼定位到 crypto.c</sub></td>
+<td width="50%"><img src="kunpeng-devkit-ai-tui/assets/demo-review.png" alt="审改动"><br><sub><b>⑤ 审改动</b> — 每条改动都附知识库案例编号与 ARM 手册章节，可跳转验证</sub></td>
 </tr>
 <tr>
-<td><img src="assets/demo-diagnose.png" alt="编译翻车"><br><sub><b>⑥ 编译翻车</b> — 失败不只报错，直接转入诊断并给修复方案</sub></td>
-<td><img src="assets/spec-index.png" alt="规范单页"><br><sub><b>产品规范单页</b> — 设计系统与 Pattern 库的整合版</sub></td>
+<td><img src="kunpeng-devkit-ai-tui/assets/demo-diagnose.png" alt="编译翻车"><br><sub><b>⑥ 编译翻车</b> — 失败不只报错，直接转入诊断并给修复方案</sub></td>
+<td><img src="kunpeng-devkit-ai-tui/assets/spec-index.png" alt="设计系统"><br><sub><b>设计系统</b> — token 体系与 Pattern 库的整合版</sub></td>
 </tr>
 </table>
 
@@ -56,23 +64,41 @@
 ```
 .
 ├── README.md                        本文件
-├── docs/                            设计规范（Markdown）
-│   ├── OVERVIEW.md                  产品定位 · 愿景 · 用户角色 · 信息架构
-│   ├── PRD.md                       六大核心场景需求
-│   ├── UX-SPEC.md                   布局 · 交互模型 · 命令体系 · 快捷键
-│   ├── PATTERN.md                   交互 Pattern 库 P01–P29
-│   ├── COMPONENT.md                 图表原语与组件规范
-│   ├── VISUAL.md                    视觉系统：PTO Design System → TUI token 翻译 ★
-│   ├── JOURNEY.md                   六阶段用户旅程 · Demo 故事线
-│   ├── FRAMEWORK.md                 应用框架：MobaXterm 结构 × PTO 分割
-│   ├── TUI-CAPABILITY.md            能力基线 · 渲染分层 T0–T5 · 框架选型
-│   ├── COMPETITIVE-ANALYSIS.md      竞品分析（Markdown 版）
-│   └── DEMO-WIREFRAME.md            四大 Demo 的 ASCII 交互稿
-├── web/                             可交互 HTML（自包含单文件）
-└── assets/                          README 用截图
+├── index.html                       项目启动页 = 站点首页（自包含单文件）
+├── launch.html                      重定向壳，保旧链接不失效
+├── .nojekyll                        关掉 Jekyll，否则 README 会顶掉首页
+└── kunpeng-devkit-ai-tui/
+    ├── README.md                    与本文件同内容
+    ├── docs/                        设计规范（Markdown）
+    │   ├── OVERVIEW.md              产品定位 · 愿景 · 用户角色 · 信息架构
+    │   ├── PRD.md                   六大核心场景需求
+    │   ├── UX-SPEC.md               布局 · 交互模型 · 命令体系 · 快捷键
+    │   ├── PATTERN.md               交互 Pattern 库 P01–P29
+    │   ├── COMPONENT.md             图表原语与组件规范
+    │   ├── VISUAL.md                视觉系统：PTO Design System → TUI token 翻译 ★
+    │   ├── JOURNEY.md               六阶段用户旅程 · Demo 故事线
+    │   ├── FRAMEWORK.md             应用框架：MobaXterm 结构 × PTO 分割
+    │   ├── TUI-CAPABILITY.md        能力基线 · 渲染分层 T0–T5 · 框架选型
+    │   ├── COMPETITIVE-ANALYSIS.md  竞品分析（Markdown 版）
+    │   └── DEMO-WIREFRAME.md        四大 Demo 的 ASCII 交互稿
+    ├── web/                         可交互 HTML（自包含单文件）
+    ├── assets/                      README 用截图
+    └── app/                         原生 TUI 实现
+        ├── devkitai/
+        │   ├── tokens.py            PTO → TUI token 直译
+        │   ├── tiers.py             能力探测 + T0–T5 降级链
+        │   ├── layout.py            折叠降级链（宽度 → 布局判决）
+        │   ├── spec.py              组件评审门槛
+        │   ├── render/              纯渲染层：十四种图元 + 按 cell 对齐
+        │   ├── widgets/             Chrome 层 + Canvas 层组件
+        │   ├── theme/pto.tcss       样式表，无十六进制字面量
+        │   ├── shell.py             工作台外壳
+        │   ├── preview.py           组件预览页
+        │   └── gallery.py           图元画廊
+        └── tests/                   159 个测试
 ```
 
-`docs/VISUAL.md` 是整套里最厚的一份（570+ 行），也是最值得先读的——所有视觉决策的推导过程和被推翻的方案都记在里面。
+[`docs/VISUAL.md`](kunpeng-devkit-ai-tui/docs/VISUAL.md) 是整套里最厚的一份（570+ 行），也是最值得先读的——所有视觉决策的推导过程和被推翻的方案都记在里面。
 
 ---
 
@@ -93,6 +119,8 @@
 ```
 
 框架选型结论：使用 **TypeScript 5.9、React 19、`@opentui/core` 0.5.1、`@opentui/react` 0.5.1 和 Bun**。
+
+选型曾经历一次改换：早期结论是 **Python + Textual**，其渲染底座、T0–T5 降级链与十四种图元原语的原型完整保留在 [`app/`](kunpeng-devkit-ai-tui/app/)，作为图元几何与降级判决的参照实现，**不再继续演进**。FTXUI 是 C++ 已排除。选型推导见 [`docs/TUI-CAPABILITY.md`](kunpeng-devkit-ai-tui/docs/TUI-CAPABILITY.md)。
 
 ---
 
@@ -118,15 +146,49 @@
 
 视觉继承 **PTO Design System 4.1**（529 tokens · Dark-first · Inter + JetBrains Mono），定位是技术、克制、精确——对标 Cursor / Warp / Resend，而非消费级仪表盘。
 
-`docs/VISUAL.md` 记录了完整的 web → terminal token 翻译：六级表面、四级前景透明度预合成为实色、状态叠加层预合成、五档 highlight ramp 的顺序 vs 分类纪律、以及为什么品牌蓝会和原色板里的 copy-blue 撞色（色相差 7°，最后退役了 copy-blue 并重建了域色映射）。
+[`docs/VISUAL.md`](kunpeng-devkit-ai-tui/docs/VISUAL.md) 记录了完整的 web → terminal token 翻译：六级表面、四级前景透明度预合成为实色、状态叠加层预合成、五档 highlight ramp 的顺序 vs 分类纪律、以及为什么品牌蓝会和原色板里的 copy-blue 撞色（色相差 7°，最后退役了 copy-blue 并重建了域色映射）。
+
+上述 token 的速查版排在[设计系统页的「视觉规范速查」↗](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#cheat) 一节——六级表面、预合成前景、状态叠加、域色映射、三条用色纪律、渲染分层 T0–T5，都能直接取色。
 
 ---
 
 ## 状态与后续
 
-当前是 **概念设计（Concept Design）** 阶段，尚未进入实现。文档中已明确标注的待验证项：
+设计规范已收敛，实现进行中。仓库里现在有**两套实现**，各自可运行：
+
+**① React 19 + OpenTUI 0.5.1 —— 主线，可运行**（[`tui/`](kunpeng-devkit-ai-tui/tui/)）
+
+十幕业务闭环（提需求 → 补配置 → 出报告 → 审改动 → 编译翻车 → 诊断 → 调优 → 场景化 → 收尾）已全部跑通，数据走确定性异步 Mock，不启动 Service。
+
+```bash
+cd kunpeng-devkit-ai-tui/tui
+bun install --frozen-lockfile
+bun run dev                 # 启动 devkitai
+bun run check               # 格式 + lint + typecheck + 77 个测试
+```
+
+不想装 Bun 的话，[实录回放页](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/tui-live.html)是同一个二进制在 160×45 真实终端里跑完十幕的录像，浏览器直接看。
+
+**② Python + Textual —— 早期原型，已冻结**（[`app/`](kunpeng-devkit-ai-tui/app/)）
+
+Phase 0 渲染底座（PTO token + T0–T5 降级链）、Chrome 层外壳，以及十四种图表原语（条形 / 排行 / 多列 / Before-After / 折线 / 面积 / 散点 / 火焰图 / 泳道 / 水位 / 进度 / 分段 / 像素数字 / 数图 / 热力）。
+
+```bash
+cd kunpeng-devkit-ai-tui/app && pip install -e '.[dev]'
+python -m devkitai          # 工作台外壳
+python -m devkitai preview  # 组件预览页，按 t 现场切换渲染层看降级
+python -m devkitai gallery  # 图元画廊：十四种图表原语的活样本
+pytest                      # 159 个测试
+```
+
+两套实现共用同一份图元尺寸判决（最小 / 推荐 / 纵横比 / 收缩优先级），见[设计系统页 #primsize](https://cinnnnnnndy.github.io/DevKit/kunpeng-devkit-ai-tui/web/index.html#primsize)。
+
+文档中已明确标注的待验证项：
+
 - 终端图形协议（T5）在目标环境的实际可用比例
 - Braille 密度渲染在中文等宽字体下的对齐表现
+
+下一步是**接 MCP 客户端到 `:8000`**——底座、外壳、图元都有了，缺的是真数据（现在喂的都是 `math.sin` 的确定性假数据）。渲染底座先行这条已经兑现：若先做业务 Demo 再补渲染，大概率退化成"带框线的 CLI"（[`docs/TUI-CAPABILITY.md`](kunpeng-devkit-ai-tui/docs/TUI-CAPABILITY.md) §6）。
 
 欢迎以 Issue 形式讨论。文档中所有被推翻的方案都保留了推翻理由，改动前建议先读一眼相关章节，避免重复踩坑。
 

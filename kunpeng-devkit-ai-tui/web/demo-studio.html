@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kunpeng DevKit AI · 风格 B · 面板质感</title>
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   风格 B —— 复用 openUBMC Studio 的外框：
+     topbar / activity-rail / workarea，工作区由若干 leaf-pane 分屏组成。
+   本页展示最典型的一屏：资源管理器 │ 源码 │ Agent —— 三个独立面板。
+   与 demo.html（风格 A · 字符质感）并列，互不覆盖。
+   ══════════════════════════════════════════════════════════════════ */
+:root{
+  /* ══ PTO 设计系统 token ══ 名称与取值均照抄 PTO_Design_System_Guide 的暗色主题，
+     本页不自造颜色：所有色值都从下面这组基元派生。 */
+  --ark-neutral-0:#0b0b0b; --ark-neutral-1:#101010; --ark-neutral-2:#141414;
+  --ark-neutral-3:#1a1a1a; --ark-neutral-4:#343434;
+  --ark-blue-500:#4369ef; --ark-blue-600:#5a92e6; --ark-domain-aux:#7c8db8;
+  --ark-green-500:#04d793; --ark-orange-500:#ffaa3b; --ark-red-500:#ff4b7b;
+
+  --background:var(--ark-neutral-1);
+  --background-elevated:var(--ark-neutral-2);
+  --surface-1:#161616; --surface-2:#1c1c1c; --surface-3:#262626; --surface-4:#313131;
+
+  --foreground:rgba(255,255,255,.90);
+  --foreground-secondary:rgba(255,255,255,.60);
+  --foreground-muted:rgba(255,255,255,.40);
+  --foreground-disabled:rgba(255,255,255,.25);
+
+  --border-subtle:var(--border-subtle);
+  --border-default:rgba(255,255,255,.10);
+  --border-strong:rgba(255,255,255,.16);
+
+  --state-hover:var(--border-subtle);
+  --state-press:rgba(255,255,255,.10);
+  --state-muted:var(--border-subtle);
+  --state-selected:rgba(0,119,255,.14);
+  --state-focus:rgba(0,119,255,.20);
+
+  /* 品牌蓝 #0077FF —— 覆盖 PTO 的 ark-blue-500 作为 primary，与风格 A 同一个主色 */
+  --brand-blue:#0077FF;
+  --primary:var(--brand-blue); --primary-hover:#3d98ff;
+  --accent:var(--ark-domain-aux);
+  --success:var(--ark-green-500); --warning:var(--ark-orange-500); --danger:var(--ark-red-500);
+
+  /* 语法高亮取 PTO highlight 色阶 */
+  --hl-violet:#B977F9;   /* l0a-violet-300  */
+  --hl-green:#B3F141;    /* ub-green-400    */
+  --hl-orange:#FA8838;   /* accum-orange-400*/
+
+  --input-bg:var(--surface-1); --input-border:var(--border-default); --input-height-md:34px;
+  --button-height-compact:28px; --button-gap:6px; --button-padding-x:12px;
+  --button-secondary-bg:color-mix(in srgb,var(--surface-2) 92%,white 3%);
+  --button-secondary-bg-hover:var(--surface-3);
+  --button-secondary-border:var(--border-default);
+  --button-secondary-fg:var(--foreground);
+  --comp-toolbar-bg:color-mix(in srgb,var(--background) 92%,black);
+  --comp-toolbar-border:var(--border-subtle);
+  --comp-toolbar-height:44px;
+  --font-size-body-sm:12px; --font-size-label-xs:11px;
+  --font-weight-medium:500; --letter-spacing-label:.5px; --line-height-label:1.2;
+  --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-pill:999px;
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+  --shadow-md:0 6px 18px rgba(0,0,0,.34); --shadow-lg:0 12px 30px rgba(0,0,0,.42);
+
+  --font-mono:'JetBrains Mono','Fira Code','Consolas','Noto Sans Mono CJK SC',monospace;
+  --font-sans:'Inter','Source Han Sans SC','PingFang SC','Noto Sans SC',sans-serif;
+
+  /* 旧别名 → PTO token，正文样式不必逐条改写 */
+  --fg:var(--foreground); --fg2:var(--foreground-secondary);
+  --fg3:var(--foreground-muted); --fg4:var(--foreground-disabled);
+  --panel-bg:var(--surface-1); --s2:var(--surface-2); --s3:var(--surface-3); --s4:var(--surface-4);
+  --accent-h:var(--primary-hover); --aux:var(--accent);
+  --ok:var(--success); --warn:var(--warning);
+  --v3:var(--hl-violet); --g4:var(--hl-green); --o4:var(--hl-orange);
+  --pane-border:var(--border-default); --hair:var(--border-subtle);
+  --state-sel:var(--state-selected);
+  --r-sm:var(--radius-sm); --r-md:var(--radius-md); --r-lg:var(--radius-lg);
+  --mono:var(--font-mono); --sans:var(--font-sans);
+  --shell-bg:radial-gradient(circle at top left,rgb(98 90 215 / .22),transparent 28%),
+           radial-gradient(circle at top right,rgb(60 98 235 / .18),transparent 30%),
+           radial-gradient(circle at 48% 6%,rgb(65 100 218 / .05),transparent 34%),
+           radial-gradient(circle at 18% 86%,rgb(65 100 218 / .03),transparent 34%),
+           linear-gradient(180deg,#0e0f15 0%,#0a0b10 44%,#07080c 100%);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#050505}
+body{font-family:var(--sans);color:var(--fg);font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased}
+
+/* ══ 舞台：与风格 A 相同的 1080p 设计画布 + 无品牌笔记本外壳 ══ */
+#stage{position:absolute;left:0;top:0;width:2120px;height:1420px;transform-origin:top left;
+  background:var(--background);display:flex;flex-direction:column;padding:26px 30px 22px;gap:14px}
+.head{display:flex;align-items:center;gap:12px;flex:none;height:44px}
+.head b{font-size:15px}
+.head .c{font-family:var(--mono);font-size:11px;color:var(--fg3);background:var(--s2);
+  border:1px solid var(--hair);border-radius:3px;padding:2px 8px}
+.head .r{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--fg3)}
+
+.wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+
+/* 底栏 —— 与风格 A 的幕条等高，画布多出来的竖向空间用来说清三个框各自干什么 */
+.legend{flex:none;height:74px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.legend .lg{display:flex;flex-direction:column;justify-content:center;gap:3px;
+  padding:0 16px;border-radius:var(--radius-md);
+  background:var(--surface-1);border:1px solid var(--border-default)}
+.legend .lg .n{font-family:var(--font-mono);font-size:var(--font-size-label-xs);
+  color:var(--foreground-muted)}
+.legend .lg .t{font-size:13.5px;font-weight:var(--font-weight-medium);color:var(--foreground)}
+.legend .lg .d{font-size:12px;color:var(--foreground-muted)}
+.legend .lg.on{background:var(--state-selected);border-color:color-mix(in srgb,var(--primary) 45%,transparent)}
+.legend .lg.on .t{color:#cfe2ff}
+.laptop{width:2060px;flex:none;display:flex;flex-direction:column;align-items:center}
+.lid{position:relative;padding:30px 30px 56px;border-radius:20px 20px 4px 4px;
+  background:linear-gradient(#3b4046,#22252a 55%,#16181b);border:1px solid #52585f;
+  box-shadow:0 34px 90px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.14)}
+.lid .cam{position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:8px;height:8px;border-radius:50%;background:#090a0b;box-shadow:inset 0 0 0 1px #5b616a}
+.hinge{width:1760px;height:14px;background:linear-gradient(#0d0f11,#2c3036);
+  box-shadow:inset 1px 0 0 #52585f,inset -1px 0 0 #52585f}
+.base{position:relative;width:2060px;height:32px;border-radius:0 0 16px 16px;
+  background:linear-gradient(#41464d 0 2px,#2b2f35 2px,#15171a);
+  box-shadow:0 28px 64px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.16)}
+.base::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:240px;height:10px;border-radius:0 0 9px 9px;background:#0b0d0f}
+
+/* 屏幕 = 真实 1920×1080 */
+.screen{width:1920px;height:1080px;flex:none;border-radius:4px;overflow:hidden;
+  background:var(--shell-bg);box-shadow:0 0 0 1px #0a0b0c,inset 0 0 60px rgba(0,0,0,.5);
+  display:flex;flex-direction:column}
+
+/* ══ 外框 ══ */
+.topbar{height:48px;flex:none;display:flex;align-items:center;gap:12px;padding:0 14px}
+.brand{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600;letter-spacing:.01em}
+.brand .mk{width:26px;height:26px;flex:none;display:block}
+.topbar .tr{margin-left:auto;display:flex;align-items:center;gap:8px}
+.tbtn{width:30px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;
+  color:var(--fg2);font-size:14px;border:1px solid transparent}
+.tbtn.on{background:var(--state-sel);border-color:var(--border-default);color:var(--fg)}
+
+.shell{flex:1;min-height:0;display:flex}
+/* 活动栏 48px —— 与 openUBMC Studio 一致 */
+.rail{flex:0 0 48px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0}
+.rail i{width:32px;height:32px;border-radius:var(--r-sm);display:grid;place-items:center;
+  color:var(--fg3);font-style:normal;font-size:15px;position:relative}
+.rail i.on{color:var(--fg);background:var(--state-sel)}
+.rail i.on::before{content:'';position:absolute;left:-10px;top:6px;bottom:6px;width:2px;
+  border-radius:1px;background:var(--accent-h)}
+.rail .sp{flex:1}
+
+/* 工作区：三个 leaf-pane 分屏
+   权重：Agent 面板最大 —— 它装的是 TUI 主标签页的内容（AI PLAN + Console + 输入），
+   是这一屏的主角；源码面板只做改动预览；资源管理器最窄，只负责定位。 */
+.workarea{flex:1;min-width:0;display:grid;gap:8px;padding:6px 8px 8px 0;
+  grid-template-columns:786px minmax(0,1fr);transition:grid-template-columns .18s var(--easing,ease)}
+/* 代码区收起后整块让位给 Agent 面板 */
+.workarea.folded{grid-template-columns:308px minmax(0,1fr)}
+/* 收起后标签行装不下：只留"资源管理器"和收起按钮，其余隐藏，避免换行重叠 */
+.workarea.folded .tabrow .tab:not(.on){display:none}
+.workarea.folded .tabrow .repo{display:none}
+
+/* ── 合卡：资源管理器 + 源码同处一张 leaf-pane（BMC 的组织方式）── */
+.split2{flex:1;min-height:0;display:flex}
+.side{width:306px;flex:none;display:flex;flex-direction:column;min-height:0;
+  border-right:1px solid var(--border-default)}
+.side .sbody{flex:1;min-height:0;overflow:auto;padding:12px 10px}
+.side .foldrow{flex:none;display:flex;align-items:center;gap:var(--space-2);
+  height:34px;padding:0 14px;border-top:1px solid var(--border-subtle);
+  font-size:var(--font-size-body-sm);color:var(--foreground-secondary)}
+.side .foldrow .cv{color:var(--foreground-muted);font-size:10px}
+
+.ed{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0}
+.workarea.folded .ed{display:none}
+.edhd{height:36px;flex:none;display:flex;align-items:center;gap:var(--space-2);padding:0 14px;
+  border-bottom:1px solid var(--border-subtle)}
+.edhd .fn{font-family:var(--font-mono);font-size:var(--font-size-body-sm);color:var(--foreground)}
+.edhd .meta{margin-left:auto;font-family:var(--font-mono);font-size:var(--font-size-label-xs);
+  color:var(--foreground-muted);letter-spacing:var(--letter-spacing-label)}
+/* 收起按钮 = PTO secondary button */
+.fold{display:inline-flex;align-items:center;gap:var(--button-gap);
+  height:var(--button-height-compact);padding:0 var(--button-padding-x);
+  background:var(--button-secondary-bg);border:1px solid var(--button-secondary-border);
+  color:var(--button-secondary-fg);border-radius:var(--radius-sm);cursor:pointer;
+  font-family:var(--font-sans);font-size:var(--font-size-body-sm);
+  font-weight:var(--font-weight-medium);line-height:1;flex:none;
+  transition:background var(--duration,150ms) ease,border-color var(--duration,150ms) ease}
+.fold:hover{background:var(--button-secondary-bg-hover);border-color:var(--border-strong)}
+.fold .cv{font-family:var(--font-mono);font-size:10px;color:var(--foreground-muted)}
+.fold:hover{background:var(--state-hover);color:var(--foreground)}
+.edbody{flex:1;min-height:0;overflow:auto;padding:14px 16px}
+.pane{min-width:0;display:flex;flex-direction:column;border-radius:var(--r-md);
+  border:1px solid var(--pane-border);background:color-mix(in srgb,#101010 80%,transparent);
+  backdrop-filter:blur(18px) saturate(1.18);overflow:hidden}
+/* 所有面板同一条描边（与 BMC 的 leaf-pane 一致），不给任何面板加蓝色高亮 */
+/* 标签行 —— 在 PTO 里对应 toolbar 组件，尺寸/底色/描边/字号全部走 comp-toolbar-* 与排版 token */
+.tabrow{height:var(--comp-toolbar-height);flex:none;display:flex;align-items:center;
+  gap:var(--space-1);padding:0 var(--space-2);
+  background:var(--comp-toolbar-bg);border-bottom:1px solid var(--comp-toolbar-border)}
+.tab{display:flex;align-items:center;gap:var(--space-2);height:30px;white-space:nowrap;padding:0 var(--space-3);
+  border-radius:var(--radius-md);border:1px solid transparent;
+  font-size:var(--font-size-body-sm);line-height:var(--line-height-label);
+  font-weight:var(--font-weight-medium);color:var(--foreground-secondary)}
+.tab .ic{font-size:var(--font-size-body-sm);opacity:.75}
+.tab.on{color:var(--foreground);background:var(--surface-2);border-color:var(--border-default)}
+.tab .x{color:var(--foreground-disabled);font-size:var(--font-size-label-xs);margin-left:var(--space-1)}
+.tabrow .ra{margin-left:auto;display:flex;align-items:center;gap:var(--space-2);white-space:nowrap;
+  padding:0 var(--space-3);font-family:var(--font-mono);
+  font-size:var(--font-size-label-xs);color:var(--foreground-muted);
+  letter-spacing:var(--letter-spacing-label)}
+.pbody{flex:1;min-height:0;overflow:auto;padding:12px 10px}
+.pbody.pad{padding:14px 16px}
+
+/* 分组小标题 */
+.lbl{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--fg4);margin:0 6px 8px}
+
+/* 搜索框 —— 放在树上方，走 PTO 的 input token */
+.search{display:flex;align-items:center;gap:var(--space-2);height:var(--input-height-md);
+  padding:0 10px;margin:2px 2px 12px;border-radius:var(--radius-sm);
+  background:var(--input-bg);border:1px solid var(--input-border);
+  font-size:var(--font-size-body-sm);color:var(--foreground-muted)}
+.search .ic{font-family:var(--font-mono);color:var(--foreground-disabled);font-size:13px}
+
+/* ── 资源管理器：样式对齐 BMC 的文件树 ── */
+.tree{display:flex;flex-direction:column;font-family:var(--font-sans);font-size:13.5px}
+.tree .tr{display:flex;align-items:center;gap:6px;height:27px;padding:0 8px;position:relative;
+  border-radius:var(--radius-sm);color:var(--foreground-secondary);white-space:nowrap}
+.tree .tr .cv{width:14px;flex:none;display:grid;place-items:center;
+  color:var(--foreground-muted);font-size:9px;font-family:var(--font-mono)}
+.tree .tr svg{width:15px;height:15px;flex:none}
+.tree .tr .nm{overflow:hidden;text-overflow:ellipsis}
+.tree .tr .mk{margin-left:auto;font-family:var(--font-mono);font-size:11px;font-weight:600}
+.tree .tr.on{background:var(--state-selected);color:var(--foreground)}
+.tree .tr.on::before{content:'';position:absolute;left:0;top:3px;bottom:3px;width:2px;
+  border-radius:1px;background:var(--primary)}
+.tree .tr.mod .mk{color:var(--warning)}
+.tree .tr.add .mk{color:var(--success)}
+.tree .root{font-family:var(--font-mono);font-size:11px;letter-spacing:var(--letter-spacing-label);
+  text-transform:uppercase;color:var(--foreground-muted)}
+/* 文件图标按扩展名着色 —— 与 BMC 一致的做法 */
+.i-dir{color:var(--foreground-muted)}
+.i-c{color:#5a92e6} .i-h{color:#B977F9} .i-conf{color:var(--warning)}
+.i-txt{color:var(--foreground-muted)} .i-patch{color:var(--success)}
+.lv1{padding-left:22px}.lv2{padding-left:40px}.lv3{padding-left:58px}
+
+/* 迁移状态小节 */
+.stat2{display:flex;flex-direction:column;font-family:var(--font-sans);font-size:13px}
+.stat2 .r{display:flex;align-items:center;gap:8px;height:26px;padding:0 8px;
+  color:var(--foreground-secondary)}
+.stat2 .r .n{margin-left:auto;font-family:var(--font-mono);font-size:11.5px;font-weight:600}
+
+/* ── 面板② 源码 ── */
+.bcrumb{font-family:var(--mono);font-size:11px;color:var(--fg4);padding:0 4px 9px;
+  display:flex;align-items:center;gap:6px}
+.bcrumb .sep{opacity:.5}
+.bcrumb .cur{color:var(--fg2)}
+/* 源码面板是预览：字号收小，让整段 hunk 在窄栏里能完整看到 */
+.code{font-family:var(--mono);font-size:11.5px;line-height:1.62}
+.code .cl{display:flex;border-left:2px solid transparent}
+.code .cl>.ln{width:38px;flex:none;text-align:right;padding-right:10px;
+  color:var(--fg4);font-size:10.5px;user-select:none}
+.code .cl>.tx{white-space:pre;min-width:0;color:var(--fg2)}
+.code .cl.foc{background:var(--state-muted)}
+.code .cl.add{background:color-mix(in srgb,var(--success) 12%,transparent);border-left-color:var(--ok)}
+.code .cl.add>.ln{color:var(--ok)}
+.code .cl.del{background:color-mix(in srgb,var(--danger) 12%,transparent);border-left-color:var(--danger)}
+.code .cl.del>.ln{color:var(--danger)}
+.code .cl.del>.tx{color:var(--fg3)}
+.kw{color:var(--v3)}.fn{color:var(--accent-h)}.st{color:var(--g4)}
+.nu{color:var(--o4)}.co{color:var(--fg4)}.ty{color:var(--aux)}
+.gutnote{margin:14px 4px 0;padding:9px 12px;border-radius:var(--r-sm);
+  background:var(--state-muted);border:1px solid var(--hair);
+  font-size:11.5px;color:var(--fg3);display:flex;flex-direction:column;gap:5px}
+.gutnote b{color:var(--ok);font-weight:600}
+
+/* ── 面板③ Agent —— 装的是 TUI 主标签页的内容，本屏主角 ── */
+.ag{display:flex;flex-direction:column;height:100%}
+.cvh{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--fg3);
+  display:flex;align-items:center;gap:9px;padding-bottom:10px;
+  border-bottom:1px solid var(--hair);margin-bottom:13px}
+.cvh .pmt{color:var(--fg4);letter-spacing:0}
+.cvh .r{margin-left:auto;letter-spacing:.04em;color:var(--fg4)}
+.goal{font-family:var(--mono);font-size:14px;color:var(--fg2);margin-bottom:12px}
+.goal .k{color:var(--fg4);margin-right:12px;font-size:12.5px}
+
+.plan{display:flex;flex-direction:column;gap:2px}
+.pstep{display:flex;gap:12px;align-items:flex-start;padding:8px 12px;border-radius:var(--r-sm)}
+.pstep.on{background:var(--state-selected);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--primary-hover) 34%,transparent)}
+.pstep .n{font-family:var(--mono);font-size:13px;color:var(--fg4);width:13px;flex:none;text-align:right}
+.pstep.on .n{color:var(--accent-h)}
+.pstep .bd{flex:1;min-width:0}
+.pstep .t1{font-family:var(--mono);font-size:14.5px;color:var(--fg)}
+.pstep .t2{font-size:12.5px;color:var(--fg4);margin-top:2px}
+.pstep .tl{font-family:var(--mono);font-size:11.5px;color:var(--fg4);flex:none;margin-top:3px}
+.tool{display:inline-block;font-family:var(--mono);font-size:11.5px;color:var(--fg2);
+  background:var(--s2);border:1px solid var(--hair);border-radius:3px;padding:1px 8px;margin-top:4px}
+.est{font-family:var(--mono);font-size:12.5px;color:var(--fg4);margin:13px 0 0 12px}
+.keys{font-family:var(--mono);font-size:14px;display:flex;gap:20px;margin:11px 0 0 12px}
+.keys .pri{color:var(--accent-h)}
+.keys .dim{color:var(--fg3)}
+
+.aconsole{margin-top:20px;padding-top:14px;border-top:1px solid var(--hair)}
+.ivl{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--fg3);
+  background:var(--s2);border:1px solid var(--hair);border-radius:3px;padding:2px 8px}
+.arow{display:flex;align-items:center;gap:10px;margin-top:11px;font-family:var(--mono);font-size:13.5px}
+.arow .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none}
+.arow .t2{font-size:12.5px;color:var(--fg4);font-family:var(--sans)}
+
+/* 输入框钉在面板底部，不随内容滚动 */
+.agin{flex:none;margin:0 16px 14px;display:flex;align-items:center;gap:10px;
+  padding:11px 14px;border-radius:var(--r-sm);background:var(--panel-bg);
+  border:1px solid var(--border-default);font-size:14px;color:var(--fg2)}
+.agin .pr{color:var(--accent-h);font-family:var(--mono);font-size:14px}
+.agin .cur{width:8px;height:16px;background:var(--accent-h);opacity:.75;display:inline-block}
+.agin .kbd{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--fg4);
+  background:var(--s2);border:1px solid var(--hair);border-radius:3px;padding:2px 7px}
+.caps{display:flex;flex-wrap:wrap;gap:5px}
+.cap2{font-family:var(--mono);font-size:11px;color:var(--fg2);background:var(--s2);
+  border:1px solid var(--border-default);border-radius:999px;padding:3.5px 10px}
+.cap2.on{color:#cfdcff;border-color:color-mix(in srgb,var(--primary) 60%,transparent);background:var(--state-selected)}
+.card{border:1px solid var(--hair);border-radius:var(--r-sm);background:var(--state-muted);
+  padding:11px 12px}
+.card .ttl{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--fg);font-weight:600}
+.card .ttl .n{font-family:var(--mono);font-size:11px;color:var(--fg4);font-weight:500}
+.card .ttl .st2{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--warn)}
+.dl2{font-family:var(--mono);font-size:12.5px;line-height:1.6;margin-top:8px}
+.dl2 .r{display:flex;gap:8px}
+.dl2 .r .s{width:10px;flex:none;text-align:center}
+.dl2 .r.m .s,.dl2 .r.m .b{color:var(--danger)}
+.dl2 .r.p .s,.dl2 .r.p .b{color:var(--ok)}
+.dl2 .r .b{color:var(--fg3);white-space:pre}
+
+.evi{display:flex;flex-direction:column;gap:3px}
+.ev{display:flex;align-items:flex-start;gap:9px;padding:6px 9px;border-radius:var(--r-sm);
+  border:1px solid transparent}
+.ev.on{background:var(--state-sel);border-color:var(--border-default)}
+.ev .n{font-family:var(--mono);font-size:11.5px;color:var(--accent-h);flex:none;width:20px}
+.ev .t1{font-size:12.5px;color:var(--fg)}
+.ev .t2{font-size:11.5px;color:var(--fg4);margin-top:1px}
+.ev .go{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--fg4);flex:none}
+
+.steps{display:flex;flex-direction:column;gap:7px}
+.step{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--fg2)}
+.step .dot{width:6px;height:6px;border-radius:50%;margin-top:6px;flex:none;background:var(--ok)}
+.step .dot.rn{background:var(--accent-h);box-shadow:0 0 0 3px var(--state-focus)}
+.step .dot.wt{background:var(--fg4)}
+.step .t2{font-size:11.5px;color:var(--fg4)}
+.step .rt{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--fg4);flex:none}
+
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.abtn{font-family:var(--mono);font-size:12px;padding:6px 13px;border-radius:var(--r-sm);
+  border:1px solid var(--border-default);color:var(--fg2);background:var(--s2)}
+.abtn.pri{color:#fff;background:var(--accent);border-color:var(--accent)}
+.abtn .k{color:var(--fg4);margin-right:5px}
+.abtn.pri .k{color:rgba(255,255,255,.7)}
+
+/* ══ 状态栏 ══ */
+/* 状态条不铺底色 —— 跟 openUBMC Studio 一样直接落在背景渐变上 */
+.statbar{height:34px;flex:none;display:flex;align-items:center;padding:0 6px 2px;
+  font-family:var(--mono);font-size:11.5px;color:var(--fg3)}
+.statbar .sg{padding:0 11px;display:flex;align-items:center;gap:6px}
+.statbar .sg.acc{color:#dfe8ff;background:var(--state-focus);
+  border:1px solid color-mix(in srgb,var(--primary-hover) 36%,transparent);border-radius:999px;padding:3px 12px;margin-right:4px}
+.statbar .sp{flex:1}
+.statbar .ok{color:var(--ok)}
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <div class="head">
+    <b>Kunpeng DevKit AI</b>
+    <span class="c">风格 B · 面板质感</span>
+    <span class="c">典型一屏：资源管理器 │ 源码 │ Agent</span>
+    <span class="r">框架取自 openUBMC Studio</span>
+  </div>
+
+  <div class="wrap">
+   <div class="laptop">
+    <div class="lid">
+     <span class="cam"></span>
+     <div class="screen">
+
+      <!-- ── topbar ── -->
+      <div class="topbar">
+        <span class="brand">
+          <img class="mk" alt="Kunpeng" src="data:image/png;base64,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">
+          Kunpeng DevKit AI
+        </span>
+        <span class="tr">
+          <span class="tbtn">❯_</span>
+          <span class="tbtn on">◑</span>
+          <span class="tbtn">◍</span>
+        </span>
+      </div>
+
+      <div class="shell">
+        <!-- ── 活动栏 ── -->
+        <nav class="rail">
+          <i>⌂</i><i>◍</i><i class="on">▤</i><i>≡</i><i>⚙</i><i>⇄</i><i>▦</i>
+          <span class="sp"></span>
+          <i>◈</i><i>⚙</i>
+        </nav>
+
+        <!-- ── 工作区：三个 leaf-pane ── -->
+        <div class="workarea">
+
+          <!-- 卡片① 资源管理器 + 源码（同一张 leaf-pane，代码区可收起）-->
+          <section class="pane">
+            <div class="tabrow">
+              <div class="tab on"><span class="ic">▤</span>资源管理器</div>
+              <span class="ra"><span class="repo">nginx-main</span>
+                <button class="fold" id="edfold" title="收起代码区"><span class="cv">▾</span>代码区</button>
+              </span>
+            </div>
+
+            <div class="split2">
+              <aside class="side">
+                <div class="sbody">
+                  <div class="search"><span class="ic">⌕</span>在 nginx-main 中搜索</div>
+                  <div class="tree">
+              <div class="tr"><span class="cv">∨</span><span class="nm root">NGINX-MAIN</span></div>
+              <div class="tr lv1"><span class="cv">∨</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-dir"><path d="M1.8 4.1h4.1l1.2 1.5h7.1v7a.9.9 0 0 1-.9.9H2.7a.9.9 0 0 1-.9-.9V4.1Z"/></svg><span class="nm">nginx</span></div>
+              <div class="tr lv2"><span class="cv">∨</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-dir"><path d="M1.8 4.1h4.1l1.2 1.5h7.1v7a.9.9 0 0 1-.9.9H2.7a.9.9 0 0 1-.9-.9V4.1Z"/></svg><span class="nm">src</span></div>
+              <div class="tr lv3 on mod"><span class="cv"></span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-c"><path d="M9.2 1.9H4.5a.9.9 0 0 0-.9.9v10.4a.9.9 0 0 0 .9.9h7a.9.9 0 0 0 .9-.9V5.2L9.2 1.9Z"/><path d="M9.1 2v3.3h3.3"/></svg><span class="nm">crypto.c</span><span class="mk">M</span></div>
+              <div class="tr lv3 mod"><span class="cv"></span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-c"><path d="M9.2 1.9H4.5a.9.9 0 0 0-.9.9v10.4a.9.9 0 0 0 .9.9h7a.9.9 0 0 0 .9-.9V5.2L9.2 1.9Z"/><path d="M9.1 2v3.3h3.3"/></svg><span class="nm">memory.c</span><span class="mk">M</span></div>
+              <div class="tr lv3"><span class="cv"></span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-c"><path d="M9.2 1.9H4.5a.9.9 0 0 0-.9.9v10.4a.9.9 0 0 0 .9.9h7a.9.9 0 0 0 .9-.9V5.2L9.2 1.9Z"/><path d="M9.1 2v3.3h3.3"/></svg><span class="nm">http.c</span></div>
+              <div class="tr lv3"><span class="cv"></span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-h"><path d="M9.2 1.9H4.5a.9.9 0 0 0-.9.9v10.4a.9.9 0 0 0 .9.9h7a.9.9 0 0 0 .9-.9V5.2L9.2 1.9Z"/><path d="M9.1 2v3.3h3.3"/></svg><span class="nm">ngx_core.h</span></div>
+              <div class="tr lv2"><span class="cv">∨</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-dir"><path d="M1.8 4.1h4.1l1.2 1.5h7.1v7a.9.9 0 0 1-.9.9H2.7a.9.9 0 0 1-.9-.9V4.1Z"/></svg><span class="nm">conf</span></div>
+              <div class="tr lv3 mod"><span class="cv"></span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-conf"><path d="M9.2 1.9H4.5a.9.9 0 0 0-.9.9v10.4a.9.9 0 0 0 .9.9h7a.9.9 0 0 0 .9-.9V5.2L9.2 1.9Z"/><path d="M9.1 2v3.3h3.3"/></svg><span class="nm">nginx.conf</span><span class="mk">M</span></div>
+              <div class="tr lv2"><span class="cv">›</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-dir"><path d="M1.8 4.1h4.1l1.2 1.5h7.1v7a.9.9 0 0 1-.9.9H2.7a.9.9 0 0 1-.9-.9V4.1Z"/></svg><span class="nm">auto</span></div>
+              <div class="tr lv2"><span class="cv">›</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-dir"><path d="M1.8 4.1h4.1l1.2 1.5h7.1v7a.9.9 0 0 1-.9.9H2.7a.9.9 0 0 1-.9-.9V4.1Z"/></svg><span class="nm">objs</span></div>
+              <div class="tr lv2 add"><span class="cv"></span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-patch"><path d="M9.2 1.9H4.5a.9.9 0 0 0-.9.9v10.4a.9.9 0 0 0 .9.9h7a.9.9 0 0 0 .9-.9V5.2L9.2 1.9Z"/><path d="M9.1 2v3.3h3.3"/></svg><span class="nm">kunpeng.patchset</span><span class="mk">A</span></div>
+              <div class="tr lv2"><span class="cv"></span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-txt"><path d="M9.2 1.9H4.5a.9.9 0 0 0-.9.9v10.4a.9.9 0 0 0 .9.9h7a.9.9 0 0 0 .9-.9V5.2L9.2 1.9Z"/><path d="M9.1 2v3.3h3.3"/></svg><span class="nm">CHANGES</span></div>
+              <div class="tr lv2"><span class="cv"></span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" class="i-txt"><path d="M9.2 1.9H4.5a.9.9 0 0 0-.9.9v10.4a.9.9 0 0 0 .9.9h7a.9.9 0 0 0 .9-.9V5.2L9.2 1.9Z"/><path d="M9.1 2v3.3h3.3"/></svg><span class="nm">configure</span></div>
+                  </div>
+
+                  <div class="lbl" style="margin:18px 6px 6px">迁移状态</div>
+                  <div class="stat2">
+                    <div class="r">待审改动<span class="n" style="color:var(--warning)">10</span></div>
+                    <div class="r">已接受<span class="n" style="color:var(--success)">2</span></div>
+                    <div class="r">需人工确认<span class="n" style="color:var(--danger)">2</span></div>
+                  </div>
+                </div>
+                <div class="foldrow"><span class="cv">›</span>补丁集</div>
+                <div class="foldrow"><span class="cv">›</span>TIMELINE</div>
+              </aside>
+
+              <div class="ed">
+                <div class="edhd">
+                  <span class="fn">crypto.c</span>
+                  <span class="meta">nginx-main · C · UTF-8 · LF</span>
+                </div>
+                <div class="edbody">
+                  <div class="bcrumb">nginx <span class="sep">›</span> src <span class="sep">›</span>
+                    <span class="cur">crypto.c</span> <span class="sep">›</span>
+                    <span class="cur">ngx_crypto_spin_wait()</span></div>
+                  <div class="code">
+<div class="cl"><span class="ln">80</span><span class="tx"><span class="co">/* 自旋等待：x86 用 PAUSE 降低流水线开销 */</span></span></div>
+<div class="cl"><span class="ln">81</span><span class="tx"></span></div>
+<div class="cl"><span class="ln">82</span><span class="tx"><span class="kw">static</span> <span class="ty">ngx_int_t</span></span></div>
+<div class="cl"><span class="ln">83</span><span class="tx"><span class="fn">ngx_crypto_spin_wait</span>(<span class="ty">ngx_atomic_t</span> *lock, <span class="ty">ngx_uint_t</span> spin)</span></div>
+<div class="cl"><span class="ln">84</span><span class="tx">{</span></div>
+<div class="cl"><span class="ln">85</span><span class="tx">    <span class="kw">for</span> ( ;; ) {</span></div>
+<div class="cl foc"><span class="ln">86</span><span class="tx">        <span class="kw">while</span> (spin--) {</span></div>
+<div class="cl del"><span class="ln">87</span><span class="tx">            <span class="fn">_mm_pause</span>();</span></div>
+<div class="cl add"><span class="ln">87</span><span class="tx">            <span class="kw">__asm__</span> <span class="kw">volatile</span>(<span class="st">"yield"</span> ::: <span class="st">"memory"</span>);</span></div>
+<div class="cl foc"><span class="ln">88</span><span class="tx">        }</span></div>
+<div class="cl"><span class="ln">89</span><span class="tx"></span></div>
+<div class="cl"><span class="ln">90</span><span class="tx">        <span class="kw">if</span> (<span class="fn">ngx_atomic_cmp_set</span>(lock, <span class="nu">0</span>, <span class="nu">1</span>)) {</span></div>
+<div class="cl"><span class="ln">91</span><span class="tx">            <span class="kw">return</span> NGX_OK;</span></div>
+<div class="cl"><span class="ln">92</span><span class="tx">        }</span></div>
+<div class="cl"><span class="ln">93</span><span class="tx">    }</span></div>
+<div class="cl"><span class="ln">94</span><span class="tx">}</span></div>
+                  </div>
+                  <div class="gutnote">仅高亮变化的 token —— 一眼看出"到底动了什么"
+                    <span>Impact&nbsp; <b>Compatibility Fixed</b> · Perf +3%</span></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 面板③ Agent —— TUI 主标签页的内容，本屏最大的框 -->
+          <section class="pane">
+            <div class="tabrow">
+              <div class="tab on"><span class="ic">■</span>MIGRATE NGINX<span class="x">✕</span></div>
+              <div class="tab"><span class="ic">✦</span>AGENT 工作台</div>
+              <div class="tab"><span class="ic">≡</span>Console</div>
+              <span class="ra">v26.0 · Kunpeng ARM64 · model qwen</span>
+            </div>
+
+            <div class="pbody pad">
+              <div class="ag">
+
+                <div class="cvh"><span class="pmt">&gt;_</span>AI PLAN
+                  <span class="r">5 tools · ~3 min</span></div>
+
+                <div class="goal"><span class="k">Goal</span>Migrate ./nginx&nbsp; x86_64 → Kunpeng ARM64</div>
+
+                <div class="plan">
+                  <div class="pstep on"><span class="n">1</span><span class="bd">
+                      <div class="t1">Analyze dependency</div>
+                      <div class="t2">静态扫描依赖树</div></span>
+                    <span class="tl">~20s</span></div>
+                  <div class="pstep"><span class="n">2</span><span class="bd">
+                      <div class="t1">Find incompatible API</div>
+                      <span class="tool">kunpeng_knowledge_base_search</span></span>
+                    <span class="tl">~40s</span></div>
+                  <div class="pstep"><span class="n">3</span><span class="bd">
+                      <div class="t1">Generate patches</div>
+                      <span class="tool">code_cpp_migrator</span></span>
+                    <span class="tl">~60s</span></div>
+                  <div class="pstep"><span class="n">4</span><span class="bd">
+                      <div class="t1">Build verify</div>
+                      <div class="t2">交叉编译验证</div></span>
+                    <span class="tl">~50s</span></div>
+                  <div class="pstep"><span class="n">5</span><span class="bd">
+                      <div class="t1">Benchmark</div>
+                      <div class="t2">迁移前后性能对比</div></span>
+                    <span class="tl">~30s</span></div>
+                </div>
+
+                <div class="est">Estimated&nbsp; 5 tools · ~3 min</div>
+
+                <div class="keys">
+                  <span class="pri">[E] Execute</span>
+                  <span class="dim">[M] Modify Plan</span>
+                  <span class="dim">[C] Cancel</span>
+                </div>
+
+                <div class="aconsole">
+                  <span class="ivl">AGENT CONSOLE</span>
+                  <div class="arow"><span class="dot"></span>Understand request
+                    <span class="t2">意图已解析：迁移任务</span></div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="agin"><span class="pr">❯</span>把 ./nginx 迁到鲲鹏<span class="cur"></span>
+              <span class="kbd">Ctrl+P 命令面板</span></div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- ── 状态栏 ── -->
+      <div class="statbar">
+        <span class="sg acc">[F1] Migrate</span>
+        <span class="sg">mode <span class="ok">auto</span></span>
+        <span class="sg">model qwen</span>
+        <span class="sg">⬡ Kunpeng ARM64</span>
+        <span class="sp"></span>
+        <span class="sg">patch 2/12</span>
+        <span class="sg">ctx <span class="ok">38%</span></span>
+        <span class="sg">12:09</span>
+      </div>
+
+     </div>
+    </div>
+    <div class="hinge"></div>
+    <div class="base"></div>
+   </div>
+  </div>
+
+  <div class="legend">
+    <div class="lg"><span class="n">①</span><span class="t">资源管理器</span><span class="d">定位改动落在哪个文件</span></div>
+    <div class="lg"><span class="n">②</span><span class="t">源码</span><span class="d">预览这一处到底改了什么，可收起</span></div>
+    <div class="lg on"><span class="n">③</span><span class="t">Agent</span><span class="d">主标签：出计划、逐条给证据、等人确认</span></div>
+  </div>
+
+</div>
+
+<script>
+/* 舞台按固定设计画布等比缩放塞进视口 —— 与风格 A 同一套 fit 逻辑 */
+function fitStage(){
+  const st=document.getElementById('stage'); if(!st) return;
+  const k=Math.min(innerWidth/2120, innerHeight/1420);
+  st.style.transform=`translate(${(innerWidth-2120*k)/2}px, ${(innerHeight-1420*k)/2}px) scale(${k})`;
+}
+const _ef=document.getElementById('edfold');
+if(_ef) _ef.onclick=()=>{
+  const wa=document.querySelector('.workarea');
+  const on=wa.classList.toggle('folded');
+  _ef.querySelector('.cv').textContent = on ? '▸' : '▾';
+  _ef.title = on ? '展开代码区' : '收起代码区';
+};
+addEventListener('resize',fitStage);
+/* 嵌在 iframe 里时，首帧算出的视口尺寸可能还不是最终值，
+   resize 事件也未必补发 —— 用 ResizeObserver 兜底，保证任何容器尺寸变化都重新贴合。 */
+if(window.ResizeObserver) new ResizeObserver(fitStage).observe(document.documentElement);
+addEventListener('load',fitStage);
+fitStage();
+</script>
+</body>
+</html>

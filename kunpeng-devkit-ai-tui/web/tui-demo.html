@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TUI 设计 demo · Kunpeng DevKit AI</title>
+<style>
+/* ══════════════════════════════════════════════════════════
+   TUI 设计 demo —— 两种风格上下排列。
+   上下而非左右：每个 demo 都是 16:9 的宽画布，横排会被宽度压死，
+   竖排每个能拿到接近满视口的尺寸，看得全。滚动切换。
+   ══════════════════════════════════════════════════════════ */
+:root{
+  --bg:#0b0b0b; --app:#101010; --s1:#161616; --s2:#1c1c1c;
+  --fg:#e8e8e8; --fg2:#a4a4a4; --fg3:#777; --fg4:#555;
+  --bd1:#242424; --bd2:#2d2d2d;
+  --pri:#0077ff; --pri-h:#3d98ff; --accent:#4369ef; --accent-h:#6b8cf5;
+  --mono:'JetBrains Mono','Fira Code','Consolas','Noto Sans Mono CJK SC',monospace;
+  --sans:'Inter','Source Han Sans SC','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
+  --hd:57px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.6;
+  -webkit-font-smoothing:antialiased}
+
+/* ══ 吸顶头 ══ */
+.head{position:sticky;top:0;z-index:20;height:var(--hd);display:flex;align-items:center;gap:12px;
+  padding:0 22px;background:rgba(11,11,11,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--bd1)}
+.head b{font-size:15px}
+.head .c{font-family:var(--mono);font-size:11px;color:var(--fg3);background:var(--s2);
+  border:1px solid var(--bd1);border-radius:3px;padding:2px 8px}
+.head .r{margin-left:auto;display:flex;gap:8px;align-items:center}
+.jump{font-family:var(--mono);font-size:11.5px;color:var(--fg2);background:var(--s2);
+  border:1px solid var(--bd2);border-radius:4px;padding:5px 11px;text-decoration:none}
+.jump:hover{color:var(--fg);border-color:var(--fg4)}
+.jump.a:hover{border-color:var(--pri)}
+.jump.b:hover{border-color:var(--accent)}
+
+/* ══ 每种风格一屏 ══
+   高度不写死 100vh：舞台是固定宽高比的画布，强撑满屏时窗口一高就被宽度卡住，
+   上下留出大片黑边。改成让 frame 按画布比例算尺寸，宽高两个方向都不浪费。 */
+.sec{display:flex;flex-direction:column;padding:14px 20px 22px;scroll-margin-top:var(--hd)}
+.sec + .sec{border-top:1px solid var(--bd1)}
+/* 两种风格画布同尺寸 2120×1420 —— 上下两屏一样大 */
+.sec{--ar:1.4930}
+
+.cap{flex:none;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:11px}
+.tagn{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;padding:2.5px 9px;border-radius:3px}
+.sec-a .tagn{color:#bcd7ff;background:rgba(0,119,255,.16);border:1px solid rgba(0,119,255,.45)}
+.sec-b .tagn{color:#cfdcff;background:rgba(67,105,239,.16);border:1px solid rgba(67,105,239,.5)}
+.cap h2{font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
+.mainline,.altline{font-family:var(--mono);font-size:10.5px;font-weight:500;
+  letter-spacing:.08em;padding:2px 7px;border-radius:3px}
+.mainline{color:#bcd7ff;background:rgba(0,119,255,.16);border:1px solid rgba(0,119,255,.45)}
+.altline{color:var(--fg3);background:var(--s2);border:1px solid var(--bd2)}
+.cap .sub{font-size:12.5px;color:var(--fg3)}
+.cap .go{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--fg3);
+  text-decoration:none;border:1px solid var(--bd2);border-radius:4px;padding:5px 11px;background:var(--s2)}
+.cap .go:hover{color:var(--fg);border-color:var(--fg4)}
+
+/* frame 尺寸 = 画布宽高比 × 可用空间：
+   先取"能塞进剩余视口高度"和"能塞进当前宽度"两者的小值当高度，宽度再按比例推出来，
+   于是两个方向都不出现黑边。iframe 用绝对定位铺满 —— .frame 的高度是 calc 出来的，
+   百分比高度在这种父级上不保证解析，会退回 iframe 默认的 150px。 */
+.frame{position:relative;margin:0 auto;width:auto;max-width:100%;
+  height:min(calc(100vh - var(--hd) - 96px), calc((100vw - 40px) / var(--ar)));
+  min-height:420px;aspect-ratio:var(--ar);
+  border:1px solid var(--bd2);border-radius:8px;overflow:hidden;background:#050505}
+.frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <b>TUI 设计 demo</b>
+  <span class="c">Kunpeng DevKit AI</span>
+  <span class="c">两种风格</span>
+  <span class="r">
+    <a class="jump a" href="#a">风格 A · 字符质感</a>
+    <a class="jump b" href="#b">风格 B · 面板质感</a>
+  </span>
+</div>
+
+<section class="sec sec-a" id="a">
+  <div class="cap">
+    <span class="tagn">风格 A</span>
+    <h2>字符质感 <span class="mainline">主线</span></h2>
+    <span class="sub">方角 · 1px 描边 · 字符网格 —— 全靠字符与分隔线组织</span>
+    <a class="go" href="demo.html" target="_blank">整屏打开 ↗</a>
+  </div>
+  <div class="frame"><iframe data-src="demo.html" title="风格 A · 字符质感"></iframe></div>
+</section>
+
+<section class="sec sec-b" id="b">
+  <div class="cap">
+    <span class="tagn">风格 B</span>
+    <h2>面板质感 <span class="altline">备选</span></h2>
+    <span class="sub">圆角卡片 · 描边毛玻璃 · 背景辉光 · PTO token 配色</span>
+    <a class="go" href="demo-studio.html" target="_blank">整屏打开 ↗</a>
+  </div>
+  <div class="frame"><iframe data-src="demo-studio.html" title="风格 B · 面板质感"></iframe></div>
+</section>
+
+<script>
+/* 两个 demo 由 JS 带时间戳挂载：入口页加 ?v= 只能绕过它自己的缓存，
+   iframe 里那两个地址不带参数，仍会命中旧副本 —— 每次取新副本，
+   避免"改了但看到的还是旧版"。文件都不大（85KB / 32KB）。 */
+document.querySelectorAll('iframe[data-src]').forEach(function(f){
+  f.src = f.dataset.src + '?t=' + Date.now();
+});
+</script>
+</body>
+</html>

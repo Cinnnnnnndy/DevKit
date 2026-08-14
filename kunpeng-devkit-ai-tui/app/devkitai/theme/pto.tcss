@@ -1,0 +1,139 @@
+/* PTO Design System → TCSS
+ *
+ * 色值一律引用 $pto-* 变量，变量由 devkitai/theme/__init__.py 从 tokens.py 生成。
+ * 这个文件里**不许出现十六进制字面量**——出现即意味着规范有了第二份真值。
+ *
+ * 两条造型纪律（VISUAL.md §4 与"方形"那节）：
+ *   · 圆角 = 浮起。列表项 / tab / 进度条一律直角；只有真正浮起的东西给圆角。
+ *   · 间距只取 SPACE 六档，且列与行分开取值——终端单元格约 1:2，不是正方。
+ */
+
+Screen {
+    background: $pto-background;
+    color: $pto-fg;
+}
+
+/* ── Chrome 层：结构性元素是真组件，四态齐全 ───────────────────────────── */
+
+#dock {
+    width: 26;
+    background: $pto-surface-2;
+    border-right: solid $pto-border-subtle;
+    padding: 1 2;          /* SPACE[4] = (2 col, 1 row) */
+}
+
+#dock ListItem {
+    padding: 0 1;          /* SPACE[2] */
+    color: $pto-fg-secondary;
+}
+#dock ListItem:hover { background: $pto-hover; color: $pto-fg; }
+/* 选中态：整行同色 + 左侧实心竖条贴边，不只染标签 */
+#dock ListItem.-highlight {
+    background: $pto-selected;
+    color: $pto-primary-text;
+    border-left: thick $pto-primary;
+}
+
+#main { padding: 1 2; }
+
+/* 并排的两张曲线：容器不给 height 会塌成一行，只剩表头看得见 */
+#main > Horizontal { height: auto; }
+
+.panel {
+    background: $pto-surface-1;
+    border: round $pto-border-default;   /* radius-lg → ╭╮╰╯，浮起才给圆角 */
+    padding: 1 2;
+    margin-bottom: 1;
+}
+
+.meta { color: $pto-fg-secondary; }
+.rule { color: $pto-rule; }
+
+/* 反色 chip —— pill 在终端没有对应形态，用「反色 + 前后各留一空格」表达 */
+.chip {
+    background: $pto-surface-3;
+    color: $pto-fg;
+    padding: 0 1;
+}
+.chip.-brand { background: $pto-primary; color: $pto-background; }
+
+/* ── 焦点：终端没有外发光轮廓，用「底色 + 左标记 + 边框升档」三者组合 ──── */
+.panel:focus-within {
+    background: $pto-focus;
+    border: round $pto-border-strong;
+}
+
+/* ── Canvas 层：直角边框 + 标题嵌在上边框，标题用 border_title/border_subtitle
+ * 原生属性、颜色在 Python 里按 foreground() 算——不在这里重复一份。三个
+ * Canvas 组件（BrailleChart / CoreHeatmap / KernelTable）各自在自己的
+ * DEFAULT_CSS 里声明同一条 border 规则，这里不需要再按 id 单独指定。
+ * "内嵌块直角"（COMPONENT.md）：圆角只留给真正浮起的 .panel。 */
+
+DataTable {
+    background: $pto-surface-1;
+    color: $pto-fg-secondary;
+}
+DataTable > .datatable--header {
+    background: $pto-surface-2;
+    color: $pto-fg-muted;
+    text-style: bold;
+}
+DataTable > .datatable--cursor {
+    background: $pto-selected;
+    color: $pto-primary-text;
+}
+DataTable > .datatable--hover { background: $pto-hover; }
+
+/* ── keybar：反色键位 chip + 常规文字动作，比纯文本 keybar 易扫读一个量级 ── */
+#keybar {
+    height: 1;
+    background: $pto-surface-2;
+    color: $pto-fg-muted;
+    padding: 0 2;
+}
+
+#statusbar {
+    height: 1;
+    background: $pto-surface-2;
+    color: $pto-fg-secondary;
+    padding: 0 2;
+}
+
+/* ── Shell 骨架 ─────────────────────────────────────────────────────────
+ * 一条垂直分割贯穿全屏（Dock 右边），一条水平分割横贯全屏（keybar 上边），
+ * 两条线各只出现一次。全宽的只有 keybar 与状态栏。
+ */
+#root  { height: 1fr; }
+#shell { height: 1fr; }
+/* 主区必须显式给 1fr。高度留 auto 时，里面 #canvases 的 1fr 没有可分配的
+ * 余量可算，会一口吃掉全部高度，把 Console 与输入框挤到屏幕外面去。 */
+#workspace { width: 1fr; height: 1fr; }
+
+#canvases { height: 1fr; }
+.canvas   { background: $pto-background; padding: 0 1; }
+/* 主力形态是「结论 ↔ 证据」，默认 60/40——结论那栏该更宽 */
+#canvas-a { width: 3fr; }
+#canvas-b { width: 2fr; border-left: solid $pto-border-subtle; }
+
+/* Console 与 Canvas 是跨职责区域，所以分隔升到 border-default */
+#console {
+    height: 5;
+    background: $pto-surface-1;
+    border-top: solid $pto-border-default;
+    color: $pto-fg-secondary;
+    padding: 0 1;
+}
+
+/* 边框 + border_title="EVIDENCE"（shell.py on_mount）——原来标题是内容字符串
+ * 里硬编码的第一行，和下面的证据文字同色同重，没有任何层级区分。 */
+#evidence {
+    color: $pto-fg-secondary;
+    padding: 0 1;
+    border: solid $pto-border-subtle;
+}
+
+/* 焦点不靠颜色靠边框强度——终端画不出外发光轮廓 */
+.canvas:focus-within { border: solid $pto-border-strong; }
+
+
+#gallery { padding: 1 2; background: $pto-background; }

@@ -380,7 +380,46 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#93a6c2 0%,#84b0a2 
 
 /* ⑨.5 Kunpeng 标识：半块像素还原（每字符格 = 2 垂直像素） */
 .kpm{font-family:var(--mono);white-space:pre;line-height:.86;letter-spacing:0;font-size:12px;flex:none}
+/* ── 文件树：结构照风格 B，表达用字符 ── */
+.tsearch{display:flex;align-items:center;gap:7px;height:26px;margin:2px 6px 9px;padding:0 8px;
+  background:var(--s1);border:1px solid var(--bd2);border-radius:3px;
+  font-size:11.5px;color:var(--fg4)}
+.tsearch .q{color:var(--fg4)}
+.tree2{display:flex;flex-direction:column}
+.trow{display:flex;align-items:center;gap:6px;height:22px;font-size:12px;
+  color:var(--fg2);white-space:nowrap;position:relative}
+.trow .cv{width:9px;flex:none;color:var(--fg4);font-size:9px}
+.trow .ti{width:9px;flex:none;color:var(--fg4);font-size:10px}
+.trow .tl{overflow:hidden;text-overflow:ellipsis}
+.trow .tm{margin-left:auto;margin-right:8px;font-size:10.5px;font-weight:600}
+.trow .tm.m{color:var(--o3)} .trow .tm.a{color:var(--ok)}
+.trow.dim{color:var(--fg4);font-size:10.5px;letter-spacing:.1em}
+.trow.sel{background:rgba(0,119,255,.14);color:var(--fg)}
+.trow.sel::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:2px;background:var(--pri)}
+/* 按扩展名着色 —— 与风格 B 同一套区分 */
+.trow .ti.c{color:#5a92e6} .trow .ti.h{color:#B977F9}
+.trow .ti.cf{color:var(--o3)} .trow .ti.p{color:var(--ok)}
+.tstat{margin:14px 6px 0;display:flex;flex-direction:column}
+.tstat .h{font-size:10.5px;color:var(--fg4);letter-spacing:.1em;margin-bottom:4px}
+.tstat .r{display:flex;align-items:center;height:21px;font-size:12px;color:var(--fg2)}
+.tstat .r b{margin-left:auto;font-size:11.5px}
+.tfold{display:flex;align-items:center;gap:7px;height:26px;padding:0 8px;margin-top:6px;
+  border-top:1px solid var(--bd1);font-size:12px;color:var(--fg3)}
+.tfold .cv{color:var(--fg4);font-size:9px}
+
+/* 代码区收起开关 */
+.cfold{margin-left:10px;background:var(--s2);border:1px solid var(--bd2);color:var(--fg3);
+  font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:3px;cursor:pointer}
+.cfold:hover{color:var(--fg);border-color:var(--fg4)}
+.canvases.foldcode{grid-template-columns:0 1fr !important}
+.canvases.foldcode .cvcode{display:none}
+
 .kpm i{font-style:normal}
+/* 点阵两档羽色 —— 由 tools/kpmark.py 生成的 <i class="r|g"> 使用 */
+.kpm i.r{color:var(--kp)}
+.kpm i.g{color:var(--kp2)}
+.kpm i.rg{color:var(--kp);background:var(--kp2)}
+.kpm i.gr{color:var(--kp2);background:var(--kp)}
 .kpi{width:26px;height:26px;object-fit:contain;flex:none;image-rendering:auto}
 /* 标识两个渲染档位：T5 光栅（Kitty/Sixel/iTerm2 可用时，顶栏用）
    T1 半块像素（纯字符降级，splash 用——同时也是我们要的像素调性）*/
@@ -402,18 +441,33 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#93a6c2 0%,#84b0a2 
    所有尺寸按 1920×1080 实际像素设计；整台舞台再等比缩放塞进当前视口，
    所以任意屏幕上看到的都是同一张 1080p 设计稿，不是响应式重排。 */
 html,body{height:100%;overflow:hidden;background:#050505}
-#stage{position:absolute;left:0;top:0;width:2422px;height:1282px;
+#stage{position:absolute;left:0;top:0;width:2120px;height:1420px;
   transform-origin:top left;background:var(--bg);
   display:flex;flex-direction:column;padding:26px 30px 22px;gap:14px}
 #stage .head{max-width:none;margin:0;padding:0;gap:14px;flex:none}
 #stage .rail{max-width:none;margin:0;padding:0;gap:6px;flex:none;height:74px}
-.stagebody{flex:1;min-height:0;display:grid;grid-template-columns:1920px 424px;gap:18px}
-.wrap{max-width:none;margin:0;padding:0;min-width:0;display:flex}
+/* 右栏串讲卡片已移除：舞台只剩笔记本一列，画布与风格 B 同尺寸 */
+.stagebody{flex:1;min-height:0;display:flex;justify-content:center}
+.wrap{max-width:none;margin:0;padding:0;min-width:0;display:flex;align-items:center}
 
-/* 终端本体撑满左栏 */
+/* ══ 无品牌笔记本外壳 —— 屏幕内仍是真实的 1920×1080 ══ */
+.laptop{width:2060px;flex:none;display:flex;flex-direction:column;align-items:center}
+.lid{position:relative;padding:30px 30px 56px;border-radius:20px 20px 4px 4px;
+  background:linear-gradient(#3b4046,#22252a 55%,#16181b);border:1px solid #52585f;
+  box-shadow:0 34px 90px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.14)}
+.lid .cam{position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:8px;height:8px;border-radius:50%;background:#090a0b;box-shadow:inset 0 0 0 1px #5b616a}
+.hinge{width:1760px;height:14px;background:linear-gradient(#0d0f11,#2c3036);
+  box-shadow:inset 1px 0 0 #52585f,inset -1px 0 0 #52585f}
+.base{position:relative;width:2060px;height:32px;border-radius:0 0 16px 16px;
+  background:linear-gradient(#41464d 0 2px,#2b2f35 2px,#15171a);
+  box-shadow:0 28px 64px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.16)}
+.base::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:240px;height:10px;border-radius:0 0 9px 9px;background:#0b0d0f}
+
 /* 终端窗口 = 1920×1080 实际像素 —— 这一台"屏幕"就是 1080p */
-.term{width:1920px;height:1080px;flex:none;display:flex;flex-direction:column;
-  box-shadow:0 26px 70px rgba(0,0,0,.6)}
+.term{width:1920px;height:1080px;flex:none;display:flex;flex-direction:column;border-radius:4px;
+  box-shadow:0 0 0 1px #0a0b0c,inset 0 0 60px rgba(0,0,0,.5)}
 .tbar{height:38px;flex:none}
 .screen{flex:1;min-height:0;font-size:16px;line-height:1.5}
 .sc{display:flex;flex-direction:column;height:100%}
@@ -422,20 +476,6 @@ html,body{height:100%;overflow:hidden;background:#050505}
 .canvases{flex:1;min-height:0}
 .boot{inset:0}
 
-/* 右栏串讲卡片竖排 */
-#stage .cap{max-width:none;margin:0;padding:0;display:flex;flex-direction:column;
-  gap:14px;min-height:0}
-#stage .capbox{overflow:auto}
-#stage .capbox:first-child{flex:none}
-#stage .capbox.jbox{flex:1;display:flex;flex-direction:column}
-.jlist{display:flex;flex-direction:column;gap:2px;margin-top:10px;flex:1}
-.jrow{flex:1;display:flex;align-items:center;gap:10px;padding:6px 9px;border-left:2px solid var(--bd2);
-  font-size:13px;color:var(--fg4);min-height:0}
-.jrow .jn{font-family:var(--mono);font-size:11px;width:14px;flex:none;text-align:right}
-.jrow.on{border-left-color:var(--pri);background:var(--sel);color:var(--pri-h)}
-.jrow.on .jn{color:var(--pri-h)}
-.jrow.dn{color:var(--fg3);border-left-color:var(--bd3)}
-.jrow .jm{margin-left:auto;font-family:var(--mono);font-size:10.5px;opacity:.7}
 
 /* 1080p 下的字号档 —— 终端单元格变大，不是把小终端放大 */
 .appbar{font-size:13px;padding:8px 15px}
@@ -498,13 +538,15 @@ pre.bgf{font-size:14px;line-height:1.5}
 #stage .act{padding:10px 12px}
 #stage .act .n{font-size:17px}
 #stage .act .t{font-size:12.5px}
-#stage .capbox{padding:18px 20px}
-#stage .capbox .e{font-size:11.5px}
-#stage .capbox h3{font-size:19px}
-#stage .capbox p{font-size:14.5px}
 #stage .pat{font-size:11.5px}
 
 
+
+/* 字符画宽度修正 —— 见 app/tools/fix_charart.py。等宽字体不含汉字与点阵，
+   回退字体的步进和 Latin 步进不成整数比（汉字 1.661×、点阵 0.831×），
+   字号改成 2ch 后正好落回 2 格和 1 格。块字符与框线本来就是 1.000×，别加。 */
+pre .fw{font-size:2ch}
+pre .hw{font-size:1ch}
 </style>
 </head>
 <body>
@@ -525,7 +567,10 @@ pre.bgf{font-size:14px;line-height:1.5}
 
 <div class="stagebody">
 <div class="wrap">
-  <div class="term">
+  <div class="laptop">
+   <div class="lid">
+    <span class="cam"></span>
+    <div class="term">
     <div class="tbar">
       <span class="d" style="background:#ff5f57"></span>
       <span class="d" style="background:#febc2e"></span>
@@ -534,33 +579,13 @@ pre.bgf{font-size:14px;line-height:1.5}
       <span class="rt" id="tbr">116×34</span>
     </div>
     <div class="screen"><canvas id="pf"></canvas><div class="sc" id="sc"></div></div>
+    </div>
+   </div>
+   <div class="hinge"></div>
+   <div class="base"></div>
   </div>
-
 </div>
 
-  <div class="cap">
-    <div class="capbox">
-      <div class="e" id="ce">ACT 01</div>
-      <h3 id="ct">—</h3>
-      <p id="cd">—</p>
-      <p>观众看到的哇点：<span class="wow" id="cw">—</span></p>
-      <div class="pats" id="cp"></div>
-      <div class="prog"><i id="pb" style="width:0"></i></div>
-    </div>
-    <div class="capbox jbox">
-      <div class="e">本幕在旅程中的位置</div>
-      <div class="jlist" id="cj"></div>
-    </div>
-    <div class="capbox">
-      <div class="e">串讲节奏</div>
-      <p style="font-size:12.5px">①–② <span class="mut">为什么是 TUI</span>　2 min<br>
-        ③–⑥ <span class="mut">AI 怎么把活干完且可审计</span>　5 min<br>
-        ⑦–⑨ <span class="mut">可观测与调优深度</span>　5 min<br>
-        ⑩ <span class="mut">收</span></p>
-      <p style="font-size:12px;color:var(--warn);margin-top:8px">⑥ 编译翻车是全场最关键的一幕——它证明系统能处理不顺利的情况。</p>
-      <p style="font-size:11.5px;color:var(--fg4);margin-top:8px">← → 切换 · 空格 播放/暂停</p>
-    </div>
-  </div>
 </div>
 
 <div class="rail" id="rail"></div>
@@ -571,10 +596,13 @@ const E=s=>document.getElementById(s);
 /* 舞台按 1920×1080 设计，等比缩放塞进视口 —— 设计稿尺寸恒定，不做响应式重排 */
 function fitStage(){
   const st=E('stage'); if(!st) return;
-  const k=Math.min(innerWidth/2422, innerHeight/1282);
-  st.style.transform=`translate(${(innerWidth-2422*k)/2}px, ${(innerHeight-1282*k)/2}px) scale(${k})`;
+  const k=Math.min(innerWidth/2120, innerHeight/1420);
+  st.style.transform=`translate(${(innerWidth-2120*k)/2}px, ${(innerHeight-1420*k)/2}px) scale(${k})`;
 }
 addEventListener('resize',fitStage);
+/* 嵌在 iframe 里时，首帧算出的视口尺寸可能还不是最终值，
+   resize 事件也未必补发 —— 用 ResizeObserver 兜底，保证任何容器尺寸变化都重新贴合。 */
+if(window.ResizeObserver) new ResizeObserver(fitStage).observe(document.documentElement);
 /* 终端尺寸标签按真实字符网格算出来，不写死 */
 /* 背景字符场按当前真实网格生成 —— 它是"字符"，不是图片 */
 let FLOW={raf:0,t:0,d:null,cols:0,rows:0};
@@ -630,6 +658,35 @@ const ITEM=(o)=>`<div class="item ${o.sel?'sel':''}">
   ${o.nw?'<span class="new">NEW</span>':''}
   ${o.pill?`<span class="pill" ${o.pc?`style="color:${o.pc}"`:''}>${o.pill}</span>`:''}
   ${o.meta?`<span class="meta">${o.meta}</span>`:''}</div>`;
+/* 文件树 —— 信息结构对齐风格 B 的资源管理器：chevron 展开符、按扩展名着色、
+   右侧 M/A 状态标。风格 A 是字符质感，所以图标用字符而不是 SVG。 */
+const TROW=(o)=>`<div class="trow ${o.sel?'sel':''} ${o.dim?'dim':''}" style="padding-left:${8+(o.lv||0)*13}px">
+  <span class="cv">${o.cv||''}</span><span class="ti ${o.k||''}">${o.dir?'▸':'·'}</span>
+  <span class="tl">${o.lb}</span>${o.mk?`<span class="tm ${o.mk==='A'?'a':'m'}">${o.mk}</span>`:''}</div>`;
+const DTREE=()=>`<div class="tsearch"><span class="q">⌕</span>在 nginx-main 中搜索</div>
+<div class="tree2">
+${TROW({lv:0,cv:'∨',lb:'NGINX-MAIN',dim:1})}
+${TROW({lv:1,cv:'∨',dir:1,lb:'nginx/'})}
+${TROW({lv:2,cv:'∨',dir:1,lb:'src/'})}
+${TROW({lv:3,k:'c',lb:'crypto.c',sel:1,mk:'M'})}
+${TROW({lv:3,k:'c',lb:'memory.c',mk:'M'})}
+${TROW({lv:3,k:'c',lb:'http.c'})}
+${TROW({lv:3,k:'h',lb:'ngx_core.h'})}
+${TROW({lv:2,cv:'∨',dir:1,lb:'conf/'})}
+${TROW({lv:3,k:'cf',lb:'nginx.conf',mk:'M'})}
+${TROW({lv:2,cv:'›',dir:1,lb:'auto/'})}
+${TROW({lv:2,cv:'›',dir:1,lb:'objs/'})}
+${TROW({lv:2,k:'p',lb:'kunpeng.patchset',mk:'A'})}
+${TROW({lv:2,lb:'CHANGES'})}
+${TROW({lv:2,lb:'configure'})}
+</div>
+<div class="tstat"><div class="h">迁移状态</div>
+  <div class="r">待审改动<b class="wn">10</b></div>
+  <div class="r">已接受<b class="ok">2</b></div>
+  <div class="r">需人工确认<b class="er">2</b></div></div>
+<div class="tfold"><span class="cv">›</span>补丁集</div>
+<div class="tfold"><span class="cv">›</span>TIMELINE</div>`;
+
 const SEC=(t,rows,cnt)=>`<div class="dsec"><div class="h"><span class="hash">#</span>${t}
   ${cnt?`<span class="cnt">${cnt}</span>`:''}</div>${rows}</div>`;
 
@@ -687,27 +744,34 @@ const ACTS=[
 <pre class="bgf" id="bgf"></pre><pre class="bgf bgw2" id="bgw2"></pre><pre class="bgf bgw1" id="bgw1"></pre>
 <div class="bootin">
 <div class="lock">
-<pre class="kpm">                               <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i>
-                          <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i>
-                     <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i> <i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
-               <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
-          <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i> <i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
-       <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
- <i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">▄</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
-   <i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">█</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp)">▀</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
-         <i style="color:var(--kp2)">▄</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▀</i>
-           <i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▄</i>
-               <i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▄</i>
-                   <i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">█</i><i style="color:var(--kp2)">▄</i>
-                       <i style="color:var(--kp2)">▀</i><i style="color:var(--kp2)">▀</i></pre>
+<!-- kpmark:begin 由 tools/kpmark.py 生成，勿手改 -->
+<pre class="kpm" aria-label="Kunpeng DevKit AI">                      <i class="r">▄▄</i> 
+                    <i class="r">▄██</i>  
+                 <i class="r">▄██▀</i><i class="rg">▀</i><i class="g">█</i>  
+               <i class="r">▄███</i><i class="rg">▀</i><i class="g">▄█</i>   
+           <i class="r">▄▄████▀</i><i class="g">███</i>    
+         <i class="r">▄██████</i><i class="g">▄███</i>     
+      <i class="r">▄███████</i><i class="rg">▀</i><i class="g">████</i>      
+     <i class="r">███████▀</i><i class="g">▄████</i>       
+<i class="r">▄▄</i>  <i class="r">▄█████▀</i><i class="g">██████</i>        
+<i class="r">▀████████▀</i><i class="g">██████</i>         
+   <i class="r">████</i><i class="g">▄███████</i>          
+    <i class="r">▀▀</i><i class="g">▄███████</i>           
+       <i class="g">███████</i>           
+        <i class="g">▀█████▄</i>          
+           <i class="g">████▄</i>         
+            <i class="g">▀███</i>         
+               <i class="g">██▄</i>       
+                <i class="g">▀▀</i>       </pre>
+<!-- kpmark:end -->
 <pre class="wm">${WORDMARK()}</pre>
 </div>
 <div class="bchips"><span class="ivl">AI&nbsp;TERMINAL</span> <span class="ivl">NATIVE&nbsp;TUI</span> <span class="ivl">v26.0</span> <span class="ivl">KUNPENG&nbsp;ARM64</span></div>
-<pre class="blog"><span class="cm">[ 0.004]</span> <span class="ok">ok</span>   runtime          <span class="d2">本地已就绪，无需连接服务器</span>
-<span class="cm">[ 0.011]</span> <span class="ok">ok</span>   toolchain        <span class="d2">交叉编译 x86_64 → Kunpeng ARM64</span>
-<span class="cm">[ 0.019]</span> <span class="ok">ok</span>   mcp tools        <span class="d2">2/4 已装载  cpp_migrator · knowledge_base</span>
-<span class="cm">[ 0.024]</span> <span class="wn">warn</span> capabilities     <span class="d2">3 项能力未安装</span>  <span class="cm">[Enter] 查看</span>
-<span class="cm">[ 0.031]</span> <span class="ok">ok</span>   session          <span class="d2">恢复 1 个会话  <span class="ac">migrate nginx</span>  3 天前 · 82% · <span class="wn">2 项待人工确认</span></span></pre>
+<pre class="blog"><span class="cm">[ 0.004]</span> <span class="ok">ok</span>   runtime          <span class="d2"><span class="fw">本地已就绪，无需连接服务器</span></span>
+<span class="cm">[ 0.011]</span> <span class="ok">ok</span>   toolchain        <span class="d2"><span class="fw">交叉编译</span> x86_64 → Kunpeng ARM64</span>
+<span class="cm">[ 0.019]</span> <span class="ok">ok</span>   mcp tools        <span class="d2">2/4 <span class="fw">已装载</span>  cpp_migrator · knowledge_base</span>
+<span class="cm">[ 0.024]</span> <span class="wn">warn</span> capabilities     <span class="d2">3 <span class="fw">项能力未安装</span></span>  <span class="cm">[Enter] <span class="fw">查看</span></span>
+<span class="cm">[ 0.031]</span> <span class="ok">ok</span>   session          <span class="d2"><span class="fw">恢复</span> 1 <span class="fw">个会话</span>  <span class="ac">migrate nginx</span>  3 <span class="fw">天前</span> · 82% · <span class="wn">2 <span class="fw">项待人工确认</span></span></span></pre>
 <div class="binput">
   <span class="pr p">❯</span>
   <span class="cur"></span><span class="ph">想做什么？直接说 —— 例如「把 ./nginx 迁到鲲鹏」</span>
@@ -760,9 +824,9 @@ const ACTS=[
    <div class="cm" style="font-size:11.5px">扫描与补丁生成已完成，等待编译验证…</div></div>`,
   console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span></div><pre>
  <span class="ok">●</span> Analyze dependency               <span class="cm">18 libs</span>
- <span class="ok">●</span> Find incompatible API            <span class="cm">3 hits · 知识库</span>
+ <span class="ok">●</span> Find incompatible API            <span class="cm">3 hits · <span class="fw">知识库</span></span>
  <span class="ok">●</span> Generate patches                 <span class="cm">12 files</span>
- <span class="wn">⏸</span> Build verify —— <span class="wn">需要补充 3 项配置才能继续</span>
+ <span class="wn"><span class="hw">⏸</span></span> Build verify —— <span class="wn"><span class="fw">需要补充</span> 3 <span class="fw">项配置才能继续</span></span>
  <span class="cm">○</span> Benchmark</pre>`,
   input:'', cursor:false,
   stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">22%</span>  <span class="wn">⏸ 1 任务待配置</span>'}],
@@ -798,18 +862,18 @@ Issues
  ├ atomic API        <span class="wn">⚠</span>  memory.c:223
  └ Makefile flags    <span class="ok">✓</span></pre></div>
    <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>FILE RISK${SORT([{t:'Risk',a:'▾',on:1},{t:'Name'},{t:'Loc'}])}</div>
-   <pre><span class="cm">高 ◀</span>                         <span class="cm">▶ 低</span>
+   <pre><span class="cm"><span class="fw">高</span> ◀</span>                         <span class="cm">▶ <span class="fw">低</span></span>
 <span style="color:var(--o3)">███</span> src/crypto.c      <span class="er">Critical</span>
 <span style="color:var(--o5)">██</span>  src/memory.c      <span class="wn">Warning</span>
 <span style="color:var(--o7)">█</span>   src/http.c        <span class="cm">Info</span>
 <span style="color:var(--o8)">▁</span>   conf/nginx.conf   <span class="ok">OK</span>
 
-<span class="cm">单一 accum-orange 色阶
-800→300 顺序取档
-语义色不参与数据可视化</span></pre></div>`,
+<span class="cm"><span class="fw">单一</span> accum-orange <span class="fw">色阶</span>
+800→300 <span class="fw">顺序取档</span>
+<span class="fw">语义色不参与数据可视化</span></span></pre></div>`,
   console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span></div><pre>
- <span class="ok">●</span> Build verify &nbsp;<span class="cm">配置已补齐，从暂停处继续</span>
- <span class="pr">▶</span> Generating report <span class="spin">⠹</span></pre>`,
+ <span class="ok">●</span> Build verify &nbsp;<span class="cm"><span class="fw">配置已补齐，从暂停处继续</span></span>
+ <span class="pr">▶</span> Generating report <span class="spin"><span class="fw">⠹</span></span></pre>`,
   input:'', cursor:false, stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">31%</span>  12:07'}]})},
 
 {n:'⑤',t:'审改动',
@@ -820,12 +884,8 @@ Issues
  render:()=>SHELL({
   cols:'1fr 1fr',
   d:{tasks:ITEM({idx:'01',ico:'▶',ic:'pr',lb:'migrate nginx',meta:'04:01'}),
-     proj:ITEM({idx:'01',ico:'▾',ic:'cm',lb:'nginx/'})
-       +ITEM({gut:'│ ',ico:'▾',ic:'cm',lb:'src/'})
-       +ITEM({gut:'│ │',ico:'',lb:'crypto.c',sel:true,pill:'2/12',risk:[18,'var(--o3)']})
-       +ITEM({gut:'│ │',ico:'',lb:'memory.c',risk:[12,'var(--o5)']}),
-     pcnt:'⇄ 跟随'},
-  canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>PATCH 2/12${SORT([{t:'Pending',a:'10',on:1},{t:'Accepted',a:'1'}])}</div>
+     proj:DTREE(), pcnt:'⇄ 跟随'},
+  canvas:`<div class="cv cvcode"><div class="cvh2"><span class="pmt">&gt;_</span>PATCH 2/12${SORT([{t:'Pending',a:'10',on:1},{t:'Accepted',a:'1'}])}</div>
    <div style="font-size:11.5px" class="cm">src/crypto.c:88</div>
    <div style="margin-top:7px">
      <div class="dl"><span class="ln">86</span><span class="sg cm">&nbsp;</span><span class="d2">while (spin--) {</span></div>
@@ -836,7 +896,7 @@ Issues
    <div style="margin-top:6px;font-size:10px" class="cm">仅高亮变化的 token —— 一眼看出"到底动了什么"</div>
    <div style="font-size:11.5px;margin-top:8px" class="d2">Impact &nbsp;<span class="ok">Compatibility Fixed</span> · Perf +3%</div>
    <div style="margin-top:12px;font-size:12px"><span class="pr b">[A] Accept</span> &nbsp;<span class="d2">[E] Edit</span> &nbsp;<span class="d2">[R] Reject</span> &nbsp;<span class="cm">[Space] next</span></div></div>
-   <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>EVIDENCE</div>
+   <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>EVIDENCE<button class="cfold" data-fold>▾ 代码区</button></div>
    <div class="slist">
      <div class="srow on"><span class="n ac">[1]</span><span class="bd">
        <div class="t1">指令替换案例库 #4471</div>
@@ -892,7 +952,7 @@ Confidence <span class="d2">█████████</span><span class="cm">�
  <span class="er">- malloc(size)</span>
  <span class="ok">+ aligned_alloc(64, size)</span>
 
-<span class="cm">影响 1 处 · 不改变语义</span></pre>
+<span class="cm"><span class="fw">影响</span> 1 <span class="fw">处</span> · <span class="fw">不改变语义</span></span></pre>
    <div style="margin-top:10px;font-size:12px"><span class="pr b">[Y] Apply &amp; rebuild</span> &nbsp;<span class="d2">[R] Review</span> &nbsp;<span class="d2">[N] Dismiss</span></div></div>`,
   console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span></div>
    <div class="rl er"><span class="sb er">FAILED</span><span class="tx">Build verify — ld: unaligned access in memory allocator</span></div>
@@ -917,8 +977,8 @@ Confidence <span class="d2">█████████</span><span class="cm">�
 CPU   <span style="color:var(--g4)">████</span><span style="color:var(--g6)">▓▓▓▓</span><span style="color:var(--g8)">░░░░</span><span style="color:var(--g6)">▓▓▓</span><span style="color:var(--g8)">░░░░░░░░░░░░░░░░░░░░░░░░</span>
 NPU   <span style="color:var(--v8)">░░░░</span><span style="color:var(--v3)">███████</span><span style="color:var(--v6)">▓▓▓▓</span><span style="color:var(--v3)">██████████</span><span style="color:var(--v8)">░░░░░░░░░</span>
 HBM   <span style="color:var(--o5)">▓▓</span><span style="color:var(--o3)">████████████████</span><span style="color:var(--o5)">▓▓▓</span><span style="color:var(--o3)">████████</span><span style="color:var(--o8)">░░░</span>
-                <span class="er">└─ ⚠ AI: HBM 持续饱和而 NPU 有气泡 → memory-bound</span>
-                   <span class="cm">置信度 89% · [↵] 查看证据</span></pre>
+                <span class="er">└─ ⚠ AI: HBM <span class="fw">持续饱和而</span> NPU <span class="fw">有气泡</span> → memory-bound</span>
+                   <span class="cm"><span class="fw">置信度</span> 89% · [↵] <span class="fw">查看证据</span></span></pre>
    <pre style="margin-top:9px">Bottleneck        <span class="cm">▾ share</span>
 attention   <span style="color:var(--o3)">█████████</span> 45%
 matmul      <span style="color:var(--o5)">███████</span>   35%
@@ -947,19 +1007,19 @@ memcpy      <span style="color:var(--o7)">████</span>      20%</pre></di
   d:{tasks:ITEM({idx:'01',ico:'✓',ic:'ok',lb:'migrate nginx',pill:'PASS',pc:'var(--ok)'})
        +ITEM({idx:'02',ico:'▶',ic:'pr',lb:'param tuning',meta:'压测中'}),tcnt:'2'},
   canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>PARAM TUNING<span class="r">nginx @ Kunpeng920</span></div>
-   <pre>方案对比            QPS            P99     CPU          内存
+   <pre><span class="fw">方案对比</span>            QPS            P99     CPU          <span class="fw">内存</span>
 <span class="cm">baseline</span>       <span style="color:var(--o8)">████</span><span class="cm">░░░░░</span> 42k   18ms   <span style="color:var(--o6)">███</span><span class="cm">░░</span> 62%   4.2G
-<span class="ok">方案 A ★推荐</span>   <span style="color:var(--o3)">██████</span><span class="cm">░░░</span> <span class="b">61k</span>   12ms   <span style="color:var(--o4)">████</span><span class="cm">░</span> 78%   5.1G
-<span class="cm">方案 B 激进</span>    <span style="color:var(--o4)">█████</span><span class="cm">░░░░</span> 55k    <span class="ok">9ms</span>   <span style="color:var(--o3)">█████</span> 88%   <span class="wn">6.8G</span></pre>
-   <pre style="margin-top:10px"><span class="cm">方案 A 的改动与理由</span>
- worker_processes    auto → 64        <span class="cm">← 对齐 64 物理核，去掉超分</span>
- worker_connections  1024 → 8192      <span class="cm">← 匹配实测并发水位</span>
- numa 绑定            off → per-worker <span class="cm">← 消除跨 NUMA 访问（<span class="pr">↵ 见热力</span>）</span></pre>
+<span class="ok"><span class="fw">方案</span> A ★<span class="fw">推荐</span></span>   <span style="color:var(--o3)">██████</span><span class="cm">░░░</span> <span class="b">61k</span>   12ms   <span style="color:var(--o4)">████</span><span class="cm">░</span> 78%   5.1G
+<span class="cm"><span class="fw">方案</span> B <span class="fw">激进</span></span>    <span style="color:var(--o4)">█████</span><span class="cm">░░░░</span> 55k    <span class="ok">9ms</span>   <span style="color:var(--o3)">█████</span> 88%   <span class="wn">6.8G</span></pre>
+   <pre style="margin-top:10px"><span class="cm"><span class="fw">方案</span> A <span class="fw">的改动与理由</span></span>
+ worker_processes    auto → 64        <span class="cm">← <span class="fw">对齐</span> 64 <span class="fw">物理核，去掉超分</span></span>
+ worker_connections  1024 → 8192      <span class="cm">← <span class="fw">匹配实测并发水位</span></span>
+ numa <span class="fw">绑定</span>            off → per-worker <span class="cm">← <span class="fw">消除跨</span> NUMA <span class="fw">访问（</span><span class="pr">↵ <span class="fw">见热力</span></span><span class="fw">）</span></span></pre>
    <div style="margin-top:11px;font-size:12px"><span class="pr b">[Y] 应用方案 A</span> &nbsp;<span class="d2">[D] 看完整 diff</span> &nbsp;<span class="d2">[B] 再压测</span> &nbsp;<span class="d2">[C] 自定义</span></div></div>`,
   console:`<pre>
- <span class="ok">●</span> 压测 3 组配置 &nbsp;<span class="cm">wrk · 60s × 3</span>
- <span class="ok">●</span> NUMA 亲和性分析 &nbsp;<span class="cm">core 34-38 跨节点访问已定位</span>
- <span class="pr">▶</span> 生成方案对比 <span class="spin">⠹</span></pre>`,
+ <span class="ok">●</span> <span class="fw">压测</span> 3 <span class="fw">组配置</span> &nbsp;<span class="cm">wrk · 60s × 3</span>
+ <span class="ok">●</span> NUMA <span class="fw">亲和性分析</span> &nbsp;<span class="cm">core 34-38 <span class="fw">跨节点访问已定位</span></span>
+ <span class="pr">▶</span> <span class="fw">生成方案对比</span> <span class="spin"><span class="fw">⠹</span></span></pre>`,
   input:'', cursor:false,
   stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">66%</span>  12:24'}]})},
 
@@ -978,25 +1038,25 @@ memcpy      <span style="color:var(--o7)">████</span>      20%</pre></di
       After &nbsp;<span class="ok">████████████</span> <span class="b">61k</span> &nbsp;<span class="ok">+45%</span>
 
 P99 &nbsp;&nbsp;18ms → <span class="ok">12ms</span> &nbsp;<span class="ok">−33%</span>
-NUMA &nbsp;跨节点访问 <span class="er">18%</span> → <span class="ok">2%</span></pre>
+NUMA &nbsp;<span class="fw">跨节点访问</span> <span class="er">18%</span> → <span class="ok">2%</span></pre>
    <div style="margin-top:12px" class="cm">✓ 已验证 · 压测 3 轮取中位数</div></div>
    <div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>SCENARIO PROFILE</div>
-   <pre><span class="pr">▸</span> <span class="selbg"> 高并发短连接 </span>
-   <span class="cm">keepalive 短 · 连接数高</span>
+   <pre><span class="pr">▸</span> <span class="selbg"> <span class="fw">高并发短连接</span> </span>
+   <span class="cm">keepalive <span class="fw">短</span> · <span class="fw">连接数高</span></span>
 
-  长连接推送
-   <span class="cm">连接常驻 · 内存敏感</span>
+  <span class="fw">长连接推送</span>
+   <span class="cm"><span class="fw">连接常驻</span> · <span class="fw">内存敏感</span></span>
 
-  大文件传输
-   <span class="cm">吞吐优先 · IO 密集</span>
+  <span class="fw">大文件传输</span>
+   <span class="cm"><span class="fw">吞吐优先</span> · IO <span class="fw">密集</span></span>
 
-  混合负载
-   <span class="cm">按时段自适应</span></pre>
+  <span class="fw">混合负载</span>
+   <span class="cm"><span class="fw">按时段自适应</span></span></pre>
    <div style="margin-top:11px;font-size:12px"><span class="pr b">[↵] 进入场景化调优</span></div></div>`,
-  console:`<pre><span class="cm">下一步</span>
- <span class="pr">▸ [1] 针对「高并发短连接」再调一轮 &nbsp;<span class="cm">~4min</span></span>
- <span class="d2">&nbsp;&nbsp; [2] 导出本轮调优报告</span>
- <span class="d2">&nbsp;&nbsp; [3] 处理剩下 2 处人工确认项</span></pre>`,
+  console:`<pre><span class="cm"><span class="fw">下一步</span></span>
+ <span class="pr">▸ [1] <span class="fw">针对「高并发短连接」再调一轮</span> &nbsp;<span class="cm">~4min</span></span>
+ <span class="d2">&nbsp;&nbsp; [2] <span class="fw">导出本轮调优报告</span></span>
+ <span class="d2">&nbsp;&nbsp; [3] <span class="fw">处理剩下</span> 2 <span class="fw">处人工确认项</span></span></pre>`,
   input:'', cursor:false,
   stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">71%</span>  12:31'}]})},
 
@@ -1014,9 +1074,9 @@ NUMA &nbsp;跨节点访问 <span class="er">18%</span> → <span class="ok">2%</
   canvas:`<div class="cv"><div class="cvh2"><span class="pmt">&gt;_</span>SESSION SUMMARY</div>
    <pre><span class="cm">migrate nginx → Kunpeng ARM64</span>
 
- <span class="ok">✓ 21 issues fixed</span>        <span class="cm">自动修复</span>
- <span class="wn">⚠ 2 need manual review</span>   <span class="cm">已转待办</span>
- <span class="ok">✓ Build PASS</span>              <span class="cm">交叉编译通过</span>
+ <span class="ok">✓ 21 issues fixed</span>        <span class="cm"><span class="fw">自动修复</span></span>
+ <span class="wn">⚠ 2 need manual review</span>   <span class="cm"><span class="fw">已转待办</span></span>
+ <span class="ok">✓ Build PASS</span>              <span class="cm"><span class="fw">交叉编译通过</span></span>
  <span class="ok">✓ QPS 42k → 61k</span>          <span class="ok">+45%</span>
 
  <span class="cm">Files &nbsp;+6 modified &nbsp;·&nbsp; Tokens 48k
@@ -1026,14 +1086,14 @@ NUMA &nbsp;跨节点访问 <span class="er">18%</span> → <span class="ok">2%</
    ${TAGF([{t:'零配置启动',c:'①'},{t:'计划先行可改',c:'②'},{t:'配置用到才问',c:'③'},
      {t:'改动有证据',c:'⑤'},{t:'失败转诊断',c:'⑥'},{t:'结论标在图上',c:'⑦'},
      {t:'方案对比',c:'⑧'},{t:'待办不丢',c:'⑩'}])}
-   <pre style="margin-top:14px"><span class="cm">转入待办</span>
- <span class="wn">⚠</span> src/http.c:412 &nbsp;<span class="cm">内联汇编需人工确认</span>
- <span class="wn">⚠</span> conf/nginx.conf &nbsp;<span class="cm">worker 绑核策略待评审</span></pre></div>`,
-  console:`<pre><span class="cm">下一步</span>
- <span class="pr">▸ [1] 处理 2 项人工确认，收尾这个工程 &nbsp;<span class="cm">~5min</span></span>
- <span class="d2">&nbsp;&nbsp; [2] 迁移下一个工程 order-svc</span>
- <span class="d2">&nbsp;&nbsp; [3] 把本轮参数固化成场景 profile</span>
- <span class="pr">❯</span> 或直接说你想干什么<span class="cur"></span></pre>`,
+   <pre style="margin-top:14px"><span class="cm"><span class="fw">转入待办</span></span>
+ <span class="wn">⚠</span> src/http.c:412 &nbsp;<span class="cm"><span class="fw">内联汇编需人工确认</span></span>
+ <span class="wn">⚠</span> conf/nginx.conf &nbsp;<span class="cm">worker <span class="fw">绑核策略待评审</span></span></pre></div>`,
+  console:`<pre><span class="cm"><span class="fw">下一步</span></span>
+ <span class="pr">▸ [1] <span class="fw">处理</span> 2 <span class="fw">项人工确认，收尾这个工程</span> &nbsp;<span class="cm">~5min</span></span>
+ <span class="d2">&nbsp;&nbsp; [2] <span class="fw">迁移下一个工程</span> order-svc</span>
+ <span class="d2">&nbsp;&nbsp; [3] <span class="fw">把本轮参数固化成场景</span> profile</span>
+ <span class="pr">❯</span> <span class="fw">或直接说你想干什么</span><span class="cur"></span></pre>`,
   input:'', cursor:false,
   stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">74%</span>  12:31'}]})}
 ];
@@ -1048,12 +1108,19 @@ const F5={
  T:['#####','..#..','..#..','..#..','..#..'], U:['#...#','#...#','#...#','#...#','.###.'],
  V:['#...#','#...#','#...#','.#.#.','..#..']
 };
+/* F5 是画在正方格上的 5x5 点阵字体，但一个字符格是 8.43 宽 x 14.26 高 ——
+   一个"像素"用一个字符画出来，宽高比只有 0.59，字形被横向压扁 1.7 倍。
+   每个像素改用两个字符宽（██），像素变成 16.86 x 14.26 = 1.18，接近正方。
+   字符网格只能取整，1.18 是这个方向上能拿到的最接近 1.0 的比例。 */
 const BR=(w)=>[0,1,2,3,4].map(r=>[...w].map(c=>F5[c][r]).join('.')
-  .replace(/#/g,'█').replace(/\./g,' '));
+  .replace(/#/g,'██').replace(/\./g,'  '));
+/* 字标排两行：单行是 11:1 的长条，跟近正方的图标摆一起比例失衡
+   （图标高是字标的 3 倍）。两行之后字标成块，图标/字标高度比降到 1.4。 */
 function WORDMARK(){
   const a=BR('KUNPENG'), b=BR('DEVKIT'), c=BR('AI');
-  return [0,1,2,3,4].map(r=>
-    `<span class="w2">${a[r]}</span>   <span class="w1">${b[r]}   ${c[r]}</span>`).join('\n');
+  const w1=a.map(r=>`<span class="w2">${r}</span>`);
+  const w2=[0,1,2,3,4].map(r=>`<span class="w1">${b[r]}      ${c[r]}</span>`);
+  return [...w1, '', ...w2].join('\n');
 }
 
 /* ══ 字符网格背景场：GitHub 式半调点阵，但每个点都是一个字符 ══
@@ -1130,10 +1197,6 @@ function WAVE2(d,cols,rows,elig){
   return [L1.join('\n'),L2.join('\n')];
 }
 
-/* 幕 → 六阶段用户旅程的映射（见 JOURNEY.md）*/
-const STAGES=['初始化配置','代码迁移','验证编译','代码优化','参数优化','场景化调优'];
-const ACT2STAGE=[1,2,1,2,2,3,4,5,6,6];
-
 /* ══════ 运行时 ══════ */
 let cur=0, playing=true, timer=null, typeTimer=null;
 
@@ -1147,20 +1210,6 @@ function paint(){
   const a=ACTS[cur];
   [...document.querySelectorAll('.act')].forEach((el,i)=>{
     el.classList.toggle('on',i===cur); el.classList.toggle('done',i<cur);});
-  E('ce').textContent='ACT '+String(cur+1).padStart(2,'0')+' · '+a.t;
-  E('ct').textContent=a.title;
-  E('cd').innerHTML=a.desc;
-  E('cw').textContent=a.wow;
-  E('cp').innerHTML=a.pats.map((p,i)=>
-    `<span class="pat ${(a.hi||[]).includes(i)?'hi':''}">${p}</span>`).join('');
-  E('pb').style.width=((cur+1)/ACTS.length*100)+'%';
-  const st=ACT2STAGE[cur];
-  E('cj').innerHTML=STAGES.map((t,i)=>{
-    const n=i+1, cls = n===st?'on' : (n<st?'dn':'');
-    const acts=ACT2STAGE.map((x,j)=>x===n?j+1:0).filter(Boolean);
-    return `<div class="jrow ${cls}"><span class="jn">0${n}</span>${t}`+
-           `<span class="jm">${acts.map(x=>'⑴⑵⑶⑷⑸⑹⑺⑻⑼⑽'[x-1]).join('')}</span></div>`;
-  }).join('');
   requestAnimationFrame(()=>{measureGrid();fillBG();});
   E('tbt').textContent = cur===0 ? 'user@localhost — devkitai' : 'user@localhost — devkitai · migrate nginx';
   PF.enabled = !!a.particles;
@@ -1181,6 +1230,13 @@ function pause(){playing=false;E('play').textContent='▶ 自动播放';E('play'
 E('next').onclick=()=>{next();pause()};
 E('prev').onclick=()=>{prev();pause()};
 E('play').onclick=()=>playing?pause():play();
+/* 每切一幕都会重绘 DOM，所以用委托绑一次，不必每幕重新挂 */
+addEventListener('click',e=>{
+  const b=e.target.closest('[data-fold]'); if(!b) return;
+  const g=b.closest('.canvases'); if(!g) return;
+  const on=g.classList.toggle('foldcode');
+  b.textContent = on ? '▸ 代码区' : '▾ 代码区';
+});
 addEventListener('keydown',e=>{
   if(e.key==='ArrowRight'){next();pause();e.preventDefault();}
   if(e.key==='ArrowLeft'){prev();pause();e.preventDefault();}

@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "devkitai"
+version = "0.1.0"
+description = "Kunpeng DevKit AI —— 原生 TUI 工作台（Phase 0 渲染底座）"
+requires-python = ">=3.10"
+dependencies = ["textual>=1.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.23"]
+
+[project.scripts]
+devkitai = "devkitai.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["devkitai*"]
+
+[tool.setuptools.package-data]
+devkitai = ["theme/*.tcss"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
