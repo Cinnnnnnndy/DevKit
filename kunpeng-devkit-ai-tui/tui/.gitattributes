@@ -1,0 +1,12 @@
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.exe binary
+
+# Character-frame snapshots use trailing cells to preserve exact terminal width.
+tests/render/snapshots/**/*.txt -whitespace

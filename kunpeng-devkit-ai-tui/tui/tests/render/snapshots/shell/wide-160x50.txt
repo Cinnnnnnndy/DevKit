@@ -1,0 +1,50 @@
+   ◢ KUNPENG  DEVKIT AI   │  ▶ 1 migrate nginx ┌──────────────┐＋                                                                                               
+                          │                    └─○─2─optimize─┘   v0.1.0 · Kunpeng ARM64 · ● READY                                                              
+──────────────────────────│─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ T A S K S              3 │┌─────────────────────────────────────────────────────┐┌────────────────────────────────────────────┐┌──────────────────────────────┐
+  ▎▶ migrate nginx   38s  ││  MIGRATION REPORT                                   ││  PATCH PREVIEW                             ││  INSPECTOR                   │
+                          ││ Compatibility  ████████░░ 82%                       ││ src/crypto.c  ·  @@ -84,2 +84,2 @@         ││ CURRENT OBJECT               │
+   ○ optimize model       ││ Critical 2 · Warning 8 · Fixed 21                   ││ - _mm_pause();                             ││ src/crypto.c                 │
+                          ││                                                     ││ + asm volatile("yield");                   ││ line 84 · confidence 94%     │
+   ⏸ build diagnose       ││ ISSUES · FILE · EVIDENCE                            ││                                            ││                              │
+                          ││ ▎ SSE intrinsic   src/crypto.c:84                   ││ EVIDENCE                                   ││ LINKED VIEWS                 │
+                          ││   atomic fence    src/memory.c:42                   ││ [1] Kunpeng Porting Guide §4.2             ││ › Issue SSE-001              │
+ PROJECT · FOLLOW         ││   Makefile flags  ✓ compatible                      ││ [2] ARM ARM D5.3.1                         ││   Evidence #4471             │
+  ▾ nginx/                ││                                                     ││                                            ││   Patch hunk 1               │
+   ▾ src/                 ││                                                     ││                                            ││                              │
+      crypto.c███         ││                                                     ││                                            ││                              │
+      memory.c██          ││                                                     ││                                            ││                              │
+   ▾ conf/                ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+ TOOLS                    ││                                                     ││                                            ││                              │
+ ✓ cpp_migrator           ││                                                     ││                                            ││                              │
+ ✓ knowledge_base         ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││                                                     ││                                            ││                              │
+                          ││ AI annotation: 2 changes require review             ││ Enter drill down · E evidence              ││                              │
+                          │└─────────────────────────────────────────────────────┘└────────────────────────────────────────────┘└──────────────────────────────┘
+                          │─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                          │  AGENT CONSOLE                                                                                                        Ctrl+J expand 
+                          │ ● Analyze dependency  1,204 files · 1.8s                                                                                            
+                          │ ● Find incompatible API  3 issues · 824ms                                                                                           
+                          │ ● Generate patch  cpp_migrator · 2.1s                                                                                               
+                          │ ⚠ Build verify  3 remaining warnings                                                                                                
+                          │ ○ Benchmark  queued                                                                                                                 
+                          │                                                                                                                                     
+                          │┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+                          ││ ❯ 描述你想做什么，或用 / 调用命令                                                                                          Ctrl+P │
+                          │└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+  Ctrl+P  Commands  Tab  Focus  F1  Help  Ctrl+B  Dock  Ctrl+J  Console                                                                                         
+  local   mode:auto │ model:mock │ ctx:27%                                                                                                          ⏸ 1 waiting

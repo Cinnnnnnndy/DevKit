@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["bun", "@opentui/react", "vitest/globals"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts", "tests/**/*.ts", "tests/**/*.tsx"],
+  "exclude": ["dist", "artifacts", "coverage", "node_modules"]
+}

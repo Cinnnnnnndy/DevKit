@@ -1,0 +1,32 @@
+                                                        ● 
+ ◢KUNPENG  DEVKIT AI │ ▶ migrate nginx                    
+──────────────────────────────────────────────────────────
+┌────────────────────────────────────────────────────────┐
+│  MIGRATION REPORT                                      │
+│ Compatibility  ████████░░ 82%                          │
+│ Critical 2 · Warning 8 · Fixed 21                      │
+│                                                        │
+│ ISSUES · FILE · EVIDENCE                               │
+│ ▎ SSE intrinsic   src/crypto.c:84                      │
+│   atomic fence    src/memory.c:42                      │
+│   Makefile flags  ✓ compatible                         │
+│                                                        │
+│                                                        │
+│                                                        │
+│                                                        │
+│                                                        │
+│                                                        │
+│                                                        │
+│                                                        │
+│ AI annotation: 2 changes require review                │
+└────────────────────────────────────────────────────────┘
+──────────────────────────────────────────────────────────
+  AGENT CONSOLE                             Ctrl+J expand 
+ ● Generate patch  cpp_migrator · 2.1s                    
+ ⚠ Build verify  3 remaining warnings                     
+ ○ Benchmark  queued                                      
+┌────────────────────────────────────────────────────────┐
+│ ❯ 描述你想做什么，或用 / 调用命令               Ctrl+P │
+└────────────────────────────────────────────────────────┘
+  Ctrl+P  Commands  Tab  Focus  F1  Help  Ctrl+B  Dock  Ct
+  local   mode:auto │ model:mock │ ctx:27%    ⏸ 1 waiting

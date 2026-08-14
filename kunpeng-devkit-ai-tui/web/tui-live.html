@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kunpeng DevKit AI · 原生 TUI 实录</title>
+<meta name="description" content="devkitai 二进制在 160×45 真实终端里跑完十幕的实录回放 —— 字符流录像，非网页模拟。" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23101010'/%3E%3Crect x='2' y='3' width='5' height='3' fill='%23ed1c24'/%3E%3Crect x='2' y='7' width='9' height='2' fill='%23e8e8e8'/%3E%3Crect x='2' y='10' width='6' height='2' fill='%23777'/%3E%3Crect x='12' y='10' width='2' height='2' fill='%230077ff'/%3E%3C/svg%3E" type="image/svg+xml" />
+<link rel="stylesheet" href="./vendor/asciinema-player.css" />
+<style>
+:root{
+  --bg:#101010; --bg-el:#141414;
+  --s1:#161616; --s2:#1c1c1c; --s3:#262626; --s4:#313131;
+  --fg:#e8e8e8; --fg2:#a4a4a4; --fg3:#777777; --fg4:#555555;
+  --line:#2a2a2a; --line-2:#333333; --line-3:#404040;
+  --kp:#ed1c24;
+  --pri:#0077ff; --pri-h:#3d98ff;
+  --accent:#7c8db8;
+  --ok:#04d793; --warn:#ffaa3b; --bad:#ff4b7b;
+  --shadow:0 1px 3px rgba(0,0,0,.28), 0 8px 24px rgba(0,0,0,.34);
+  --font:'Inter','Source Han Sans SC','PingFang SC','Noto Sans SC',-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono','Fira Code','Sarasa Term SC',ui-monospace,'SF Mono','Cascadia Code',Consolas,monospace;
+  --r-chip:2px; --r-card:4px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%}
+body{
+  font-family:var(--font); color:var(--fg);
+  background:
+    radial-gradient(80rem 40rem at 108% -12%, rgba(0,119,255,.055), transparent 62%),
+    radial-gradient(60rem 38rem at 52% 118%, rgba(4,215,147,.035), transparent 60%),
+    var(--bg);
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  font-size:15px; line-height:1.75;
+}
+.wrap{max-width:1280px;margin:0 auto;padding:0 24px 96px}
+
+/* ── header ── */
+header{border-bottom:1px solid var(--line);background:rgba(16,16,16,.86);backdrop-filter:blur(8px);position:sticky;top:0;z-index:10}
+.hd{max-width:1280px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.mark{width:22px;height:22px;flex:0 0 auto}
+.hd h1{font-size:15px;margin:0;font-weight:650;letter-spacing:.2px}
+.hd .sep{color:var(--fg4)}
+.hd .sub{font-size:13px;color:var(--fg2)}
+.hd nav{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.hd nav a{font-size:12.5px;color:var(--fg2);text-decoration:none;padding:5px 11px;border:1px solid var(--line-2);border-radius:var(--r-chip)}
+.hd nav a:hover{color:var(--fg);border-color:var(--line-3);background:var(--s2)}
+
+/* ── hero ── */
+.hero{padding:44px 0 22px}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--fg3);font-weight:600;margin:0 0 10px}
+.hero h2{font-size:31px;line-height:1.28;margin:0 0 14px;font-weight:680;letter-spacing:-.4px}
+.hero p{color:var(--fg2);max-width:76ch;margin:0 0 12px}
+.hero b{color:var(--fg);font-weight:640}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin:18px 0 0}
+.chip{font-family:var(--mono);font-size:11.5px;color:var(--fg2);background:var(--s2);border:1px solid var(--line-2);border-radius:var(--r-chip);padding:4px 9px}
+.chip--ok{color:var(--ok);border-color:rgba(4,215,147,.3)}
+.chip--kp{color:var(--kp);border-color:rgba(237,28,36,.32)}
+
+/* ── player ── */
+.stage{margin:26px 0 0;border:1px solid var(--line-2);border-radius:var(--r-card);background:var(--bg-el);box-shadow:var(--shadow);overflow:hidden}
+.stage-bar{display:flex;align-items:center;gap:9px;padding:9px 14px;border-bottom:1px solid var(--line);background:var(--s2)}
+.dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+.stage-bar .t{font-family:var(--mono);font-size:12px;color:var(--fg3);margin-left:6px}
+.stage-bar .r{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--fg4)}
+.player-host{padding:10px}
+#player{font-size:13px}
+.hint{font-size:12.5px;color:var(--fg3);padding:0 14px 12px;font-family:var(--mono)}
+.hint kbd{font-family:var(--mono);background:var(--s3);border:1px solid var(--line-3);border-radius:2px;padding:1px 5px;color:var(--fg2);font-size:11.5px}
+
+/* ── acts ── */
+.acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:8px;margin:22px 0 0;padding:0;list-style:none}
+.acts li{border:1px solid var(--line);border-radius:var(--r-chip);background:var(--s1);padding:9px 12px;font-size:12.5px;color:var(--fg2)}
+.acts .n{font-family:var(--mono);color:var(--pri-h);margin-right:7px;font-size:12px}
+.acts b{color:var(--fg);font-weight:600}
+
+/* ── sections ── */
+section.blk{margin:52px 0 0;scroll-margin-top:70px}
+h3.sec{font-size:19px;margin:0 0 6px;font-weight:660;letter-spacing:-.2px}
+.sec-note{color:var(--fg3);font-size:13px;margin:0 0 18px}
+.rule{height:1px;background:var(--line);margin:14px 0 20px;border:0}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:0 0 8px;display:block;overflow-x:auto;white-space:nowrap}
+th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line)}
+th{color:var(--fg3);font-weight:600;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;background:var(--s2)}
+td{color:var(--fg2)}
+td b{color:var(--fg);font-weight:620}
+td.mono,.mono{font-family:var(--mono);font-size:12.5px}
+.y{color:var(--ok)} .n{color:var(--bad)} .w{color:var(--warn)}
+
+pre.sh{font-family:var(--mono);font-size:12.5px;line-height:1.85;background:var(--s1);border:1px solid var(--line-2);border-left:2px solid var(--pri);border-radius:var(--r-card);padding:14px 16px;overflow-x:auto;color:var(--fg);margin:0 0 14px}
+pre.sh .c{color:var(--fg4)}
+pre.sh .p{color:var(--ok)}
+
+.note{border:1px solid var(--line-2);border-left:2px solid var(--warn);background:var(--s1);border-radius:var(--r-card);padding:14px 17px;margin:0 0 14px}
+.note p{margin:0;color:var(--fg2);font-size:13.5px}
+.note b{color:var(--fg)}
+
+footer{margin:72px 0 0;padding:22px 0 0;border-top:1px solid var(--line);color:var(--fg4);font-size:12.5px}
+footer a{color:var(--fg2)}
+a{color:var(--pri-h)}
+
+/* ── asciinema PTO theme ──
+   v3 puts the theme class on .ap-player as .asciinema-player-theme-<name>,
+   and reads --term-color-* from that element. */
+.asciinema-player-theme-pto{
+  --term-color-foreground:#e8e8e8; --term-color-background:#101010;
+  --term-color-0:#101010;  --term-color-1:#ff4b7b; --term-color-2:#04d793; --term-color-3:#ffaa3b;
+  --term-color-4:#3d98ff;  --term-color-5:#9b3cf6; --term-color-6:#7c8db8; --term-color-7:#e8e8e8;
+  --term-color-8:#555555;  --term-color-9:#ff4b7b; --term-color-10:#04d793; --term-color-11:#ffaa3b;
+  --term-color-12:#3d98ff; --term-color-13:#b977f9; --term-color-14:#a4a4a4; --term-color-15:#ffffff;
+}
+@media (max-width:720px){
+  .hero h2{font-size:24px}
+  .wrap{padding:0 16px 64px}
+  #player{font-size:9px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd">
+    <svg class="mark" viewBox="0 0 16 16" aria-hidden="true">
+      <rect x="1" y="3" width="6" height="3" fill="#ed1c24"/>
+      <rect x="1" y="7" width="10" height="2" fill="#e8e8e8"/>
+      <rect x="1" y="10" width="7" height="2" fill="#777"/>
+      <rect x="12" y="10" width="2" height="2" fill="#0077ff"/>
+    </svg>
+    <h1>Kunpeng DevKit AI</h1>
+    <span class="sep">·</span>
+    <span class="sub">原生 TUI 实录</span>
+    <nav>
+      <a href="../../index.html">← 总入口</a>
+      <a href="./demo.html">设计 demo</a>
+      <a href="./index.html">设计系统</a>
+      <a href="./index.html#primsize">#primsize</a>
+      <a href="https://github.com/Cinnnnnnndy/DevKit/tree/main/kunpeng-devkit-ai-tui/tui" target="_blank" rel="noopener">源码 ↗</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <p class="eyebrow">Implementation · 实况</p>
+    <h2>这不是网页模拟，是 <span class="mono">devkitai</span> 真的跑了一遍</h2>
+    <p>下面这段回放，是 <b>React 19 + OpenTUI 0.5.1</b> 编译出的 <span class="mono">devkitai</span> 二进制，在一个 <b>160×45 的真实 PTY</b> 里被脚本按键驱动、跑完十幕迁移流程的<b>字符流录像</b>。</p>
+    <p>录的是字符和 ANSI 转义序列，不是像素 —— 所以它体积只有 <b>124&nbsp;KB</b>（gzip 后），文字<b>可以选中复制</b>，颜色是原样的 24-bit 真彩，放大也不糊。旁边那些设计稿演示画的是「应该长这样」，这一页是「实际长这样」。</p>
+    <div class="chips">
+      <span class="chip chip--kp">◢ Kunpeng ARM64</span>
+      <span class="chip">160 × 45</span>
+      <span class="chip">truecolor</span>
+      <span class="chip">React 19 + OpenTUI 0.5.1</span>
+      <span class="chip chip--ok">十幕全通</span>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-bar">
+      <span class="dot" style="background:#ff5f57"></span>
+      <span class="dot" style="background:#febc2e"></span>
+      <span class="dot" style="background:#28c840"></span>
+      <span class="t">user@localhost — devkitai · migrate nginx</span>
+      <span class="r">160×45</span>
+    </div>
+    <div class="player-host"><div id="player"></div></div>
+    <div class="hint"><kbd>Space</kbd> 播放/暂停 &nbsp; <kbd>←</kbd><kbd>→</kbd> 前后 5s &nbsp; <kbd>.</kbd> 逐帧 &nbsp; <kbd>f</kbd> 全屏 &nbsp; 也可以直接拖进度条</div>
+  </div>
+
+  <ol class="acts">
+    <li><span class="n">①</span><b>开场</b> 启动自检</li>
+    <li><span class="n">②</span><b>提需求</b> 自然语言</li>
+    <li><span class="n">③</span><b>补配置</b> 工具链缺失</li>
+    <li><span class="n">④</span><b>出报告</b> 风险热力</li>
+    <li><span class="n">⑤</span><b>审改动</b> 逐条接受</li>
+    <li><span class="n">⑥</span><b>编译翻车</b> 转诊断</li>
+    <li><span class="n">⑦</span><b>看性能</b> 采基线</li>
+    <li><span class="n">⑧</span><b>调参数</b> 方案对比</li>
+    <li><span class="n">⑨</span><b>场景化</b> Profile</li>
+    <li><span class="n">⑩</span><b>收尾</b> 导出报告</li>
+  </ol>
+
+  <!-- ═══════ 局限 ═══════ -->
+  <section class="blk" id="limits">
+    <h3 class="sec">这一版做得到什么，做不到什么</h3>
+    <p class="sec-note">照实写。设计文档里写了但实现还没到的地方，标在下面，免得看录像时以为都有了。</p>
+    <hr class="rule" />
+
+    <table>
+      <thead><tr><th>能力</th><th>状态</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td><b>十幕业务闭环</b></td><td class="y">✓ 可运行</td><td>Intent → Analyze → Execute → Verify 全通，录像里就是</td></tr>
+        <tr><td><b>PTO 视觉 token</b></td><td class="y">✓ 已落地</td><td>六级表面、预合成前景、域色映射，与 <span class="mono">docs/VISUAL.md</span> 逐条对齐</td></tr>
+        <tr><td><b>图元尺寸判决</b></td><td class="y">✓ 已落地</td><td>最小 / 推荐 / 纵横比 / 收缩优先级，与 <a href="./index.html#primsize">#primsize</a> 同一套数</td></tr>
+        <tr><td><b>宽度降级链</b></td><td class="y">✓ 已落地</td><td>≥160 / 140 / 120 / 100 / 80 / &lt;80 六档，与规格表一致</td></tr>
+        <tr><td><b>渲染分层 T0–T3</b></td><td class="y">✓ 已落地</td><td>纯文本 / 块字符 / Braille / 真彩热力，含 <span class="mono">NO_COLOR</span> 与 ANSI 16 色降级</td></tr>
+        <tr><td><b>渲染分层 T5</b></td><td class="n">✕ 未实现</td><td>Kitty / Sixel / iTerm2 图形协议未探测。设计文档本身也把它列为待验证项</td></tr>
+        <tr><td><b>真实后端</b></td><td class="n">✕ 未接</td><td>数据走确定性异步 Mock，不启动 Service、不访问网络。联调时替换 Gateway adapter 即可，页面与 domain 契约不动</td></tr>
+        <tr><td><b>正式 UI 合同</b></td><td class="w">△ draft</td><td><span class="mono">UI-SPEC.md</span> 仍是 <span class="mono">draft</span>，<span class="mono">pages/</span> 下只有模板。现有实现依据的是 <span class="mono">docs/</span> 研究材料</td></tr>
+        <tr><td><b>这一页的回放</b></td><td class="w">△ 录像</td><td>可暂停、可拖动、文字可选中，但<b>不可交互</b> —— 想真的按键，往下看怎么在本机跑</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════ 本机运行 ═══════ -->
+  <section class="blk" id="run">
+    <h3 class="sec">在自己机器上跑</h3>
+    <p class="sec-note">macOS / Linux 都行。只需要 Bun，不需要 Node、不需要装 IDE、不起任何服务。</p>
+    <hr class="rule" />
+
+<pre class="sh"><span class="c"># 1. 装 Bun（版本锁在 1.3.14）</span>
+curl -fsSL https://bun.sh/install | bash
+
+<span class="c"># 2. 装依赖并启动</span>
+cd kunpeng-devkit-ai-tui/tui
+bun install --frozen-lockfile
+bun run dev
+
+<span class="c"># 直接跳到某个界面</span>
+bun src/index.tsx --screen=charts       <span class="c"># 图表画廊</span>
+bun src/index.tsx --screen=components   <span class="c"># 22 个组件</span>
+bun src/index.tsx --screen=patterns     <span class="c"># P01–P26</span>
+
+<span class="c"># 换 Mock 场景 / 关颜色 / 关 Braille</span>
+DEVKITAI_MOCK_SCENARIO=slow bun run dev <span class="c"># happy|empty|error|slow|offline|extreme</span>
+NO_COLOR=1 bun run dev
+DEVKITAI_NO_BRAILLE=1 bun run dev</pre>
+
+    <div class="note">
+      <p><b>终端窗口建议拉到 160×45 以上。</b>窄于 80 列会走 <span class="mono">narrow</span> 档，Dock 整个隐藏、Console 压到 5 行 —— 那是刻意的降级，不是画崩了。想看降级本身，把窗口慢慢拖窄就能一档档看到它切。</p>
+    </div>
+
+<pre class="sh"><span class="c"># 质量门禁：格式 + lint + typecheck + 77 个测试</span>
+bun run check
+<span class="p">✓</span> 27 render · 34 unit · 7 integration · 9 packaging</pre>
+  </section>
+
+  <!-- ═══════ 怎么录的 ═══════ -->
+  <section class="blk" id="how">
+    <h3 class="sec">这段录像是怎么来的</h3>
+    <p class="sec-note">留个记录，方便下次重录。</p>
+    <hr class="rule" />
+    <p style="color:var(--fg2);max-width:76ch">用 Python 的 <span class="mono">pty.fork()</span> 开一个真 PTY，<span class="mono">TIOCSWINSZ</span> 把窗口钉死在 160×45，然后按脚本注入按键，把子进程吐出来的字节流按时间戳存成 <a href="https://docs.asciinema.org/manual/asciicast/v2/" target="_blank" rel="noopener">asciicast v2</a>。</p>
+    <p style="color:var(--fg2);max-width:76ch">按键不是按固定秒数发的 —— 那样会在异步 Mock 还在 loading 时把键丢掉（第一次录就是这么翻的车：Build Verify 在两个补丁只批了一个的时候被按下去，直接撞进 <span class="mono">仍有补丁未审查</span> 的错误态）。改成<b>等输出安静下来再发下一个键</b>，配一个超时兜底，十幕就一次跑通了。</p>
+  </section>
+
+  <footer>
+    <p>录制于 160×45 · <span class="mono">TERM=xterm-256color</span> · <span class="mono">COLORTERM=truecolor</span> · 播放器 <a href="https://github.com/asciinema/asciinema-player" target="_blank" rel="noopener">asciinema-player 3.8.0</a>（已随仓库自带，不走 CDN）</p>
+    <p>内部设计资料，授权方式待定。Kunpeng 标识及华为品牌色版权归华为技术有限公司所有。</p>
+  </footer>
+
+</div>
+
+<script src="./vendor/asciinema-player.min.js"></script>
+<script>
+  AsciinemaPlayer.create('./devkitai.cast', document.getElementById('player'), {
+    cols: 160,
+    rows: 45,
+    autoPlay: false,
+    preload: true,
+    loop: false,
+    idleTimeLimit: 1.4,
+    theme: 'pto',
+    fit: 'width',
+    terminalFontFamily: "'JetBrains Mono','Fira Code','Sarasa Term SC',ui-monospace,'SF Mono',Consolas,monospace",
+    terminalLineHeight: 1.2,
+    poster: 'npt:0:04'
+  });
+</script>
+</body>
+</html>

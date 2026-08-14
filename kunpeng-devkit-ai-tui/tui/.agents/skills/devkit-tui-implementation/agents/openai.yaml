@@ -1,0 +1,4 @@
+interface:
+  display_name: "DevKit TUI Implementation"
+  short_description: "Implement approved DevKit UI contracts in OpenTUI"
+  default_prompt: "Use $devkit-tui-implementation to implement an approved DevKit UI page contract in the OpenTUI repository."

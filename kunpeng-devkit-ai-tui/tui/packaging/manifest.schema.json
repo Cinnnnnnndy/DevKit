@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kunpeng.devkit.local/schemas/tui-release-manifest-v1.json",
+  "title": "Kunpeng DevKit AI TUI release manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "product",
+    "binary",
+    "version",
+    "commit",
+    "dirty",
+    "builtAt",
+    "target",
+    "toolchain",
+    "nativeVerification"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "product": { "const": "Kunpeng DevKit AI" },
+    "binary": { "const": "devkitai" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "dirty": { "const": false },
+    "builtAt": { "type": "string", "format": "date-time" },
+    "target": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "os", "arch", "baseline", "bunTarget"],
+          "properties": {
+            "id": { "const": "windows-x64" },
+            "os": { "const": "windows" },
+            "arch": { "const": "x86_64" },
+            "baseline": { "const": true },
+            "bunTarget": { "const": "bun-windows-x64-baseline" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "os", "arch", "baseline", "bunTarget"],
+          "properties": {
+            "id": { "const": "linux-x86_64" },
+            "os": { "const": "linux" },
+            "arch": { "const": "x86_64" },
+            "baseline": { "const": true },
+            "bunTarget": { "const": "bun-linux-x64-baseline" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "os", "arch", "baseline", "bunTarget"],
+          "properties": {
+            "id": { "const": "linux-arm64" },
+            "os": { "const": "linux" },
+            "arch": { "const": "arm64" },
+            "baseline": { "const": false },
+            "bunTarget": { "const": "bun-linux-arm64" }
+          }
+        }
+      ]
+    },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bun", "typescript", "react", "opentuiCore", "opentuiReact"],
+      "properties": {
+        "bun": { "const": "1.3.14" },
+        "typescript": { "const": "5.9.3" },
+        "react": { "const": "19.2.0" },
+        "opentuiCore": { "const": "0.5.1" },
+        "opentuiReact": { "const": "0.5.1" }
+      }
+    },
+    "nativeVerification": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "checks"],
+          "properties": {
+            "status": { "const": "verified" },
+            "checks": {
+              "const": [
+                "PE x86_64 header",
+                "embedded OpenTUI DLL",
+                "--help",
+                "--version",
+                "OpenTUI smoke render",
+                "third-party licenses"
+              ]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "checks"],
+          "properties": {
+            "status": { "const": "native-runtime-unverified" },
+            "checks": {
+              "const": [
+                "ELF architecture header",
+                "embedded OpenTUI shared object",
+                "archive safety",
+                "Unix archive permissions",
+                "third-party licenses"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

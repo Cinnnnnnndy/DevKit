@@ -1,0 +1,5 @@
+Source: https://github.com/oven-sh/bun/blob/0d9b296/LICENSE.md
+Raw: https://raw.githubusercontent.com/oven-sh/bun/0d9b296/LICENSE.md
+Release tag: bun-v1.3.14
+Commit: 0d9b296
+SHA-256: 2c6160ec8fb853f7e8f97d9b249e756c9b0ac44860a68b6bf4f1b0bcbc5c3741

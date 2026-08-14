@@ -1,0 +1,4 @@
+Source: https://github.com/facebook/react/blob/v19.2.0/LICENSE
+Retrieved from: react@19.2.0 package pinned by bun.lock
+SHA-256: da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93
+Reason: react-devtools-core@7.0.1 declares MIT but its npm tarball omits LICENSE.

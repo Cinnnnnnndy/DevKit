@@ -261,6 +261,7 @@ pre .hw{font-size:1ch}
     </p>
     <div class="hero-actions">
       <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/demo.html">看 TUI 设计 demo</a>
+      <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/tui-live.html">看真机实录 ▶</a>
       <a class="pill" href="./kunpeng-devkit-ai-tui/web/index.html">设计系统</a>
       <a class="pill" href="./kunpeng-devkit-ai-tui/web/competitive-analysis.html">TUI 竞品分析</a>
       <a class="pill" href="./kunpeng-devkit-ai-tui/web/visual-analysis.html">TUI 视觉风格分析</a>
@@ -280,6 +281,42 @@ pre .hw{font-size:1ch}
         <div class="group-rule" aria-hidden="true"></div>
       </div>
       <div class="card-grid">
+
+        <!-- tui-live.html -->
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/tui-live.html">原生 TUI 实录</a></h3>
+            <div class="card-tags">
+              <span class="tag tag--impl">实况</span>
+              <span class="tag tag--star">真机录像</span>
+              <span class="tag">字符流</span>
+              <span class="tag">160×45</span>
+            </div>
+          </div>
+          <div class="card-preview tall" aria-hidden="true">
+<pre><span class="pv-dim">┌ </span><span class="pv-fg">ACT 10 · SESSION SUMMARY</span><span class="pv-dim"> ──────────────</span>
+<span class="pv-dim">│</span> <span class="pv-fg">nginx x86_64 → Kunpeng ARM64</span>
+<span class="pv-dim">│</span> <span class="pv-ok">✓ 21 issues fixed</span>
+<span class="pv-dim">│</span> <span class="pv-wn">⚠ 2 need manual review</span>
+<span class="pv-dim">│</span> <span class="pv-ok">Build PASSED</span>
+<span class="pv-dim">├─ </span><span class="pv-dim">PERFORMANCE</span>
+<span class="pv-dim">│</span> <span class="pv-fg">QPS</span> <span class="pv-dim">42,000 →</span> <span class="pv-ok">61,000</span> <span class="pv-ok">+45%</span>
+<span class="pv-dim">│</span> <span class="pv-fg">P99</span> <span class="pv-dim">18ms →</span> <span class="pv-ok">12ms</span>
+<span class="pv-dim">└─</span> <span class="pv-run">▎S Export Markdown</span> <span class="pv-dim">│ J Export JSON</span></pre>
+          </div>
+          <p class="card-desc"><b>这一页不是设计稿，是程序真的跑了一遍。</b><span class="mono">devkitai</span> 二进制在一个 <b>160×45 的真实 PTY</b> 里被按键脚本驱动，跑完十幕迁移流程，整段以 <a href="https://docs.asciinema.org/manual/asciicast/v2/" target="_blank" rel="noopener">asciicast v2</a> 录下来。录的是<b>字符和 ANSI 序列而非像素</b>——所以 gzip 后只有 <span class="mono">124&nbsp;KB</span>，文字可选中复制，24-bit 真彩原样保留，放大不糊。页面同时列出<b>这一版做不到什么</b>（T5 图形协议未实现、后端未接、<span class="mono">UI-SPEC.md</span> 仍是 draft），以及在自己机器上跑起来的完整命令。</p>
+          <div class="card-links">
+            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/tui-live.html">打开实录 ▶</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/tui-live.html#limits">#能力边界</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/tui-live.html#run">#本机运行</a>
+            <a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/tree/main/kunpeng-devkit-ai-tui/tui" target="_blank" rel="noopener">实现源码</a>
+          </div>
+          <div class="card-src">
+            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/tui-live.html" target="_blank" rel="noopener">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/tui-live.html
+            </a>
+          </div>
+        </article>
 
         <!-- demo.html -->
         <article class="card">
