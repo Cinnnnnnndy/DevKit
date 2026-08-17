@@ -34,7 +34,7 @@
 
 | 文件 | 内容 |
 |---|---|
-| [`web/screens.html`](web/screens.html) ★ | **四个典型页面** — 启动页 / Agent Workspace / 执行中 Tool+Diff / 任务结果页，各一张 160 列宽屏帧 + 一张 80 列窄屏降级帧 |
+| [`web/screens.html`](web/screens.html) ★ | **五个典型页面** — 启动页 / Agent Workspace / 执行中 Tool+Diff / 任务结果页 / 管理配置（服务器·账号·模型），各一张 160 列宽屏帧 + 一张 80 列窄屏降级帧 |
 | [`web/design-input.html`](web/design-input.html) ★ | **设计输入** — 背景 → 用户 → 场景 → 目标 → 能力 → 交互 → 状态 → 页面组件 → 原则 → 待验证 → 阶段规划 |
 | [`web/demo.html`](web/demo.html) | **十幕交互演示** — 可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点" |
 | [`web/index.html`](web/index.html) | **产品规范单页** — 设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用） |

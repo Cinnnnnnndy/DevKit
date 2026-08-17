@@ -19,6 +19,6 @@
 | [COMPETITIVE-ANALYSIS.md](COMPETITIVE-ANALYSIS.md) | 7 竞品 × 22 触点的 UX 对比 | 想知道别人怎么做的 |
 | [DEMO-WIREFRAME.md](DEMO-WIREFRAME.md) | 四大 Demo 的 ASCII 交互稿 | 准备演示时 |
 
-**★ DESIGN-INPUT.md 是设计的入口。** 旅程地图回答「用户经历了什么」，设计输入回答「因此界面必须提供什么」——后者才能被交互、视觉和实现直接接住。四个典型页面的整屏字符帧见 [`../web/screens.html`](../web/screens.html)。
+**★ DESIGN-INPUT.md 是设计的入口。** 旅程地图回答「用户经历了什么」，设计输入回答「因此界面必须提供什么」——后者才能被交互、视觉和实现直接接住。五个典型页面的整屏字符帧见 [`../web/screens.html`](../web/screens.html)。
 
 **★ VISUAL.md 是最厚也最关键的一份。** 它不只写"结论是什么"，也写了"曾经试过什么、为什么被推翻"——字符做的辉光为什么是脏的、全屏横扫的动效为什么参数怎么调都不对、把 KUNPENG 压灰为什么反而把名字拆散了。改动之前先读，能省下重复踩坑的时间。

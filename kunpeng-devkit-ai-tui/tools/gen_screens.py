@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""生成 web/screens.html —— 四个典型页面的整屏字符帧。
+"""生成 web/screens.html —— 五个典型页面的整屏字符帧。
 
-四屏：启动页 / Agent Workspace / Agent 执行中（Tool + Diff）/ 任务结果页。
+五屏：启动页 / Agent Workspace / Agent 执行中（Tool + Diff）/ 任务结果页 /
+管理配置（服务器 · 账号 · 模型）。
 每屏给两帧：160×N 宽屏主帧 + 80 列窄屏降级帧，宽度由 screens.py 断言把着。
 
   python3 tools/gen_screens.py
@@ -22,6 +23,11 @@ OUT = pathlib.Path(__file__).resolve().parent.parent / "web" / "screens.html"
 def colsep(widths: list[int], left: str = "├", right: str = "┤", mid: str = "┼") -> str:
     """按栏宽拼一条与竖线对齐的分隔行（不含外框左右柱）。"""
     return mid.join("─" * w for w in widths)
+
+
+def spread(left: str, right: str, w: int) -> str:
+    """左内容 + 右对齐尾巴，中间自动补齐——省得手数空格。"""
+    return pad(left, w - width(right)) + right
 
 
 def card(w: int, title: str, lines: list[str], title_cls: str = "t") -> list[str]:
@@ -512,6 +518,309 @@ def screen_result_narrow() -> str:
 
 
 # ══════════════════════════════════════════════════════════════════════
+# 屏 5 · 管理配置（服务器 · 账号 · 模型）
+# ══════════════════════════════════════════════════════════════════════
+CAT, LIST, DET = 22, 44, 90  # 22 + 44 + 90 + 2 分隔 = 158
+
+
+def settings_categories(active: str) -> Pane:
+    """左侧分类栏。选中项走反显，不靠颜色——16 色降级下仍成立。"""
+    rows = [
+        ("服务器", "3"),
+        ("账号", "2"),
+        ("模型", "4"),
+        ("Skill", "12"),
+        ("通用", ""),
+        ("更新", ""),
+    ]
+    p = Pane(CAT).add(" ⟦t|SETTINGS⟧       ⟦cm|Ctrl+,⟧", "")
+    for name, count in rows:
+        mark = "▶" if name == active else "○"
+        line = f" {mark} {name}"
+        tail = f"⟦wn|有新版⟧" if name == "更新" else f"⟦cm|{count}⟧"
+        body = pad(line, CAT - width(tail) - 1) + tail + " "
+        p.add(f"⟦sel|{body}⟧" if name == active else f"⟦cm|{body}⟧")
+    p.add(
+        "",
+        " ⟦cm|所有凭据⟧",
+        " ⟦cm|AES-256-GCM 加密⟧",
+        " ⟦cm|~/.devkitai/⟧",
+        " ⟦cm|credentials · 600⟧",
+        "",
+        " ⟦ok|✕⟧ ⟦cm|不写日志⟧",
+        " ⟦ok|✕⟧ ⟦cm|不随报告导出⟧",
+        " ⟦ok|✕⟧ ⟦cm|不进 Session 快照⟧",
+    )
+    return p
+
+
+MODELS = [
+    # (名称, 上下文, 工具调用, 结构化输出, 实测延迟, 是否当前)
+    ("qwen2.5-72b-instruct", "128k", "✓", "✓", "218ms", True),
+    ("qwen2.5-32b-instruct", "64k", "✓", "✓", "140ms", False),
+    ("deepseek-v3", "128k", "✓", "✓", "— 未测", False),
+    ("embed-v2", "8k", "✕", "✕", "— 仅向量", False),
+]
+
+
+def model_table() -> list[str]:
+    """模型对比表：列宽写死一处，表头与行共用，避免两边各数一遍空格。"""
+    cols = (24, 9, 8, 13, 12)
+    head = "  " + "".join(
+        pad(f"⟦cm|{t}⟧", w, "left" if i == 0 else "right")
+        for i, (t, w) in enumerate(zip(("模型", "上下文", "工具", "结构化输出", "实测延迟"), cols))
+    )
+    out = [head]
+    for name, ctx, tool, so, lat, current in MODELS:
+        cells = pad(name, cols[0] - 2) + "".join(
+            pad(v, w, "right") for v, w in zip((ctx, tool, so, lat), cols[1:])
+        )
+        out.append(
+            f"⟦sel| ▶ {cells} ⟧" if current else f"⟦cm|   {cells}⟧ "
+        )
+    return out
+
+
+def screen_settings_model() -> str:
+    f = Frame(
+        W,
+        "⟦br|▪⟧ ⟦t|DevKit AI⟧ ⟦cm|· 管理配置⟧",
+        "⟦cm|模型⟧ ⟦ok|●⟧ ⟦cm|已连接 · ⟧⟦t|qwen2.5-72b⟧",
+    )
+    f.sep(colsep([CAT, LIST, DET], mid="┬"))
+
+    lst = Pane(LIST).add(
+        " ⟦t|Provider⟧              ⟦cm|[n] 新增  [Del] 删除⟧",
+        " ⟦sel|▶ devkit-gateway   ⟧ ⟦ok|●⟧ ⟦cm|已连接 · 4 模型⟧",
+        " ⟦cm|  openai-compat     ○ 未验证⟧",
+        " ⟦cm|  vllm@10.10.3.21   ⟧⟦ok|●⟧ ⟦cm|已连接 · 1 模型⟧",
+        " ⟦cm|  ollama (本地)     ⟧⟦er|✕⟧ ⟦er|连接失败⟧",
+        "",
+        " ⟦t|当前使用⟧",
+        " ⟦ok|●⟧ qwen2.5-72b-instruct",
+        "   ⟦cm|devkit-gateway · ctx 128k⟧",
+        " ⟦cm|兜底⟧ qwen2.5-32b ⟦cm|（主模型不可用时）⟧",
+        "",
+        " ⟦t|用量⟧               ⟦cm|本月⟧",
+        " ⟦cm|请求⟧  12,480",
+        " ⟦cm|配额⟧  " + bar(0.18, 14, "g4") + " ⟦cm|18%⟧",
+        "",
+        " ⟦wn|⚠⟧ ⟦cm|ollama 连接失败⟧",
+        " ⟦cm|  已自动跳过，不影响当前任务⟧",
+        " ⟦cm|  [↵] 看诊断⟧",
+    )
+
+    det = Pane(DET).add(
+        spread(" ⟦t|devkit-gateway⟧", "⟦cm|[e] 编辑   [t] 重测   [s] 设为默认⟧ ", DET),
+        "",
+        " ⟦cm|Base URL⟧  https://devkit-ai.example.com⟦t|/v1⟧",
+        "            ⟦ok|✓⟧ ⟦cm|格式正确 · 含 /v1 · https⟧",
+        spread(" ⟦cm|API Key ⟧  sk-a1f2⟦cm|****************⟧9c4d", "⟦cm|[r] 轮换   [x] 删除⟧ ", DET),
+        "            ⟦cm|只回显首尾，粘贴后不再明文出现；90 天后过期⟧",
+        " ⟦cm|代理    ⟧  ⟦cm|继承系统 HTTPS_PROXY⟧",
+        "",
+        spread(" ⟦t|就地验证⟧", "⟦cm|刚刚 · [t] 重测全部⟧ ", DET),
+        " ⟦ok|✓⟧ 地址可达          ⟦cm|42ms⟧",
+        " ⟦ok|✓⟧ 鉴权通过          ⟦cm|账号 dev-team · 配额剩余 82%⟧",
+        " ⟦ok|✓⟧ 拉取模型列表      ⟦cm|4 个⟧",
+        " ⟦ok|✓⟧ 测试对话          ⟦cm|218ms · 首 token 96ms⟧",
+        " ⟦ok|✓⟧ 工具调用          ⟦cm|function calling 可用⟧",
+        "",
+        *model_table(),
+        " ⟦pr|[↵] 设为当前⟧   ⟦cm|[b] 设为兜底   [i] 看能力详情⟧",
+    )
+
+    for line in hcat([settings_categories("模型"), lst, det]):
+        f.add(line)
+    f.sep()
+    f.add(
+        spread(
+            " ⟦cm|改动即时生效，不需要重启；正在运行的任务用旧模型跑完当前步骤⟧",
+            "⟦cm|[Esc] 返回工作台⟧ ",
+            INNER,
+        )
+    )
+    f.foot(
+        "⟦cm|[Tab]⟧ 切换区域  ⟦cm|[↑↓]⟧ 选择  ⟦cm|[↵]⟧ 应用",
+        "⟦cm|凭据加密存储 · ⟧⟦ok|●⟧ ⟦cm|已连接⟧",
+    )
+    return check(f.render(), W, "settings-model")
+
+
+def screen_settings_server() -> str:
+    f = Frame(
+        W,
+        "⟦br|▪⟧ ⟦t|DevKit AI⟧ ⟦cm|· 管理配置⟧",
+        "⟦cm|服务器⟧ ⟦ok|●⟧ ⟦cm|kp920-dev-01 已连接⟧",
+    )
+    f.sep(colsep([CAT, LIST, DET], mid="┬"))
+
+    lst = Pane(LIST).add(
+        " ⟦t|远程服务器⟧          ⟦cm|[n] 新增  [c] 连接⟧",
+        " ⟦sel|▶ kp920-dev-01    ⟧ ⟦ok|●⟧ ⟦cm|12ms⟧",
+        "   ⟦cm|10.10.3.21 · aarch64 · Kunpeng 920⟧",
+        " ⟦cm|  kp920-perf-02   ○ 未连接⟧",
+        "   ⟦cm|10.10.3.22 · aarch64 · 专用压测机⟧",
+        " ⟦cm|  x86-build-01    ⟧⟦wn|⚠ 指纹变更⟧",
+        "   ⟦cm|10.10.4.7 · x86_64⟧",
+        "",
+        " ⟦t|本机⟧",
+        " ⟦cm|macOS · arm64 · 非鲲鹏⟧",
+        " ⟦cm|可本地完成：源码扫描 · 静态分析⟧",
+        " ⟦wn|需要远端：交叉编译 · 性能采集⟧",
+        "",
+        " ⟦t|默认落点⟧",
+        " ⟦cm|编译⟧  kp920-dev-01",
+        " ⟦cm|采集⟧  kp920-perf-02 ⟦cm|（专机避免干扰）⟧",
+        " ⟦cm|[e] 改落点规则⟧",
+    )
+
+    det = Pane(DET).add(
+        spread(" ⟦t|kp920-dev-01⟧", "⟦cm|[e] 编辑   [r] 重探测   [k] 断开⟧ ", DET),
+        "",
+        spread(" ⟦cm|地址⟧    dev@10.10.3.21:22", "⟦cm|[c] 复制 ssh 命令⟧ ", DET),
+        spread(
+            " ⟦cm|认证⟧    公钥 ~/.ssh/id_ed25519 ⟦cm|（已加载）⟧",
+            "⟦cm|[p] 改用密码 / 跳板机⟧ ",
+            DET,
+        ),
+        " ⟦cm|指纹⟧    SHA256:9f3a…c71d   ⟦ok|✓⟧ ⟦cm|已确认 2026-08-02⟧",
+        "         ⟦cm|指纹变化时一律拦截并要求重新确认，不提供「永久忽略」⟧",
+        "",
+        spread(" ⟦t|环境探测⟧", "⟦cm|3 分钟前 · [r] 重探测⟧ ", DET),
+        " ⟦ok|✓⟧ 架构          ⟦cm|aarch64 · Kunpeng 920 · 64 核 · 4 NUMA⟧",
+        " ⟦ok|✓⟧ 系统          ⟦cm|openEuler 22.03 LTS · kernel 5.10⟧",
+        " ⟦ok|✓⟧ DevKit        ⟦cm|24.0.RC1 · MCP 工具 6 个可用⟧",
+        " ⟦ok|✓⟧ 编译器        ⟦cm|gcc 10.3 · BiSheng 3.2⟧",
+        spread(
+            " ⟦wn|⚠⟧ perf 权限     ⟦wn|perf_event_paranoid=2⟧⟦cm| → 只能采自己的进程⟧",
+            "⟦pr|[F] 修复⟧ ",
+            DET,
+        ),
+        spread(" ⟦er|✕⟧ 交叉工具链    ⟦cm|未装 aarch64-linux-gnu-gcc⟧", "⟦pr|[I] 安装⟧ ", DET),
+        "",
+        spread(" ⟦t|连通性⟧    延迟 ⟦ok|12ms⟧ · 带宽 ⟦cm|92MB/s⟧ · 丢包 ⟦ok|0%⟧",
+          "⟦cm|按 SSH 低带宽档渲染⟧ ", DET),
+        " ⟦cm|文件同步⟧  ⟦cm|工程目录 rsync 增量 · 排除 .git 与 build 产物⟧",
+        "",
+        " ⟦cm|本机非鲲鹏时，迁移编译与性能采集按上面的落点规则自动跑在这台上，⟧",
+        " ⟦cm|用户不需要先手工 ssh 过去。⟧",
+    )
+
+    for line in hcat([settings_categories("服务器"), lst, det]):
+        f.add(line)
+    f.sep()
+    f.add(
+        spread(
+            " ⟦wn|⚠⟧ ⟦cm|x86-build-01 的主机指纹与上次不一致，已暂停对它的所有任务⟧",
+            "⟦pr|[↵] 去核对⟧ ",
+            INNER,
+        )
+    )
+    f.foot(
+        "⟦cm|[Tab]⟧ 切换区域  ⟦cm|[c]⟧ 连接  ⟦cm|[n]⟧ 新增服务器",
+        "⟦cm|3 台 · ⟧⟦ok|1 已连接⟧⟦cm| · ⟧⟦wn|1 待核对⟧",
+    )
+    return check(f.render(), W, "settings-server")
+
+
+def screen_settings_account() -> str:
+    f = Frame(
+        W,
+        "⟦br|▪⟧ ⟦t|DevKit AI⟧ ⟦cm|· 管理配置⟧",
+        "⟦cm|账号⟧ ⟦wn|⚠⟧ ⟦cm|1 项凭据需要处理⟧",
+    )
+    f.sep(colsep([CAT, LIST, DET], mid="┬"))
+
+    lst = Pane(LIST).add(
+        " ⟦t|账号与凭据⟧            ⟦cm|[n] 新增⟧",
+        " ⟦sel|▶ 知识库访问令牌   ⟧ ⟦er|✕ 已过期⟧",
+        " ⟦cm|  华为云 / DevKit   ⟧⟦ok|●⟧ ⟦cm|已登录⟧",
+        "   ⟦cm|dev-team@example.com · SSO⟧",
+        " ⟦cm|  Git 凭据         ⟧⟦ok|●⟧ ⟦cm|ssh-agent⟧",
+        "",
+        " ⟦t|到期提醒⟧",
+        " ⟦er|✕⟧ ⟦cm|知识库令牌⟧   ⟦er|已过期 2 天⟧",
+        " ⟦wn|⚠⟧ ⟦cm|API Key⟧      ⟦wn|30 天后⟧",
+        " ⟦ok|✓⟧ ⟦cm|SSO 会话⟧     ⟦cm|还有 6 天⟧",
+        " ⟦cm|  过期前 30 天开始提醒，⟧",
+        " ⟦cm|  不到当天才报错。⟧",
+        "",
+        " ⟦t|遥测⟧",
+        " ⟦cm|使用数据上报⟧  ⟦er|✕ 已关闭⟧",
+        " ⟦cm|崩溃日志上报⟧  ⟦er|✕ 已关闭⟧",
+        " ⟦cm|默认全关，开关在这里且只在这里⟧",
+    )
+
+    det = Pane(DET).add(
+        spread(" ⟦t|知识库访问令牌⟧", "⟦cm|[r] 重新登录   [t] 粘贴新令牌⟧ ", DET),
+        "",
+        " ⟦cm|用途⟧    鲲鹏知识库 · 迁移案例库检索 ⟦cm|（Agent 引用证据的来源）⟧",
+        spread(" ⟦cm|令牌⟧    kb-3f9a⟦cm|**********⟧7c21", "⟦cm|输入时掩码，可粘贴⟧ ", DET),
+        " ⟦cm|权限⟧    ⟦ok|✓⟧ 知识库读   ⟦ok|✓⟧ 案例库读   ⟦er|✕⟧ ⟦cm|写（本产品不需要）⟧",
+        " ⟦cm|存储⟧    ~/.devkitai/credentials · ⟦cm|0600 · AES-256-GCM⟧",
+        "",
+        *panel(
+            DET - 2,
+            "⟦er|✕ 上次验证失败⟧",
+            [
+                spread("⟦cm|发生了什么⟧   知识库令牌鉴权失败", "⟦cm|HTTP 401⟧", DET - 6),
+                "⟦cm|为什么    ⟧   令牌已于 ⟦t|2026-08-15⟧ 过期（有效期 90 天）",
+                "⟦cm|怎么解决  ⟧   ⟦pr|[r] 重新登录 SSO 自动换发⟧   ⟦cm|或⟧   ⟦cm|[t] 粘贴新令牌⟧",
+                "",
+                "⟦cm|影响面：Agent 仍可工作，但改动将失去案例库证据；"
+                "屏 3 的「证据」区会显示为不可用。⟧",
+            ],
+            right="⟦cm|刚刚⟧",
+        ),
+        "",
+        " ⟦t|凭据纪律⟧",
+        *[
+            pad(f" ⟦ok|✓⟧ ⟦cm|{yes}⟧", 40) + f"⟦er|✕⟧ ⟦cm|{no}⟧"
+            for yes, no in (
+                ("输入即掩码，回显只留首尾", "不写入任何日志与终端回滚缓冲"),
+                ("静态加密，文件权限 0600", "不随报告 / Session 快照导出"),
+                ("支持系统钥匙串托管", "不发送给模型，不进上下文"),
+            )
+        ],
+    )
+
+    for line in hcat([settings_categories("账号"), lst, det]):
+        f.add(line)
+    f.sep()
+    f.add(
+        spread(
+            " ⟦er|✕⟧ ⟦cm|知识库令牌已过期，涉及案例检索的步骤会降级为「无证据」并在改动上标注⟧",
+            "⟦pr|[r] 现在处理⟧ ",
+            INNER,
+        )
+    )
+    f.foot(
+        "⟦cm|[Tab]⟧ 切换区域  ⟦cm|[r]⟧ 重新登录  ⟦cm|[x]⟧ 删除凭据",
+        "⟦cm|4 项凭据 · ⟧⟦er|1 过期⟧⟦cm| · ⟧⟦wn|1 将到期⟧",
+    )
+    return check(f.render(), W, "settings-account")
+
+
+def screen_settings_narrow() -> str:
+    f = Frame(80, "⟦t|管理配置⟧", "⟦wn|⚠⟧ ⟦cm|1 项待处理⟧")
+    f.add(" ⟦cm|服务器⟧  ⟦cm|账号⟧  ⟦sel| 模型 ⟧  ⟦cm|Skill⟧  ⟦cm|通用⟧  ⟦cm|更新⟧   ⟦cm|[Tab] 切分类⟧")
+    f.sep()
+    f.add(" ⟦t|Provider⟧  ⟦sel| devkit-gateway ⟧ ⟦ok|●⟧      ⟦cm|[↵] 换一个⟧")
+    f.add(" ⟦cm|Base URL⟧  ⟦cm|…/devkit-ai/⟧⟦t|v1⟧            ⟦ok|✓⟧")
+    f.add(" ⟦cm|API Key ⟧  sk-a1f2⟦cm|****⟧9c4d          ⟦cm|[r] 轮换⟧")
+    f.sep()
+    f.add(" ⟦t|就地验证⟧                          ⟦cm|[t] 重测⟧")
+    f.add(" ⟦ok|✓⟧ ⟦cm|可达 42ms⟧   ⟦ok|✓⟧ ⟦cm|鉴权⟧   ⟦ok|✓⟧ ⟦cm|模型 4 个⟧")
+    f.add(" ⟦ok|✓⟧ ⟦cm|对话 218ms⟧  ⟦ok|✓⟧ ⟦cm|工具调用⟧")
+    f.sep()
+    f.add(" ⟦t|当前模型⟧ qwen2.5-72b-instruct ⟦cm|· 128k · 工具 ✓⟧")
+    f.add(" ⟦cm|窄屏隐藏模型对比表，[↵] 进列表逐个看⟧")
+    f.foot("⟦cm|[Esc]⟧ 返回", "⟦cm|<100 列 · 三栏塌为分类页签⟧")
+    return check(f.render(), 80, "settings-narrow")
+
+
+# ══════════════════════════════════════════════════════════════════════
 # 页面
 # ══════════════════════════════════════════════════════════════════════
 from page_css import CSS, JS
@@ -538,6 +847,7 @@ def build() -> str:
         "s2": (workspace, screen_workspace_narrow()),
         "s3": (execu, screen_exec_narrow()),
         "s4": (result, screen_result_narrow()),
+        "s5": (screen_settings_model(), screen_settings_narrow()),
     }
     body = TEMPLATE.format(
         css=CSS,
@@ -550,6 +860,10 @@ def build() -> str:
         s3n=fig("窄屏降级 · 80×15", rows["s3"][1]),
         s4=fig("屏 4 · 任务结果页 · 160×30", rows["s4"][0]),
         s4n=fig("窄屏降级 · 80×18", rows["s4"][1]),
+        s5=fig("屏 5 · 管理配置 · 模型 / Provider · 160×28", rows["s5"][0]),
+        s5b=fig("同屏 · 分类切到「服务器」· 160×28", screen_settings_server()),
+        s5c=fig("同屏 · 分类切到「账号」· 160×28", screen_settings_account()),
+        s5n=fig("窄屏降级 · 80×15", rows["s5"][1]),
     )
     return body
 
@@ -559,8 +873,8 @@ TEMPLATE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kunpeng DevKit AI — 四个典型页面</title>
-<meta name="description" content="启动页 · Agent Workspace · Agent 执行中（Tool + Diff）· 任务结果页（火焰图与热点函数）四屏整屏字符帧。">
+<title>Kunpeng DevKit AI — 五个典型页面</title>
+<meta name="description" content="启动页 · Agent Workspace · Agent 执行中（Tool + Diff）· 任务结果页（火焰图与热点函数）· 管理配置（服务器 / 账号 / 模型）五屏整屏字符帧。">
 <style>{css}</style>
 </head>
 <body>
@@ -568,8 +882,8 @@ TEMPLATE = """<!DOCTYPE html>
 <div class="topbar">
   <span class="kpmark">◢</span>
   <span class="brand">Kunpeng DevKit AI</span>
-  <span class="vchip">四个典型页面</span>
-  <span class="tagline">启动 · 工作台 · 执行 · 结果 —— 整屏字符帧，非示意图</span>
+  <span class="vchip">五个典型页面</span>
+  <span class="tagline">启动 · 工作台 · 执行 · 结果 · 配置 —— 整屏字符帧，非示意图</span>
   <span class="tb-right">
     <a href="./index.html#primlib">设计系统 ↗</a>
     <a href="./design-input.html">设计输入 ↗</a>
@@ -580,13 +894,14 @@ TEMPLATE = """<!DOCTYPE html>
 <div class="wrap">
 <nav id="nav">
   <div class="ngrp">Overview</div>
-  <a href="#intro">这四屏是什么</a>
-  <a href="#rules">四屏共用的规则</a>
-  <div class="ngrp">Screens · 四屏</div>
+  <a href="#intro">这五屏是什么</a>
+  <a href="#rules">五屏共用的规则</a>
+  <div class="ngrp">Screens · 五屏</div>
   <a href="#s1">屏 1 · 启动页</a>
   <a href="#s2">屏 2 · Agent Workspace</a>
   <a href="#s3">屏 3 · 执行中 · Tool + Diff</a>
   <a href="#s4">屏 4 · 任务结果页 ★</a>
+  <a href="#s5">屏 5 · 管理配置</a>
   <div class="ngrp">System</div>
   <a href="#comp">组件与状态覆盖</a>
   <a href="#open">待验证问题</a>
@@ -597,13 +912,13 @@ TEMPLATE = """<!DOCTYPE html>
 
 <section id="intro">
 <div class="eyebrow">Key Screens</div>
-<h1>四个典型页面</h1>
-<p class="desc">从《<a href="./design-input.html">DevKit AI TUI 设计输入</a>》里挑出四屏最吃劲的：<strong>启动页</strong>（能不能马上开始）、<strong>Agent Workspace</strong>（Agent 在干什么）、<strong>执行中 Tool + Diff</strong>（有没有跑偏）、<strong>任务结果页</strong>（我得到了什么）。它们分别对应设计输入 §29 里的问题 ①③④⑥。</p>
-<p class="desc">四屏都是<strong>整屏字符帧</strong>，不是配色示意图：160 列宽屏 + 80 列窄屏各一帧，每行宽度在生成时被断言把着（<code>tools/screens.py</code>），CJK 按 2 格、Braille 按 1 格算——<strong>页面上看到的对齐关系，就是终端里的对齐关系</strong>。色值全部取自<a href="./index.html#color">设计系统</a>的既有色阶，未新造调色板。</p>
+<h1>五个典型页面</h1>
+<p class="desc">从《<a href="./design-input.html">DevKit AI TUI 设计输入</a>》里挑出五屏最吃劲的：<strong>启动页</strong>（能不能马上开始）、<strong>Agent Workspace</strong>（Agent 在干什么）、<strong>执行中 Tool + Diff</strong>（有没有跑偏）、<strong>任务结果页</strong>（我得到了什么）、<strong>管理配置</strong>（Agent 到底能不能工作）。五屏刚好把设计输入 §9.1 的六个问题答完 ①②③④⑥，只剩 ⑤ 多任务由 Task Manager 承接。</p>
+<p class="desc">五屏都是<strong>整屏字符帧</strong>，不是配色示意图：160 列宽屏 + 80 列窄屏各一帧，每行宽度在生成时被断言把着（<code>tools/screens.py</code>），CJK 按 2 格、Braille 按 1 格算——<strong>页面上看到的对齐关系，就是终端里的对齐关系</strong>。色值全部取自<a href="./index.html#color">设计系统</a>的既有色阶，未新造调色板。</p>
 <div class="grid g4">
-  <div class="stat"><b style="color:var(--primary-hover)">4</b><span>典型页面</span></div>
-  <div class="stat"><b style="color:var(--success)">8</b><span>字符帧（宽 + 窄）</span></div>
-  <div class="stat"><b style="color:var(--warning)">20</b><span>覆盖组件</span></div>
+  <div class="stat"><b style="color:var(--primary-hover)">5</b><span>典型页面</span></div>
+  <div class="stat"><b style="color:var(--success)">12</b><span>字符帧（宽 + 窄）</span></div>
+  <div class="stat"><b style="color:var(--warning)">25</b><span>覆盖组件</span></div>
   <div class="stat"><b style="color:var(--accent)">0</b><span>新增色值</span></div>
 </div>
 <div class="note"><b>这一版没有录屏。</b>录屏适合讲流程，不适合评审单屏——它没法定格、没法量宽度、没法比对齐。要看十幕连贯流程仍去<a href="./tui-live.html">实录回放</a>；这一页只回答“每一屏长什么样、每个像素为什么在那儿”。</div>
@@ -611,11 +926,11 @@ TEMPLATE = """<!DOCTYPE html>
 
 <section id="rules">
 <div class="eyebrow">Foundation</div>
-<h2>四屏共用的规则</h2>
-<p class="desc">这些规则不属于任何单屏，写在这里，四屏都遵守；与<a href="./index.html#frame">应用框架</a>一节同源。</p>
+<h2>五屏共用的规则</h2>
+<p class="desc">这些规则不属于任何单屏，写在这里，五屏都遵守；与<a href="./index.html#frame">应用框架</a>一节同源。</p>
 <div class="grid g2">
   <div class="card"><h4>① 三条锚点永不隐藏</h4>
-  <p>Header（我在哪 / 连什么机器）、Input（我怎么说话）、Status（现在什么状态）在四屏里位置一致、永不折叠。高度不够时先砍 Console，再砍 Canvas，最后砍 Tab Bar。</p></div>
+  <p>Header（我在哪 / 连什么机器）、Input（我怎么说话）、Status（现在什么状态）在各屏里位置一致、永不折叠。高度不够时先砍 Console，再砍 Canvas，最后砍 Tab Bar。</p></div>
   <div class="card"><h4>② 状态先于内容</h4>
   <p>每屏左上角第一个非框线字符就是状态符号（<code>●</code> Running / <code>✓</code> Completed / <code>⏸</code> 待配置 / <code>⚠</code> 风险）。用户扫一眼左上角就知道要不要继续读。</p></div>
   <div class="card"><h4>③ 结论与证据同屏</h4>
@@ -625,7 +940,7 @@ TEMPLATE = """<!DOCTYPE html>
   <div class="card"><h4>⑤ 画不下就显式说</h4>
   <p>火焰图标 <code>3 帧过窄未显示</code>、热点表标 <code>… 24 more</code>、Console 标 <code>9 行未展开</code>。悄悄省略会把“我看全了”变成错觉。</p></div>
   <div class="card"><h4>⑥ 圆角等于浮起</h4>
-  <p>固定区域一律直角 <code>┌┐└┘</code>；Plan 卡、Tool call、高危确认这些浮层才用圆角 <code>╭╮╰╯</code>。四屏里出现的每一个圆角都是浮层。</p></div>
+  <p>固定区域一律直角 <code>┌┐└┘</code>；Plan 卡、Tool call、高危确认、错误卡这些浮层才用圆角 <code>╭╮╰╯</code>。五屏里出现的每一个圆角都是浮层。</p></div>
 </div>
 </section>
 
@@ -724,35 +1039,82 @@ TEMPLATE = """<!DOCTYPE html>
 <p class="rule"><strong>窄屏降级：</strong>热点表按列优先级砍——占比列永远保留，周期数、进程名、共享库依次隐藏（<kbd>Enter</kbd> 看详情）；火焰图降到 3 层并显式标注未显示帧数；源码只留热点行 + 结论一行。</p>
 </section>
 
+<section id="s5">
+<div class="eyebrow">Screen 05</div>
+<h2>管理配置 —— 回答“Agent 到底能不能工作”</h2>
+<p class="desc">服务器、账号、模型三类配置收在同一页，左侧分类 · 中间列表 · 右侧详情。它回答设计输入六问里的 <strong>②</strong>——这一问答不上，其余四屏全部无从开始。三类配置差异很大，但共用一条主线：<strong>每一项都必须能就地验证，不能只让用户点“保存”</strong>。只能保存不能测，等于把失败推迟到第一次真正干活的时候，而那时用户正在做别的事。</p>
+{s5}
+<div class="sublabel">三类配置的共同结构</div>
+<table>
+<tr><th>区域</th><th>宽度</th><th>职责</th></tr>
+<tr><td>分类栏</td><td>22</td><td>服务器 / 账号 / 模型 / Skill / 通用 / 更新，各带计数与异常徽标；<strong>选中走反显不走颜色</strong></td></tr>
+<tr><td>列表</td><td>44</td><td>该类下的条目 + 状态，以及跨条目的汇总（当前使用的模型、到期提醒、默认落点）</td></tr>
+<tr><td>详情</td><td>90</td><td>选中项的字段、<strong>就地验证结果</strong>、可执行动作</td></tr>
+<tr><td>底部通知条</td><td>整宽</td><td>本页最该被处理的那一件事，带直达动作——不让用户自己在三个分类里翻</td></tr>
+</table>
+<div class="sublabel">分类切到「服务器」</div>
+<p class="desc">远程鲲鹏服务器是<strong>本机不是鲲鹏时的执行落点</strong>。所以这一屏不只是填地址：它要回答“连上之后这台机器到底能不能干活”，因此环境探测把架构、系统、DevKit 版本、编译器、<code>perf</code> 权限、交叉工具链逐条列出来，<strong>每个不合格项都直接带修复动作</strong>。</p>
+{s5b}
+<div class="grid g2">
+  <div class="card"><h4>指纹变化一律拦截</h4>
+  <p>主机指纹与上次不一致时暂停对该机的所有任务并要求重新确认，<strong>不提供“永久忽略”</strong>。这是唯一一处我们主动牺牲便利的地方——中间人风险不能用一个复选框换掉。</p></div>
+  <div class="card"><h4>落点规则是配置项，不是猜测</h4>
+  <p>编译落哪台、采集落哪台写在“默认落点”里且可改。性能采集默认单独指到压测机——<strong>和编译共机会让采集数据失真</strong>，这条不该靠用户自己想到。</p></div>
+  <div class="card"><h4>本机能做的不阻断</h4>
+  <p>本机非鲲鹏时，源码扫描与静态分析照常在本地跑，只有交叉编译与性能采集需要远端。<strong>不因为“环境不对”把整个产品锁死。</strong></p></div>
+  <div class="card"><h4>连通性影响渲染</h4>
+  <p>探测到 SSH 低带宽时整体切到低重绘档。<strong>连接质量是渲染策略的输入</strong>，不是只拿来显示的一个数字。</p></div>
+</div>
+<div class="sublabel">分类切到「账号」</div>
+<p class="desc">账号页承载凭据，所以它同时是<strong>错误体系与凭据纪律的样板屏</strong>：上次验证失败按“发生了什么 → 为什么 → 怎么解决”三段展开，并额外给出<strong>影响面</strong>——令牌过期不会让 Agent 停摆，但会让改动失去案例库证据，屏 3 的证据区随之显示为不可用。用户需要据此决定现在处理还是先干活。</p>
+{s5c}
+<table>
+<tr><th>凭据要做到</th><th>凭据不允许</th></tr>
+<tr><td>输入即掩码，回显只留首尾 <code>sk-a1f2****9c4d</code></td><td>写入任何日志与终端回滚缓冲</td></tr>
+<tr><td>静态加密（AES-256-GCM），文件权限 <code>0600</code></td><td>随报告 / Session 快照导出</td></tr>
+<tr><td>支持系统钥匙串托管</td><td>发送给模型、进入上下文</td></tr>
+<tr><td>过期前 30 天开始提醒</td><td>到期当天才以报错形式告知</td></tr>
+</table>
+<p class="rule"><strong>遥测开关默认全关，且只在这一页。</strong>散落在多处的隐私开关等于没有开关——用户找不到就默认它是开着的。</p>
+{s5n}
+<p class="rule"><strong>窄屏降级：</strong>三栏塌成“分类页签 + 单栏详情”，<kbd>Tab</kbd> 切分类。<strong>就地验证的五行结果压成两行但一项不删</strong>——它是这一页存在的理由；先被牺牲的是模型对比表，改为进列表逐个看。</p>
+</section>
+
 <section id="comp">
 <div class="eyebrow">System</div>
 <h2>组件与状态覆盖</h2>
-<p class="desc">四屏一共动用 20 个组件。<strong>下表右列是判断这一屏该不该沉淀为通用组件的依据</strong>：出现在两屏以上的一律进通用组件库，只出现一次的先留在页面里。</p>
+<p class="desc">五屏一共动用 25 个组件。<strong>下表右列是判断这一屏该不该沉淀为通用组件的依据</strong>：出现在两屏以上的一律进通用组件库，只出现一次的先留在页面里。</p>
 <table>
-<tr><th>组件</th><th>屏 1</th><th>屏 2</th><th>屏 3</th><th>屏 4</th><th>归属</th></tr>
-<tr><td>Header / Status Bar</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>全局 Shell</td></tr>
-<tr><td>Prompt Input</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>全局 Shell</td></tr>
-<tr><td>Agent Status</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>通用组件</td></tr>
-<tr><td>Tool Call</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>通用组件</td></tr>
-<tr><td>Progress Bar</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>通用组件（图元）</td></tr>
-<tr><td>Metric Bar</td><td>—</td><td>✓</td><td>—</td><td>✓</td><td>通用组件（图元）</td></tr>
-<tr><td>Evidence List</td><td>—</td><td>✓</td><td>✓</td><td>✓</td><td>通用组件</td></tr>
-<tr><td>Task List / Tabs</td><td>—</td><td>✓</td><td>—</td><td>—</td><td>通用组件</td></tr>
-<tr><td>File Tree（跟随）</td><td>—</td><td>✓</td><td>—</td><td>—</td><td>通用组件</td></tr>
-<tr><td>Plan Card</td><td>—</td><td>✓</td><td>—</td><td>—</td><td>通用组件</td></tr>
-<tr><td>Diff Viewer（hunk 级）</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>通用组件 ★</td></tr>
-<tr><td>Confirm（高危）</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>通用组件</td></tr>
-<tr><td>Next Step 引导</td><td>✓</td><td>—</td><td>—</td><td>✓</td><td>通用组件</td></tr>
-<tr><td>Capability Card</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>页面局部</td></tr>
-<tr><td>Env / Model 状态行</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>页面局部</td></tr>
-<tr><td>Hotspot Table</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>页面局部（可升）</td></tr>
-<tr><td>Flame Chart</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>通用组件（图元）</td></tr>
-<tr><td>Source Hotspot</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>页面局部</td></tr>
-<tr><td>Artifact List</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>通用组件</td></tr>
-<tr><td>Wordmark</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>页面局部</td></tr>
+<tr><th>组件</th><th>屏 1</th><th>屏 2</th><th>屏 3</th><th>屏 4</th><th>屏 5</th><th>归属</th></tr>
+<tr><td>Header / Status Bar</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>全局 Shell</td></tr>
+<tr><td>Prompt Input</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>—</td><td>全局 Shell</td></tr>
+<tr><td>Agent Status</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>—</td><td>通用组件</td></tr>
+<tr><td>Tool Call</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>—</td><td>通用组件</td></tr>
+<tr><td>Progress Bar</td><td>—</td><td>✓</td><td>✓</td><td>—</td><td>—</td><td>通用组件（图元）</td></tr>
+<tr><td>Metric Bar</td><td>—</td><td>✓</td><td>—</td><td>✓</td><td>✓</td><td>通用组件（图元）</td></tr>
+<tr><td>Evidence List</td><td>—</td><td>✓</td><td>✓</td><td>✓</td><td>—</td><td>通用组件</td></tr>
+<tr><td>Task List / Tabs</td><td>—</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>通用组件</td></tr>
+<tr><td>File Tree（跟随）</td><td>—</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>通用组件</td></tr>
+<tr><td>Plan Card</td><td>—</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>通用组件</td></tr>
+<tr><td>Diff Viewer（hunk 级）</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>—</td><td>通用组件 ★</td></tr>
+<tr><td>Confirm（高危）</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>—</td><td>通用组件</td></tr>
+<tr><td>Next Step 引导</td><td>✓</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>通用组件</td></tr>
+<tr><td>Capability Card</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>—</td><td>页面局部</td></tr>
+<tr><td>Env / Model 状态行</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>页面局部</td></tr>
+<tr><td>Hotspot Table</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>页面局部（可升）</td></tr>
+<tr><td>Flame Chart</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>通用组件（图元）</td></tr>
+<tr><td>Source Hotspot</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>页面局部</td></tr>
+<tr><td>Artifact List</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>—</td><td>通用组件</td></tr>
+<tr><td>Wordmark</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>—</td><td>页面局部</td></tr>
+<tr><td>Settings Nav</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>页面局部</td></tr>
+<tr><td>Provider Config</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>页面局部</td></tr>
+<tr><td>Model Selector</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>页面局部</td></tr>
+<tr><td>Credential Field（掩码）</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>通用组件</td></tr>
+<tr><td>Connection Test（就地验证）</td><td>✓</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>通用组件</td></tr>
+<tr><td>Error（三件套）</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓</td><td>通用组件</td></tr>
 </table>
-<div class="sublabel">四屏覆盖的状态</div>
-<p class="rule">Agent：<code>Running</code>（屏 2/3）· <code>Completed</code>（屏 4）· <code>Waiting</code>（屏 3 高危确认）· <code>Suspended</code>（屏 2 Dock 内 <code>⏸</code>）。<strong>未覆盖：<code>Failed</code> 与 <code>Idle</code></strong>——失败态屏需要单独出一版（编译翻车转诊断那一幕），列入下一阶段。</p>
+<div class="sublabel">五屏覆盖的状态</div>
+<p class="rule">Agent：<code>Running</code>（屏 2/3）· <code>Completed</code>（屏 4）· <code>Waiting</code>（屏 3 高危确认）· <code>Suspended</code>（屏 2 Dock 内 <code>⏸</code>）。Connection 四态在屏 5 齐了：<code>Connected</code> / <code>Connecting</code> / <code>Disconnected</code> / <code>Failed</code>（ollama 那条）。<strong>仍未覆盖：Agent 的 <code>Failed</code> 与 <code>Idle</code></strong>——失败态屏需要单独出一版（编译翻车转诊断那一幕），列入下一阶段。</p>
 </section>
 
 <section id="open">
@@ -769,7 +1131,7 @@ TEMPLATE = """<!DOCTYPE html>
 </section>
 
 <footer>
-Kunpeng DevKit AI · 四个典型页面 · 字符帧由 tools/gen_screens.py 生成，宽度经断言校验<br>
+Kunpeng DevKit AI · 五个典型页面 · 字符帧由 tools/gen_screens.py 生成，宽度经断言校验<br>
 内部设计资料，授权方式待定。Kunpeng 标识及华为品牌色版权归华为技术有限公司所有。
 </footer>
 

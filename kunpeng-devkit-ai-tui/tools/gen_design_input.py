@@ -131,7 +131,7 @@ TEMPLATE = """<!DOCTYPE html>
   <span class="vchip">设计输入 v1.0</span>
   <span class="tagline">给 UX · 交互 · 视觉 · TUI 开发共用的一份输入</span>
   <span class="tb-right">
-    <a href="./screens.html">四个典型页面 ↗</a>
+    <a href="./screens.html">五个典型页面 ↗</a>
     <a href="./index.html#primlib">设计系统 ↗</a>
     <button class="tbtn" onclick="tt()">◐ <span id="tl">Light</span></button>
   </span>
@@ -266,6 +266,7 @@ TEMPLATE = """<!DOCTYPE html>
 </table>
 <p class="rule">自然语言是第一入口，<strong>命令是等价快捷方式而不是主路径</strong>。发现性靠 <kbd>Ctrl+P</kbd> 命令面板的模糊搜索，不靠视觉罗列——那是鼠标时代用密度换发现性的做法。</p>
 <div class="sublabel">5.3 模型与 Provider</div>
+<p class="desc">已出整屏字符帧：<a href="./screens.html#s5">管理配置页</a>——分类（服务器 / 账号 / 模型）→ 列表 → 详情，三类共用「必须能就地验证」这一条主线。</p>
 {provider}
 <table>
 <tr><th>输入项</th><th>要求</th></tr>
@@ -375,13 +376,14 @@ TEMPLATE = """<!DOCTYPE html>
 <tr><td>File Export</td><td>文件导出</td><td>通用</td><td>Update</td><td>软件 / Skill 更新</td><td>页面局部</td></tr>
 </table>
 <p class="rule">判定规则：<strong>出现在两个以上页面的进通用组件库，只出现一次的先留在页面里。</strong>这条规则要在每次新增页面时重跑一遍，否则组件库会同时长出「该复用却没复用」和「只用一次却被抽象」两类债。</p>
-<div class="sublabel">四个典型页面（已出整屏字符帧）</div>
+<div class="sublabel">五个典型页面（已出整屏字符帧）</div>
 <table>
 <tr><th>屏</th><th>回答哪个问题</th><th>关键组件</th></tr>
 <tr><td><a href="./screens.html#s1">启动页</a></td><td>我能不能马上开始</td><td>Welcome · Env/Model 状态行 · Prompt · Next Step</td></tr>
 <tr><td><a href="./screens.html#s2">Agent Workspace</a></td><td>Agent 在干什么</td><td>Task Tabs · File Tree · Plan Card · Agent Status · Evidence</td></tr>
 <tr><td><a href="./screens.html#s3">执行中 · Tool + Diff</a></td><td>它有没有跑偏</td><td>Tool Call · Diff（hunk 级）· Confirm · Interrupt</td></tr>
 <tr><td><a href="./screens.html#s4">任务结果页</a></td><td>我得到了什么</td><td>Summary · Hotspot Table · Flame Chart · Source Hotspot · Artifact List</td></tr>
+<tr><td><a href="./screens.html#s5">管理配置</a></td><td>Agent 到底能不能工作</td><td>Settings Nav · Provider Config · Model Selector · Credential Field · Connection Test · Error</td></tr>
 </table>
 <div class="note"><b>结果页对齐 DevKit Web 端「热点函数分析」。</b>Top 30 热点调用栈表（函数/调用栈 · 周期数占比 · 周期数 · 进程名 · 共享库/文件）、火焰图（用户态 / 内核态 / 其他）、源码级逐行百分比——<strong>字段名与分组方式沿用 Web 端，用户在两端之间不需要做术语翻译</strong>。只有两处按 TUI 规则改写：红色退出数据层（语义红只表示「出事了」），紫色搜索标记改为背景反显（16 色下色相不可靠）。</div>
 </section>
@@ -403,7 +405,7 @@ TEMPLATE = """<!DOCTYPE html>
 <table>
 <tr><th>#</th><th>问题</th><th>靠什么解</th><th>对应屏</th></tr>
 <tr><td>①</td><td>我能不能马上开始？</td><td>启动 · 环境检测 · 远程连接</td><td><a href="./screens.html#s1">启动页</a></td></tr>
-<tr><td>②</td><td>Agent 到底能不能工作？</td><td>Model / Provider / API Key / Connection</td><td>Model 配置（P0，待出）</td></tr>
+<tr><td>②</td><td>Agent 到底能不能工作？</td><td>Model / Provider / API Key / Connection</td><td><a href="./screens.html#s5">管理配置</a></td></tr>
 <tr><td>③</td><td>Agent 到底在干什么？</td><td>Agent 状态 · Skill · Tool · Streaming · Progress</td><td><a href="./screens.html#s2">Workspace</a></td></tr>
 <tr><td>④</td><td>Agent 有没有跑偏？</td><td>Diff · Ask User · Checkpoint · Interrupt</td><td><a href="./screens.html#s3">执行中</a></td></tr>
 <tr><td>⑤</td><td>我有很多任务怎么办？</td><td>Task / Session / Background / Switch</td><td>Task Manager（P1，待出）</td></tr>
@@ -441,7 +443,7 @@ TEMPLATE = """<!DOCTYPE html>
 <div class="sublabel">阶段划分</div>
 <table>
 <tr><th>阶段</th><th>交付物</th><th>完成判据</th><th>依赖</th><th>主要风险</th></tr>
-<tr><td><strong>S0 设计输入</strong><br><span class="badge s">已完成</span></td><td>本文 + 四个典型页面字符帧</td><td>六问都有明确答案；四屏宽度经断言校验</td><td>—</td><td>—</td></tr>
+<tr><td><strong>S0 设计输入</strong><br><span class="badge s">已完成</span></td><td>本文 + 五个典型页面字符帧</td><td>六问答上 ①②③④⑥；五屏宽度经断言校验并在真浏览器复核</td><td>—</td><td>问题 ⑤ 的 Task Manager 屏留到 S2</td></tr>
 <tr><td><strong>S1 IA 与全局规范</strong></td><td>IA 定稿；<code>UI-SPEC.md</code> 升版：状态体系、错误体系、键位表、降级链</td><td>跨页面规则全部落在 <code>UI-SPEC.md</code>，页面只引用规则 ID</td><td>S0</td><td>Q2 未裁决则键位表无法 <code>approved</code></td></tr>
 <tr><td><strong>S2 页面设计合同</strong></td><td><code>pages/&lt;page-id&gt;.md</code> × 8，含 160×50 与 58×32 双帧、状态矩阵、验收条件</td><td>每页无待猜测项，实现无需回头问设计</td><td>S1</td><td>页面一多容易复制全局规则，需评审把关</td></tr>
 <tr><td><strong>S3 任务交互原型</strong></td><td>7 条关键任务链路的可运行原型（TUI 真机）</td><td>每条链路能在 160 / 120 / 80 三档宽度下走通</td><td>S2</td><td>OpenTUI 性能（Q6）可能倒逼布局回改</td></tr>
@@ -450,7 +452,7 @@ TEMPLATE = """<!DOCTYPE html>
 <div class="sublabel">页面优先级</div>
 <table>
 <tr><th>优先级</th><th>页面</th><th>理由</th></tr>
-<tr><td><span class="badge d">P0</span></td><td>Welcome · Agent Workspace · 执行中 Tool+Diff · 任务结果 · Model/Provider 配置</td><td>直接对应六问 ①②③④⑥，缺一条链路就断</td></tr>
+<tr><td><span class="badge d">P0</span></td><td>Welcome · Agent Workspace · 执行中 Tool+Diff · 任务结果 · 管理配置（服务器/账号/模型）</td><td>直接对应六问 ①②③④⑥，缺一条链路就断；<strong>五屏字符帧已出</strong></td></tr>
 <tr><td><span class="badge w">P1</span></td><td>Task Manager · Session · Skill 管理 · 失败态屏</td><td>支撑长任务与多任务，对应问题 ⑤</td></tr>
 <tr><td><span class="badge">P2</span></td><td>File Explorer · File Export · Settings / Update</td><td>收尾能力，可在 S3 之后补</td></tr>
 </table>

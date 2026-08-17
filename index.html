@@ -255,12 +255,12 @@ pre .hw{font-size:1ch}
       面向鲲鹏迁移 / 开发 / 诊断 / 调优的 <b>AI Native Terminal Engineering Workspace</b> 的完整设计文档集。
       产品形态先钉死一条——这是<b>原生 TUI 应用</b>：独立常驻进程、全屏接管终端、自有事件循环，
       不是 CLI 命令集合，不是 IDE 里的终端面板，不是聊天窗口套壳。
-      八份可交互 HTML 收在这一页，点开即看——最新一份是<a href="./kunpeng-devkit-ai-tui/web/screens.html" style="color:var(--pri-h)">四个典型页面</a>的整屏字符帧，与之配套的<a href="./kunpeng-devkit-ai-tui/web/design-input.html" style="color:var(--pri-h)">设计输入</a>取代了旧的旅程地图作为设计依据。设计系统、实现实况、视觉 token 速查与十二份规范原文，全部整合在<a href="./kunpeng-devkit-ai-tui/web/index.html" style="color:var(--pri-h)">设计系统页</a>里——这一页只做入口，内容归内容页。
+      八份可交互 HTML 收在这一页，点开即看——最新一份是<a href="./kunpeng-devkit-ai-tui/web/screens.html" style="color:var(--pri-h)">五个典型页面</a>的整屏字符帧，与之配套的<a href="./kunpeng-devkit-ai-tui/web/design-input.html" style="color:var(--pri-h)">设计输入</a>取代了旧的旅程地图作为设计依据。设计系统、实现实况、视觉 token 速查与十二份规范原文，全部整合在<a href="./kunpeng-devkit-ai-tui/web/index.html" style="color:var(--pri-h)">设计系统页</a>里——这一页只做入口，内容归内容页。
       设计规范已收敛，实现进行中——渲染底座、Chrome 层外壳与十四种图表原语已落地，
       Agent Runtime 与 MCP 客户端尚未开始。
     </p>
     <div class="hero-actions">
-      <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/screens.html">看四个典型页面 ★</a>
+      <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/screens.html">看五个典型页面 ★</a>
       <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/design-input.html">设计输入</a>
       <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/demo.html">看 TUI 设计 demo</a>
       <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/tui-live.html">看真机实录 ▶</a>
@@ -287,7 +287,7 @@ pre .hw{font-size:1ch}
         <!-- screens.html -->
         <article class="card">
           <div class="card-head">
-            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/screens.html">四个典型页面</a></h3>
+            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/screens.html">五个典型页面</a></h3>
             <div class="card-tags">
               <span class="tag tag--star">新</span>
               <span class="tag tag--impl">整屏字符帧</span>
@@ -306,7 +306,7 @@ pre .hw{font-size:1ch}
 <span class="pv-dim">│</span> <span class="pv-wn">3 <span class="fw">帧过窄未显示</span></span>
 <span class="pv-dim">└─</span> <span class="pv-er">120 98.65%</span> <span class="pv-fg">++f.y;</span> <span class="pv-dim">→ <span class="fw">伪共享</span></span></pre>
           </div>
-          <p class="card-desc"><b>启动页 · Agent Workspace · 执行中 Tool+Diff · 任务结果页</b>四屏，各给一张 <b>160 列宽屏帧</b>和一张 <b>80 列窄屏降级帧</b>。不是配色示意图——每行宽度在生成时被断言把着（CJK 按 2 格、Braille 按 1 格），<b>页面上看到的对齐关系就是终端里的对齐关系</b>。结果页的信息结构对齐 DevKit Web 端「热点函数分析」：热点调用栈表、火焰图、源码级逐行百分比，字段名与分组方式沿用 Web 端。这一版<b>没有录屏</b>——录屏适合讲流程，不适合评审单屏。</p>
+          <p class="card-desc"><b>启动页 · Agent Workspace · 执行中 Tool+Diff · 任务结果页 · 管理配置</b>五屏，各给一张 <b>160 列宽屏帧</b>和一张 <b>80 列窄屏降级帧</b>（配置页另给服务器与账号两个分类的同屏帧）。不是配色示意图——每行宽度在生成时被断言把着（CJK 按 2 格、Braille 按 1 格），<b>页面上看到的对齐关系就是终端里的对齐关系</b>。结果页的信息结构对齐 DevKit Web 端「热点函数分析」：热点调用栈表、火焰图、源码级逐行百分比，字段名与分组方式沿用 Web 端。这一版<b>没有录屏</b>——录屏适合讲流程，不适合评审单屏。</p>
           <div class="card-links">
             <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/screens.html">看四屏</a>
             <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/screens.html#s3">#执行中 Diff</a>

@@ -6,7 +6,7 @@
 | 文件 | 作用 |
 |---|---|
 | `screens.py` | 排版底座：单元格宽度计算、分栏、外框、块字符 wordmark、八分之一格 bar、着色标记 → HTML |
-| `gen_screens.py` | 生成 [`../web/screens.html`](../web/screens.html) —— 四个典型页面，每屏 160 列宽屏帧 + 80 列窄屏帧 |
+| `gen_screens.py` | 生成 [`../web/screens.html`](../web/screens.html) —— 五个典型页面，每屏 160 列宽屏帧 + 80 列窄屏帧 |
 | `gen_design_input.py` | 生成 [`../web/design-input.html`](../web/design-input.html) —— 设计输入评审版单页 |
 | `page_css.py` | 两份生成页共用的页面外壳样式（token 照抄 `web/index.html`） |
 | `check_frames.py` | 在 headless Chromium 里逐行复核渲染宽度 |

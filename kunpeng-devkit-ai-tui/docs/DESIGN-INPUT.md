@@ -11,7 +11,7 @@
 | 产物 | 内容 |
 |---|---|
 | [`../web/design-input.html`](../web/design-input.html) | 本文的评审版单页 |
-| [`../web/screens.html`](../web/screens.html) | 四个典型页面的整屏字符帧（启动 / 工作台 / 执行 / 结果） |
+| [`../web/screens.html`](../web/screens.html) | 五个典型页面的整屏字符帧（启动 / 工作台 / 执行 / 结果 / 配置） |
 | [`../UI-SPEC.md`](../UI-SPEC.md) · [`../pages/`](../pages/) | 正式交付：全局规范与页面设计合同 |
 
 ---
@@ -391,7 +391,7 @@ DevKit AI
 
 判定规则：**出现在两个以上页面的进通用组件库，只出现一次的先留在页面里。**
 
-### 8.3 四个典型页面
+### 8.3 五个典型页面
 
 已出整屏字符帧，见 [`../web/screens.html`](../web/screens.html)：
 
@@ -401,6 +401,9 @@ DevKit AI
 | Agent Workspace | Agent 在干什么 | Task Tabs · File Tree · Plan Card · Agent Status · Evidence |
 | 执行中 · Tool + Diff | 它有没有跑偏 | Tool Call · Diff（hunk 级）· Confirm · Interrupt |
 | 任务结果页 | 我得到了什么 | Summary · Hotspot Table · Flame Chart · Source Hotspot · Artifact List |
+| 管理配置 | Agent 到底能不能工作 | Settings Nav · Provider Config · Model Selector · Credential Field · Connection Test · Error |
+
+管理配置把**服务器 / 账号 / 模型**收在同一页（分类 → 列表 → 详情），三类共用一条主线：**每一项都必须能就地验证**。服务器页把"连上之后这台机器能不能干活"逐条探测（架构 / 系统 / DevKit / 编译器 / `perf` 权限 / 交叉工具链），每个不合格项直接带修复动作；账号页是错误体系与凭据纪律的样板屏，失败信息除三件套外还要给**影响面**——令牌过期不阻断 Agent，但会让改动失去案例库证据。
 
 结果页的信息结构对齐 DevKit Web 端「热点函数分析」：Top 30 热点调用栈表（函数/调用栈 · 周期数占比 · 周期数 · 进程名 · 共享库/文件）、火焰图（用户态 / 内核态 / 其他）、源码级逐行百分比。**字段名与分组方式沿用 Web 端，用户在两端之间不需要做术语翻译**；只有两处按 TUI 规则改写：红色退出数据层（语义红只表示「出事了」），紫色搜索标记改为背景反显（16 色下色相不可靠）。
 
@@ -423,7 +426,7 @@ DevKit AI
 | # | 问题 | 靠什么解 |
 |---|---|---|
 | ① | 我能不能马上开始？ | 启动 · 环境检测 · 远程连接 |
-| ② | Agent 到底能不能工作？ | Model / Provider / API Key / Connection |
+| ② | Agent 到底能不能工作？ | Model / Provider / API Key / Connection（管理配置页） |
 | ③ | Agent 到底在干什么？ | Agent 状态 · Skill · Tool · Streaming · Progress |
 | ④ | Agent 有没有跑偏？ | Diff · Ask User · Checkpoint · Interrupt |
 | ⑤ | 我有很多任务怎么办？ | Task / Session / Background / Switch |
@@ -465,7 +468,7 @@ DevKit AI
 
 | 阶段 | 交付物 | 完成判据 | 依赖 | 主要风险 |
 |---|---|---|---|---|
-| **S0 设计输入**（本次，已完成） | 本文 + 四个典型页面字符帧 | 六问都有明确答案；四屏宽度经断言校验 | — | — |
+| **S0 设计输入**（本次，已完成） | 本文 + 五个典型页面字符帧 | 六问答上 ①②③④⑥；五屏宽度经断言校验并在真浏览器复核 | — | 问题 ⑤ 的 Task Manager 屏留到 S2 |
 | **S1 信息架构与全局规范** | IA 定稿；`UI-SPEC.md` 升版：状态体系 §7、错误体系 §7.4、键位表 §6.9、降级链 | 跨页面规则全部落在 `UI-SPEC.md`，页面只引用规则 ID | S0 | Q2 未裁决则键位表无法 `approved` |
 | **S2 关键页面设计合同** | `pages/<page-id>.md` × 8，含 160×50 与 58×32 双帧、状态矩阵、验收条件 | 每页无待猜测项，实现无需回头问设计 | S1 | 页面数一多容易复制全局规则，需评审把关 |
 | **S3 关键任务交互原型** | 7 条任务链路的可运行原型（TUI 真机） | 每条链路能在 160 / 120 / 80 三档宽度下走通 | S2 | OpenTUI 性能（Q6）可能倒逼布局回改 |
@@ -475,7 +478,7 @@ DevKit AI
 
 | 优先级 | 页面 | 理由 |
 |---|---|---|
-| **P0** | Welcome · Agent Workspace · 执行中 Tool+Diff · 任务结果 · Model/Provider 配置 | 直接对应六问 ①②③④⑥，缺一条链路就断 |
+| **P0** | Welcome · Agent Workspace · 执行中 Tool+Diff · 任务结果 · 管理配置（服务器/账号/模型） | 直接对应六问 ①②③④⑥，缺一条链路就断；**五屏字符帧已出** |
 | **P1** | Task Manager · Session · Skill 管理 · 失败态屏 | 支撑长任务与多任务，问题 ⑤ |
 | **P2** | File Explorer · File Export · Settings / Update | 收尾能力，可在 S3 之后补 |
 
