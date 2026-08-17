@@ -56,7 +56,7 @@ a:hover{color:var(--primary)}
 .tbtn{font:500 12px/1 var(--font-sans);color:var(--foreground);background:var(--surface-2);
   border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:7px 13px;cursor:pointer}
 .tbtn:hover{background:var(--surface-3)}
-.wrap{display:flex;max-width:1520px;margin:0 auto;padding-top:56px}
+.wrap{display:flex;max-width:1720px;margin:0 auto;padding-top:56px}
 nav{width:228px;flex-shrink:0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;
   padding:var(--space-6) var(--space-3) 60px var(--space-5);border-right:1px solid var(--border-subtle)}
 .ngrp{font-size:var(--fs-label);font-weight:500;letter-spacing:.09em;text-transform:uppercase;
@@ -94,7 +94,28 @@ pre{font-family:var(--font-mono);background:var(--ark-neutral-0);border:1px soli
 pre.dense{--row:calc(var(--grid-unit) * 5);font-size:11px;line-height:var(--row);
   padding:var(--chart-trim);margin:var(--space-3) 0;border:1px solid var(--border-default);
   border-radius:var(--radius-lg);background:var(--surface-1);overflow-x:auto}
-pre.screen{--row:calc(var(--grid-unit) * 4);font-size:11px;line-height:var(--row);background:#0b0b0b}
+/* 整屏帧：字号抬到 12.5px，160 列约 1200px，正好落在放宽后的正文宽里 */
+pre.screen{--row:16px;font-size:12.5px;line-height:var(--row);background:#0B0B0B;
+  border:0;border-radius:0;padding:14px 16px;margin:0;background-image:none}
+
+/* ── 应用窗口外壳：让整屏帧看起来像一个跑起来的应用，而不是一段代码 ── */
+.win{border:1px solid var(--border-default);border-radius:var(--radius-lg);overflow:hidden;
+  background:#0B0B0B;box-shadow:0 1px 3px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);
+  margin:var(--space-4) 0 var(--space-5)}
+.win-bar{display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;
+  background:linear-gradient(180deg,#1a1a1a,#141414);border-bottom:1px solid var(--border-subtle)}
+.win-bar .kp{color:var(--kunpeng);font-size:13px;line-height:1}
+.win-bar .nm{font-size:12px;font-weight:600;color:var(--foreground);letter-spacing:-.01em}
+.win-bar .sub{font-family:var(--font-mono);font-size:10.5px;color:var(--foreground-disabled)}
+.win-bar .meta{margin-left:auto;display:flex;gap:8px;align-items:center}
+.win-bar .tag{font-family:var(--font-mono);font-size:10px;padding:2px 7px;border-radius:var(--radius-sm);
+  background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--foreground-muted)}
+.win-bar .tag.on{color:var(--primary-hover);border-color:rgba(0,119,255,.34);background:rgba(0,119,255,.12)}
+.win-scroll{overflow-x:auto}
+.win-foot{display:flex;gap:14px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--border-subtle);
+  background:var(--surface-1);font-size:11.5px;color:var(--foreground-muted)}
+.win-foot b{color:var(--foreground-secondary);font-weight:600}
+.win-foot code{font-size:11px;background:var(--surface-2)}
 pre .cm{color:#707070} pre .pr{color:#3d98ff} pre .ac{color:#7c8db8}
 pre .ok{color:#04d793} pre .wn{color:#ffaa3b} pre .er{color:#ff4b7b}
 pre .o8{color:#773303} pre .o6{color:#D15905} pre .o4{color:#FA8838} pre .o3{color:#FBAB74}
@@ -102,6 +123,16 @@ pre .g8{color:#4D7209} pre .g6{color:#86C70F} pre .g4{color:#B3F141} pre .g3{col
 pre .a4{color:#F4CB22} pre .a6{color:#CA8A04}
 pre .v4{color:#9B3CF6} pre .v6{color:#6E0ACD}
 pre .br{color:#0077FF} pre .t{color:#E8E8E8;font-weight:600} pre .sel{background:#18293C}
+/* ── 背景色带：色值直接取自实现的 theme/tokens.ts，不另调 ──
+ * selected #18293C · focus #162E49 · surface2/3/4 · dangerBackground #351B24
+ * successBackground 是 tokens.ts 尚缺的一档，按同族推导（base #101010 + 15.5% 色）
+ * 得 #0E2F24，已列入待补 token。 */
+pre .bsel{background:#18293C} pre .bfoc{background:#162E49}
+pre .bs2{background:#1C1C1C} pre .bs3{background:#262626} pre .bs4{background:#313131}
+pre .bdel{background:#351B24} pre .badd{background:#0E2F24}
+pre .bwarn{background:#382A18} pre .binfo{background:#142538}
+pre .bpri{background:#0077FF;color:#fff;font-weight:600}
+pre .bkp{background:#ED1C24;color:#fff;font-weight:600}
 pre .fw{font-size:2ch}
 /* 回退字体给 Braille / ⏸ 的步进因字体而异（实测 1.217 / 0.830 格），调字号治不了。
    钉成 width:1ch 的行内块：无论用哪个回退字体，它都只占一格，整行不会被推歪。 */

@@ -112,8 +112,8 @@ def screen_launch() -> str:
         "⟦ac|/model⟧  ⟦ac|/provider⟧  ⟦ac|/connect-server⟧"
     )
     f.foot(
-        "⟦cm|[Ctrl+P]⟧ 命令面板  ⟦cm|[Tab]⟧ 切换区域  ⟦cm|[Esc]⟧ 返回",
-        "⟦cm|mode:⟧⟦ok|auto⟧ · ⟦cm|model:⟧qwen2.5-72b · ⟦cm|ctx 0% · 0 任务运行⟧",
+        "⟦bs4| home ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:qwen2.5-72b │ ctx:0%⟧",
+        "⟦cm|[Ctrl+P] 命令面板 · [Tab] 切换区域 · 0 任务运行⟧",
     )
     return check(f.render(), W, "launch")
 
@@ -140,70 +140,92 @@ def screen_launch_narrow() -> str:
 # 屏 2 · Agent Workspace 核心工作台
 # ══════════════════════════════════════════════════════════════════════
 def screen_workspace() -> str:
-    rail, dock, canvas, insp = 3, 26, 87, 39
-    assert rail + dock + canvas + insp + 3 == INNER, rail + dock + canvas + insp + 3
+    """wide-three：dock 27 · canvas 90 · inspector 39 —— 宽度直接取自
+    platform/terminal/layout.ts 的 layoutForWidth(160)，不是我们另拍的数。"""
+    dock, canvas, insp = 27, 90, 39
+    assert dock + canvas + insp + 2 == INNER
 
     f = Frame(W, "⟦br|▪⟧ ⟦t|DevKit AI⟧", "◈ x86_64 → ⟦t|Kunpeng ARM64⟧ · ⟦ok|●⟧ 就绪")
     f.add(
-        "  ⟦sel| 1 migrate nginx ⟧  ⟦cm|2 hotspot⟧ ⟦pr|⠹⟧  ⟦cm|3 diagnose crash⟧  "
-        "⟦wn|4 order-svc ⟧⟦hw|⏸⟧  ⟦cm|+⟧"
-        "                        ⟦cm|Session #1024 · 已运行 12m04s⟧"
+        spread(
+            "  ⟦bsel| ▶ 1 migrate nginx ⟧  ⟦cm|⠹ 2 hotspot⟧  ⟦cm|○ 3 diagnose crash⟧  "
+            "⟦wn|⟧⟦hw|⏸⟧⟦wn| 4 order-svc⟧  ⟦cm|+⟧",
+            "⟦cm|Session #1024 · 12m04s · v0.6⟧  ",
+            INNER,
+        )
     )
-    f.sep(colsep([rail, dock, canvas, insp], mid="┬"))
+    f.sep(colsep([dock, canvas, insp], mid="┬"))
 
-    rail_p = Pane(rail).add(
-        " ⟦pr|▮⟧", " ⟦cm|▯⟧", " ⟦cm|▯⟧", " ⟦cm|▯⟧", " ⟦cm|▯⟧", "", " ⟦cm|T⟧",
-        " ⟦cm|P⟧", " ⟦cm|K⟧", " ⟦cm|H⟧",
-    )
     dock_p = Pane(dock).add(
-        " ⟦t|TASKS⟧          ⟦cm|Alt+1..9⟧",
-        " ⟦ok|●⟧ 1 migrate nginx  ⟦ok|✓⟧",
-        " ⟦pr|▶⟧ 2 hotspot 伪共享 ⟦pr|⠹⟧",
-        " ⟦cm|○ 3 diagnose crash⟧",
-        " ⟦wn|⚠⟧ 4 order-svc     ⟦wn|⟧⟦hw|⏸⟧",
+        "⟦bs2| ⟧⟦bs2|⟦br|▪⟧⟦bs2| ⟧⟦t|⟦bs2|DevKit AI⟧⟧⟦bs2|" + " " * 14 + "⟧",
         "",
-        " ⟦t|PROJECT⟧      ⟦pr|⇄ 跟随⟧",
-        " nginx/",
-        "  ├ src/",
-        "  │  ⟦sel|crypto.c⟧    ⟦er|███⟧",
-        "  │  memory.c    ⟦o4|██⟧",
-        "  │  event.c     ⟦g4|▏⟧",
-        "  └ conf/",
+        " ⟦cm|T A S K S⟧            ⟦cm|4⟧",
+        "⟦bsel| ⟦pr|▎⟧⟦bsel|⟦ok|●⟧⟦bsel| 1 migrate nginx    ⟧⟧",
+        " ⟦cm|  ⟧⟦pr|▶⟧⟦cm| 2 hotspot 伪共享  ⟧⟦pr|⠹⟧",
+        " ⟦cm|  ○ 3 diagnose crash⟧",
+        " ⟦cm|  ⟧⟦wn|⚠⟧⟦cm| 4 order-svc      ⟧⟦hw|⏸⟧",
         "",
-        " ⟦t|TOOLS⟧",
-        " ⟦ok|✓⟧ code_cpp_migrator",
-        " ⟦ok|✓⟧ knowledge_base",
-        " ⟦pr|⠹⟧ profiler",
-        " ⟦cm|○ sql_migrator⟧",
+        " ⟦cm|P R O J E C T⟧   ⟦pr|⇄ 跟随⟧",
+        " ⟦cm|nginx-main/⟧",
+        "  ⟦cm|└ src/⟧",
+        "⟦bsel|    ⟦pr|▎⟧⟦bsel|crypto.c⟧⟦bsel|      ⟧⟦o3|███⟧⟦bsel| ⟧⟧",
+        "     ⟦cm|memory.c⟧      ⟦o5|██⟧",
+        "     ⟦cm|event.c⟧       ⟦o8|▏⟧",
+        "  ⟦cm|└ conf/⟧",
+        "",
+        " ⟦cm|T O O L S⟧            ⟦cm|4⟧",
+        " ⟦ok|✓⟧ ⟦cm|code_cpp_migrator⟧",
+        " ⟦ok|✓⟧ ⟦cm|knowledge_base⟧",
+        " ⟦pr|⠹⟧ ⟦cm|profiler⟧",
     )
+
+    plan = [
+        ("1", "Analyze dependency", "静态扫描依赖树", "", "~20s", "done"),
+        ("2", "Find incompatible API", "", "kunpeng_knowledge_base_search", "~40s", "done"),
+        ("3", "Generate patches", "", "code_cpp_migrator", "~60s", "run"),
+        ("4", "Build verify", "交叉编译验证", "", "~50s", "todo"),
+        ("5", "Benchmark", "迁移前后性能对比", "", "~30s", "todo"),
+    ]
+    body = []
+    for no, title, sub, tool, cost, state in plan:
+        glyph = {"done": "⟦ok|✓⟧", "run": "⟦pr|▶⟧", "todo": "⟦cm|○⟧"}[state]
+        head = f" {glyph} ⟦cm|{no}⟧ " + (f"⟦t|{title}⟧" if state != "todo" else f"⟦cm|{title}⟧")
+        line = spread(head, f"⟦cm|{cost}⟧ ", canvas - 6)
+        if state == "run":
+            line = "⟦bfoc|" + line + "⟧"
+        body.append(line)
+        if sub:
+            body.append(f"      ⟦cm|{sub}⟧")
+        if tool:
+            body.append(f"      ⟦bs3| {tool} ⟧")
+    body += [
+        "",
+        spread(
+            " ⟦pr|[E] Execute⟧   ⟦cm|[M] Modify Plan⟧   ⟦cm|[C] Cancel⟧",
+            "⟦cm|改计划不重跑已完成的步骤⟧",
+            canvas - 6,
+        ),
+    ]
+
     canvas_p = Pane(canvas).add(
-        " ⟦pr|❯⟧ 把 ./nginx 迁到鲲鹏，编译验证通过为止",
+        " ⟦pr|❯⟧ ⟦t|把 ./nginx 迁到鲲鹏，编译验证通过为止⟧",
         "",
-        *[" " + x for x in panel(
-            canvas - 3,
-            "Plan · 5 步",
-            [
-                "⟦ok|✓⟧ 1 扫描依赖与架构相关调用      ⟦cm|code_cpp_migrator⟧",
-                "⟦ok|✓⟧ 2 生成兼容性报告              ⟦cm|knowledge_base⟧",
-                "⟦pr|▶⟧ 3 生成并应用补丁              ⟦cm|code_cpp_migrator⟧ ⟦pr|⠹⟧",
-                "⟦cm|○ 4 交叉编译验证                 build⟧",
-                "⟦cm|○ 5 汇总结果与下一步建议⟧",
-            ],
-            right="⟦cm|[e] 改计划⟧",
-        )],
-        "",
-        " ⟦t|Agent⟧   ⟦ok|●⟧ ⟦t|Running⟧ ⟦cm|· 步骤 3/5 · 2m14s⟧"
-        "                        ⟦cm|[Esc] 中断⟧",
-        " ⟦cm|Skill⟧   └ ⟦ac|migration/cpp-to-kunpeng⟧ ⟦cm|v1.4⟧",
-        " ⟦cm|Tools⟧   ⟦ok|✓⟧ read_file    ⟦cm|CMakeLists.txt⟧",
-        "         ⟦ok|✓⟧ search       ⟦cm|boost · 3 hits⟧",
-        "         ⟦pr|●⟧ edit_file    ⟦cm|src/crypto.c · hunk 3/12⟧ ⟦pr|⠹⟧",
-        " ⟦cm|进度⟧    " + bar(0.72, 40, "g4") + "  ⟦t|72%⟧ ⟦cm|9/12 文件⟧",
+        *[
+            " " + x
+            for x in panel(
+                canvas - 3,
+                "AI PLAN",
+                body,
+                right="⟦cm|5 tools · ~3 min⟧",
+            )
+        ],
     )
+
     insp_p = Pane(insp).add(
-        " ⟦t|INSPECTOR⟧              ⟦cm|Ctrl+I⟧",
+        " ⟦cm|I N S P E C T O R⟧      ⟦cm|Ctrl+I⟧",
+        "",
         " ⟦cm|当前对象⟧",
-        " ⟦sel| src/crypto.c ⟧ ⟦cm|hunk 3/12⟧",
+        "⟦bsel| ⟦pr|▎⟧⟦bsel|src/crypto.c⟧⟦bsel|  ⟧⟦cm|⟦bsel|hunk 3/12⟧⟧⟦bsel|      ⟧⟧",
         "",
         " ⟦cm|证据⟧",
         " ⟦ac|[1]⟧ 案例库 #4471",
@@ -211,46 +233,63 @@ def screen_workspace() -> str:
         " ⟦ac|[2]⟧ ARM ARM §B2.5",
         "     ⟦cm|YIELD 指令语义⟧",
         "",
-        " ⟦cm|上下文⟧",
-        " 已读 18 文件 · 1.2k 行",
-        " ctx " + bar(0.72, 18, "o4") + " ⟦wn|72%⟧",
-        "",
         " ⟦cm|本次改动⟧",
-        " ⟦ok|+34⟧ ⟦er|-27⟧ ⟦cm|· 9 文件⟧  ⟦pr|[d] Diff⟧",
+        " ⟦ok|+34⟧ ⟦er|-27⟧ ⟦cm|· 9 文件 · 12 hunk⟧",
+        "",
+        " ⟦cm|上下文⟧  " + bar(0.72, 18, "o4") + " ⟦wn|72%⟧",
+        " ⟦cm|已读 18 文件 · 1.2k 行⟧",
+        " ⟦cm|超 90% 会主动建议 /compact⟧",
     )
-    for line in hcat([rail_p, dock_p, canvas_p, insp_p]):
+    for line in hcat([dock_p, canvas_p, insp_p]):
         f.add(line)
 
-    f.sep(colsep([rail, dock, canvas, insp], mid="┴"))
+    f.sep(colsep([dock, canvas, insp], mid="┴"))
     f.add(
-        " ⟦t|Agent Console⟧  ⟦cm|[Ctrl+J] 抽高⟧    ⟦ok|●⟧ ⟦cm|scan 1,204 files⟧   "
-        "⟦ok|●⟧ ⟦cm|kb 3 hits⟧   ⟦pr|▶⟧ ⟦cm|patch crypto.c⟧ ⟦pr|⠹⟧"
-        "            ⟦cm|9 行未展开⟧"
+        spread(
+            " ⟦cm|A G E N T   C O N S O L E⟧",
+            "⟦cm|8 行 · [Ctrl+J] 抽高  [l] 折叠⟧ ",
+            INNER,
+        ),
+        " ⟦ok|●⟧ ⟦cm|Understand request⟧   ⟦cm|意图已解析：迁移任务⟧",
+        " ⟦ok|●⟧ ⟦cm|Scan project⟧         ⟦cm|1,204 files · 18 libs⟧",
+        " ⟦pr|▶⟧ ⟦t|Generate patch⟧       ⟦bs3| code_cpp_migrator ⟧ ⟦pr|⠹⟧ ⟦cm|crypto.c hunk 3/12⟧",
+        " ⟦cm|○ Build verify⟧" + pad("", 40) + "⟦cm|9 行未展开⟧",
     )
     f.sep()
-    f.add(" ⟦pr|❯⟧ 让 crypto.c 也用 NEON 优化▌" + " " * 60 + "⟦cm|/ 命令 · @ 文件 · ↑ 历史⟧")
+    f.add(
+        spread(
+            " ⟦pr|❯⟧ 让 crypto.c 也用 NEON 优化▌",
+            "⟦cm|/ 命令 · @ 文件 · ↑ 历史 · Ctrl+P 命令面板⟧ ",
+            INNER,
+        )
+    )
     f.foot(
-        "⟦cm|[F1]⟧ Migrate  ⟦cm|mode:⟧⟦ok|auto⟧  ⟦cm|model:⟧qwen2.5-72b",
-        "⟦cm|ctx ⟧⟦wn|72%⟧ · ⟦wn|⟧⟦hw|⏸⟧⟦wn| 1 任务待配置⟧ · ⟦ok|●⟧ ⟦cm|1 运行中⟧",
+        "⟦bs4| migrate nginx ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:qwen2.5-72b │ ctx:⟧⟦wn|72% ⚠⟧",
+        "⟦wn|⟧⟦hw|⏸⟧⟦wn| 1 waiting⟧⟦cm| · patch 3/12 · 12:09⟧",
     )
     return check(f.render(), W, "workspace")
 
 
 def screen_workspace_narrow() -> str:
+    """80 列 = layoutForWidth 的 single-canvas：Dock 收成 3 列图标条
+    （字形取实现里的 ▮ ▯ ◇ ?），单画布，无 Inspector，console 6 行。"""
     f = Frame(80, "⟦br|▪⟧ ⟦t|DevKit AI⟧", "⟦ok|●⟧ 就绪")
-    f.add(" ⟦sel| migrate ⟧ ⟦cm|hotspot⟧ ⟦pr|⠹⟧ ⟦cm|diag⟧   ⟦cm|[Ctrl+B] Dock 浮层⟧")
+    f.add(" ⟦bsel| ▶ 1 migrate ⟧ ⟦cm|⠹ 2 hotspot⟧ ⟦cm|○ 3 diag⟧        ⟦cm|single-canvas⟧")
     f.sep()
-    f.add(" ⟦pr|❯⟧ 把 ./nginx 迁到鲲鹏")
-    f.add("")
-    f.add(" ⟦t|Agent⟧  ⟦ok|●⟧ Running ⟦cm|· 步骤 3/5⟧      ⟦cm|[Esc] 中断⟧")
-    f.add(" ⟦cm|Skill⟧  ⟦ac|migration/cpp-to-kunpeng⟧")
-    f.add(" ⟦cm|Tool⟧   ⟦pr|●⟧ edit_file ⟦cm|crypto.c 3/12⟧ ⟦pr|⠹⟧")
-    f.add(" ⟦cm|进度⟧   " + bar(0.72, 28, "g4") + " ⟦t|72%⟧")
+    f.add(" ⟦pr|▮⟧ ⟦pr|❯⟧ 把 ./nginx 迁到鲲鹏")
+    f.add(" ⟦cm|▯⟧")
+    f.add(" ⟦cm|◇⟧ ⟦t|Agent⟧ ⟦ok|●⟧ Running ⟦cm|· 步骤 3/5⟧       ⟦cm|[Esc] 中断⟧")
+    f.add(" ⟦cm|?⟧ ⟦cm|Skill⟧ ⟦bs3| migration/cpp-to-kunpeng ⟧")
+    f.add("   ⟦cm|Tool⟧  ⟦pr|●⟧ edit_file ⟦cm|crypto.c 3/12⟧ ⟦pr|⠹⟧")
+    f.add("   ⟦cm|进度⟧  " + bar(0.72, 27, "g6") + " ⟦t|72%⟧")
     f.sep()
     f.add(" ⟦cm|证据折叠为一行⟧ ⟦ac|[1] #4471⟧ ⟦ac|[2] §B2.5⟧  ⟦pr|[i] 展开⟧")
     f.sep()
     f.add(" ⟦pr|❯⟧ ▌")
-    f.foot("⟦cm|mode:⟧⟦ok|auto⟧", "⟦cm|ctx ⟧⟦wn|72%⟧ · ⟦cm|<100 列 · Dock 收为图标列⟧")
+    f.foot(
+        "⟦bs4| migrate ⟧ ⟦cm|mode:⟧⟦ok|auto⟧",
+        "⟦cm|ctx:⟧⟦wn|72% ⚠⟧⟦cm| · Dock 3 列图标条 · console 6 行⟧",
+    )
     return check(f.render(), 80, "workspace-narrow")
 
 
@@ -258,100 +297,118 @@ def screen_workspace_narrow() -> str:
 # 屏 3 · Agent 执行中 · Tool + Diff
 # ══════════════════════════════════════════════════════════════════════
 def screen_exec() -> str:
-    left, right = 64, 93
-    assert left + right + 1 == INNER
+    """执行中：工程树 27 · 代码区 68 · 执行与审查 61。
+    diff 用整行底色带（dangerBackground / successBackground）+ 左侧竖条，
+    删除行与新增行共用同一个行号——改的是同一处，不是新增了一行。"""
+    tree, code, side = 27, 68, 61
+    assert tree + code + side + 2 == INNER
 
     f = Frame(
         W,
         "⟦br|▪⟧ ⟦t|DevKit AI⟧ ⟦cm|· migrate nginx⟧",
-        "⟦pr|●⟧ ⟦t|Running⟧ ⟦cm|2m14s · 步骤 3/5⟧",
+        "⟦pr|●⟧ ⟦t|Running⟧ ⟦cm|· 步骤 3/5 · 2m14s⟧",
+    )
+    f.sep(colsep([tree, code, side], mid="┬"))
+
+    tree_p = Pane(tree).add(
+        "⟦bs2| ⟧⟦bs2|⟦cm|资源管理器⟧⟦bs2|        ⟧⟦cm|⟦bs2|Ctrl+E⟧⟧⟦bs2| ⟧",
+        "",
+        " ⟦cm|N G I N X - M A I N⟧",
+        "  ⟦cm|└ src/⟧",
+        "⟦bsel|    ⟦pr|▎⟧⟦bsel|crypto.c⟧⟦bsel|          ⟧⟦wn|M⟧⟦bsel| ⟧⟧",
+        "     ⟦cm|memory.c⟧          ⟦wn|M⟧",
+        "     ⟦cm|http.c⟧",
+        "     ⟦cm|ngx_core.h⟧",
+        "  ⟦cm|└ conf/⟧",
+        "     ⟦cm|nginx.conf⟧        ⟦wn|M⟧",
+        "  ⟦cm|kunpeng.patchset⟧     ⟦ok|A⟧",
+        "  ⟦cm|configure⟧",
+        "",
+        " ⟦cm|迁移状态⟧",
+        " ⟦cm|待审改动⟧            ⟦wn|3⟧",
+        " ⟦cm|已接受⟧              ⟦ok|9⟧",
+        " ⟦cm|需人工确认⟧          ⟦wn|2⟧",
+        "",
+        " ⟦cm|⇄ 跟随 Agent 当前文件⟧",
     )
 
-    left_p = Pane(left).add(
+    code_p = Pane(code).add(
+        spread(" ⟦t|crypto.c⟧", "⟦cm|nginx-main · C · UTF-8 · LF⟧ ", code),
+        " ⟦cm|nginx › src › ⟧⟦ac|crypto.c⟧⟦cm| › ngx_crypto_spin_wait()⟧",
         "",
-        " ⟦t|执行过程⟧                          ⟦cm|[l] 折叠日志⟧",
-        " ⟦ok|✓⟧ Thinking        ⟦cm|意图 = 源码迁移 · 目标 aarch64⟧",
-        " ⟦ok|✓⟧ Loading Skill   ⟦ac|migration/cpp-to-kunpeng⟧ ⟦cm|v1.4⟧",
-        " ⟦ok|✓⟧ read_file       ⟦cm|CMakeLists.txt · 1.2k 行⟧",
-        " ⟦ok|✓⟧ search          ⟦cm|boost · 3 hits⟧",
-        " ⟦pr|●⟧ ⟦t|edit_file⟧       ⟦cm|src/crypto.c⟧ ⟦pr|⠹⟧",
-        " ⟦cm|○ run_command     make -j16⟧",
-        " ⟦cm|○ verify          编译 + 冒烟⟧",
+        " ⟦cm|80⟧  ⟦cm|/* 自旋等待：x86 用 PAUSE 降低流水线开销 */⟧",
+        " ⟦cm|81⟧",
+        " ⟦cm|82⟧  ⟦ac|static⟧⟦cm| ngx_int_t⟧",
+        " ⟦cm|83⟧  ⟦cm|ngx_crypto_spin_wait(ngx_atomic_t *lock, ngx_uint_t spin)⟧",
+        " ⟦cm|84⟧  ⟦cm|{⟧",
+        " ⟦cm|85⟧      ⟦ac|for⟧⟦cm| ( ;; ) {⟧",
+        " ⟦cm|86⟧          ⟦ac|while⟧⟦cm| (spin--) {⟧",
+        "⟦bdel| ⟧⟦er|⟦bdel|87⟧⟧⟦bdel| ⟧⟦er|▌⟧⟦bdel|" + pad("             _mm_pause();", code - 5) + "⟧",
+        "⟦badd| ⟧⟦ok|⟦badd|87⟧⟧⟦badd| ⟧⟦ok|▌⟧⟦badd|"
+        + pad('             __asm__ __volatile__("yield" ::: "memory");', code - 5)
+        + "⟧",
+        " ⟦cm|88⟧          ⟦cm|}⟧",
+        " ⟦cm|89⟧",
+        " ⟦cm|90⟧      ⟦ac|if⟧⟦cm| (ngx_atomic_cmp_set(lock, ⟧⟦o4|0⟧⟦cm|, ⟧⟦o4|1⟧⟦cm|)) {⟧",
+        " ⟦cm|91⟧          ⟦ac|return⟧⟦cm| NGX_OK;⟧",
+        " ⟦cm|92⟧      ⟦cm|}⟧",
+        " ⟦cm|93⟧  ⟦cm|}⟧",
         "",
-        " ⟦cm|进度⟧ " + bar(0.72, 34, "g4") + " ⟦t|72%⟧ ⟦cm|9/12⟧",
+        " ⟦cm|只高亮变化的 token —— 一眼看出「到底改动了什么」⟧",
+        " ⟦cm|为什么⟧  x86 ⟦t|PAUSE⟧ 在 ARM 无对应指令，⟦t|YIELD⟧ 语义等价",
+        " ⟦cm|证据⟧    ⟦ac|[1]⟧ ⟦cm|案例库 #4471⟧   ⟦ac|[2]⟧ ⟦cm|ARM ARM §B2.5⟧",
+        " ⟦cm|影响⟧    ⟦bs3| Compatibility Fixed ⟧ ⟦cm|· Perf +3% · 同类调用点 3 处⟧",
+    )
+
+    side_p = Pane(side).add(
+        " ⟦cm|执行过程⟧" + pad("", 34) + "⟦cm|[l] 折叠⟧",
+        " ⟦ok|✓⟧ ⟦cm|Thinking⟧        ⟦cm|意图 = 源码迁移⟧",
+        " ⟦ok|✓⟧ ⟦cm|Loading Skill⟧   ⟦bs3| migration/cpp-to-kunpeng ⟧",
+        " ⟦ok|✓⟧ ⟦cm|read_file⟧       ⟦cm|CMakeLists.txt⟧",
+        " ⟦ok|✓⟧ ⟦cm|search⟧          ⟦cm|boost · 3 hits⟧",
+        " ⟦pr|▶⟧ ⟦t|edit_file⟧       ⟦cm|crypto.c⟧ ⟦pr|⠹⟧ ⟦cm|1.8s⟧",
+        " ⟦cm|○ run_command⟧     ⟦cm|make -j16⟧",
+        " ⟦cm|进度⟧ " + bar(0.72, 30, "g6") + " ⟦t|72%⟧ ⟦cm|9/12⟧",
         "",
-        *[" " + x for x in panel(
-            left - 3,
-            "Tool call · edit_file",
-            [
-                "⟦cm|path ⟧  src/crypto.c",
-                "⟦cm|hunks⟧  12 · ⟦ok|已接受 9⟧ · ⟦wn|待审 3⟧",
-                "⟦cm|耗时 ⟧  1.8s",
-                "⟦cm|[o] 展开原始输出   [c] 复制   [f] 定位文件⟧",
-            ],
-            right="⟦ok|✓ 0.9s⟧",
-        )],
+        " ⟦cm|待审 hunk⟧" + pad("", 33) + "⟦cm|[/] 过滤⟧",
+        " ⟦ok|✓⟧ ⟦cm|1  crypto.c:12   immintrin.h → arm_neon.h⟧",
+        " ⟦ok|✓⟧ ⟦cm|2  crypto.c:31   _mm_prefetch → __builtin⟧",
+        "⟦bsel| ⟦pr|▎⟧⟦bsel|⟦t|⟦bsel|3  crypto.c:87   _mm_pause → yield⟧⟧⟦bsel|" + " " * 21 + "⟧⟧",
+        " ⟦cm|○ 4  memory.c:88   对齐 64 → 128⟧ ⟦wn|⚠ 需人工⟧",
+        " ⟦cm|○ 5  event.c:203   ia32_pause → yield⟧",
+        " ⟦cm|… 7 more⟧",
         "",
-        *[" " + x for x in panel(
-            left - 3,
+        spread(
+            " ⟦pr|[Y] 接受本 hunk⟧   ⟦cm|[N] 拒绝⟧   ⟦cm|[E] 编辑⟧",
+            "⟦cm|[A] 全接受⟧ ",
+            side,
+        ),
+        " ⟦cm|[J/K] 上下 hunk · 键位在任何宽度下都不挪位⟧",
+        "",
+        *panel(
+            side - 1,
             "⟦wn|⚠ 高危操作确认⟧",
             [
-                "Agent 准备执行：",
                 "⟦er|rm -rf ./build-arm64⟧",
-                "⟦cm|清空旧产物后重新交叉编译，此操作不可撤销⟧",
-                "",
-                "⟦cm|[N] 取消⟧   ⟦pr|[Y] 确认执行⟧   ⟦cm|[S] 本会话内不再问⟧",
+                "⟦cm|清空旧产物后重新交叉编译，不可撤销⟧",
+                "⟦cm|[N] 取消⟧   ⟦bpri| [Y] 确认执行 ⟧   ⟦cm|[S] 本会话不再问⟧",
             ],
-        )],
-        "",
-        " ⟦cm|Esc⟧ 中断 → ⟦cm|保留上下文⟧ → 纠偏 → ⟦cm|继续⟧ ⟦cm|（不杀进程）⟧",
+        ),
     )
 
-    diff_body = [
-        "⟦cm| 41 ⟧ ⟦cm|/* spin-wait hint */⟧",
-        "⟦cm| 42 ⟧ static inline void cpu_relax(void)",
-        "⟦cm| 43 ⟧ {",
-        "⟦er| 44 - ⟧⟦er|    _mm_pause();⟧",
-        "⟦ok| 45 + ⟧⟦ok|    __asm__ __volatile__(\"yield\" ::: \"memory\");⟧",
-        "⟦cm| 46 ⟧ }",
-        "",
-        "⟦cm|为什么⟧  x86 ⟦t|PAUSE⟧ 在 ARM 上无对应指令；⟦t|YIELD⟧ 是语义等价的",
-        "        自旋提示，在鲲鹏 920 上同样能让出流水线。",
-        "⟦cm|证据⟧    ⟦ac|[1]⟧ 案例库 #4471 ⟦cm|nginx 同款改法⟧   ⟦ac|[2]⟧ ARM ARM §B2.5",
-        "⟦cm|影响⟧    ⟦cm|同类调用点 3 处，其余 2 处已用同一规则改完⟧",
-    ]
-    right_p = Pane(right).add(
-        "",
-        *[" " + x for x in panel(
-            right - 3,
-            "src/crypto.c",
-            diff_body,
-            right="⟦cm|hunk 3/12 · unified⟧",
-        )],
-        "",
-        " ⟦pr|[y] 接受本 hunk⟧   ⟦cm|[n] 拒绝⟧   ⟦cm|[e] 编辑后接受⟧   "
-        "⟦cm|[a] 全接受⟧   ⟦cm|[J/K] 上下 hunk⟧",
-        "",
-        " ⟦t|待审 hunk⟧                                        ⟦cm|[/] 过滤⟧",
-        " ⟦ok|✓⟧ ⟦cm|1  crypto.c:12   头文件 immintrin.h → arm_neon.h⟧",
-        " ⟦ok|✓⟧ ⟦cm|2  crypto.c:31   _mm_prefetch → __builtin_prefetch⟧",
-        " ⟦sel|▶ 3  crypto.c:44   _mm_pause → yield                     ⟧",
-        " ⟦cm|○ 4  memory.c:88   posix_memalign 对齐 64 → 128⟧ ⟦wn|⚠ 需人工⟧",
-        " ⟦cm|○ 5  event.c:203   __builtin_ia32_pause → yield⟧",
-        " ⟦cm|… 7 more⟧",
-    )
-    for line in hcat([left_p, right_p]):
+    for line in hcat([tree_p, code_p, side_p]):
         f.add(line)
-
     f.sep()
     f.add(
-        " ⟦pr|❯⟧ ⟦cm|memory.c 那处对齐先别改，等我确认过缓存行大小▌⟧"
-        + " " * 44
-        + "⟦cm|中断后可直接说，不必等它跑完⟧"
+        spread(
+            " ⟦pr|❯⟧ memory.c 那处对齐先别改，等我确认过缓存行大小▌",
+            "⟦cm|Esc 中断后可直接说，不必等它跑完⟧ ",
+            INNER,
+        )
     )
     f.foot(
-        "⟦cm|[Esc]⟧ 中断  ⟦cm|[Ctrl+D]⟧ 全屏 Diff  ⟦cm|[Tab]⟧ 切换区域",
-        "⟦cm|已接受 ⟧⟦ok|9⟧⟦cm| · 待审 ⟧⟦wn|3⟧⟦cm| · ctx ⟧⟦wn|72%⟧",
+        "⟦bs4| migrate nginx ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:qwen2.5-72b │ ctx:⟧⟦wn|72% ⚠⟧",
+        "⟦cm|已接受 ⟧⟦ok|9⟧⟦cm| · 待审 ⟧⟦wn|3⟧⟦cm| · patch 3/12 · 12:09⟧",
     )
     return check(f.render(), W, "exec")
 
@@ -361,16 +418,20 @@ def screen_exec_narrow() -> str:
     f.add(" ⟦cm|执行⟧ ⟦sel| Diff ⟧ ⟦cm|证据⟧                          ⟦cm|[Tab] 切页⟧")
     f.sep()
     f.add(" ⟦t|src/crypto.c⟧  ⟦cm|hunk 3/12⟧")
-    f.add(" ⟦cm| 43 ⟧ {")
-    f.add(" ⟦er| 44 - ⟧⟦er|   _mm_pause();⟧")
-    f.add(" ⟦ok| 45 + ⟧⟦ok|   __asm__ __volatile__(\"yield\" ::: \"memory\");⟧")
-    f.add(" ⟦cm| 46 ⟧ }")
+    f.add(" ⟦cm|86⟧      ⟦cm|while (spin--) {⟧")
+    f.add("⟦bdel| ⟧⟦er|⟦bdel|87⟧⟧⟦bdel| ⟧⟦er|▌⟧⟦bdel|" + pad("     _mm_pause();", 70) + "⟧")
+    f.add(
+        "⟦badd| ⟧⟦ok|⟦badd|87⟧⟧⟦badd| ⟧⟦ok|▌⟧⟦badd|"
+        + pad('     __asm__ __volatile__("yield" ::: "memory");', 70)
+        + "⟧"
+    )
+    f.add(" ⟦cm|88⟧      ⟦cm|}⟧")
     f.add("")
     f.add(" ⟦cm|为什么⟧ PAUSE 无 ARM 对应指令，YIELD 语义等价")
     f.add(" ⟦cm|证据⟧   ⟦ac|[1] #4471⟧  ⟦ac|[2] ARM ARM §B2.5⟧")
     f.sep()
     f.add(" ⟦pr|[y] 接受⟧ ⟦cm|[n] 拒绝⟧ ⟦cm|[e] 编辑⟧ ⟦cm|[a] 全接受⟧ ⟦cm|[J/K] 换 hunk⟧")
-    f.foot("⟦cm|[Esc]⟧ 中断", "⟦ok|9⟧⟦cm| 接受 · ⟧⟦wn|3⟧⟦cm| 待审 · 单栏轮播⟧")
+    f.foot("⟦cm|[Esc]⟧ 中断", "⟦ok|9⟧⟦cm| 接受 · ⟧⟦wn|3⟧⟦cm| 待审 · single-canvas 单栏轮播⟧")
     return check(f.render(), 80, "exec-narrow")
 
 
@@ -487,8 +548,8 @@ def screen_result() -> str:
     for line in hcat([lp, rp]):
         f.add(line)
     f.foot(
-        "⟦cm|[↵]⟧ 下钻  ⟦cm|[E]⟧ 导出  ⟦cm|[S]⟧ 保存 Session  ⟦cm|[Esc]⟧ 返回工作台",
-        "⟦cm|Session #1031 · 采样 12,404 · 丢样 ⟧⟦ok|0.2%⟧",
+        "⟦bs4| hotspot ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:qwen2.5-72b │ ctx:38%⟧",
+        "⟦cm|[↵] 下钻 · [E] 导出 · Session #1031 · 丢样 ⟧⟦ok|0.2%⟧",
     )
     return check(f.render(), W, "result")
 
@@ -718,7 +779,7 @@ def screen_settings_server() -> str:
         )
     )
     f.foot(
-        "⟦cm|[Tab]⟧ 切换区域  ⟦cm|[c]⟧ 连接  ⟦cm|[n]⟧ 新增服务器",
+        "⟦bs4| settings ⟧ ⟦cm|[Tab] 切换区域 │ [c] 连接 │ [n] 新增服务器⟧",
         "⟦cm|3 台 · ⟧⟦ok|1 已连接⟧⟦cm| · ⟧⟦wn|1 待核对⟧",
     )
     return check(f.render(), W, "settings-server")
@@ -826,13 +887,31 @@ def screen_settings_narrow() -> str:
 from page_css import CSS, JS
 
 
-def fig(title: str, frame: str, cls: str = "dense screen") -> str:
-    """data-check 让 check_frames.py 在真浏览器里复核这一块的逐行宽度。"""
+def fig(title: str, frame: str, foot: str = "", cls: str = "dense screen") -> str:
+    """把整屏帧装进应用窗口外壳里——它是一个跑起来的应用，不是一段代码。
+
+    data-check 让 check_frames.py 在真浏览器里复核这一块的逐行宽度。
+    """
+    cols = max(width(line) for line in frame.split("\n"))
+    rows = len(frame.split("\n"))
+    mode = {160: "wide-three", 80: "single-canvas"}.get(cols, f"{cols} 列")
     return (
-        f'<div class="fig"><span class="fig-t">{title}</span>\n'
-        f'<pre class="{cls}" data-check="1" data-label="{title}">'
-        f"{to_html(frame)}</pre>\n</div>"
+        '<div class="win">\n'
+        '  <div class="win-bar"><span class="kp">◤</span>'
+        '<span class="nm">Kunpeng DevKit AI</span>'
+        f'<span class="sub">{title}</span>'
+        '<span class="meta">'
+        f'<span class="tag">{cols} × {rows}</span>'
+        f'<span class="tag">{mode}</span>'
+        '<span class="tag on">truecolor</span></span></div>\n'
+        f'  <div class="win-scroll"><pre class="{cls}" data-check="1" data-label="{title}">'
+        f"{to_html(frame)}</pre></div>\n"
+        + (f'  <div class="win-foot">{foot}</div>\n' if foot else "")
+        + "</div>"
     )
+
+
+FOOT = {'s1': '<b>可实现性</b> <code>LandingScreen</code> src/components/ui/landing.tsx · <code>KunpengBrand</code> brand.tsx · <code>PromptBar</code> prompt-bar.tsx · <code>Keybar/StatusBar</code> keybar.tsx <b>待新增</b> 环境探测行 · 最近 Session 列表', 's1n': '<b>降级</b> <code>layoutForWidth(80)</code> → single-canvas；<code>brandVariantFor()</code> 在 &lt;10 列不画字标', 's2': '<b>可实现性</b> <code>Shell</code> shell.tsx · <code>Dock</code> dock.tsx（宽度 27 取自 <code>layoutForWidth(160)</code>）· <code>TaskTabs</code> task-tabs.tsx · <code>PlanCard/EvidenceList/ContextGauge</code> component-library.tsx · <code>AgentConsole</code> agent-console.tsx（consoleHeight 8）· <code>Inspector</code> canvas.tsx', 's2n': '<b>降级</b> single-canvas：dockWidth 3，图标字形 <code>▮ ▯ ◇ ?</code> 与 dock.tsx 折叠态一致，consoleHeight 6', 's3': '<b>可实现性</b> <code>DiffView</code> component-library.tsx（现为纯前景色，本稿的整行底色带需要给 <code>&lt;text&gt;</code> 加 <code>bg</code>，StatusBar 已在用同一手法）· <code>AgentTimeline/ToolCard/ApprovalBar</code> component-library.tsx · <code>Overlay</code> 承载高危确认 <b>待补 token</b> <code>successBackground</code>（tokens.ts 现只有 info/warning/danger 三档）', 's3n': '<b>降级</b> 三栏轮播；接受/拒绝键位不随宽度挪位', 's4': '<b>可实现性</b> <code>SortableTable</code> component-library.tsx（热点表）· <code>FlameChart</code> charts/FlameChart.tsx · <code>SummaryCard</code> · <code>MetricBar</code> charts/ <b>待新增</b> 源码级逐行百分比视图 · 产出清单', 's4n': '<b>降级</b> 列按优先级砍，占比列永远保留；火焰图降到 3 层并显式标注未显示帧数', 's5': '<b>可实现性</b> <code>SplitContainer</code> + <code>SelectorPopup</code> component-library.tsx 可拼出三栏主从结构 <b>待新增</b> Settings 外壳 · 服务器条目与环境探测 · 凭据掩码输入 · 就地验证结果行', 's5b': '<b>可实现性</b> <code>SortableTable</code> 可承载模型对比表 <b>待新增</b> Provider 表单与就地验证', 's5c': '<b>可实现性</b> 错误三件套复用 <code>infoBackground/warningBackground/dangerBackground</code> 三档底色 <b>待新增</b> 凭据字段组件', 's5n': '<b>降级</b> 三栏塌为分类页签 + 单栏详情；就地验证五行压两行但一项不删'}
 
 
 def build() -> str:
@@ -847,23 +926,23 @@ def build() -> str:
         "s2": (workspace, screen_workspace_narrow()),
         "s3": (execu, screen_exec_narrow()),
         "s4": (result, screen_result_narrow()),
-        "s5": (screen_settings_model(), screen_settings_narrow()),
+        "s5": (screen_settings_server(), screen_settings_narrow()),
     }
     body = TEMPLATE.format(
         css=CSS,
         js=JS,
-        s1=fig("屏 1 · 启动页 · 160×32", rows["s1"][0]),
-        s1n=fig("窄屏降级 · 80×16", rows["s1"][1]),
-        s2=fig("屏 2 · Agent Workspace · 160×30", rows["s2"][0]),
-        s2n=fig("窄屏降级 · 80×15", rows["s2"][1]),
-        s3=fig("屏 3 · Agent 执行中 · Tool + Diff · 160×31", rows["s3"][0]),
-        s3n=fig("窄屏降级 · 80×15", rows["s3"][1]),
-        s4=fig("屏 4 · 任务结果页 · 160×30", rows["s4"][0]),
-        s4n=fig("窄屏降级 · 80×18", rows["s4"][1]),
-        s5=fig("屏 5 · 管理配置 · 模型 / Provider · 160×28", rows["s5"][0]),
-        s5b=fig("同屏 · 分类切到「服务器」· 160×28", screen_settings_server()),
-        s5c=fig("同屏 · 分类切到「账号」· 160×28", screen_settings_account()),
-        s5n=fig("窄屏降级 · 80×15", rows["s5"][1]),
+        s1=fig("屏 1 · 启动页", rows["s1"][0]),
+        s1n=fig("窄屏降级", rows["s1"][1]),
+        s2=fig("屏 2 · Agent Workspace", rows["s2"][0]),
+        s2n=fig("窄屏降级", rows["s2"][1]),
+        s3=fig("屏 3 · Agent 执行中 · Tool + Diff", rows["s3"][0]),
+        s3n=fig("窄屏降级", rows["s3"][1]),
+        s4=fig("屏 4 · 任务结果页", rows["s4"][0]),
+        s4n=fig("窄屏降级", rows["s4"][1]),
+        s5=fig("屏 5 · 管理配置 · 服务器管理", rows["s5"][0]),
+        s5b=fig("同屏 · 分类切到「模型 / Provider」", screen_settings_model()),
+        s5c=fig("同屏 · 分类切到「账号与凭据」", screen_settings_account()),
+        s5n=fig("窄屏降级", rows["s5"][1]),
     )
     return body
 
@@ -914,6 +993,14 @@ TEMPLATE = """<!DOCTYPE html>
 <div class="eyebrow">Key Screens</div>
 <h1>五个典型页面</h1>
 <p class="desc">从《<a href="./design-input.html">DevKit AI TUI 设计输入</a>》里挑出五屏最吃劲的：<strong>启动页</strong>（能不能马上开始）、<strong>Agent Workspace</strong>（Agent 在干什么）、<strong>执行中 Tool + Diff</strong>（有没有跑偏）、<strong>任务结果页</strong>（我得到了什么）、<strong>管理配置</strong>（Agent 到底能不能工作）。五屏刚好把设计输入 §9.1 的六个问题答完 ①②③④⑥，只剩 ⑤ 多任务由 Task Manager 承接。</p>
+<div class="grid g3">
+  <div class="card"><h4>对着实现画，不是对着想象画</h4>
+  <p>布局尺寸取自 <code>platform/terminal/layout.ts</code> 的 <code>layoutForWidth()</code>——160 列是 <code>wide-three</code>：Dock 27 列、console 8 行；80 列是 <code>single-canvas</code>：Dock 收成 3 列图标条、console 6 行。状态栏字段顺序、任务页签字形、折叠态图标 <code>▮ ▯ ◇ ?</code>、选中标记 <code>▎</code> 全部与 <code>src/components/ui/</code> 里跑着的代码一致。<strong>每屏下方标出用了哪些现成组件、哪些还得新增。</strong></p></div>
+  <div class="card"><h4>视觉与 Demo 同源</h4>
+  <p>窗口外壳、AI PLAN 卡的编号 + 耗时、工具名 chip、diff 的整行底色带与左侧竖条、状态栏胶囊，都跟 <a href="./demo.html">设计 Demo</a> 是同一套语言。色值不是照着截图取的——<strong>直接取自实现的 <code>theme/tokens.ts</code></strong>：selected <code>#18293C</code>、focus <code>#162E49</code>、dangerBackground <code>#351B24</code>、surface2/3/4。</p></div>
+  <div class="card"><h4>设计系统的纪律照旧生效</h4>
+  <p>语义色只上字符与短文本、<strong>永不上色块</strong>（文件风险热力因此走 accum-orange 顺序色阶而不是 danger 红）；一屏只允许一个填充蓝，留给当前唯一推荐动作；圆角只给浮层。<a href="./index.html#color">Colors</a> · <a href="./index.html#frame">应用框架</a></p></div>
+</div>
 <p class="desc">五屏都是<strong>整屏字符帧</strong>，不是配色示意图：160 列宽屏 + 80 列窄屏各一帧，每行宽度在生成时被断言把着（<code>tools/screens.py</code>），CJK 按 2 格、Braille 按 1 格算——<strong>页面上看到的对齐关系，就是终端里的对齐关系</strong>。色值全部取自<a href="./index.html#color">设计系统</a>的既有色阶，未新造调色板。</p>
 <div class="grid g4">
   <div class="stat"><b style="color:var(--primary-hover)">5</b><span>典型页面</span></div>
@@ -921,6 +1008,7 @@ TEMPLATE = """<!DOCTYPE html>
   <div class="stat"><b style="color:var(--warning)">25</b><span>覆盖组件</span></div>
   <div class="stat"><b style="color:var(--accent)">0</b><span>新增色值</span></div>
 </div>
+<div class="note warn"><b>一处需要补的 token。</b><code>theme/tokens.ts</code> 现在只有 <code>infoBackground</code> / <code>warningBackground</code> / <code>dangerBackground</code> 三档底色，<strong>没有 <code>successBackground</code></strong>——而 diff 的新增行需要它。本稿按同族推导取 <code>#0E2F24</code>（base <code>#101010</code> + 15.5% 的 success 色，与另外三档同一算法），需要在实现里补进 tokens 并同步到 <code>UI-SPEC.md</code>。<code>&lt;text bg=…&gt;</code> 本身是支持的，<code>StatusBar</code> 已经在用同一手法。</div>
 <div class="note"><b>这一版没有录屏。</b>录屏适合讲流程，不适合评审单屏——它没法定格、没法量宽度、没法比对齐。要看十幕连贯流程仍去<a href="./tui-live.html">实录回放</a>；这一页只回答“每一屏长什么样、每个像素为什么在那儿”。</div>
 </section>
 
