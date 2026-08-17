@@ -88,6 +88,17 @@ th{text-align:left;font-size:10.5px;font-weight:500;letter-spacing:.08em;text-tr
 td{padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-subtle);vertical-align:top;color:var(--foreground-secondary)}
 tr:hover td{background:var(--state-hover)}
 td:first-child{color:var(--foreground);font-weight:500}
+td.mono,th.mono{font-family:var(--font-mono)}
+
+/* ═══ cards ═══ */
+.grid{display:grid;gap:var(--space-3);margin:var(--space-4) 0}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.card{background:var(--surface-1);border:1px solid var(--border-default);border-radius:var(--radius-lg);
+  padding:var(--space-4)}
+.card:hover{background:var(--state-hover);border-color:var(--border-strong)}
+.card h4{font-size:13px;font-weight:600;color:var(--foreground);margin-bottom:var(--space-2)}
+.card p{font-size:var(--fs-body-sm);color:var(--foreground-secondary);margin:var(--space-2) 0}
+pre .s2{color:#a2a2a2}
 
 /* ═══ terminal blocks ═══ */
 pre{font-family:var(--font-mono);background:#0b0b0b;border:1px solid var(--border-subtle);
@@ -139,6 +150,76 @@ footer{margin-top:72px;padding-top:var(--space-5);border-top:1px solid var(--bor
 </div>
 
 <div class="content">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 0 — CLI / GUI / TUI
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="cgt">
+<div class="eyebrow">TUI Capability &middot; 三种人机界面</div>
+<h1>CLI / GUI / TUI —— 定义与边界</h1>
+<p class="desc">三个缩写经常被混用，但它们代表三种<strong>根本不同的交互模型</strong>。理解差异是理解"为什么选 TUI"的前提。<br><small>参考：<a href="https://www.ssvex.com/posts/what-is-cli-gui-tui" target="_blank">What is CLI, GUI, TUI?</a></small></p>
+
+<div class="tbl-wrap">
+<table>
+<tr><th></th><th>CLI · Command Line Interface</th><th>GUI · Graphical User Interface</th><th>TUI · Text-based User Interface</th></tr>
+<tr><td><b>定义</b></td>
+  <td>用户在提示符后键入命令，程序输出文本结果后退出（或等待下一条命令）</td>
+  <td>在窗口系统中用像素渲染图形控件，鼠标驱动为主</td>
+  <td>在终端模拟器的<strong>全屏字符网格</strong>中绘制界面，拥有布局、焦点、事件循环</td></tr>
+<tr><td><b>渲染介质</b></td>
+  <td>顺序文本流——只能向下追加</td>
+  <td>像素画布——任意坐标、任意分辨率</td>
+  <td>字符单元格画布——行×列寻址，亚字符精度（braille 8×）</td></tr>
+<tr><td><b>运行环境</b></td>
+  <td>Shell / 管道 / CI</td>
+  <td>窗口管理器（X11 / Wayland / macOS / Windows）</td>
+  <td>终端模拟器（本地或 SSH 远程）</td></tr>
+<tr><td><b>输入模型</b></td>
+  <td>命令 + 参数 + 管道</td>
+  <td>鼠标优先，键盘辅助</td>
+  <td><strong>键盘优先，鼠标可选</strong></td></tr>
+<tr><td><b>状态</b></td>
+  <td>无状态——执行完即退出</td>
+  <td>有状态——窗口常驻</td>
+  <td>有状态——进程常驻，全屏接管</td></tr>
+<tr><td><b>布局能力</b></td>
+  <td>无——输出是线性日志</td>
+  <td>自由像素布局</td>
+  <td>面板分栏、浮层、弹窗、独立滚动区</td></tr>
+<tr><td><b>代表产品</b></td>
+  <td class="mono">grep · git · curl · gcc</td>
+  <td class="mono">VS Code · Chrome · Figma</td>
+  <td class="mono">vim · htop · lazygit · k9s</td></tr>
+</table>
+</div>
+
+<pre>
+  <span class="cm"><span class="fw">能力递增</span>  ──────────────────────────────────────────────▸</span>
+
+  <span class="s1">┌─ CLI ──────┐</span>  <span class="s2">┌─ TUI ──────────────────┐</span>  <span class="pr">┌─ GUI ──────────────────┐</span>
+  <span class="s1">│ echo hello │</span>  <span class="s2">│  <span class="fw">┌全屏┐</span> <span class="fw">┌面板┐</span> <span class="fw">┌实时┐</span>  │</span>  <span class="pr">│  <span class="fw">窗口 · 像素 · 动画</span>    │</span>
+  <span class="s1">│ $?=0, exit │</span>  <span class="s2">│  │    │ │    │ <span class="fw">│曲线│</span>  │</span>  <span class="pr">│  <span class="fw">无限画布 · 矢量渲染</span>   │</span>
+  <span class="s1">│ <span class="fw">无布局</span>     │</span>  <span class="s2">│  └────┘ └────┘ └────┘  │</span>  <span class="pr">│  <span class="fw">依赖显示服务器</span>        │</span>
+  <span class="s1">└────────────┘</span>  <span class="s2">└────────────────────────┘</span>  <span class="pr">└────────────────────────┘</span>
+  <span class="cm"><span class="fw">一次性进程</span>        <span class="fw">常驻 · 终端内 · 可远程</span>     <span class="fw">常驻 · 需窗口系统</span></span></pre>
+
+<div class="sublabel">TUI 的关键特征</div>
+<div class="grid g2">
+<div class="card"><h4>TUI 能做、CLI 做不到的</h4>
+<p><strong>全屏布局</strong>——多面板并排、独立滚动、焦点切换，不只是向下追加文本</p>
+<p><strong>实时刷新</strong>——局部重绘，500ms 级更新周期，数据变了画面就变</p>
+<p><strong>交互状态</strong>——选中、展开、排序、筛选、模态对话框——CLI 只能用管道 <code>| less</code> 凑</p>
+<p><strong>色彩与密度</strong>——24-bit 真彩、braille 8× 亚字符精度、块字符渐变</p></div>
+<div class="card"><h4>TUI 能做、GUI 做不到的</h4>
+<p><strong>SSH 直达</strong>——不需要 X11 转发、VNC、远程桌面，一条 SSH 就是完整体验</p>
+<p><strong>零依赖</strong>——不需要显示服务器、窗口管理器、GPU 驱动，headless 服务器直接跑</p>
+<p><strong>带宽极低</strong>——传输的是字符差分，不是像素帧，高延迟网络下依然流畅</p>
+<p><strong>可脚本化</strong>——终端天然支持 <code>tmux</code> 录制、<code>expect</code> 自动化、管道衔接</p></div>
+</div>
+
+<div class="note"><b>TUI 不是 CLI 的美化版，也不是 GUI 的降级版。</b>它是一种<strong>独立的交互范式</strong>：在终端的字符网格内构建完整的应用体验——有布局、有状态、有实时、有交互。CLI 太轻（无布局、无状态），GUI 太重（需要窗口系统、无法 SSH 直用）。<strong>TUI 恰好站在"服务器上做工程"这个场景的最优点上。</strong></div>
+<div class="note"><b>常见误解纠正：</b>① "TUI 就是带颜色的 CLI"——错，CLI 没有布局和事件循环，TUI 有。② "TUI 是简陋的 GUI"——错，TUI 不依赖显示服务器，能在纯 SSH 下提供完整体验，这是 GUI 做不到的。③ "TUI 过时了"——错，lazygit、k9s、btop 等现代 TUI 工具正在快速增长，因为云原生与远程开发场景天然需要终端内的完整体验。</div>
+</section>
 
 <!-- ═══════════════════════════════════════════════════════════════
      SECTION 1 — TUI ≠ CLI
