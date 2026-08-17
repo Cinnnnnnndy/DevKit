@@ -176,6 +176,19 @@ pre.dense.chart{ --row:calc(var(--grid-unit) * 7); font-size:13px; }   /* 28px *
  * 判定不看字形范围看**语义**：行与行之间是「并列」还是「同一张图的上下半」。
  */
 pre.dense.tight{ --row:calc(var(--grid-unit) * 3); }   /* 12px */
+
+/* ⑥ 整屏复合截图（工作台外壳、降级路径三档并排）——多种内容类型混排在
+ * 同一块 pre 里：连续图形（braille 曲线、热力网格）需要 .tight 的紧凑行距
+ * 才能连成一张图，但同屏还混着任务列表、算子表、Agent Console 这类逐行独立
+ * 文本——用 .tight 统一套下去，这些文本行会被挤得比它们需要的更紧，读起来拥挤。
+ * .screen 是两者的折中：字号与行距都比 .tight 松一档，连续图形的行间距会
+ * 略微增大（braille/热力网格的视觉连续性有极小代价），换来大多数行——
+ * 那些本来就是逐行独立信息的——明显更好读。只用于整屏复合截图，
+ * 单一连续图形的独立样本（Braille 历史曲线单例、散点/水位/双向面积对比）
+ * 仍用 .tight，因为那里没有需要照顾的独立文本行。
+ */
+pre.dense.screen{ --row:calc(var(--grid-unit) * 4); font-size:12.5px; }   /* 16px row · 12.5px 字号 */
+
 /* 交替行的共同区域——用底色分组，不花高度。
    对比压到几乎看不见：它的职责是"让眼睛知道哪几行是一组"，
    不是让人注意到有条纹。 */
@@ -439,8 +452,7 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <div class="ngrp">Components · 组件与图元</div>
   <a href="#ui-comp">★ 通用组件</a>
   <a href="#comp">组件清单</a>
-  <a href="#primlib">★ 图元库 · 十四种</a>
-  <a href="#primsize">图元尺寸与排布</a>
+  <a href="#primlib">★ 图表单元</a>
   <div class="ngrp">Layout · 布局与交互</div>
   <a href="#frame">★ 应用框架</a>
   <a href="#shell">Shell 布局</a>
@@ -904,7 +916,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <section id="ui-comp">
 <div class="eyebrow">Components</div>
 <h2>通用组件 —— 与 tui-live.html 同源代码</h2>
-<p class="desc">下面每个组件都能在 <code>kunpeng-devkit-ai-tui/tui/src/components/ui/</code> 里找到对应实现——不是设计稿，是 <a href="./tui-live.html">tui-live.html 实录</a>背后真实渲染的代码。<a href="#comp">组件清单</a>里的 22 个场景化部件（AgentTimeline、PlanCard…）都是从这一层原子拼出来的，下游开发直接引用即可，不必重造。</p>
+<p class="desc">下面每个组件都能在 <code>kunpeng-devkit-ai-tui/tui/src/components/ui/</code> 里找到对应实现，且都在真实 demo 里跑着：<code>ActionButton</code>/<code>Panel</code>/<code>SectionLabel</code> 是 <code>features/migration-flow/presenters.tsx</code> 十幕流程本身用的（就是 <a href="./tui-live.html">tui-live.html 实录</a>录下来的那十幕）；<code>CommandPalette</code>/<code>ConfigOverlay</code>/<code>ApprovalOverlay</code>/<code>HelpOverlay</code> 在 <code>app/App.tsx</code> 里接进了 <kbd>Ctrl+P</kbd> 与 Act 3 / Act 5。<a href="#comp">组件清单</a>里的 22 个场景化部件也能现场逛——本地跑起来后按 <kbd>Ctrl+P</kbd> 选 <b>Component gallery</b> / <b>Pattern gallery</b>，或直接敲 <code>/components</code> <code>/patterns</code>，不是效果图，是同一份代码现场渲染。</p>
 
 <div class="sublabel">Chrome 层原语 —— OpenTUI 原生标签</div>
 <p class="rule"><code>@opentui/react</code> 提供的 JSX 内建标签，写法与 DOM 一致（<code>&lt;box&gt;</code>/<code>&lt;text&gt;</code> 而不是 <code>&lt;div&gt;</code>/<code>&lt;span&gt;</code>）。以下所有组合组件都是拿它们拼的。</p>
@@ -948,6 +960,43 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <span class="cm">// overlays.tsx —— Modal</span>
 {paletteOpen &amp;&amp; &lt;CommandPalette items={items} selected={i} onSelect={run} onClose={close} /&gt;}</pre>
 
+<div class="sublabel">宽屏 / 窄屏两种形式 —— 断点来自 <code>platform/terminal/layout.ts</code></div>
+<p class="rule">≥80 列 Dock 才存在；&lt;80 列（<code>layoutForWidth</code> 的 <code>narrow</code> 档）Dock 让位，TaskTabs 切到 <code>showBrand</code> 变体。Dock 自身在 &lt;100 列（或 <kbd>Ctrl+B</kbd> 强制）时收成 3 列图标带。品牌字标同样分三档：<code>full</code> ≥22 列（◢ KUNPENG + DEVKIT AI 徽标）· <code>wordmark</code> ≥10 列（只留 ◢ KUNPENG）· <code>none</code> &lt;10 列<strong>整个不画</strong>——<code>brand.tsx</code> 原话："低于最小宽度不画，不缩着画"。</p>
+
+<div class="fig"><span class="fig-t">TaskTabs · 宽屏（≥80 列，Dock 存在）</span>
+<pre class="dense tight"><span class="ok">▶</span> <span class="pr">1 migrate nginx</span>   <span class="cm">✓</span> 2 optimize qwen-7   <span class="cm">○</span> 3 diagnose crash   <span class="cm"><span class="hw">⏸</span></span> 4 order-svc   <span class="cm">+</span>            <span class="s2">v0.1.0 · Kunpeng ARM64 · </span><span class="ok">● READY</span></pre>
+</div>
+<div class="fig"><span class="fig-t">TaskTabs · 窄屏（&lt;80 列，showBrand 变体，wordmark 字标）</span>
+<pre class="dense tight"><span class="br">◢</span> KUNPENG <span class="sel">│▶ migrate nginx</span>                                                <span class="ok">●</span></pre>
+</div>
+
+<div class="fig"><span class="fig-t">Dock · 展开（≥100 列，dockWidth 23–27，full 字标）</span>
+<pre class="dense tight">┌ <span class="br">◢</span> KUNPENG <span class="t">DEVKIT AI</span> ──┐
+│ <span class="s2">T A S K S</span>  <span class="ac">4</span>          │
+│ <span class="sel">▎</span><span class="ok">✓</span> migrate nginx     │
+│  <span class="pr">▶</span> optimize qwen-7   │
+│ <span class="s2">P R O J E C T</span>  <span class="ac">6</span>      │
+│  <span class="sel">▎</span>○ nginx/          │
+└───────────────────────┘</pre>
+</div>
+<div class="fig"><span class="fig-t">Dock · 折叠（&lt;100 列或 Ctrl+B 强制，3 列——none 字标）</span>
+<pre class="dense tight">┌───┐
+│   │  <span class="cm">← 3 列 &lt; wordmark 最小宽度 10，标识不画</span>
+│ <span class="sel">▮</span> │  <span class="cm">← 当前任务</span>
+│ ▯ │
+│ ◇ │
+│ ? │  <span class="cm">← 点开为帮助浮层</span>
+└───┘</pre>
+</div>
+
+<div class="sublabel">Gallery 列表 · 宽屏 / 窄屏</div>
+<p class="rule"><code>ComponentGallery.tsx</code> 里 <code>const wide = width &gt;= 100</code> 直接判定，两档共用同一份数据，只切列，不截断文字：</p>
+<table>
+<tr><th>档位</th><th>列</th></tr>
+<tr><td>宽屏 ≥100 列</td><td>组件（29）· 用途（26）· TIER（8）· PATTERN（13）· TEXTUAL 基座（自适应宽度）</td></tr>
+<tr><td>窄屏 &lt;100 列</td><td>组件（24）· TIER（8）· PATTERN（13）——用途与基座列整列隐藏</td></tr>
+</table>
+
 <div class="note"><b>组件评审门槛同样适用于这一层：</b>新增通用组件前先查这张表——<code>ActionButton</code> 已覆盖多数按钮场景，<code>Panel</code> 已覆盖带标题容器。确认没有可用组件再动手，做完把它加进这张表与 <code>index.ts</code> 的导出列表。</div>
 </section>
 
@@ -984,8 +1033,8 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 
 <section id="primlib">
 <div class="eyebrow">TUI Capability</div>
-<h2>图表原语库 · 十四种</h2>
-<p class="desc">图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。全部改用设计系统高亮色阶着色（<code>-200 → -700</code>），不再自造调色板。实现见 <code>app/devkitai/render/</code>，完整规格见 <code>docs/COMPONENT.md</code> §3。</p>
+<h2>图表单元 —— 画法与尺寸 · 十四种</h2>
+<p class="desc">图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。全部改用设计系统高亮色阶着色（<code>-200 → -700</code>），不再自造调色板。实现见 <code>app/devkitai/render/</code>，完整规格见 <code>docs/COMPONENT.md</code> §3。这一节连着讲两件事：图<b>长什么样</b>（画法）和图<b>多大才该画</b>（尺寸排布）——两者是同一个决策的两半，拆开容易漏掉一半。</p>
 <p class="desc">下面每组附两类活样本：<b>画法</b>由 <code>gallery_html.py</code> 从 <code>render/</code> 函数直接导出，展示原语本身；标有 <b>组件实例</b> 的是 <code>devkitai/widgets/</code> 的运行时真实输出——边框、标题、着色全是程序算出来的，和 <a href="#impl">工作台外壳实况</a> 用的是同一条 <code>tools/shell_html.py</code> 导出流水线，不是重画的 mockup。</p>
 
 <table>
@@ -1186,14 +1235,9 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
                                                     </pre>
 </div>
 <p class="rule"><strong>AI 的结论单独占一行叠在数据下方</strong>——数据与判断分属两层，标注可整层开关（<code>l</code>）。鲲鹏 920 多核 + NUMA 亲和性可视化：CLI 完全做不到、而对鲲鹏调优最关键的一张图。</p>
-</section>
 
-<!-- #prim merged into #primlib -->
-
-<section id="primsize">
-<div class="eyebrow">Components</div>
-<h2>图元尺寸与排布</h2>
-<p class="desc">上一节定了<b>每种图长什么样</b>，这一节定<b>每种图多大才该画</b>。起因是多图元同屏：一屏上同时挂着 braille 曲线、热力网格、gauge、双向面积、算子表、Trace 泳道，每种图的尺寸若各自临时定，结果就是没人知道某张图在一条 24 列的栏里到底该画还是不该画——<strong>「画得下」和「读得出」不是一回事</strong>。判决集中在 <code>app/devkitai/layout.py</code> 的纯函数里，不由各个 widget 自己拍。</p>
+<div class="sublabel" id="primsize">图元尺寸与排布 —— 每种图多大才该画</div>
+<p class="desc">起因是多图元同屏：一屏上同时挂着 braille 曲线、热力网格、gauge、双向面积、算子表、Trace 泳道，每种图的尺寸若各自临时定，结果就是没人知道某张图在一条 24 列的栏里到底该画还是不该画——<strong>「画得下」和「读得出」不是一回事</strong>。判决集中在 <code>app/devkitai/layout.py</code> 的纯函数里，不由各个 widget 自己拍。</p>
 
 <div class="grid g4">
   <div class="card"><h4>最小可读尺寸</h4><p>低于它这张图<b>就不该画</b>，该退成 fallback 那一列写的形态。不是「缩着画」。</p></div>
@@ -1506,7 +1550,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 <div class="eyebrow">Implementation</div>
 <h2>实况 · 工作台外壳</h2>
 <p class="desc">下面每一屏都是 <code>bun run devkitai</code> <b>真实跑起来之后导出的</b>——走 OpenTUI 渲染器渲染的同一条路，颜色是运行时真正算出来的那一个，<b>不是重画的 mockup</b>。由 <code>app/tools/shell_html.py</code> 导成 <code>&lt;pre&gt;</code> 而不是 SVG 截图：<b>字符可以选中复制</b>、行距归页面的网格管、宽度由 <code>tools.fix_charart</code> 掰正，而且比 SVG 小五倍。手工截图一旦落地就和代码脱钩，改了组件不改图，图就开始撒谎。</p>
-<pre class="dense tight" aria-label="工作台外壳实况">                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #04d793; background-color: #1c1c1c"> ✓ </span><span style="color: #3d98ff; background-color: #1c1c1c; font-weight: bold">1 migrate nginx </span><span style="color: #0077ff; background-color: #1c1c1c">▔▔</span> <span style="color: #3d98ff; background-color: #1c1c1c"> ▶ </span><span style="color: #777777; background-color: #1c1c1c">2 optimize qwen-72b </span> <span style="color: #777777; background-color: #1c1c1c"> ○ </span><span style="color: #777777; background-color: #1c1c1c">3 diagnose crash.log </span> <span style="color: #777777; background-color: #1c1c1c"> <span class="hw">⏸</span> </span><span style="color: #777777; background-color: #1c1c1c">4 migrate order-svc </span> <span style="color: #777777; background-color: #1c1c1c"> + </span>                                    
+<pre class="dense screen" aria-label="工作台外壳实况">                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #04d793; background-color: #1c1c1c"> ✓ </span><span style="color: #3d98ff; background-color: #1c1c1c; font-weight: bold">1 migrate nginx </span><span style="color: #0077ff; background-color: #1c1c1c">▔▔</span> <span style="color: #3d98ff; background-color: #1c1c1c"> ▶ </span><span style="color: #777777; background-color: #1c1c1c">2 optimize qwen-72b </span> <span style="color: #777777; background-color: #1c1c1c"> ○ </span><span style="color: #777777; background-color: #1c1c1c">3 diagnose crash.log </span> <span style="color: #777777; background-color: #1c1c1c"> <span class="hw">⏸</span> </span><span style="color: #777777; background-color: #1c1c1c">4 migrate order-svc </span> <span style="color: #777777; background-color: #1c1c1c"> + </span>                                    
   <span style="color: #e8e8e8; background-color: #1c1c1c"> ▮ </span><span style="color: #ed1c24; background-color: #1c1c1c"> ▪ </span><span style="color: #777777; background-color: #1c1c1c">KUNPENG </span><span style="color: #1c1c1c; background-color: #e8e8e8"> DEVKIT</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">cpu · kunpeng-920</span><span style="color: #2a2a2a"> ────────────────────────────────────────────────────────┐</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">EVIDENCE</span><span style="color: #2a2a2a"> ──────────────────────────────────────┐</span> 
   <span style="color: #777777; background-color: #1c1c1c"> ▯ </span><span style="color: #777777"> T A S K S</span><span style="color: #7c8db8">  4</span>       <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #4d7209"><span class="fw">⠤⠒⠒⠒⠒⠢⠤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠤⠒⠒⠒⠒⠒⠤⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠔⠒⠒⠒⠒⠤⠤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span><span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4"> src/crypto.c:223</span>                               <span style="color: #2a2a2a">│</span> 
   <span style="color: #777777; background-color: #1c1c1c"> ▯ </span><span style="color: #0077ff; background-color: #18293c">█</span> <span style="color: #04d793; background-color: #18293c">✓ </span><span style="color: #3d98ff; background-color: #18293c">migrate nginx</span>   <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #4d7209"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠔⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠒⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠒⠤⣀⠀⠀⠀⠀⠀⠀⠀</span></span><span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4">  - _mm_pause();</span>                                <span style="color: #2a2a2a">│</span> 
@@ -1564,7 +1608,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 <div class="eyebrow">Implementation</div>
 <h2>降级路径 · 并排看</h2>
 <p class="desc">同一份数据、同一个组件，在三档终端能力下并排。这是整套设计里<b>最需要被看到、也最难用文字讲清</b>的一块。</p>
-<pre class="dense tight" aria-label="降级路径三档并排"> <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">T2 Braille · <span class="fw">原生</span></span><span style="color: #2a2a2a"> ──────────────────────────┐</span>  <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">T1 <span class="fw">块字符</span> · <span class="fw">缺</span> Braille <span class="fw">字形</span></span><span style="color: #2a2a2a"> ────────────────┐</span>  <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">T0 <span class="fw">文本</span> · NO_COLOR / dumb</span><span style="color: #2a2a2a"> ──────────────────┐</span> 
+<pre class="dense screen" aria-label="降级路径三档并排"> <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">T2 Braille · <span class="fw">原生</span></span><span style="color: #2a2a2a"> ──────────────────────────┐</span>  <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">T1 <span class="fw">块字符</span> · <span class="fw">缺</span> Braille <span class="fw">字形</span></span><span style="color: #2a2a2a"> ────────────────┐</span>  <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">T0 <span class="fw">文本</span> · NO_COLOR / dumb</span><span style="color: #2a2a2a"> ──────────────────┐</span> 
  <span style="color: #2a2a2a">│</span><span style="color: #4d7209"><span class="fw">⠒⠒⠒⠒⠤⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠔⠒⠒⠒⠒⠤⠤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span><span style="color: #2a2a2a">│</span>  <span style="color: #2a2a2a">│</span><span style="color: #4d7209">▄▅▅▅▆▆▆▇▇▇▇▇▇▇▇▇▇▇▇▇▆▆▆▆▅▅▅▄▄▃▃▃▂▂▂▁▁▁▁▁▁▁▁▁▁▁</span><span style="color: #2a2a2a">│</span>  <span style="color: #2a2a2a">│</span><span style="color: #4d7209">▄▅▅▅▆▆▆▇▇▇▇▇▇▇▇▇▇▇▇▇▆▆▆▆▅▅▅▄▄▃▃▃▂▂▂▁▁▁▁▁▁▁▁▁▁▁</span><span style="color: #2a2a2a">│</span> 
  <span style="color: #2a2a2a">│</span><span style="color: #4d7209"><span class="fw">⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠒⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠒⠤⣀⠀⠀⠀⠀⠀⠀⠀</span></span><span style="color: #2a2a2a">│</span>  <span style="color: #2a2a2a">│</span>                                              <span style="color: #2a2a2a">│</span>  <span style="color: #2a2a2a">│</span>                                              <span style="color: #2a2a2a">│</span> 
  <span style="color: #2a2a2a">│</span><span style="color: #4d7209"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠒⠢⠤⠤⠤⠤⠒⠊⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠒⠢⠤⠤⠤⠤</span></span><span style="color: #2a2a2a">│</span>  <span style="color: #2a2a2a">│</span>                                              <span style="color: #2a2a2a">│</span>  <span style="color: #2a2a2a">│</span>                                              <span style="color: #2a2a2a">│</span> 
