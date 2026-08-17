@@ -62,8 +62,9 @@ export function Dock({
         flexDirection="column"
         alignItems="center"
       >
+        {/* 折叠态只有 3 列，低于字标最小宽度，按规则不画标识。 */}
         <box height={3} flexShrink={0} alignItems="center" justifyContent="center">
-          <KunpengBrand compact />
+          <KunpengBrand available={width} />
         </box>
         {(["▮", "▯", "◇", "?"] as const).map((glyph, index) => (
           <box
@@ -110,7 +111,7 @@ export function Dock({
         paddingX={1}
         alignItems="center"
       >
-        <KunpengBrand />
+        <KunpengBrand available={width - 2} />
       </box>
       <box flexGrow={1} minHeight={1} paddingX={1} flexDirection="column" overflow="hidden">
         <box height={1} flexShrink={0}>

@@ -1,32 +1,32 @@
                                                         ● 
- ◢KUNPENG  DEVKIT AI │ ▶ migrate nginx                    
+ ◢ KUNPENG           │ ▶ migrate nginx                    
 ──────────────────────────────────────────────────────────
 ┌────────────────────────────────────────────────────────┐
-│  MIGRATION REPORT                                      │
-│ Compatibility  ████████░░ 82%                          │
-│ Critical 2 · Warning 8 · Fixed 21                      │
+│ ▎ACT 01 · ZERO-CONFIG LANDING                          │
+│ KUNPENG DEVKIT AI · native terminal engineering        │
+│ workspace                                              │
+│ ✓ Runtime 本地已就绪 · x86_64 → ARM64                  │
 │                                                        │
-│ ISSUES · FILE · EVIDENCE                               │
-│ ▎ SSE intrinsic   src/crypto.c:84                      │
-│   atomic fence    src/memory.c:42                      │
-│   Makefile flags  ✓ compatible                         │
+│ CAPABILITIES                                         3 │
+│ ✓ kunpeng_knowledge_base_search 鲲鹏知识库检索         │
+│ ✓ code_cpp_migrator C/C++ 源码迁移                     │
+│ ○ database_sql_migrator SQL 智能迁移                   │
 │                                                        │
+│ INTENT                                                 │
+│ ❯ 把 ./nginx 迁移到鲲鹏 ARM64 并完成性能验证           │
+│ ./nginx                                                │
 │                                                        │
-│                                                        │
-│                                                        │
-│                                                        │
-│                                                        │
-│                                                        │
-│                                                        │
-│ AI annotation: 2 changes require review                │
+│ ┌────────────────────────────────────────────────────┐ │
+│ │                ▎Enter 生成迁移计划                 │ │
+│ └────────────────────────────────────────────────────┘ │
 └────────────────────────────────────────────────────────┘
 ──────────────────────────────────────────────────────────
   AGENT CONSOLE                             Ctrl+J expand 
- ● Generate patch  cpp_migrator · 2.1s                    
- ⚠ Build verify  3 remaining warnings                     
- ○ Benchmark  queued                                      
+ ● Local runtime ready mock gateway · offline-first       
+                                                          
+                                                          
 ┌────────────────────────────────────────────────────────┐
-│ ❯ 描述你想做什么，或用 / 调用命令               Ctrl+P │
+│ ❯ 描述你想做什么，或用 / 调用命令              Ctrl+P  │
 └────────────────────────────────────────────────────────┘
-  Ctrl+P  Commands  Tab  Focus  F1  Help  Ctrl+B  Dock  Ct
-  local   mode:auto │ model:mock │ ctx:27%    ⏸ 1 waiting
+  Enter  Continue  F1  Help                               
+  local  mode:auto │ model:devkitai │ ctx:26%     ● ready

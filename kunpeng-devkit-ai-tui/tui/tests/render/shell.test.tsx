@@ -103,7 +103,7 @@ describe("Style A native shell", () => {
     expect(frame).toContain("NATIVE TUI");
     expect(frame).toContain("v26.0");
     expect(frame).toContain("KUNPENG ARM64");
-    expect(frame).toContain("▄▄▄▄▄▄██████▀▀▄▄██████▀");
+    expect(frame).toContain("KUNPENG DEVKIT AI");
     expect(frame).toContain("2/4 已装载  cpp_migrator · knowledge_base");
     expect(frame).toContain("3 项能力未安装  [Enter] 查看");
     expect(frame).toContain("2 项待人工确认");
@@ -118,11 +118,14 @@ describe("Style A native shell", () => {
     expect(frame).not.toContain("AGENT CONSOLE");
 
     const spans = screen.captureSpans().lines.flatMap((line) => line.spans);
-    const red = spans.find((span) => span.text.includes("▄▄▄▄▄▄██████▀▀"));
-    expect(Array.from(red?.fg.buffer ?? [])).toEqual([237, 28, 36, 255]);
+    const kpMark = spans.find((span) => span.text.includes("◢"));
+    expect(kpMark).toBeDefined();
+    expect(Array.from(kpMark?.fg.buffer ?? [])).toEqual([237, 28, 36, 255]);
     expect(
-      spans.some((span) =>
-        [201, 201, 201, 255].every((value, index) => span.fg.buffer[index] === value),
+      spans.some(
+        (span) =>
+          span.text.includes("KUNPENG") &&
+          [231, 231, 231, 255].every((value, index) => span.fg.buffer[index] === value),
       ),
     ).toBe(true);
   });
@@ -160,14 +163,16 @@ describe("Style A native shell", () => {
       { width: 160, height: 50 },
     );
     renderers.push(ansi.renderer);
-    await ansi.waitForFrame((frame) => frame.includes("▄▄▄▄▄▄██████▀▀"));
+    await ansi.waitForFrame(
+      (frame) => frame.includes("KUNPENG DEVKIT AI") && frame.includes("AI TERMINAL"),
+    );
     expect(
       ansi
         .captureSpans()
         .lines.flatMap((line) => line.spans)
         .some(
           (span) =>
-            span.text.includes("▄▄▄▄▄▄██████▀▀") &&
+            span.text.includes("◢") &&
             [255, 0, 0, 255].every((value, index) => span.fg.buffer[index] === value),
         ),
     ).toBe(true);

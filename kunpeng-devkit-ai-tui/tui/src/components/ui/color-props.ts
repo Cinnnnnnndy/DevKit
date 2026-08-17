@@ -10,6 +10,9 @@ export type UiColorPropName =
   | "focusedBackgroundColor"
   | "focusedTextColor"
   | "placeholderColor"
+  | "selectedBackgroundColor"
+  | "selectedDescriptionColor"
+  | "selectedTextColor"
   | "textColor"
   | "titleColor";
 

@@ -5,38 +5,7 @@ import { createLandingField, renderLandingField, renderLandingWave } from "./lan
 import { PromptBar } from "./prompt-bar.js";
 import { useUiEnvironment } from "./theme-context.js";
 
-const F5 = {
-  A: [".###.", "#...#", "#####", "#...#", "#...#"],
-  D: ["####.", "#...#", "#...#", "#...#", "####."],
-  E: ["#####", "#....", "####.", "#....", "#####"],
-  G: [".####", "#....", "#..##", "#...#", ".####"],
-  I: ["#####", "..#..", "..#..", "..#..", "#####"],
-  K: ["#...#", "#..#.", "###..", "#..#.", "#...#"],
-  N: ["#...#", "##..#", "#.#.#", "#..##", "#...#"],
-  P: ["####.", "#...#", "####.", "#....", "#...."],
-  T: ["#####", "..#..", "..#..", "..#..", "..#.."],
-  U: ["#...#", "#...#", "#...#", "#...#", ".###."],
-  V: ["#...#", "#...#", "#...#", ".#.#.", "..#.."],
-} as const;
-
-type F5Character = keyof typeof F5;
-function blockWord(word: string): readonly string[] {
-  return Array.from({ length: 5 }, (_, row) =>
-    [...word]
-      .map((character) => F5[character as F5Character]?.[row] ?? ".....")
-      .join(".")
-      .replaceAll("#", "█")
-      .replaceAll(".", " ")
-      .trimEnd(),
-  );
-}
-
-const KUNPENG_WORD = blockWord("KUNPENG");
-const DEVKIT_WORD = blockWord("DEVKIT");
-const AI_WORD = blockWord("AI");
-export const LANDING_WORDMARK = Array.from({ length: 5 }, (_, row) =>
-  `${KUNPENG_WORD[row] ?? ""}  ${DEVKIT_WORD[row] ?? ""}  ${AI_WORD[row] ?? ""}`.trimEnd(),
-);
+export { LANDING_WORDMARK } from "./landing-wordmark.js";
 
 interface BirdRow {
   readonly lead: number;
@@ -119,18 +88,28 @@ function LandingBackdrop({ width, height }: { width: number; height: number }) {
   );
 }
 
-function Bird() {
-  const { theme } = useUiEnvironment();
+function HeroBrand({ width, compact }: { width: number; compact: boolean }) {
+  const { theme, capabilities } = useUiEnvironment();
+  const mark = capabilities.unicode ? "◢" : ">";
+  const separator = capabilities.unicode ? "─" : "-";
+  const lineWidth = Math.min(compact ? width - 4 : 56, width - 4);
   return (
-    <box width={35} height={10} flexShrink={0} flexDirection="column" position="relative" left={1}>
-      {LANDING_BIRD.map((row, index) => (
-        <text key={`${index}-${row.lead}`} wrapMode="none">
-          {" ".repeat(row.lead)}
-          {row.red ? <span {...colorProp("fg", theme.kunpeng)}>{row.red}</span> : null}
-          {" ".repeat(row.gap ?? 0)}
-          {row.gray ? <span {...colorProp("fg", theme.kunpengSecondary)}>{row.gray}</span> : null}
+    <box flexDirection="column" alignItems="center" flexShrink={0}>
+      <text wrapMode="none" {...colorProp("fg", theme.foreground)}>
+        <span {...colorProp("fg", theme.kunpeng)}>
+          <strong>{mark}</strong>
+        </span>
+        {"  "}
+        <strong>KUNPENG DEVKIT AI</strong>
+      </text>
+      {compact ? null : (
+        <text wrapMode="none" {...colorProp("fg", theme.muted)}>
+          v0.1.0 · Kunpeng ARM64 · Native AI Terminal
         </text>
-      ))}
+      )}
+      <text wrapMode="none" {...colorProp("fg", theme.decoration)} marginTop={compact ? 0 : 1}>
+        {separator.repeat(lineWidth)}
+      </text>
     </box>
   );
 }
@@ -197,11 +176,8 @@ export function LandingScreen({
   onFocus: () => void;
 }) {
   const { theme, capabilities } = useUiEnvironment();
-  // 140 is the `wide-two-inspector` boundary in layoutForWidth. Keeping the
-  // landing on the same boundary avoids a 140-144 band where the shell is
-  // already wide but the landing is still compact.
   const compact = width < 140 || height < 38 || !capabilities.unicode;
-  const contentWidth = Math.max(32, Math.min(compact ? width - 4 : 134, width - 4));
+  const contentWidth = Math.max(32, Math.min(compact ? width - 4 : 94, width - 4));
   const promptWidth = Math.max(32, Math.min(94, contentWidth));
   return (
     <box
@@ -215,38 +191,8 @@ export function LandingScreen({
     >
       <LandingBackdrop width={width} height={height} />
       <box width={contentWidth} flexDirection="column" alignItems="center">
-        {compact ? (
-          <box height={2} flexShrink={0} flexDirection="column" alignItems="center">
-            <text {...colorProp("fg", theme.foreground)}>
-              <span {...colorProp("fg", theme.kunpeng)}>◢</span> KUNPENG DEVKIT AI
-            </text>
-            <text {...colorProp("fg", theme.kunpengSecondary)}>KUNPENG · NATIVE AI TERMINAL</text>
-          </box>
-        ) : (
-          <box
-            height={10}
-            flexShrink={0}
-            flexDirection="row"
-            alignItems="center"
-            justifyContent="center"
-            position="relative"
-            left={-5}
-          >
-            <Bird />
-            <box width={91} height={5} flexShrink={0} flexDirection="column" marginLeft={2}>
-              {LANDING_WORDMARK.map((line, index) => (
-                <text
-                  key={`${index}-${line}`}
-                  wrapMode="none"
-                  {...colorProp("fg", theme.foreground)}
-                >
-                  <strong>{line}</strong>
-                </text>
-              ))}
-            </box>
-          </box>
-        )}
-        <box height={1} flexShrink={0} marginBottom={1} flexDirection="row" gap={1}>
+        <HeroBrand width={contentWidth} compact={compact} />
+        <box height={1} flexShrink={0} marginTop={1} marginBottom={1} flexDirection="row" gap={1}>
           {(["AI TERMINAL", "NATIVE TUI", "v26.0", "KUNPENG ARM64"] as const).map((chip) => (
             <text
               key={chip}
@@ -259,14 +205,7 @@ export function LandingScreen({
           ))}
         </box>
         <BootLogs compact={compact} />
-        <box
-          width={promptWidth}
-          height={3}
-          flexShrink={0}
-          marginTop={1}
-          position="relative"
-          left={compact ? 0 : -4}
-        >
+        <box width={promptWidth} height={3} flexShrink={0} marginTop={1}>
           <PromptBar
             value={value}
             focused={focused}
