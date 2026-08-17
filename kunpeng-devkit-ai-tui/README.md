@@ -30,10 +30,12 @@
 
 ### Web 设计稿
 
-四份 HTML 是自包含的单文件，**下载后双击即可打开**，无需构建、无需联网：
+下列 HTML 是自包含的单文件，**下载后双击即可打开**，无需构建、无需联网：
 
 | 文件 | 内容 |
 |---|---|
+| [`web/screens.html`](web/screens.html) ★ | **四个典型页面** — 启动页 / Agent Workspace / 执行中 Tool+Diff / 任务结果页，各一张 160 列宽屏帧 + 一张 80 列窄屏降级帧 |
+| [`web/design-input.html`](web/design-input.html) ★ | **设计输入** — 背景 → 用户 → 场景 → 目标 → 能力 → 交互 → 状态 → 页面组件 → 原则 → 待验证 → 阶段规划 |
 | [`web/demo.html`](web/demo.html) | **十幕交互演示** — 可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点" |
 | [`web/index.html`](web/index.html) | **产品规范单页** — 设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用） |
 | [`web/competitive-analysis.html`](web/competitive-analysis.html) | **TUI 竞品分析** — 7 竞品 × 22 触点 × 6 阶段旅程 |
@@ -63,6 +65,7 @@
 ├── pages/                           跨仓交付的页面单文件设计合同
 │   └── _TEMPLATE.md                 页面详情模板
 ├── docs/                            UI 研究与源规范（Markdown）
+│   ├── DESIGN-INPUT.md              设计输入：设计依据的唯一入口 ★
 │   ├── OVERVIEW.md                  产品定位 · 愿景 · 用户角色 · 信息架构
 │   ├── PRD.md                       六大核心场景需求
 │   ├── UX-SPEC.md                   布局 · 交互模型 · 命令体系 · 快捷键
@@ -75,6 +78,7 @@
 │   ├── COMPETITIVE-ANALYSIS.md      竞品分析（Markdown 版）
 │   └── DEMO-WIREFRAME.md            四大 Demo 的 ASCII 交互稿
 ├── web/                             可交互 HTML（自包含单文件）
+├── tools/                           字符帧与页面生成器（screens.py 带宽度断言）
 └── assets/                          README 用截图
 ```
 

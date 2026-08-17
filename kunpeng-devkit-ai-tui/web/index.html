@@ -431,6 +431,8 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <span class="vchip">v0.6</span>
   <span class="tagline">鲲鹏迁移 · 诊断 · 调优工作站 · 原生 TUI · Dark-first</span>
   <span class="tb-right">
+    <a href="./screens.html">四个典型页面 ↗</a>
+    <a href="./design-input.html">设计输入 ↗</a>
     <a href="./tui-live.html">可运行实录 ↗</a>
     <a href="./tui-capability.html">TUI 渲染能力 ↗</a>
     <button class="tbtn" onclick="tt()">◐ <span id="tl">Light</span></button>
@@ -463,6 +465,8 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <a href="#impl-tier">降级路径并排</a>
   <a href="#impl-run">在本地跑起来</a>
   <div class="ngrp">Journey · 旅程</div>
+  <a href="./design-input.html">★ 设计输入 ↗</a>
+  <a href="./screens.html">★ 四个典型页面 ↗</a>
   <a href="#jmap">旅程地图</a>
   <a href="#jstory">Demo 故事线</a>
   <a href="#jscreen">阶段屏幕</a>
@@ -1675,6 +1679,7 @@ bun run screenshots</pre>
 <section id="jmap">
 <div class="eyebrow">Journey</div>
 <h2>用户旅程地图</h2>
+<div class="note"><b>这一节已被<a href="./design-input.html">《DevKit AI TUI 设计输入》</a>取代为设计依据。</b>旅程地图回答「用户经历了什么」，适合发现问题；设计输入回答「因此界面必须提供什么」，才能被交互、视觉和实现直接接住。本节保留为推导材料，四个典型页面的整屏字符帧见<a href="./screens.html">四个典型页面</a>。</div>
 <p class="desc">六阶段线性推进 + 关键节点分支。这条旅程补出了前面场景章节没覆盖的三个环节：<strong>首次配置（能力安装 / Skill 配置）· 配置补齐 · 下一步引导</strong>——它们不属于任何单一场景，而是贯穿全流程的连接组织。</p>
 <pre><span class="fw">阶段</span>1 <span class="pr"><span class="fw">初始化配置</span></span> ─▸ <span class="fw">阶段</span>2 <span class="pr"><span class="fw">代码迁移</span></span> ─▸ <span class="fw">阶段</span>3 <span class="pr"><span class="fw">验证编译</span></span> ─┬─▸ <span class="fw">阶段</span>4 <span class="pr"><span class="fw">代码优化</span></span> ─▸ <span class="fw">阶段</span>5 <span class="pr"><span class="fw">参数优化</span></span> ─▸ <span class="fw">阶段</span>6 <span class="pr"><span class="fw">场景化调优</span></span>
   <span class="fw">开屏引导</span>          <span class="fw">自然语言触发</span>       <span class="fw">一键编译</span>      │     <span class="fw">高亮</span> + diff        <span class="fw">方案对比图表</span>        <span class="fw">业务场景深调</span>
