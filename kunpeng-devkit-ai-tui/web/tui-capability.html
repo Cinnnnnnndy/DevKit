@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kunpeng DevKit AI · TUI 渲染与框架</title>
+<style>
+/* ═══ Design System tokens ═══ */
+:root{
+  --background:#101010; --background-elevated:#141414;
+  --surface-1:#161616; --surface-2:#1c1c1c; --surface-3:#262626; --surface-4:#313131;
+  --foreground:rgba(255,255,255,.90); --foreground-secondary:rgba(255,255,255,.60);
+  --foreground-muted:rgba(255,255,255,.40); --foreground-disabled:rgba(255,255,255,.25);
+  --border-subtle:rgba(255,255,255,.06); --border-default:rgba(255,255,255,.10); --border-strong:rgba(255,255,255,.16);
+  --primary:#0077ff; --primary-hover:#3d98ff; --accent:#7c8db8;
+  --success:#04d793; --warning:#ffaa3b; --danger:#ff4b7b;
+  --state-hover:rgba(255,255,255,.06); --state-selected:rgba(0,119,255,.14);
+  --tone-info-bg:rgba(0,119,255,.16); --tone-warning-bg:rgba(255,170,59,.16);
+  --font-sans:'Inter','Source Han Sans SC','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
+  --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-pill:999px;
+  --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:24px;
+  --fs-body:14px; --fs-body-sm:12px; --fs-label:11px;
+  --duration-fast:100ms; --duration-base:200ms;
+  --easing-default:cubic-bezier(.4,0,.2,1);
+}
+:root[data-theme="light"]{
+  --background:#f5f5f5; --background-elevated:#ffffff;
+  --surface-1:#ffffff; --surface-2:#f2f2f2; --surface-3:#e6e6e6; --surface-4:#cccccc;
+  --foreground:rgba(0,0,0,.88); --foreground-secondary:rgba(0,0,0,.58);
+  --foreground-muted:rgba(0,0,0,.42); --foreground-disabled:rgba(0,0,0,.26);
+  --border-subtle:rgba(0,0,0,.07); --border-default:rgba(0,0,0,.12); --border-strong:rgba(0,0,0,.20);
+  --state-hover:rgba(0,0,0,.04); --state-selected:rgba(0,119,255,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:60px}
+body{background:var(--background);color:var(--foreground);font-family:var(--font-sans);
+  font-size:var(--fs-body);line-height:1.65;-webkit-font-smoothing:antialiased}
+::selection{background:var(--state-selected)}
+a{color:var(--primary-hover);text-decoration:none;transition:color var(--duration-fast) var(--easing-default)}
+a:hover{color:var(--primary)}
+
+/* ═══ topbar ═══ */
+.topbar{position:fixed;top:0;left:0;right:0;height:52px;background:var(--background-elevated);
+  border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:var(--space-3);
+  padding:0 var(--space-5);z-index:60}
+.logo{width:22px;height:22px;border-radius:var(--radius-sm);background:var(--primary);
+  display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:5px;flex-shrink:0}
+.logo i{background:#fff;border-radius:1px;display:block}
+.logo i:nth-child(1){opacity:.95}.logo i:nth-child(2){opacity:.62}
+.logo i:nth-child(3){opacity:.62}.logo i:nth-child(4){opacity:.35}
+.brand{font-weight:700;font-size:14px;letter-spacing:-.01em}
+.chip{font-family:var(--font-mono);font-size:var(--fs-label);color:var(--foreground-muted);
+  background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:2px 7px}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:var(--space-3)}
+.tb-back{font-size:var(--fs-body-sm);color:var(--foreground-muted)}
+.tb-back:hover{color:var(--foreground)}
+.tbtn{font-family:var(--font-sans);font:500 12px/1 var(--font-sans);color:var(--foreground);
+  background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);
+  padding:7px 13px;cursor:pointer;transition:background var(--duration-fast) var(--easing-default)}
+.tbtn:hover{background:var(--surface-3)}
+
+/* ═══ layout ═══ */
+.content{max-width:1000px;margin:0 auto;padding:72px var(--space-5) 100px}
+
+/* ═══ typography ═══ */
+.eyebrow{font-size:var(--fs-label);font-weight:500;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--primary-hover);margin-bottom:var(--space-2)}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-bottom:var(--space-3)}
+h2{font-size:20px;font-weight:600;letter-spacing:-.01em;margin-bottom:var(--space-3)}
+h3{font-size:16px;font-weight:600;margin:var(--space-6) 0 var(--space-3)}
+section{padding-top:var(--space-6);margin-bottom:52px}
+.desc{color:var(--foreground-secondary);font-size:var(--fs-body);margin-bottom:var(--space-4);max-width:78ch}
+.sublabel{font-size:var(--fs-label);font-weight:500;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--foreground-muted);margin:var(--space-6) 0 var(--space-3);display:flex;align-items:center;gap:var(--space-3)}
+.sublabel::after{content:'';flex:1;height:1px;background:var(--border-subtle)}
+p{margin:var(--space-3) 0;color:var(--foreground-secondary)}
+p.fg{color:var(--foreground)}
+strong,b{color:var(--foreground);font-weight:600}
+code{font-family:var(--font-mono);font-size:12px;background:var(--surface-2);white-space:nowrap;
+  border:1px solid var(--border-subtle);padding:1px 6px;border-radius:var(--radius-sm);color:var(--foreground)}
+
+/* ═══ tables ═══ */
+.tbl-wrap{overflow-x:auto;margin:var(--space-3) 0}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;font-size:10.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--foreground-muted);padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-default);white-space:nowrap}
+td{padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--border-subtle);vertical-align:top;color:var(--foreground-secondary)}
+tr:hover td{background:var(--state-hover)}
+td:first-child{color:var(--foreground);font-weight:500}
+
+/* ═══ terminal blocks ═══ */
+pre{font-family:var(--font-mono);background:#0b0b0b;border:1px solid var(--border-subtle);
+  border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);overflow-x:auto;
+  font-size:12px;line-height:1.55;margin:var(--space-3) 0;color:#E8E8E8}
+pre .cm{color:#707070} pre .pr{color:#3d98ff} pre .ac{color:#7c8db8}
+pre .ok{color:#04d793} pre .wn{color:#ffaa3b} pre .er{color:#ff4b7b}
+pre .t{font-weight:600;color:#E8E8E8}
+
+/* CJK width fix */
+.fw{font-size:2ch}.hw{font-size:1ch}
+
+/* ═══ callouts ═══ */
+.note{background:var(--tone-info-bg);border:1px solid rgba(0,119,255,.28);border-radius:var(--radius-lg);
+  padding:var(--space-3) var(--space-4);margin:var(--space-4) 0;font-size:13px;color:var(--foreground-secondary)}
+.note b{color:var(--primary-hover)}
+.note.w{background:var(--tone-warning-bg);border-color:rgba(255,170,59,.28)}
+.note.w b{color:var(--warning)}
+.note.d{background:rgba(255,75,123,.12);border-color:rgba(255,75,123,.28)}
+.note.d b{color:var(--danger)}
+.note.s{background:rgba(4,215,147,.08);border-color:rgba(4,215,147,.26)}
+.note.s b{color:var(--success)}
+.rule{font-size:var(--fs-body-sm);color:var(--foreground-secondary);
+  border-left:2px solid var(--border-strong);padding-left:var(--space-3);margin:var(--space-3) 0}
+
+/* ═══ footer ═══ */
+footer{margin-top:72px;padding-top:var(--space-5);border-top:1px solid var(--border-subtle);
+  font-size:var(--fs-label);color:var(--foreground-disabled);font-family:var(--font-mono);line-height:2}
+
+/* ═══ responsive ═══ */
+@media(max-width:640px){
+  .content{padding:64px var(--space-4) 60px}
+  h1{font-size:22px} h2{font-size:18px}
+  table{font-size:11.5px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOPBAR ═══ -->
+<div class="topbar">
+  <div class="logo"><i></i><i></i><i></i><i></i></div>
+  <span class="brand">Kunpeng DevKit AI</span>
+  <span class="chip">TUI 渲染与框架</span>
+  <span class="tb-right">
+    <a class="tb-back" href="./index.html">&larr; 产品规范</a>
+    <button class="tbtn" onclick="tt()">&#9684; <span id="tl">Light</span></button>
+  </span>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 1 — TUI ≠ CLI
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="tui">
+<div class="eyebrow">TUI Capability</div>
+<h1>TUI ≠ CLI</h1>
+<p class="desc">TUI 拿到的是<strong>全屏可寻址缓冲 + 事件循环</strong>，能力集远大于 CLI。设计时必须主动消费这些能力，否则做出来的只是带框线的 CLI。</p>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>能力</th><th>CLI</th><th>TUI</th><th>DevKit 场景应用</th></tr>
+<tr><td>全屏可寻址缓冲</td><td>只能向下追加</td><td>alternate screen，任意坐标重绘</td><td>多面板常驻：左树 + 中报告 + 右指标同屏不滚动</td></tr>
+<tr><td>亚字符分辨率</td><td>1 字符 = 1 像素</td><td>Braille 2&times;4 = <strong>8&times; 密度</strong></td><td>真折线/面积图：CPU 历史、算子 latency 曲线</td></tr>
+<tr><td>高频局部重绘</td><td>无</td><td>局部 diff 刷新，500ms 级</td><td>实时 Trace、采集中的 Profiler</td></tr>
+<tr><td>鼠标事件</td><td>无</td><td>click / hover / drag / wheel</td><td>点选算子下钻、拖拽调分栏、滚轮缩放 Timeline</td></tr>
+<tr><td>焦点与滚动容器</td><td>靠 less 管道</td><td>独立滚动区、Scrollbar</td><td>万行日志、64 核进程表、长 Diff 各自独立滚动</td></tr>
+<tr><td>浮层 / 模态</td><td>无</td><td>overlay 覆盖不破坏底层</td><td>Command Palette、Approval、模型切换器</td></tr>
+<tr><td>24-bit 真彩</td><td>通常 8/16 色</td><td>真彩 + 背景色</td><td><strong>颜色作为第三维</strong>：NUMA 热力、风险热力</td></tr>
+<tr><td>可调分栏</td><td>无</td><td>resizable split</td><td>用户自定义工作区</td></tr>
+<tr><td>持久会话状态</td><td>退出即丢</td><td>常驻进程</td><td>上下文水位、索引状态、多会话 Tab</td></tr>
+</table>
+</div>
+
+<div class="note"><b>设计准则：</b>每画一个页面先问三个问题&mdash;&mdash;① 这里能不能用 braille 提到 8&times; 密度？② 这里能不能用颜色承载一个额外维度？③ 这个元素能不能点、能不能滚、能不能拖？三个都答&ldquo;否&rdquo;的页面，说明还停在 CLI 思维。</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 2 — 渲染分层 T0–T4
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="tier">
+<div class="eyebrow">TUI Capability</div>
+<h1>渲染分层 T0&ndash;T4</h1>
+<p class="desc">高层必须能向低层降级（SSH 老终端、CI 日志、16 色环境）。每个组件都要声明层级与降级路径。</p>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>层</th><th>技法</th><th>密度</th><th>适用</th><th>降级到</th></tr>
+<tr><td>T0 文本</td><td>纯字符 + 状态符号</td><td>1&times;1</td><td>Timeline、Tree、列表、日志</td><td>&mdash;（兼容底线）</td></tr>
+<tr><td>T1 块字符</td><td>&#9601;&#9602;&#9603;&#9605;&#9607;&#9608; / 象限</td><td>1&times;2 &middot; 2&times;2</td><td>Gauge、Sparkline、BarChart</td><td>T0 数字 + 百分比</td></tr>
+<tr><td>T2 Braille</td><td>&#10241;&#10304;&#10495; 点阵画布</td><td><strong>2&times;4 = 8&times;</strong></td><td>折线、面积、散点、双向流量</td><td>T1 Sparkline</td></tr>
+<tr><td>T3 真彩热力</td><td>bgcolor 承载数值</td><td>颜色 = 第三维</td><td>核心网格、风险热力、Trace 密度</td><td>T1 灰阶块字符</td></tr>
+<tr><td>T4 交互</td><td>mouse + focus + scroll</td><td>&mdash;</td><td>zoom/select/drag/sort/hover</td><td>纯键盘等价（必须全覆盖）</td></tr>
+<tr><td style="color:var(--warning);font-weight:700">T5 图形</td><td><strong>终端图形协议</strong> Sixel &middot; Kitty &middot; iTerm2 inline</td><td><strong>真像素</strong></td><td>火焰图 &middot; 依赖图 &middot; 复杂 Roofline &middot; 真实截图 &middot; LaTeX 公式</td><td>T2 braille 近似 / T0 文字摘要</td></tr>
+</table>
+</div>
+
+<p class="rule">硬性要求：T4 的每个鼠标操作必须有键盘等价路径（无鼠标的 SSH 是 DevKit 主战场）。T3 在 <code>NO_COLOR</code> / 16 色下自动降级为 T1，语义不能丢。<strong>T5 必须永远可降级</strong>&mdash;&mdash;它依赖终端支持，不能作为唯一表达路径。</p>
+
+<div class="sublabel">T5 &middot; 终端图形协议 &mdash;&mdash; 之前被低估的一整层</div>
+
+<div class="note w"><b>一个必须纠正的假设：终端不只能画字符。</b>现代终端支持图形协议，可以渲染<strong>真正的位图</strong>。实拍佐证：<code>euporie</code> 在终端里渲染 matplotlib 图表、LaTeX 公式、HTML/CSS 表格与真实图片；TUI 媒体库渲染电影海报；SimUtil 把手机模拟器画面嵌进面板；甚至有人在终端里跑 Pokemon。<strong>这意味着"复杂图表必须简化成字符"这个前提是错的。</strong></div>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>协议</th><th>支持终端</th><th>特点</th></tr>
+<tr><td>Kitty graphics</td><td>kitty &middot; WezTerm &middot; Ghostty &middot; Konsole</td><td>性能最好，支持动画与 z-index 层叠，可与文字混排</td></tr>
+<tr><td>Sixel</td><td>xterm &middot; mlterm &middot; foot &middot; WezTerm &middot; Windows Terminal(预览)</td><td>最广泛的老协议，色深受限，大图较慢</td></tr>
+<tr><td>iTerm2 inline</td><td>iTerm2 &middot; WezTerm</td><td>直接传 base64 图片，简单但生态窄</td></tr>
+<tr><td>&mdash; 无支持</td><td>基础 xterm &middot; 多数 SSH 默认环境 &middot; CI</td><td><strong>降级到 T2/T0</strong></td></tr>
+</table>
+</div>
+
+<div class="sublabel">DevKit 里该用 T5 的四个地方</div>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>场景</th><th>为什么字符做不好</th><th>降级路径</th></tr>
+<tr><td><strong>火焰图 / 调用栈</strong></td><td>层级深、标签长，字符网格下要么截断要么滚不完</td><td>T0：Top-N 热点函数列表 + 占比</td></tr>
+<tr><td><strong>依赖图 / Pass-IR 图</strong></td><td>节点多、连线交叉，ASCII 连线在 20+ 节点后不可读</td><td>T0：P04 因果链（单链路，不画全图）</td></tr>
+<tr><td><strong>Roofline 精确图</strong></td><td>需要对数坐标轴与精确点位，braille 只能近似</td><td>T2：braille 近似 + 数值表</td></tr>
+<tr><td><strong>导出报告预览</strong></td><td>报告本身就是图文混排的 PDF/HTML</td><td>T0：文字摘要 + 导出路径</td></tr>
+</table>
+</div>
+
+<div class="note"><b>但纪律不变，而且更严：</b>① <strong>T5 是增强不是基础</strong>&mdash;&mdash;每个用 T5 的地方都必须有 T2/T0 降级，因为 SSH 到鲲鹏服务器的默认环境大概率不支持；② <strong>不用 T5 做框架</strong>&mdash;&mdash;Chrome 层永远是组件，图形只进 Canvas；③ <strong>启动时探测协议能力</strong>并写入会话，不要每次渲染前试探；④ <strong>远程带宽敏感</strong>&mdash;&mdash;T5 传的是位图，RTT 高时应自动退回 T2（与动效降级同一条规则）。</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 3 — Chrome 层 vs Canvas 层
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="chrome">
+<div class="eyebrow">Foundation &middot; 最容易做错的一条</div>
+<h1>Chrome 层 vs Canvas 层 &mdash;&mdash; 不是所有东西都用字符拼</h1>
+<p class="desc">TUI 常被误解成&ldquo;全部由 ASCII 拼出来的界面&rdquo;。<strong>不是。</strong>现代 TUI 框架（OpenTUI）提供的是<strong>真正的 UI 组件系统</strong>&mdash;&mdash;有表面层、边框、圆角、状态、图标、徽标、滚动条。字符拼接只是其中一种渲染手段，且只该用在特定地方。</p>
+
+<div class="note d"><b>反面案例就在我们自己的稿子里。</b>早期的 Demo 把 Dock、工程树、任务列表全做成了裸文本行&mdash;&mdash;没有选中态的层次、没有 hover、没有图标、没有徽标、缩进靠空格对齐。<strong>那不是 TUI，那是把 CLI 输出塞进了一个框里。</strong>参照 MobaXterm：它的左侧面板有分组标题、图标、悬停高亮、计数&mdash;&mdash;这些都是 UI 组件该有的东西，TUI 一样做得到。</div>
+
+<div class="sublabel">分界原则：结构用组件，数据用字符</div>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>层</th><th>包含</th><th>渲染方式</th><th>必须具备</th></tr>
+<tr>
+  <td><strong style="color:var(--primary)">Chrome 层</strong><br><span style="color:var(--foreground-muted);font-size:11px">框架/结构</span></td>
+  <td>Header &middot; Dock &middot; Tab &middot; 工程树 &middot; 任务列表 &middot; 状态栏 &middot; Command Palette &middot; Scrollbar &middot; 面包屑</td>
+  <td><strong>真 UI 组件</strong><br>React + OpenTUI 组件</td>
+  <td>表面层级 &middot; 边框强度 &middot; 圆角 &middot; <strong>hover / selected / focus / disabled 四态</strong> &middot; 图标 &middot; 徽标 &middot; 截断省略</td>
+</tr>
+<tr>
+  <td><strong style="color:var(--warning)">Canvas 层</strong><br><span style="color:var(--foreground-muted);font-size:11px">数据/读数</span></td>
+  <td>Braille 曲线 &middot; NUMA 热力网格 &middot; 火焰图 &middot; Trace 泳道 &middot; diff 增删行 &middot; 日志流 &middot; Sparkline &middot; 进度条</td>
+  <td><strong>字符网格</strong><br>@opentui/core 缓冲绘制 / 自定义 render</td>
+  <td>渲染分层 T1&ndash;T3 &middot; 域色映射 &middot; 对齐网格 &middot; 数值可达（选中可读）</td>
+</tr>
+</table>
+</div>
+
+<div class="sublabel">怎么判断一个区域属于哪层</div>
+
+<pre><span class="cm"><span class="fw">问一句：这块内容是</span>「<span class="fw">结构</span>」<span class="fw">还是</span>「<span class="fw">读数</span>」？</span>
+
+<span class="pr"><span class="fw">结构</span></span> <span class="cm">&mdash;&mdash;</span> <span class="fw">用户在这里做的是选择、导航、切换、确认</span>
+        &rarr; Chrome <span class="fw">层，用组件。需要状态表达（选中/悬停/焦点）</span>
+        <span class="cm"><span class="fw">例：工程树里选</span> crypto.c <span class="fw">&middot; 任务列表切任务 &middot;</span> Evidence <span class="fw">点开某条</span></span>
+
+<span class="wn"><span class="fw">读数</span></span> <span class="cm">&mdash;&mdash;</span> <span class="fw">用户在这里做的是看数值、比大小、找异常</span>
+        &rarr; Canvas <span class="fw">层，用字符。需要密度与对齐</span>
+        <span class="cm"><span class="fw">例：</span>NUMA <span class="fw">热力图 &middot;</span> Trace <span class="fw">泳道 &middot;</span> latency <span class="fw">曲线 &middot;</span> diff <span class="fw">增删行</span></span>
+
+<span class="ac"><span class="fw">两者混在一个面板里时，按子区域分别处理：</span></span>
+  Migration Report <span class="fw">面板</span> = Issue <span class="fw">列表（组件）</span> + <span class="fw">兼容性</span> bar / <span class="fw">风险热力（字符）</span>
+  <span class="fw">算子表</span> = <span class="fw">行选中与排序（组件）</span> + <span class="fw">单元格里的</span> bar<span class="fw">（字符）</span></pre>
+
+<div class="sublabel">Chrome 组件清单与设计 token 对应</div>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>组件</th><th>结构</th><th>设计 token</th></tr>
+<tr><td>分区标题（TASKS / PROJECT）</td><td>折叠箭头 + 大写字距标签 + 右侧计数徽标</td><td>label 11px &middot; fg-muted &middot; surface-2 pill</td></tr>
+<tr><td>列表项</td><td>图标 + 主标签（省略号截断）+ 徽标 + 右侧元信息</td><td>radius-sm &middot; hover=surface-3 &middot; selected=state-selected + 左侧 2px accent</td></tr>
+<tr><td>树节点</td><td><strong>缩进引导线</strong> + 展开箭头 + 文件名 + 风险条</td><td>gutter=fg-disabled &middot; 风险条用域色阶</td></tr>
+<tr><td>Tab</td><td>状态点 + 标题 + 关闭 + 新建；选中态顶部 2px 品牌色</td><td>radius-lg 上圆角 &middot; 选中底色=background</td></tr>
+<tr><td>状态栏</td><td><strong>分段式</strong>，段间 1px 分隔；当前 Workspace 段用品牌底色</td><td>surface-2 &middot; border-subtle &middot; state-selected</td></tr>
+<tr><td>结构化列表（Plan / Evidence）</td><td>序号 + 主副两行 + 右侧耗时/动作 + 工具 tag</td><td>radius-md &middot; hover &middot; on=state-selected + border</td></tr>
+<tr><td>Header chip</td><td>状态点 + 文本，pill 形态</td><td>radius-pill &middot; surface-3 &middot; border-subtle</td></tr>
+</table>
+</div>
+
+<div class="note"><b>为什么这条重要：</b>① <strong>状态表达</strong>&mdash;&mdash;字符拼不出 hover/selected 的层次感，而&ldquo;我现在选中的是哪一项&rdquo;是工作台的基本诉求；② <strong>自适应</strong>&mdash;&mdash;组件能随宽度伸缩截断，字符对齐依赖固定列宽，一变窄就崩；③ <strong>可维护</strong>&mdash;&mdash;style props 改一处全局生效，字符拼接每处都要重算列宽（本规范里那些 ASCII 框就是靠脚本算宽度才对齐的，这恰恰说明它不适合做框架）。</div>
+
+<p>反过来，<strong>数据区也不能用组件</strong>：64 核热力网格如果用 64 个 div，密度、对齐、性能全都做不到&mdash;&mdash;那里就该是字符网格。<strong>两层各司其职，边界清晰。</strong></p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SECTION 4 — 框架选型
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="fw">
+<div class="eyebrow">TUI Capability</div>
+<h1>框架选型</h1>
+<p class="desc">关键前提：<strong>DevKit AI 已通过 MCP over streamableHttp（:8000）暴露能力</strong>，TUI 本质是客户端。实现语言与 Agent Runtime 解耦，选型可纯按&ldquo;渲染能力 + 设计系统落地成本 + 团队栈&rdquo;决策。</p>
+
+<div class="note"><b>已定：TypeScript 5.9 + React 19 + OpenTUI 0.5.1 + Bun。</b>FTXUI 是 C++ 库，与技术栈方向不符，<strong>已排除</strong>（其 Canvas 双层绘图 API 的分层思路仍值得在自建 braille 封装时借鉴）。Textual（Python）曾作为候选但已排除&mdash;&mdash;OpenTUI 与 OpenCode 同栈，生态复用优势决定性。</div>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>维度</th><th style="color:var(--primary)">OpenTUI（TypeScript）&#9733; 已选</th><th>Textual（Python）&middot; 对照</th></tr>
+<tr><td>生态位</td><td>Zig 编写的原生 TUI 核心 + TypeScript 绑定，另提供 C ABI；<strong>OpenCode 生产环境在跑</strong></td><td>Textualize 出品，基于 Rich，Python TUI 生态最大</td></tr>
+<tr><td><strong>样式系统</strong></td><td><strong>组件式架构 + 灵活布局；样式为 style props</strong></td><td>TCSS &mdash;&mdash; CSS 子集，含变量、选择器、伪类</td></tr>
+<tr><td><strong>设计 token 落地</strong></td><td><strong>React 组件 props + theme context</strong>，设计 token 通过 theme provider 注入</td><td>内置主题系统（predefined themes），变量可直接承载设计 token</td></tr>
+<tr><td>内置组件</td><td><strong><code>@opentui/core</code> 提供命令式 API 与全部原语；<code>@opentui/react</code> 提供 reconciler</strong></td><td>Button / Tree / DataTable / Input / TextArea / Select / Tabs ...</td></tr>
+<tr><td>Canvas / 图形</td><td><strong>核心含缓冲级绘制；<code>@opentui/three</code> 提供 Three.js WebGPU 渲染器</strong></td><td>Rich 提供渲染原语，braille 画布需薄封装</td></tr>
+<tr><td>鼠标 / 动画</td><td><strong>&#10003; 主打 correctness / stability / performance</strong></td><td>&#10003; 完整鼠标 + animate() 缓动</td></tr>
+<tr><td>OpenCode 复用</td><td><strong>高（同栈）&mdash;&mdash;Agent 流式渲染、工具调用展示、会话管理可直接复用</strong></td><td>低（可通过 MCP 复用能力，不复用代码）</td></tr>
+<tr><td>与 DevKit 生态</td><td>通过 MCP 客户端对接 DevKit Intelligence；Bun 运行时性能优异</td><td>Python 贴近 AI / 编译分析 / 数据处理工具链</td></tr>
+</table>
+</div>
+
+<div class="note"><b>为什么 OpenTUI 是对的选择&mdash;&mdash;决定性理由是生态复用与渲染能力。</b>OpenTUI 是 OpenCode 的底层引擎，Agent 流式渲染节奏、工具调用展示折叠策略、会话切换与上下文管理的交互实现<strong>可以直接复用</strong>，不需要从零开始造。React 19 的 reconciler 让组件逻辑与声明式 UI 天然吻合，设计 token 通过 theme provider 注入，Web 端与终端端共用同一份设计语言。<br><br>
+次要理由：<code>@opentui/core</code> 核心含缓冲级绘制能力，braille / 热力等图表原语的底座更坚实；Bun 的启动速度和运行效率在 SSH 低带宽场景下表现优异；TypeScript 的类型系统确保组件契约与设计 token 的类型安全。</div>
+
+<div class="note w"><b>OpenTUI 路线要自己补的三块。</b>① <strong>Command Palette</strong>&mdash;&mdash;需自建模糊搜索命令面板以兑现 P09（Textual 内置此组件，OpenTUI 需要自行实现）。② <strong>热力网格</strong>&mdash;&mdash;T3 层的 NUMA 网格、Trace 密度带需自定义 Widget。③ <strong>可拖拽分栏</strong>&mdash;&mdash;P23 的布局预设需自建拖拽交互。</div>
+
+<div class="sublabel">建议架构（渲染与智能解耦）</div>
+
+<pre>  React 19 + OpenTUI Shell  <span class="cm">&larr; <span class="fw">渲染</span> T0&ndash;T4 &middot; <span class="fw">交互 &middot; 布局 &middot; 快捷键</span></span>
+        <span class="ac">|</span>                    <span class="cm">theme provider = <span class="fw">设计</span> token <span class="fw">注入</span></span>
+        <span class="ac">|</span>  <span class="pr">MCP / HTTP :8000 &middot; streamableHttp</span>
+  <span class="wn">Agent Runtime</span>             <span class="cm">&larr; Agent Loop &middot; <span class="fw">会话 &middot; 上下文 &middot; 工具编排</span></span>
+        <span class="ac">|</span>
+  <span class="er">DevKit Tools</span>              <span class="cm">&larr; code_cpp_migrator &middot; database_sql_migrator</span>
+                              <span class="cm">sql_syntax_repair &middot; kunpeng_knowledge_base_search</span>
+                              <span class="cm">profiler &middot; <span class="fw">诊断器</span></span></pre>
+
+<div class="sublabel">Token 落地示例</div>
+
+<pre><span class="cm">// theme.ts &mdash;&mdash; <span class="fw">由本规范第</span> Foundation <span class="fw">节直接生成</span></span>
+<span class="pr">export const</span> dsTheme = {
+  background:  <span class="ok">'#101010'</span>,  surface1: <span class="ok">'#161616'</span>,
+  surface2:    <span class="ok">'#1c1c1c'</span>,  surface3: <span class="ok">'#262626'</span>,
+  foreground:  <span class="ok">'#e8e8e8'</span>,  <span class="cm">// .90 <span class="fw">预合成</span></span>
+  fgSecondary: <span class="ok">'#a4a4a4'</span>,
+  fgMuted:     <span class="ok">'#777777'</span>,
+  primary: <span class="ok">'#0077ff'</span>,      success: <span class="ok">'#04d793'</span>,
+  warning: <span class="ok">'#ffaa3b'</span>,      danger:  <span class="ok">'#ff4b7b'</span>,
+} <span class="pr">as const</span>;
+
+<span class="cm">// <span class="fw">组件消费</span> token</span>
+&lt;<span class="pr">KernelTable</span>
+  style={{ background: theme.surface1,
+           border: <span class="ok">`round ${theme.surface3}`</span>,  <span class="cm">// radius-lg &rarr; &#9581;&#9582;&#9584;&#9583;</span>
+           padding: <span class="ok">'1 2'</span> }}                   <span class="cm">// space-4 &rarr; 1 row / 2 col</span>
+  selectedStyle={{ background: <span class="ok">'#18293c'</span> }}    <span class="cm">// state-selected</span>
+/&gt;</pre>
+
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+Kunpeng DevKit AI &middot; TUI 渲染与框架 v0.6 &middot; Concept Design &middot; 2026-08<br>
+设计系统：529 tokens &middot; Dark-first &middot; Inter + JetBrains Mono<br>
+渲染参照：btop &middot; ratatui demo&emsp;&emsp;框架：React 19 + OpenTUI 0.5.1 + TypeScript 5.9 + Bun
+</footer>
+
+</div><!-- .content -->
+
+<script>
+function tt(){
+  const r=document.documentElement, d=r.getAttribute('data-theme')==='dark';
+  r.setAttribute('data-theme', d?'light':'dark');
+  document.getElementById('tl').textContent = d?'Dark':'Light';
+}
+</script>
+</body>
+</html>

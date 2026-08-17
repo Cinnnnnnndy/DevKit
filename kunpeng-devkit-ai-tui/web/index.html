@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kunpeng DevKit AI — Design System &amp; UX Spec</title>
 <style>
-/* ═══ PTO Design System tokens ═══ */
+/* ═══ Design System tokens ═══ */
 :root{
   --ark-blue-500:#0077ff; --ark-blue-600:#3d98ff; --ark-domain-aux:#7c8db8;
   --ark-green-500:#04d793; --ark-orange-500:#ffaa3b; --ark-red-500:#ff4b7b;
@@ -415,10 +415,10 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
 <div class="topbar">
   <img class="kpmark" alt="Kunpeng" src="data:image/png;base64,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">
   <span class="brand">Kunpeng DevKit AI</span>
-  <span class="vchip">v0.6 / PTO 4.1</span>
+  <span class="vchip">v0.6</span>
   <span class="tagline">鲲鹏迁移 · 诊断 · 调优工作站 · 原生 TUI · Dark-first</span>
   <span class="tb-right">
-    <a href="#fw">框架选型 ↗</a>
+    <a href="./tui-capability.html">TUI 渲染能力 ↗</a>
     <button class="tbtn" onclick="tt()">◐ <span id="tl">Light</span></button>
   </span>
 </div>
@@ -431,7 +431,7 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <a href="#form">形态：原生 TUI</a>
   <a href="#ia">信息架构</a>
   <a href="#base">现有能力基线</a>
-  <div class="ngrp">Foundations · 基础 · 与 PTO 同构</div>
+  <div class="ngrp">Foundations · 基础</div>
   <a href="#ds">设计系统继承</a>
   <a href="#color">Colors</a>
   <a href="#type">Typography</a>
@@ -439,19 +439,21 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <a href="#elev">Elevation &amp; Border</a>
   <a href="#motion">Motion</a>
   <a href="#cheat">★ 视觉规范速查</a>
-  <div class="ngrp">Rendering · 渲染能力 · TUI 特有</div>
-  <a href="#tui">TUI ≠ CLI</a>
-  <a href="#tier">渲染分层 T0–T5</a>
-  <a href="#chrome">★ Chrome vs Canvas</a>
-  <a href="#fw">框架选型</a>
+  <a href="./tui-capability.html" class="ngrp" style="text-decoration:none;color:inherit">Rendering · 渲染能力 ↗</a>
   <div class="ngrp">Components · 组件与图元</div>
   <a href="#comp">组件清单</a>
   <a href="#primlib">★ 图元库 · 十四种</a>
   <a href="#primsize">图元尺寸与排布</a>
-  <div class="ngrp">Patterns · 交互 Pattern</div>
-  <a href="#p1">P01–P12 核心</a>
-  <a href="#p2">P13–P20 已验证</a>
+  <div class="ngrp">Scenarios · 场景与交互</div>
+  <a href="#s-mig">Migrate ★</a>
+  <a href="#s-dev">Develop</a>
+  <a href="#s-diag">Diagnose</a>
+  <a href="#s-opt">Optimize</a>
+  <a href="#s-obs">Observe</a>
+  <a href="#s-kb">Knowledge</a>
   <a href="#p3">P21–P26 TUI 原生</a>
+  <a href="#p2">P13–P20 已验证</a>
+  <a href="#p1">P01–P12 核心</a>
   <div class="ngrp">Layout · 布局与交互</div>
   <a href="#frame">★ 应用框架</a>
   <a href="#shell">Shell 布局</a>
@@ -461,16 +463,11 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <a href="#impl">★ 工作台外壳</a>
   <a href="#impl-tier">降级路径并排</a>
   <a href="#impl-run">在本地跑起来</a>
-  <div class="ngrp">Product · 产品场景与旅程</div>
-  <a href="#s-mig">Migrate ★</a>
-  <a href="#s-dev">Develop</a>
-  <a href="#s-diag">Diagnose</a>
-  <a href="#s-opt">Optimize</a>
-  <a href="#s-obs">Observe</a>
-  <a href="#s-kb">Knowledge</a>
+  <div class="ngrp">Journey · 旅程</div>
   <a href="#jmap">旅程地图</a>
   <a href="#jstory">Demo 故事线</a>
   <a href="#jscreen">阶段屏幕</a>
+  <div class="ngrp">Demos · 演示</div>
   <a href="#d1">Demo · Migration</a>
   <a href="#d2">Demo · Optimize</a>
   <a href="#d3">Demo · Diagnose</a>
@@ -487,7 +484,7 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
 <div class="eyebrow">Overview</div>
 <h1>Kunpeng DevKit AI</h1>
 <p class="desc">面向开发者、芯片工程师与性能工程师的<strong>原生 TUI 工作站</strong>——独立运行、全屏接管终端，把 AI Agent、鲲鹏 DevKit 工具链与工程可视化能力融合在一起，直接跑在鲲鹏服务器上。</p>
-<p class="desc">设计定位继承 <strong>PTO Design System</strong>：技术、克制、精确——对标 Cursor · Warp · Resend，而非消费级仪表盘。Dark-first，中英双语，专家级密度。</p>
+<p class="desc">设计定位：技术、克制、精确——对标 Cursor · Warp · Resend，而非消费级仪表盘。Dark-first，中英双语，专家级密度。</p>
 <div class="grid g4">
   <div class="stat"><b style="color:var(--primary-hover)">29</b><span>Interaction Patterns</span></div>
   <div class="stat"><b style="color:var(--success)">20</b><span>TUI Components</span></div>
@@ -666,10 +663,10 @@ Save       →  P12 Session Summary<span class="fw">（升级：验证闭环</sp
 
 <section id="ds">
 <div class="eyebrow">Foundation</div>
-<h2>设计系统继承：PTO → TUI</h2>
-<p class="desc">直接继承 PTO Design System 的 token 体系与设计原则。但 Web 与终端的表达能力差异巨大——<strong>本节的核心工作是把 PTO 的 web token 翻译成终端可实现的 TUI token</strong>，而不是简单复制色值。</p>
+<h2>设计系统继承：Web → TUI</h2>
+<p class="desc">直接继承设计系统的 token 体系与设计原则。但 Web 与终端的表达能力差异巨大——<strong>本节的核心工作是把 Web 端 token 翻译成终端可实现的 TUI token</strong>，而不是简单复制色值。</p>
 <table>
-<tr><th>PTO（Web）</th><th>终端能力</th><th>翻译策略</th></tr>
+<tr><th>Web 端</th><th>终端能力</th><th>翻译策略</th></tr>
 <tr><td>6 级表面 ramp</td><td>✓ 真彩逐格背景色</td><td><strong>1:1 直译</strong>，truecolor 下完全可复现</td></tr>
 <tr><td>4 级前景透明度</td><td>✗ 无 alpha 通道</td><td><strong>预合成</strong>——按已知表面色离线拍平为实色（见下表）</td></tr>
 <tr><td>3 级阴影</td><td>✗ 无阴影</td><td><strong>改用边框强度 + 表面步进</strong>表达层级</td></tr>
@@ -699,7 +696,7 @@ Save       →  P12 Session Summary<span class="fw">（升级：验证闭环</sp
 <p class="rule">TUI 语义分配：<code>background</code> = 应用底 · <code>elevated</code> = 面板底 · <code>surface-1</code> = 卡片 · <code>surface-2</code> = 表头/工具栏 · <code>surface-3</code> = hover · <code>surface-4</code> = 选中/节点高亮。</p>
 
 <div class="sublabel">Foreground — 4 级不透明度 · 预合成为实色</div>
-<p>终端无 alpha 通道。PTO 的 <code>rgba(255,255,255,.90/.60/.40/.25)</code> 必须按所叠表面离线拍平。<strong>下表可直接写进配色文件。</strong></p>
+<p>终端无 alpha 通道。Web 端的 <code>rgba(255,255,255,.90/.60/.40/.25)</code> 必须按所叠表面离线拍平。<strong>下表可直接写进配色文件。</strong></p>
 <table>
 <tr><th class="mono">level</th><th class="mono">on #101010</th><th class="mono">on #161616</th><th class="mono">on #1C1C1C</th><th class="mono">on #262626</th><th class="mono">on #313131</th></tr>
 <tr><td class="mono">foreground .90</td><td class="mono">#E7E7E7</td><td class="mono">#E8E8E8</td><td class="mono">#E8E8E8</td><td class="mono">#E9E9E9</td><td class="mono">#EAEAEA</td></tr>
@@ -720,9 +717,9 @@ Save       →  P12 Session Summary<span class="fw">（升级：验证闭环</sp
 </div>
 <p class="rule">TUI 语义映射：<span style="color:#3d98ff">primary</span> = 焦点/当前项/Agent 活动 · <span style="color:#7c8db8">accent</span> = 元数据/ID/次级强调 · <span style="color:#04d793">success</span> = ✓ 完成/通过 · <span style="color:#ffaa3b">warning</span> = ⚠ 风险/待重启/非致命异常 · <span style="color:#ff4b7b">danger</span> = ✕ 失败/Critical/高危操作。</p>
 
-<div class="note warn"><b>品牌色替换带来的两条硬约束。</b>DevKit 品牌色 <code>#0077FF</code> 取代 PTO 原本的 <code>#4369EF</code> 后，实测出两个必须处理的问题：<br><br>
-<strong>① 对比度不足，文本不能直接用品牌色。</strong><code>#0077FF</code> 在 <code>#101010</code> 上对比度 4.61:1（勉强过 AA），但在 <code>#1C1C1C</code> 表面上降到 <strong>4.12:1，不达 AA 标准</strong>。规范：<strong>品牌色只用于填充、边框、焦点底色；一切文本/链接/图标用 <code>--primary-hover #3D98FF</code></strong>（各表面上 5.8–6.5:1，全部达标）。这与 PTO 原色不同——旧的 #4369EF 更暗，反而是靠 hover 档提亮；新品牌色更亮更饱和，问题变成了"纯色在深灰表面上灰度差不够"。<br><br>
-<strong>② 与 data-viz 的 copy-blue 撞色。</strong>品牌色色相 212°，PTO 的 <code>copy-blue</code> 色阶色相 219°——<strong>只差 7°</strong>，在终端里（无法靠尺寸/位置区分）用户无法分辨"这条泳道是 CPU"还是"这条泳道被选中了"。解决方案见下。</div>
+<div class="note warn"><b>品牌色替换带来的两条硬约束。</b>DevKit 品牌色 <code>#0077FF</code> 取代原本的 <code>#4369EF</code> 后，实测出两个必须处理的问题：<br><br>
+<strong>① 对比度不足，文本不能直接用品牌色。</strong><code>#0077FF</code> 在 <code>#101010</code> 上对比度 4.61:1（勉强过 AA），但在 <code>#1C1C1C</code> 表面上降到 <strong>4.12:1，不达 AA 标准</strong>。规范：<strong>品牌色只用于填充、边框、焦点底色；一切文本/链接/图标用 <code>--primary-hover #3D98FF</code></strong>（各表面上 5.8–6.5:1，全部达标）。这与设计系统原色不同——旧的 #4369EF 更暗，反而是靠 hover 档提亮；新品牌色更亮更饱和，问题变成了"纯色在深灰表面上灰度差不够"。<br><br>
+<strong>② 与 data-viz 的 copy-blue 撞色。</strong>品牌色色相 212°，设计系统的 <code>copy-blue</code> 色阶色相 219°——<strong>只差 7°</strong>，在终端里（无法靠尺寸/位置区分）用户无法分辨"这条泳道是 CPU"还是"这条泳道被选中了"。解决方案见下。</div>
 
 <div class="sublabel">域色映射 — 蓝色专属品牌，数据色从非蓝取</div>
 <p>既然品牌蓝会出现在色块上（进度条、选中底色、焦点），<strong><code>copy-blue</code> 必须退出 TUI 的数据可视化色板</strong>。全产品建立一套固定的域色映射，同一个观测对象在任何页面都是同一个色相：</p>
@@ -738,7 +735,7 @@ Save       →  P12 Session Summary<span class="fw">（升级：验证闭环</sp
 <div class="note"><b>还有一条形状层的分离规则，比调色相更可靠。</b>语义色（success / warning / danger）与数据色阶在色相上仍有邻近（warning 35° vs accum-orange 25°）。终端里最终靠<strong>字形</strong>而非色相区分：<br>
 <strong>语义色只上字符与短文本</strong>（<code>✓ ⚠ ✕</code>、状态标签），<strong>永不上色块</strong>；<br>
 <strong>数据色阶只上色块与点阵</strong>（<code>█▓▒░ ⣿</code>），<strong>永不上文字</strong>。<br>
-这与 PTO 自身的"Badge 语义色只作用于文字，底面保持中性"是同一条纪律的两面。有了它，即使色相接近也不会误读。</div>
+这与设计系统自身的"Badge 语义色只作用于文字，底面保持中性"是同一条纪律的两面。有了它，即使色相接近也不会误读。</div>
 
 <div class="sublabel">State Overlays — 预合成（叠在 surface-2 上）</div>
 <div class="sw">
@@ -758,7 +755,7 @@ Save       →  P12 Session Summary<span class="fw">（升级：验证闭环</sp
   <div><div class="chip" style="background:linear-gradient(90deg,#E1F9B3,#B3F141,#86C70F)"></div><div class="meta"><b>ub-green</b><span>200→400→600</span></div></div>
   <div><div class="chip" style="background:linear-gradient(90deg,#FDEB9D,#F4CB22,#CA8A04)"></div><div class="meta"><b>mte-amber</b><span>200→400→600</span></div></div>
 </div>
-<div class="note"><b>这条约束在 TUI 里价值更高。</b>PTO 规定高亮色阶"禁止作为通用 UI 面板背景"——终端里必须严格执行，因为大面积饱和背景会让整屏文字不可读。</div>
+<div class="note"><b>这条约束在 TUI 里价值更高。</b>设计系统规定高亮色阶"禁止作为通用 UI 面板背景"——终端里必须严格执行，因为大面积饱和背景会让整屏文字不可读。</div>
 
 <div class="sublabel">色阶使用规则：顺序 vs 分类 — 不要混用</div>
 <p>这五条色阶的命名（copy · l0a · accum · ub · mte）本身就是<strong>昇腾 NPU 的功能单元名</strong>——它们是<strong>分类色（categorical）</strong>，用来区分"这是哪个单元"，<strong>不是</strong>用来表达"值有多大"。两种用法必须分开：</p>
@@ -785,9 +782,9 @@ Save       →  P12 Session Summary<span class="fw">（升级：验证闭环</sp
 <section id="type">
 <div class="eyebrow">Foundation</div>
 <h2>Typography — 六级字号如何塌缩到一级</h2>
-<p class="desc">这是 Web→TUI 翻译中最困难的一环。PTO 有 6 级字号 × 3 种字重 × 2 个字族；终端<strong>只有一个字号、一个字族</strong>。层级必须由其它维度重新编码。</p>
+<p class="desc">这是 Web→TUI 翻译中最困难的一环。Web 端有 6 级字号 × 3 种字重 × 2 个字族；终端<strong>只有一个字号、一个字族</strong>。层级必须由其它维度重新编码。</p>
 <table>
-<tr><th>PTO 级别</th><th>Web 规格</th><th>TUI 编码方案</th><th>示例</th></tr>
+<tr><th>Web 级别</th><th>Web 规格</th><th>TUI 编码方案</th><th>示例</th></tr>
 <tr><td>display</td><td class="mono">28px / 700</td><td>BOLD + primary 色 + 下方整行分隔线</td><td class="mono" style="color:#3d98ff;font-weight:700">DevKit AI</td></tr>
 <tr><td>title-1</td><td class="mono">20px / 600</td><td>BOLD + foreground .90 + 上方留 1 空行</td><td class="mono" style="font-weight:700;color:#E8E8E8">Migration Report</td></tr>
 <tr><td>title-2</td><td class="mono">16px / 600</td><td>BOLD + 嵌入面板上边框</td><td class="mono">┌<span style="font-weight:700;color:#E8E8E8">kernels</span>────┐</td></tr>
@@ -795,12 +792,12 @@ Save       →  P12 Session Summary<span class="fw">（升级：验证闭环</sp
 <tr><td>body-sm</td><td class="mono">12px / 400</td><td>常规 + secondary .60</td><td class="mono" style="color:#A4A4A4">3 inputs · 1 output</td></tr>
 <tr><td>label</td><td class="mono">11px / 500 / +0.5px</td><td><strong>muted .40 + 全大写 + 字间插空格</strong></td><td class="mono" style="color:#777">P A S S   S T A G E</td></tr>
 </table>
-<p class="rule">关键技法：PTO label 的 <code>letter-spacing:+0.5px</code> 在终端无法用亚字符实现，但可以<strong>在字符间插入空格</strong>模拟——<code>PASS STAGE</code> → <code>P A S S&nbsp;&nbsp;S T A G E</code>。仅用于分区标签这类短文本，长文本禁用（破坏可读性且浪费列宽）。</p>
+<p class="rule">关键技法：Web 端 label 的 <code>letter-spacing:+0.5px</code> 在终端无法用亚字符实现，但可以<strong>在字符间插入空格</strong>模拟——<code>PASS STAGE</code> → <code>P A S S&nbsp;&nbsp;S T A G E</code>。仅用于分区标签这类短文本，长文本禁用（破坏可读性且浪费列宽）。</p>
 
 <div class="sublabel">字族语义的替代编码</div>
-<p>PTO 用 <strong>Inter（UI）+ JetBrains Mono（代码/数值/ID）</strong> 区分"叙述"与"数据"。终端全等宽，这个区分会丢失。替代方案：</p>
+<p>Web 端用 <strong>Inter（UI）+ JetBrains Mono（代码/数值/ID）</strong> 区分"叙述"与"数据"。终端全等宽，这个区分会丢失。替代方案：</p>
 <table>
-<tr><th>PTO 用法</th><th>TUI 替代编码</th></tr>
+<tr><th>Web 端用法</th><th>TUI 替代编码</th></tr>
 <tr><td>mono 表示 ID / 算子名</td><td>accent 色 <code>#7C8DB8</code></td></tr>
 <tr><td>mono 表示数值 / 指标</td><td><strong>右对齐 + 固定小数位</strong> + secondary 色</td></tr>
 <tr><td>mono 表示代码</td><td>缩进 2 格 + 语法高亮（OpenTUI 可直接用 ink.Syntax 原语）</td></tr>
@@ -814,9 +811,9 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <section id="space">
 <div class="eyebrow">Foundation</div>
 <h2>Spacing &amp; Grid — 单轴间距必须拆成双轴</h2>
-<p class="desc">PTO 用 4px 基准的单一间距阶梯。但<strong>终端单元格不是正方形</strong>——典型比例约 1:2（宽 ≈ 8px，高 ≈ 17–20px）。用一套阶梯同时管水平和垂直，必然在某一个方向失真。</p>
+<p class="desc">设计系统用 4px 基准的单一间距阶梯。但<strong>终端单元格不是正方形</strong>——典型比例约 1:2（宽 ≈ 8px，高 ≈ 17–20px）。用一套阶梯同时管水平和垂直，必然在某一个方向失真。</p>
 <table>
-<tr><th>PTO token</th><th>Web</th><th>space-x（列）</th><th>space-y（行）</th><th>用途</th></tr>
+<tr><th>Token</th><th>Web</th><th>space-x（列）</th><th>space-y（行）</th><th>用途</th></tr>
 <tr><td class="mono">--space-1</td><td class="mono">4px</td><td class="mono">0 col</td><td class="mono">0 row</td><td>终端无法表达，向上取到 space-2</td></tr>
 <tr><td class="mono">--space-2</td><td class="mono">8px</td><td class="mono">1 col</td><td class="mono">0 row</td><td>行内元素间隙、图标与文字之间</td></tr>
 <tr><td class="mono">--space-3</td><td class="mono">12px</td><td class="mono">2 col</td><td class="mono">0 row</td><td>表格列间距</td></tr>
@@ -824,7 +821,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td class="mono">--space-5</td><td class="mono">20px</td><td class="mono">3 col</td><td class="mono">1 row</td><td>面板之间</td></tr>
 <tr><td class="mono">--space-6</td><td class="mono">24px</td><td class="mono">3 col</td><td class="mono">2 row</td><td>大区块分隔</td></tr>
 </table>
-<div class="note"><b>纪律不变：</b>PTO 规定"不使用任意像素值（7px、13px）"。TUI 版对应——<strong>不使用任意单元格数</strong>。所有留白只能取上表六档，代码里禁止出现裸数字 padding。</div>
+<div class="note"><b>纪律不变：</b>设计系统规定"不使用任意像素值（7px、13px）"。TUI 版对应——<strong>不使用任意单元格数</strong>。所有留白只能取上表六档，代码里禁止出现裸数字 padding。</div>
 <pre><span class="cm"><span class="fw">面板内边距标准（</span>space-4<span class="fw">）：</span></span>
 ╭─ Migration Report ───────────────────────────╮
 │                                              │  <span class="cm">← <span class="fw">上</span> 1 <span class="fw">行</span></span>
@@ -836,9 +833,9 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <section id="elev">
 <div class="eyebrow">Foundation</div>
 <h2>Elevation &amp; Border — 没有阴影怎么做层级</h2>
-<p class="desc">PTO 有三级阴影表达浮起。终端没有阴影，也没有模糊。层级必须完全由<strong>表面步进 + 边框强度</strong>承担。</p>
+<p class="desc">Web 端有三级阴影表达浮起。终端没有阴影，也没有模糊。层级必须完全由<strong>表面步进 + 边框强度</strong>承担。</p>
 <table>
-<tr><th>PTO 阴影</th><th>Web 用途</th><th>TUI 替代</th></tr>
+<tr><th>Web 阴影</th><th>Web 用途</th><th>TUI 替代</th></tr>
 <tr><td class="mono">--shadow-sm</td><td>chips · pills</td><td>surface-2 底 + border-subtle</td></tr>
 <tr><td class="mono">--shadow-md</td><td>floating panels</td><td>surface-1 底 + border-default + 圆角 <code>╭╮╰╯</code></td></tr>
 <tr><td class="mono">--shadow-lg</td><td>modals · overlays</td><td>surface-1 底 + <strong>border-strong</strong> + 圆角 + <strong>底层整体降到 disabled 色阶</strong></td></tr>
@@ -866,9 +863,9 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <section id="motion">
 <div class="eyebrow">Foundation</div>
 <h2>Motion</h2>
-<p class="desc">PTO 原则原样继承：<strong>动效只服务于功能。无装饰性循环动画，无内容区持续播放。</strong>这条在 TUI 里比 Web 更重要——终端重绘成本高，且远程 SSH 下每一帧都是带宽。</p>
+<p class="desc">设计原则原样继承：<strong>动效只服务于功能。无装饰性循环动画，无内容区持续播放。</strong>这条在 TUI 里比 Web 更重要——终端重绘成本高，且远程 SSH 下每一帧都是带宽。</p>
 <table>
-<tr><th>PTO token</th><th>Web</th><th>TUI @30fps</th><th>用途</th></tr>
+<tr><th>Token</th><th>Web</th><th>TUI @30fps</th><th>用途</th></tr>
 <tr><td class="mono">--duration-fast</td><td class="mono">100ms</td><td class="mono">3 帧</td><td>hover / 选中态切换 / 焦点移动</td></tr>
 <tr><td class="mono">--duration-base</td><td class="mono">200ms</td><td class="mono">6 帧</td><td>面板切换 / 分栏展开</td></tr>
 <tr><td class="mono">--duration-slow</td><td class="mono">350ms</td><td class="mono">10 帧</td><td>模态浮层进出 / Workspace 切换</td></tr>
@@ -963,7 +960,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
               <span class="du">⚠ 风险 / 待重启 / 非致命异常</span></div>
             <div class="ck-role"><span class="sw" style="background:#7c8db8"></span>
               <span class="nm">accent<em>#7C8DB8</em></span>
-              <span class="du">元数据 / ID / 次级强调 —— 替代 PTO 用 mono 字族表达的"这是数据"</span></div>
+              <span class="du">元数据 / ID / 次级强调 —— 替代 Web 端用 mono 字族表达的"这是数据"</span></div>
           </div>
         </div>
 
@@ -1073,164 +1070,6 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
       </div>
 </section>
 
-<section id="tui">
-<div class="eyebrow">TUI Capability</div>
-<h2>TUI ≠ CLI</h2>
-<p class="desc">TUI 拿到的是<strong>全屏可寻址缓冲 + 事件循环</strong>，能力集远大于 CLI。设计时必须主动消费这些能力，否则做出来的只是带框线的 CLI。</p>
-<table>
-<tr><th>能力</th><th>CLI</th><th>TUI</th><th>DevKit 场景应用</th></tr>
-<tr><td>全屏可寻址缓冲</td><td>只能向下追加</td><td>alternate screen，任意坐标重绘</td><td>多面板常驻：左树 + 中报告 + 右指标同屏不滚动</td></tr>
-<tr><td>亚字符分辨率</td><td>1 字符 = 1 像素</td><td>Braille 2×4 = <strong>8× 密度</strong></td><td>真折线/面积图：CPU 历史、算子 latency 曲线</td></tr>
-<tr><td>高频局部重绘</td><td>无</td><td>局部 diff 刷新，500ms 级</td><td>实时 Trace、采集中的 Profiler</td></tr>
-<tr><td>鼠标事件</td><td>无</td><td>click / hover / drag / wheel</td><td>点选算子下钻、拖拽调分栏、滚轮缩放 Timeline</td></tr>
-<tr><td>焦点与滚动容器</td><td>靠 less 管道</td><td>独立滚动区、Scrollbar</td><td>万行日志、64 核进程表、长 Diff 各自独立滚动</td></tr>
-<tr><td>浮层 / 模态</td><td>无</td><td>overlay 覆盖不破坏底层</td><td>Command Palette、Approval、模型切换器</td></tr>
-<tr><td>24-bit 真彩</td><td>通常 8/16 色</td><td>真彩 + 背景色</td><td><strong>颜色作为第三维</strong>：NUMA 热力、风险热力</td></tr>
-<tr><td>可调分栏</td><td>无</td><td>resizable split</td><td>用户自定义工作区</td></tr>
-<tr><td>持久会话状态</td><td>退出即丢</td><td>常驻进程</td><td>上下文水位、索引状态、多会话 Tab</td></tr>
-</table>
-<div class="note"><b>设计准则：</b>每画一个页面先问三个问题——① 这里能不能用 braille 提到 8× 密度？② 这里能不能用颜色承载一个额外维度？③ 这个元素能不能点、能不能滚、能不能拖？三个都答"否"的页面，说明还停在 CLI 思维。</div>
-</section>
-
-<section id="tier">
-<div class="eyebrow">TUI Capability</div>
-<h2>渲染分层 T0–T4</h2>
-<p class="desc">高层必须能向低层降级（SSH 老终端、CI 日志、16 色环境）。每个组件都要声明层级与降级路径。</p>
-<table>
-<tr><th>层</th><th>技法</th><th>密度</th><th>适用</th><th>降级到</th></tr>
-<tr><td>T0 文本</td><td>纯字符 + 状态符号</td><td>1×1</td><td>Timeline、Tree、列表、日志</td><td>—（兼容底线）</td></tr>
-<tr><td>T1 块字符</td><td>▁▂▃▅▇█ / 象限</td><td>1×2 · 2×2</td><td>Gauge、Sparkline、BarChart</td><td>T0 数字 + 百分比</td></tr>
-<tr><td>T2 Braille</td><td>⠁⡀⣿ 点阵画布</td><td><strong>2×4 = 8×</strong></td><td>折线、面积、散点、双向流量</td><td>T1 Sparkline</td></tr>
-<tr><td>T3 真彩热力</td><td>bgcolor 承载数值</td><td>颜色 = 第三维</td><td>核心网格、风险热力、Trace 密度</td><td>T1 灰阶块字符</td></tr>
-<tr><td>T4 交互</td><td>mouse + focus + scroll</td><td>—</td><td>zoom/select/drag/sort/hover</td><td>纯键盘等价（必须全覆盖）</td></tr>
-<tr><td style="color:var(--warning)"><strong>T5 图形</strong></td><td><strong>终端图形协议</strong><br>Sixel · Kitty · iTerm2 inline</td><td><strong>真像素</strong></td><td>火焰图 · 依赖图 · 复杂 Roofline · 真实截图 · LaTeX 公式</td><td>T2 braille 近似 / T0 文字摘要</td></tr>
-</table>
-<p class="rule">硬性要求：T4 的每个鼠标操作必须有键盘等价路径（无鼠标的 SSH 是 DevKit 主战场）。T3 在 <code>NO_COLOR</code> / 16 色下自动降级为 T1，语义不能丢。<strong>T5 必须永远可降级</strong>——它依赖终端支持，不能作为唯一表达路径。</p>
-
-<div class="sublabel">T5 · 终端图形协议 —— 之前被低估的一整层</div>
-<div class="note warn"><b>一个必须纠正的假设：终端不只能画字符。</b>现代终端支持图形协议，可以渲染<strong>真正的位图</strong>。实拍佐证：<code>euporie</code> 在终端里渲染 matplotlib 图表、LaTeX 公式、HTML/CSS 表格与真实图片；TUI 媒体库渲染电影海报；SimUtil 把手机模拟器画面嵌进面板；甚至有人在终端里跑 Pokémon。<strong>这意味着"复杂图表必须简化成字符"这个前提是错的。</strong></div>
-<table>
-<tr><th>协议</th><th>支持终端</th><th>特点</th></tr>
-<tr><td class="mono">Kitty graphics</td><td>kitty · WezTerm · Ghostty · Konsole</td><td>性能最好，支持动画与 z-index 层叠，可与文字混排</td></tr>
-<tr><td class="mono">Sixel</td><td>xterm · mlterm · foot · WezTerm · Windows Terminal(预览)</td><td>最广泛的老协议，色深受限，大图较慢</td></tr>
-<tr><td class="mono">iTerm2 inline</td><td>iTerm2 · WezTerm</td><td>直接传 base64 图片，简单但生态窄</td></tr>
-<tr><td class="mono">— 无支持</td><td>基础 xterm · 多数 SSH 默认环境 · CI</td><td><strong>降级到 T2/T0</strong></td></tr>
-</table>
-<div class="sublabel">DevKit 里该用 T5 的四个地方</div>
-<table>
-<tr><th>场景</th><th>为什么字符做不好</th><th>降级路径</th></tr>
-<tr><td><strong>火焰图 / 调用栈</strong></td><td>层级深、标签长，字符网格下要么截断要么滚不完</td><td>T0：Top-N 热点函数列表 + 占比</td></tr>
-<tr><td><strong>依赖图 / Pass-IR 图</strong></td><td>节点多、连线交叉，ASCII 连线在 20+ 节点后不可读</td><td>T0：P04 因果链（单链路，不画全图）</td></tr>
-<tr><td><strong>Roofline 精确图</strong></td><td>需要对数坐标轴与精确点位，braille 只能近似</td><td>T2：braille 近似 + 数值表</td></tr>
-<tr><td><strong>导出报告预览</strong></td><td>报告本身就是图文混排的 PDF/HTML</td><td>T0：文字摘要 + 导出路径</td></tr>
-</table>
-<div class="note"><b>但纪律不变，而且更严：</b>① <strong>T5 是增强不是基础</strong>——每个用 T5 的地方都必须有 T2/T0 降级，因为 SSH 到鲲鹏服务器的默认环境大概率不支持；② <strong>不用 T5 做框架</strong>——Chrome 层永远是组件，图形只进 Canvas；③ <strong>启动时探测协议能力</strong>并写入会话，不要每次渲染前试探；④ <strong>远程带宽敏感</strong>——T5 传的是位图，RTT 高时应自动退回 T2（与动效降级同一条规则）。</div>
-</section>
-
-<section id="chrome">
-<div class="eyebrow">Foundation · 最容易做错的一条</div>
-<h2>Chrome 层 vs Canvas 层 —— 不是所有东西都用字符拼</h2>
-<p class="desc">TUI 常被误解成"全部由 ASCII 拼出来的界面"。<strong>不是。</strong>现代 TUI 框架（OpenTUI）提供的是<strong>真正的 UI 组件系统</strong>——有表面层、边框、圆角、状态、图标、徽标、滚动条。字符拼接只是其中一种渲染手段，且只该用在特定地方。</p>
-
-<div class="note d"><b>反面案例就在我们自己的稿子里。</b>早期的 Demo 把 Dock、工程树、任务列表全做成了裸文本行——没有选中态的层次、没有 hover、没有图标、没有徽标、缩进靠空格对齐。<strong>那不是 TUI，那是把 CLI 输出塞进了一个框里。</strong>参照 MobaXterm：它的左侧面板有分组标题、图标、悬停高亮、计数——这些都是 UI 组件该有的东西，TUI 一样做得到。</div>
-
-<div class="sublabel">分界原则：结构用组件，数据用字符</div>
-<table>
-<tr><th>层</th><th>包含</th><th>渲染方式</th><th>必须具备</th></tr>
-<tr><td style="color:var(--primary-hover)"><strong>Chrome 层</strong><br><span style="color:var(--foreground-muted)">框架 / 结构</span></td>
-<td>Header · Dock（任务/工程树/工具/知识库）· Tab Bar · 状态栏 · 浮层与模态 · 列表（Plan / Evidence / 下一步 / 能力）· 表单与输入 · 命令面板</td>
-<td><strong>真 UI 组件</strong><br>React + OpenTUI 组件</td>
-<td>表面层级 · 边框强度 · 圆角 · <strong>hover / selected / focus / disabled 四态</strong> · 图标 · 徽标与计数 · 缩进引导线 · 滚动条指示</td></tr>
-<tr><td style="color:var(--warning)"><strong>Canvas 层</strong><br><span style="color:var(--foreground-muted)">数据 / 读数</span></td>
-<td>Braille 曲线 · 热力网格 · Trace 密度带 · Gauge / Sparkline · 散点图 · diff · 日志 · 代码</td>
-<td><strong>字符网格</strong><br>@opentui/core 缓冲绘制 / 自定义 render</td>
-<td>渲染分层 T1–T3 · 域色映射 · 顺序/分类色阶纪律 · 等宽对齐</td></tr>
-</table>
-
-<div class="sublabel">怎么判断一个区域属于哪层</div>
-<pre><span class="cm"><span class="fw">问一句：这块内容是「结构」还是「读数」？</span></span>
-
-<span class="ok"><span class="fw">结构</span></span> —— <span class="fw">用户在这里做的是</span><span class="t"><span class="fw">选择、导航、切换、确认</span></span>
-        → Chrome <span class="fw">层，用组件。需要状态表达（选中</span>/<span class="fw">悬停</span>/<span class="fw">焦点）</span>
-        <span class="cm"><span class="fw">例：工程树里选</span> crypto.c · <span class="fw">任务列表切任务</span> · Evidence <span class="fw">点开某条</span></span>
-
-<span class="wn"><span class="fw">读数</span></span> —— <span class="fw">用户在这里做的是</span><span class="t"><span class="fw">看数值、比大小、找异常</span></span>
-        → Canvas <span class="fw">层，用字符。需要密度与对齐</span>
-        <span class="cm"><span class="fw">例：</span>NUMA <span class="fw">热力图</span> · Trace <span class="fw">泳道</span> · latency <span class="fw">曲线</span> · diff <span class="fw">增删行</span></span>
-
-<span class="er"><span class="fw">两者混在一个面板里时，按</span><span class="t"><span class="fw">子区域</span></span><span class="fw">分别处理：</span></span>
-  Migration Report <span class="fw">面板</span> = <span class="ok">Issue <span class="fw">列表（组件）</span></span> + <span class="wn"><span class="fw">兼容性</span> bar / <span class="fw">风险热力（字符）</span></span>
-  <span class="fw">算子表</span> = <span class="ok"><span class="fw">行选中与排序（组件）</span></span> + <span class="wn"><span class="fw">单元格里的</span> bar<span class="fw">（字符）</span></span></pre>
-
-<div class="sublabel">Chrome 组件清单与 PTO token 对应</div>
-<table>
-<tr><th>组件</th><th>结构</th><th>PTO token</th></tr>
-<tr><td>分区标题（TASKS / PROJECT）</td><td>折叠箭头 + 大写字距标签 + 右侧计数徽标</td><td class="mono">label 11px · fg-muted · surface-2 pill</td></tr>
-<tr><td>列表项</td><td>图标 + 主标签（省略号截断）+ 徽标 + 右侧元信息</td><td class="mono">radius-sm · hover=surface-3 · selected=state-selected + 左侧 2px accent</td></tr>
-<tr><td>树节点</td><td><strong>缩进引导线</strong> + 展开箭头 + 文件名 + 风险条</td><td class="mono">gutter=fg-disabled · 风险条用域色阶</td></tr>
-<tr><td>Tab</td><td>状态点 + 标题 + 关闭 + 新建；选中态顶部 2px 品牌色</td><td class="mono">radius-lg 上圆角 · 选中底色=background</td></tr>
-<tr><td>状态栏</td><td><strong>分段式</strong>，段间 1px 分隔；当前 Workspace 段用品牌底色</td><td class="mono">surface-2 · border-subtle · state-selected</td></tr>
-<tr><td>结构化列表（Plan / Evidence）</td><td>序号 + 主副两行 + 右侧耗时/动作 + 工具 tag</td><td class="mono">radius-md · hover · on=state-selected + border</td></tr>
-<tr><td>Header chip</td><td>状态点 + 文本，pill 形态</td><td class="mono">radius-pill · surface-3 · border-subtle</td></tr>
-</table>
-
-<div class="note"><b>为什么这条重要：</b>① <strong>状态表达</strong>——字符拼不出 hover/selected 的层次感，而"我现在选中的是哪一项"是工作台的基本诉求；② <strong>自适应</strong>——组件能随宽度伸缩截断，字符对齐依赖固定列宽，一变窄就崩；③ <strong>可维护</strong>——style props 改一处全局生效，字符拼接每处都要重算列宽（本规范里那些 ASCII 框就是靠脚本算宽度才对齐的，这恰恰说明它不适合做框架）。<br><br>
-反过来，<strong>数据区也不能用组件</strong>：64 核热力网格如果用 64 个 div，密度、对齐、性能全都做不到——那里就该是字符网格。<strong>两层各司其职，边界清晰。</strong></div>
-</section>
-
-<section id="fw">
-<div class="eyebrow">TUI Capability</div>
-<h2>框架选型</h2>
-<p class="desc">关键前提：<strong>DevKit AI 已通过 MCP over streamableHttp（:8000）暴露能力</strong>，TUI 本质是客户端。实现语言与 Agent Runtime 解耦，选型可纯按"渲染能力 + 设计系统落地成本 + 团队栈"决策。</p>
-<div class="note"><b>已定：TypeScript 5.9 + React 19 + OpenTUI 0.5.1 + Bun。</b>FTXUI 是 C++ 库，与技术栈方向不符，<strong>已排除</strong>（其 Canvas 双层绘图 API 的分层思路仍值得在自建 braille 封装时借鉴）。Textual（Python）曾作为候选但已排除——OpenTUI 与 OpenCode 同栈，生态复用优势决定性。</div>
-<table>
-<tr><th>维度</th><th style="color:var(--primary-hover)">OpenTUI（TypeScript）★ 已选</th><th>Textual（Python）· 对照</th></tr>
-<tr><td>生态位</td><td>Zig 编写的原生 TUI 核心 + TypeScript 绑定，另提供 C ABI；<strong>OpenCode 生产环境在跑</strong></td><td>Textualize 出品，基于 Rich，Python TUI 生态最大</td></tr>
-<tr><td><strong>样式系统</strong></td><td><strong>组件式架构 + 灵活布局；样式为 style props</strong></td><td>TCSS —— CSS 子集，含变量、选择器、伪类</td></tr>
-<tr><td><strong>设计 token 落地</strong></td><td><strong>React 组件 props + theme context</strong>，PTO token 通过 theme provider 注入</td><td>内置主题系统（predefined themes），变量可直接承载 PTO token</td></tr>
-<tr><td>内置组件</td><td><strong><code>@opentui/core</code> 提供命令式 API 与全部原语；<code>@opentui/react</code> 提供 reconciler</strong></td><td>Button / Tree / DataTable / Input / TextArea / Select / Tabs …</td></tr>
-<tr><td>Canvas / 图形</td><td><strong>核心含缓冲级绘制；<code>@opentui/three</code> 提供 Three.js WebGPU 渲染器</strong></td><td>Rich 提供渲染原语，braille 画布需薄封装</td></tr>
-<tr><td>鼠标 / 动画</td><td><strong>✓ 主打 correctness / stability / performance</strong></td><td>✓ 完整鼠标 + animate() 缓动</td></tr>
-<tr><td>OpenCode 复用</td><td><strong>高（同栈）——Agent 流式渲染、工具调用展示、会话管理可直接复用</strong></td><td>低（可通过 MCP 复用能力，不复用代码）</td></tr>
-<tr><td>与 DevKit 生态</td><td>通过 MCP 客户端对接 DevKit Intelligence；Bun 运行时性能优异</td><td>Python 贴近 AI / 编译分析 / 数据处理工具链</td></tr>
-</table>
-
-<div class="note"><b>为什么 OpenTUI 是对的选择——决定性理由是生态复用与渲染能力。</b>OpenTUI 是 OpenCode 的底层引擎，Agent 流式渲染节奏、工具调用展示折叠策略、会话切换与上下文管理的交互实现<strong>可以直接复用</strong>，不需要从零开始造。React 19 的 reconciler 让组件逻辑与声明式 UI 天然吻合，PTO token 通过 theme provider 注入，Web 端与终端端共用同一份设计语言。<br><br>
-次要理由：<code>@opentui/core</code> 核心含缓冲级绘制能力，braille / 热力等图表原语的底座更坚实；Bun 的启动速度和运行效率在 SSH 低带宽场景下表现优异；TypeScript 的类型系统确保组件契约与 PTO token 的类型安全。</div>
-
-<div class="note warn"><b>OpenTUI 路线要自己补的三块。</b>① <strong>Command Palette</strong>——需自建模糊搜索命令面板以兑现 P09（Textual 内置此组件，OpenTUI 需要自行实现）。② <strong>热力网格</strong>——T3 层的 NUMA 网格、Trace 密度带需自定义 Widget。③ <strong>可拖拽分栏</strong>——P23 的布局预设需自建拖拽交互。</div>
-
-<div class="sublabel">建议架构（渲染与智能解耦）</div>
-<pre>  <span class="pr">React 19 + OpenTUI Shell</span>  ← <span class="fw">渲染</span> T0–T4 · <span class="fw">交互</span> · <span class="fw">布局</span> · <span class="fw">快捷键</span>
-        │                    <span class="cm">theme provider = PTO token <span class="fw">注入</span></span>
-        │  MCP / HTTP :8000 · streamableHttp
-  <span class="ac">Agent Runtime</span>             ← Agent Loop · <span class="fw">会话</span> · <span class="fw">上下文</span> · <span class="fw">工具编排</span>
-        │
-  <span class="wn">DevKit Tools</span>              ← code_cpp_migrator · database_sql_migrator
-                              sql_syntax_repair · kunpeng_knowledge_base_search
-                              profiler · <span class="fw">诊断器</span></pre>
-
-<div class="sublabel">Token 落地示例</div>
-<pre><span class="cm">// theme.ts —— <span class="fw">由本规范第</span> Foundation <span class="fw">节直接生成</span></span>
-export const ptoTheme = {
-  background:  '#101010',  surface1: '#161616',
-  surface2:    '#1c1c1c',  surface3: '#262626',
-  foreground:  '#e8e8e8',  <span class="cm">// .90 <span class="fw">预合成</span></span>
-  fgSecondary: '#a4a4a4',
-  fgMuted:     '#777777',
-  primary: '#0077ff',      success: '#04d793',
-  warning: '#ffaa3b',      danger:  '#ff4b7b',
-} as const;
-
-<span class="cm">// <span class="fw">组件消费</span> token</span>
-&lt;KernelTable
-  style={{ background: theme.surface1,
-           border: `round ${theme.surface3}`,  <span class="cm">// radius-lg → ╭╮╰╯</span>
-           padding: '1 2' }}                   <span class="cm">// space-4 → 1 row / 2 col</span>
-  selectedStyle={{ background: '#18293c' }}    <span class="cm">// state-selected</span>
-/&gt;</pre>
-</section>
-
 <section id="comp">
 <div class="eyebrow">Components</div>
 <h2>组件清单</h2>
@@ -1259,13 +1098,13 @@ export const ptoTheme = {
 <tr><td>Split Container</td><td>Workspace 布局</td><td>T4</td><td>P23</td><td class="mono">Flex + 定制拖拽</td></tr>
 <tr><td>Overlay</td><td>Palette / Approval</td><td>T4</td><td>P25</td><td class="mono">Modal 组件</td></tr>
 </table>
-<div class="note"><b>组件评审门槛（继承 PTO preview-gate 流程）：</b>每个组件实现时必须声明：所属渲染层（T0–T4）、降级路径、键盘等价操作、使用的 PTO token。<strong>禁止在业务模块里直接造新样式</strong>——需要新样式先做 preview 页确认没有可用组件，再加入 <code>theme.ts</code>。</div>
+<div class="note"><b>组件评审门槛（继承 preview-gate 流程）：</b>每个组件实现时必须声明：所属渲染层（T0–T4）、降级路径、键盘等价操作、使用的设计 token。<strong>禁止在业务模块里直接造新样式</strong>——需要新样式先做 preview 页确认没有可用组件，再加入 <code>theme.ts</code>。</div>
 </section>
 
 <section id="primlib">
 <div class="eyebrow">TUI Capability</div>
 <h2>图表原语库 · 十四种</h2>
-<p class="desc">图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。全部改用 PTO 高亮色阶着色（<code>-200 → -700</code>），不再自造调色板。实现见 <code>app/devkitai/render/</code>，完整规格见 <code>docs/COMPONENT.md</code> §3。</p>
+<p class="desc">图元不按名字排，按<b>回答什么问题</b>分组——选图之前先问自己在回答哪个问题，选错组的图画得再好看也读不出结论。全部改用设计系统高亮色阶着色（<code>-200 → -700</code>），不再自造调色板。实现见 <code>app/devkitai/render/</code>，完整规格见 <code>docs/COMPONENT.md</code> §3。</p>
 <p class="desc">下面每组附两类活样本：<b>画法</b>由 <code>gallery_html.py</code> 从 <code>render/</code> 函数直接导出，展示原语本身；标有 <b>组件实例</b> 的是 <code>devkitai/widgets/</code> 的运行时真实输出——边框、标题、着色全是程序算出来的，和 <a href="#impl">工作台外壳实况</a> 用的是同一条 <code>tools/shell_html.py</code> 导出流水线，不是重画的 mockup。</p>
 
 <table>
@@ -1339,7 +1178,7 @@ export const ptoTheme = {
 
                                                                       </pre>
 </div>
-<p class="rule">按 <code>Total</code> 降序排——列头的 <code>▾</code> 标当前排序列，方向由字形而不是颜色表达，16 色降级下依然成立。选中行背景用 <code>state-selected</code>，正是 PTO token 预合成的结果。行数与排序状态嵌在下边框。</p>
+<p class="rule">按 <code>Total</code> 降序排——列头的 <code>▾</code> 标当前排序列，方向由字形而不是颜色表达，16 色降级下依然成立。选中行背景用 <code>state-selected</code>，正是设计 token 预合成的结果。行数与排序状态嵌在下边框。</p>
 <h3>看趋势 <span class="badge p">T2</span> <span class="chipm">怎么走的</span></h3>
 <div class="fig"><span class="fig-t">Line</span>
 <pre class="dense tight"><span class="s2">Line  T2      </span><span class="g3"><span class="fw">⠀⢀⣀⣀⣀⠤⠔⠒⠤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀</span></span>
@@ -1598,7 +1437,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 </section>
 
 <section id="p1">
-<div class="eyebrow">Patterns</div>
+<div class="eyebrow">Scenarios · Patterns</div>
 <h2>P01–P12 核心 Patterns</h2>
 <pre><span class="cm"><span class="fw">生命周期映射：</span></span>
 <span class="fw">启动</span>        <span class="fw">表达意图</span>      <span class="fw">等待执行</span>        <span class="fw">审查确认</span>        <span class="fw">收尾</span>
@@ -1691,7 +1530,7 @@ Build: <span class="ok">PASS</span>    Benchmark: 100ms → <span class="ok">70m
 </section>
 
 <section id="p2">
-<div class="eyebrow">Patterns</div>
+<div class="eyebrow">Scenarios · Patterns</div>
 <h2>P13–P20 已验证 Patterns</h2>
 <p class="desc">移植自 CodeArts CLI/TUI 研究库中已做过完整交互稿的方案，避免重复设计。</p>
 
@@ -1745,7 +1584,7 @@ Sidebar<span class="fw">：</span><span class="ok">● <span class="fw">运行�
 </section>
 
 <section id="p3">
-<div class="eyebrow">Patterns</div>
+<div class="eyebrow">Scenarios · Patterns</div>
 <h2>P21–P26 TUI 原生 Patterns</h2>
 <p class="desc">依赖 TUI 增量能力，<strong>在 CLI 里无法实现</strong>。这是"这个产品必须是 TUI"的理由。</p>
 
@@ -1792,8 +1631,8 @@ Sidebar<span class="fw">：</span><span class="ok">● <span class="fw">运行�
 
 <section id="frame">
 <div class="eyebrow">Layout &amp; Interaction · 框架</div>
-<h2>应用框架 —— MobaXterm 结构 × PTO 分割</h2>
-<p class="desc">前面的 Shell 布局是三栏骨架，够画单个场景但撑不起"多工程 · 多任务 · 多面板"的真实工作台。这一节参照 <strong>MobaXterm 的结构组织</strong>（左侧竖向 Dock、中央多标签 + 分屏、跟随上下文的文件浏览器、底部状态栏），用 <strong>PTO 的分割方法</strong>（表面层级承担嵌套、边框强度承担层级、无阴影）把完整框架定下来。</p>
+<h2>应用框架 —— MobaXterm 结构 × 设计系统分割</h2>
+<p class="desc">前面的 Shell 布局是三栏骨架，够画单个场景但撑不起"多工程 · 多任务 · 多面板"的真实工作台。这一节参照 <strong>MobaXterm 的结构组织</strong>（左侧竖向 Dock、中央多标签 + 分屏、跟随上下文的文件浏览器、底部状态栏），用<strong>设计系统的分割方法</strong>（表面层级承担嵌套、边框强度承担层级、无阴影）把完整框架定下来。</p>
 
 <div class="sublabel">从 MobaXterm 借什么 · 不借什么</div>
 <table>
@@ -1836,7 +1675,7 @@ Sidebar<span class="fw">：</span><span class="ok">● <span class="fw">运行�
 
 <div class="sublabel">区域规格</div>
 <table>
-<tr><th>区域</th><th>职责</th><th>PTO 表面</th><th>边框</th><th>尺寸</th><th>折叠</th></tr>
+<tr><th>区域</th><th>职责</th><th>表面层</th><th>边框</th><th>尺寸</th><th>折叠</th></tr>
 <tr><td>Header</td><td>产品标识 · 目标架构 · 连接状态</td><td class="mono">surface-2</td><td class="mono">border-subtle 下边</td><td>1 行</td><td>常驻</td></tr>
 <tr><td>Dock 标签条</td><td>面板切换（竖排单字符）</td><td class="mono">surface-2</td><td class="mono">border-subtle 右边</td><td>1 列</td><td>常驻</td></tr>
 <tr><td>Dock 内容</td><td>TASKS / PROJECT / TOOLS / KB / HISTORY</td><td class="mono">background</td><td class="mono">border-subtle 分区</td><td>18–28 列</td><td><kbd>Ctrl+B</kbd></td></tr>
@@ -1848,7 +1687,7 @@ Sidebar<span class="fw">：</span><span class="ok">● <span class="fw">运行�
 <tr><td>Status</td><td>Workspace · 模式 · 模型 · 上下文 · 待处理</td><td class="mono">surface-2</td><td class="mono">border-subtle 上边</td><td>1 行</td><td>常驻</td></tr>
 </table>
 
-<div class="sublabel">PTO 分割方法在 TUI 的四条落地规则</div>
+<div class="sublabel">设计系统分割方法在 TUI 的四条落地规则</div>
 <div class="grid g2">
 <div class="card"><h4>① 嵌套用表面层，不用阴影</h4>
 <p>外层 <code>background</code> → 面板 <code>surface-1</code> → 面板内表头/工具条 <code>surface-2</code> → hover <code>surface-3</code> → 选中 <code>surface-4</code>。<strong>最多嵌两层</strong>，第三层改用留白分隔而非再加一层底色。</p></div>
@@ -1857,7 +1696,7 @@ Sidebar<span class="fw">：</span><span class="ok">● <span class="fw">运行�
 <div class="card"><h4>③ 圆角只给浮层</h4>
 <p>框架内所有固定区域用直角 <code>┌┐└┘</code>（radius-sm/md）；只有浮层、模态、Palette 用圆角 <code>╭╮╰╯</code>（radius-lg）。<strong>圆角在这套体系里等于"浮起"</strong>，不能随便用。</p></div>
 <div class="card"><h4>④ 留白只取六档</h4>
-<p>面板内边距 space-4（左右 2 列 / 上下 1 行）；面板之间 space-5（3 列）；大区块 space-6。<strong>禁止裸数字 padding</strong>——这是 PTO"不使用任意像素值"在 TUI 的对应物。</p></div>
+<p>面板内边距 space-4（左右 2 列 / 上下 1 行）；面板之间 space-5（3 列）；大区块 space-6。<strong>禁止裸数字 padding</strong>——这是设计系统"不使用任意像素值"在 TUI 的对应物。</p></div>
 </div>
 
 <div class="sublabel">分屏规则</div>
@@ -2093,7 +1932,7 @@ bun run screenshots</pre>
 </section>
 
 <section id="s-mig">
-<div class="eyebrow">Scenarios</div>
+<div class="eyebrow">Scenarios · Patterns</div>
 <h2>Migrate · AI 智能迁移 <span class="badge d">P0 第一核心场景</span></h2>
 <p class="desc">User Story：作为开发者，我希望导入已有工程，AI 自动分析不兼容点，生成迁移补丁，并完成编译验证与性能确认。</p>
 <pre>Project Import → Architecture Scan → Compatibility Analysis
@@ -2111,7 +1950,7 @@ bun run screenshots</pre>
 </section>
 
 <section id="s-dev">
-<div class="eyebrow">Scenarios</div>
+<div class="eyebrow">Scenarios · Patterns</div>
 <h2>Develop · AI 开发助手</h2>
 <p class="desc">不止写代码，而是<strong>架构感知</strong>的鲲鹏生态开发助手：识别 x86 SIMD → 给出 ARM NEON 等价物；生成 → 编译 → 测试 → Benchmark 一体闭环。</p>
 <pre><span class="pr">❯</span> Add ARM optimized memcpy
@@ -2126,7 +1965,7 @@ Benchmark   before <span class="er">8 GB/s</span> → after <span class="ok">15 
 </section>
 
 <section id="s-diag">
-<div class="eyebrow">Scenarios</div>
+<div class="eyebrow">Scenarios · Patterns</div>
 <h2>Diagnose · 智能诊断 <span class="badge w">P1</span></h2>
 <p class="desc">"哪里有问题" → AI 自动定位根因。覆盖编译失败、Runtime Crash、环境体检。</p>
 <pre><span class="cm">$</span> devkitai diagnose build.log | ./app | core.dump
@@ -2136,20 +1975,20 @@ Collect → Analyze → Root Cause → <span class="pr">Evidence</span> → Sugg
 </section>
 
 <section id="s-opt">
-<div class="eyebrow">Scenarios</div>
+<div class="eyebrow">Scenarios · Patterns</div>
 <h2>Optimize · 性能调优 <span class="badge w">P1</span></h2>
 <p class="desc">发现瓶颈 → 定位算子/热点 → 生成优化方案 → Benchmark 验证。分析层次：Application → Model → Operator → Kernel。</p>
 <div class="note"><b>验收：</b>每条优化建议必须带量化预期收益；优化前后 Benchmark 对比自动生成。</div>
 </section>
 
 <section id="s-obs">
-<div class="eyebrow">Scenarios</div>
+<div class="eyebrow">Scenarios · Patterns</div>
 <h2>Observe · 观测（横向）<span class="badge">P2</span></h2>
 <p class="desc">诊断/调优的"眼睛"——问题呈现必须能下钻到对应观测对象的值。Infrastructure（CPU/Mem/NPU/Net）+ Runtime（Kernel/Operator/Task）。</p>
 </section>
 
 <section id="s-kb">
-<div class="eyebrow">Scenarios</div>
+<div class="eyebrow">Scenarios · Patterns</div>
 <h2>Knowledge Agent · 知识库（横向）</h2>
 <p class="desc">DevKit AI 特有能力，不是普通 RAG。独立 Workspace，同时作为其它 Agent 的内部工具。</p>
 <pre>Q: x86 pause instruction on ARM replacement?
@@ -2392,7 +2231,7 @@ Before <span class="er">██████████████████�
 <section id="d4">
 <div class="eyebrow">Demos</div>
 <h2>Demo 4 · Observe <span class="badge">P2</span></h2>
-<p class="desc">这一屏同时消费 T2 braille、T3 热力、T4 交互三层能力，并使用 PTO 高亮色阶着色。</p>
+<p class="desc">这一屏同时消费 T2 braille、T3 热力、T4 交互三层能力，并使用设计系统高亮色阶着色。</p>
 <pre class="dense chart">┌<span class="pr">cpu</span>─<span class="cm">kunpeng920</span>──────────────────────────21:02─<span class="cm">2000ms ▾</span>─┐┌<span class="pr">npu</span>─<span class="cm">910B×8</span>────────────┐
 │<span class="cm"><span class="fw">⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>│ <span class="cm">64C 2.6GHz</span>  ││ <span class="cm"><span class="fw">⠀⠀⢀⣀⠀⠀⠀⢀⣠⣀⠀⠀⠀</span></span>            │
 │<span class="g4"><span class="fw">⣠⣴⣾⣿⣷⣿⣿⣷⣦⣄⣠⣴⣾⣿⣿⣿⣿⣷⣤⣀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣄⣠⣴⣶⣤⣀⣠⣴</span></span>│ <span class="wn">62%  54°C</span>   ││ <span class="v4"><span class="fw">⣴⣿⣿⣿⣷⣦⣴⣿⣿⣿⣷⣄⣠</span></span>  <span class="er">88%</span>       │
@@ -2424,7 +2263,7 @@ Before <span class="er">██████████████████�
       <div class="doclist">
         <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/VISUAL.md" target="_blank" rel="noopener">
           <span class="dn">VISUAL.md<span class="star"> ★</span></span>
-          <span class="dd">PTO → TUI 的完整 token 翻译、颜色纪律、动效边界。也写了曾经试过什么、为什么被推翻</span>
+          <span class="dd">设计系统 → TUI 的完整 token 翻译、颜色纪律、动效边界。也写了曾经试过什么、为什么被推翻</span>
           <span class="dw">573 行</span>
         </a>
         <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/OVERVIEW.md" target="_blank" rel="noopener">
@@ -2449,7 +2288,7 @@ Before <span class="er">██████████████████�
         </a>
         <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/FRAMEWORK.md" target="_blank" rel="noopener">
           <span class="dn">FRAMEWORK.md</span>
-          <span class="dd">应用框架：MobaXterm 结构 × PTO 分割；左栏从顶通到底、八档折叠降级链</span>
+          <span class="dd">应用框架：MobaXterm 结构 × 设计系统分割；左栏从顶通到底、八档折叠降级链</span>
           <span class="dw">118 行</span>
         </a>
         <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/COMPONENT.md" target="_blank" rel="noopener">
@@ -2496,13 +2335,13 @@ Before <span class="er">██████████████████�
 <tr><td>Phase 3</td><td>插件生态 + 研发映射（Pattern → OpenTUI Component → Backend API）</td><td><span class="badge">Later</span></td></tr>
 </table>
 <div class="note"><b>为什么 Phase 0 要先行：</b>本规范最有价值的几个 pattern（P21 Live Canvas、P26 AI Annotation、NUMA 热力）全部依赖渲染底座能力。如果先做业务 Demo 再补渲染，大概率退化成"带框线的 CLI"。建议两周先把 token 文件 + 三个原语跑通，再往上叠场景。</div>
-<pre>Kunpeng DevKit AI = <span class="pr">PTO Design System</span> + <span class="ac">React 19 + OpenTUI <span class="fw">渲染底座</span></span>
+<pre>Kunpeng DevKit AI = <span class="pr">设计系统</span> + <span class="ac">React 19 + OpenTUI <span class="fw">渲染底座</span></span>
               + <span class="wn">OpenCode Agent Loop</span> + <span class="er">DevKit Intelligence</span></pre>
 </section>
 
 <footer>
 Kunpeng DevKit AI · Design System &amp; UX Spec v0.6 · Concept Design · 2026-08<br>
-设计系统：PTO Design System 4.1（529 tokens · Dark-first · Inter + JetBrains Mono）<br>
+设计系统：529 tokens · Dark-first · Inter + JetBrains Mono<br>
 能力基线：鲲鹏 DevKit AI 用户手册（产品概览 / 安装部署 / MCP / SQL 迁移 / 语法修复 / 知识库 / Cline 配置）<br>
 Pattern 来源：CodeArts CLI/TUI 交互研究库（/model · /codebase · /runmode · /btw · /lsp-toggle · HAI CLI）<br>
 渲染参照：btop · ratatui demo　　框架：React 19 + OpenTUI 0.5.1 + TypeScript 5.9 + Bun
