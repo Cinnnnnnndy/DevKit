@@ -427,9 +427,6 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
 <nav id="nav">
   <div class="ngrp">Overview · 总览</div>
   <a href="#intro">Introduction</a>
-  <a href="#form">形态：原生 TUI</a>
-  <a href="#ia">信息架构</a>
-  <a href="#base">现有能力基线</a>
   <div class="ngrp">Foundations · 基础</div>
   <a href="#ds">设计系统继承</a>
   <a href="#color">Colors</a>
@@ -492,106 +489,6 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
      <span class="fw">大脑</span>              <span class="fw">手</span>                     <span class="fw">眼</span></pre>
 </section>
 
-<section id="form">
-<div class="eyebrow">Overview · 最需先钉死的一条</div>
-<h2>产品形态：原生 TUI 应用</h2>
-<p class="desc">这不是命令行工具，不是 IDE 里的终端面板，也不是插件里的聊天框。三者的差别决定了后面所有交互设计的推论。</p>
-<table>
-<tr><th>形态</th><th>代表</th><th>运行方式</th><th>能力边界</th></tr>
-<tr><td>CLI 工具</td><td class="mono">devkitai_cli<br>porting_workflow_cli</td><td>一次性进程，执行完退出</td><td>无状态、无布局、无实时；输出即日志</td></tr>
-<tr><td>IDE 插件</td><td>Cline + DevKit MCP<br>（手册记载的当前形态）</td><td>寄生在 IDE 进程内</td><td>受宿主 UI 框架约束；渲染由 IDE 决定；必须先有 IDE</td></tr>
-<tr><td style="color:var(--primary-hover)">原生 TUI 应用</td><td><strong>本产品</strong></td><td><strong>独立常驻进程，全屏接管终端，自有事件循环</strong></td><td><strong>自主布局 / 状态 / 快捷键 / 渲染；直接跑在目标机器上</strong></td></tr>
-</table>
-
-<div class="sublabel">为什么必须是原生 TUI</div>
-<pre><span class="cm">DevKit AI <span class="fw">部署在鲲鹏</span> Linux <span class="fw">服务器（手册确认）：</span></span>
-
-  <span class="fw">工程师笔记本</span> ──ssh──▸ <span class="t"><span class="fw">鲲鹏服务器（</span>openEuler / <span class="fw">麒麟）</span></span>
-                            │
-                            ├─ <span class="fw">待迁移工程源码就在这里</span>
-                            ├─ <span class="fw">编译器</span> / <span class="fw">构建产物就在这里</span>
-                            ├─ <span class="fw">性能计数器</span> / NPU <span class="fw">驱动就在这里</span>
-                            └─ DevKit AI <span class="fw">服务</span> :8000 <span class="fw">就在这里</span>
-
-<span class="er">IDE <span class="fw">插件方案：</span></span><span class="fw">本地装</span> IDE → <span class="fw">挂远程开发</span> → <span class="fw">文件同步</span> → <span class="fw">再连回服务器</span>
-              <span class="cm"><span class="fw">多一层同步与延迟，性能采集尤其失真</span></span>
-
-<span class="ok"><span class="fw">原生</span> TUI <span class="fw">方案：</span></span>ssh <span class="fw">上去，直接</span> run<span class="fw">，全屏工作台</span>
-              <span class="cm"><span class="fw">零同步、零延迟、与被观测对象同机</span></span></pre>
-<div class="grid g2">
-<div class="card"><h4>只有原生 TUI 才成立的四件事</h4>
-<p><strong>① 与被观测对象同机</strong>——性能剖析、进程表、NUMA 拓扑、驱动状态必须在目标机采集</p>
-<p><strong>② SSH 即完整体验</strong>——本地零安装，服务器上一个二进制</p>
-<p><strong>③ 自主渲染权</strong>——braille、真彩热力需直接控制终端缓冲</p>
-<p><strong>④ 常驻状态</strong>——上下文水位、索引、实时曲线需要进程活着</p></div>
-<div class="card"><h4>由此产生的设计约束</h4>
-<p><strong>键盘优先鼠标可选</strong>——SSH 常无鼠标，每个鼠标操作必须有键盘等价</p>
-<p><strong>不假设 IDE 存在</strong>——跳源码要内置预览，不能只给深链接</p>
-<p><strong>低带宽友好</strong>——局部刷新而非全屏重绘，采样率可降档</p>
-<p><strong>终端能力协商</strong>——真彩/braille/鼠标运行时探测并降级</p>
-<p><strong>单二进制交付</strong>——无外部依赖</p></div>
-</div>
-<div class="note"><b>本地与远程是同一个二进制、同一套体验。</b>上图是生产场景（工程师 ssh 到鲲鹏机器干活）；但同一个 <code>devkitai</code> 也直接跑在本地开发机上做交叉编译迁移，<strong>不连任何远端、零配置启动</strong>——Demo 演示的正是这条本地路径。两种部署共用同一份渲染、同一套快捷键、同一个会话模型，差别只是被观测对象在本机还是在远端。<strong>这种"一个二进制两处都完整"恰恰是原生 TUI 独有的</strong>：CLI 两处都能跑但没有工作台，IDE 插件两处都别扭（本地要装 IDE、远程要挂远程开发）。</div>
-<div class="note"><b>三种形态并存而非替代：</b>CLI 留给 CI/脚本；IDE 插件留给本地轻量编码；<strong>原生 TUI 面向"在服务器上做迁移、诊断、调优"这个 DevKit 真正的主战场</strong>。三者共用同一套 Agent Runtime 与 MCP 工具，差异只在壳。</div>
-</section>
-
-<section id="ia">
-<div class="eyebrow">Overview</div>
-<h2>信息架构</h2>
-<p class="desc">以鲲鹏 DevKit AI 现有能力为锚点，<strong>迁移为第一核心场景</strong>，四条主线 + 两个横向能力。</p>
-<pre>                     Kunpeng DevKit AI
-                             |
-        ┌───────────┬────────┴───────┬────────────┐
-        |           |                |            |
-     <span class="pr">Migrate</span>     <span class="ac">Develop</span>         <span class="wn">Diagnose</span>      <span class="er">Optimize</span>
-        |           |                |            |
-  x86→ARM64    Code Assist      Build<span class="fw">失败</span>      <span class="fw">性能剖析</span>
-  C/C++<span class="fw">迁移</span>     Build/Debug      Crash<span class="fw">定位</span>      <span class="fw">算子调优</span>
-  SQL<span class="fw">迁移</span>      <span class="fw">知识增强编码</span>      <span class="fw">根因分析</span>       <span class="fw">模型推理优化</span>
-  <span class="fw">构建脚本迁移</span>
-        └────────────┬───────────────┘
-                     |
-        ┌────────────┴────────────┐
-        |                         |
-     <span class="ok">Observe</span><span class="fw">（横向）</span>          <span class="ok">Knowledge</span><span class="fw">（横向）</span>
-     <span class="fw">系统</span>/Trace/Metric        <span class="fw">鲲鹏领域知识库检索</span></pre>
-<div class="grid g3">
-  <div class="card"><h4>Application Developer</h4><p>编译、调试、代码迁移、API 适配 → Migrate / Develop</p></div>
-  <div class="card"><h4>Performance Engineer</h4><p>算子性能、CPU/NPU 利用率、内存瓶颈 → Optimize / Observe</p></div>
-  <div class="card"><h4>System Engineer</h4><p>环境、日志、故障定位 → Diagnose / Observe</p></div>
-  <div class="card"><h4>AI Engineer</h4><p>模型推理、算子优化、Benchmark → Optimize / Observe</p></div>
-  <div class="card"><h4>DBA / 数据工程师</h4><p>SQL 迁移 Oracle→GoldenDB → Migrate</p></div>
-</div>
-</section>
-
-<section id="base">
-<div class="eyebrow">Overview</div>
-<h2>现有能力基线</h2>
-<p class="desc">逐页核对自鲲鹏 DevKit AI 用户手册。这是 TUI 设计的现实起点——不是空想的 Agent，而是把已落地的四个工具包进更好的交互壳。</p>
-<div class="sublabel">四个已落地工具（MCP）</div>
-<table>
-<tr><th>工具</th><th>能力</th><th>关键参数 / 约束</th></tr>
-<tr><td class="mono">kunpeng_knowledge_base_search</td><td>迁移知识库精准检索</td><td>x86→鲲鹏指令替换案例库；SQL 不兼容语法案例库（当前仅 Oracle→GoldenDB）</td></tr>
-<tr><td class="mono">database_sql_migrator</td><td>SQL 智能迁移（含文件级）</td><td>language: Java / XML；source: MySQL / Oracle / DB2；target: DM / Vastbase / KINGBASE / MySQL / GoldenDB</td></tr>
-<tr><td class="mono">sql_syntax_repair</td><td>SQL 语法自动修复</td><td>SQL 内容 + 目标数据库类型 → 修正版本</td></tr>
-<tr><td class="mono">code_cpp_migrator</td><td>C/C++ 源码 + 构建脚本迁移</td><td>Makefile / Blade / Bazel；兼容性扫描 + 改写建议</td></tr>
-</table>
-<div class="sublabel">现有交互基线 → TUI 目标</div>
-<pre><span class="cm"><span class="fw">现状（手册记载的</span> MCP <span class="fw">使用流）：</span></span>
-@ <span class="fw">选文件</span> → <span class="fw">指定源</span>/<span class="fw">目标库</span> → <span class="wn">[Approve]</span> <span class="fw">工具调用</span> → <span class="fw">自动展示</span> diff → <span class="ok">[Save]</span> <span class="fw">落盘</span>
-
-<span class="pr"><span class="fw">映射到本规范：</span></span>
-@ <span class="fw">选文件</span>   →  P09 Command Palette + <span class="fw">上下文引用</span>
-Approve    →  P10 Approval<span class="fw">（升级：风险分级</span> + <span class="fw">批量策略）</span>
-<span class="fw">自动</span> diff   →  P05 Diff Review<span class="fw">（升级：</span>Evidence + Impact<span class="fw">）</span>
-Save       →  P12 Session Summary<span class="fw">（升级：验证闭环</span> + <span class="fw">报告）</span></pre>
-<div class="grid g4">
-  <div class="card"><h4>MCP 服务</h4><p class="mono">streamableHttp :8000/mcp<br>timeout 300s</p></div>
-  <div class="card"><h4>CLI 工具</h4><p class="mono">devkitai_cli<br>porting_workflow_cli</p></div>
-  <div class="card"><h4>REST API</h4><p>上传 / 交互 / 下载，流式输出</p></div>
-  <div class="card"><h4>Skill 形态</h4><p>官方 SKILL.md，可装入 Cline</p></div>
-</div>
-</section>
 
 <section id="ds">
 <div class="eyebrow">Foundation</div>

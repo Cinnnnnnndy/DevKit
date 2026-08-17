@@ -222,6 +222,54 @@ footer{margin-top:72px;padding-top:var(--space-5);border-top:1px solid var(--bor
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════
+     SECTION 0.5 — 产品形态：原生 TUI 应用
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="form">
+<div class="eyebrow">TUI Capability &middot; 最需先钉死的一条</div>
+<h1>产品形态：原生 TUI 应用</h1>
+<p class="desc">这不是命令行工具，不是 IDE 里的终端面板，也不是插件里的聊天框。三者的差别决定了后面所有交互设计的推论。</p>
+<div class="tbl-wrap">
+<table>
+<tr><th>形态</th><th>代表</th><th>运行方式</th><th>能力边界</th></tr>
+<tr><td>CLI 工具</td><td class="mono">devkitai_cli<br>porting_workflow_cli</td><td>一次性进程，执行完退出</td><td>无状态、无布局、无实时；输出即日志</td></tr>
+<tr><td>IDE 插件</td><td>Cline + DevKit MCP<br>（手册记载的当前形态）</td><td>寄生在 IDE 进程内</td><td>受宿主 UI 框架约束；渲染由 IDE 决定；必须先有 IDE</td></tr>
+<tr><td style="color:var(--primary-hover)">原生 TUI 应用</td><td><strong>本产品</strong></td><td><strong>独立常驻进程，全屏接管终端，自有事件循环</strong></td><td><strong>自主布局 / 状态 / 快捷键 / 渲染；直接跑在目标机器上</strong></td></tr>
+</table>
+</div>
+
+<div class="sublabel">为什么必须是原生 TUI</div>
+<pre><span class="cm">DevKit AI <span class="fw">部署在鲲鹏</span> Linux <span class="fw">服务器（手册确认）：</span></span>
+
+  <span class="fw">工程师笔记本</span> ──ssh──▸ <span class="t"><span class="fw">鲲鹏服务器（</span>openEuler / <span class="fw">麒麟）</span></span>
+                            │
+                            ├─ <span class="fw">待迁移工程源码就在这里</span>
+                            ├─ <span class="fw">编译器</span> / <span class="fw">构建产物就在这里</span>
+                            ├─ <span class="fw">性能计数器</span> / NPU <span class="fw">驱动就在这里</span>
+                            └─ DevKit AI <span class="fw">服务</span> :8000 <span class="fw">就在这里</span>
+
+<span class="er">IDE <span class="fw">插件方案：</span></span><span class="fw">本地装</span> IDE → <span class="fw">挂远程开发</span> → <span class="fw">文件同步</span> → <span class="fw">再连回服务器</span>
+              <span class="cm"><span class="fw">多一层同步与延迟，性能采集尤其失真</span></span>
+
+<span class="ok"><span class="fw">原生</span> TUI <span class="fw">方案：</span></span>ssh <span class="fw">上去，直接</span> run<span class="fw">，全屏工作台</span>
+              <span class="cm"><span class="fw">零同步、零延迟、与被观测对象同机</span></span></pre>
+<div class="grid g2">
+<div class="card"><h4>只有原生 TUI 才成立的四件事</h4>
+<p><strong>① 与被观测对象同机</strong>——性能剖析、进程表、NUMA 拓扑、驱动状态必须在目标机采集</p>
+<p><strong>② SSH 即完整体验</strong>——本地零安装，服务器上一个二进制</p>
+<p><strong>③ 自主渲染权</strong>——braille、真彩热力需直接控制终端缓冲</p>
+<p><strong>④ 常驻状态</strong>——上下文水位、索引、实时曲线需要进程活着</p></div>
+<div class="card"><h4>由此产生的设计约束</h4>
+<p><strong>键盘优先鼠标可选</strong>——SSH 常无鼠标，每个鼠标操作必须有键盘等价</p>
+<p><strong>不假设 IDE 存在</strong>——跳源码要内置预览，不能只给深链接</p>
+<p><strong>低带宽友好</strong>——局部刷新而非全屏重绘，采样率可降档</p>
+<p><strong>终端能力协商</strong>——真彩/braille/鼠标运行时探测并降级</p>
+<p><strong>单二进制交付</strong>——无外部依赖</p></div>
+</div>
+<div class="note"><b>本地与远程是同一个二进制、同一套体验。</b>上图是生产场景（工程师 ssh 到鲲鹏机器干活）；但同一个 <code>devkitai</code> 也直接跑在本地开发机上做交叉编译迁移，<strong>不连任何远端、零配置启动</strong>——Demo 演示的正是这条本地路径。两种部署共用同一份渲染、同一套快捷键、同一个会话模型，差别只是被观测对象在本机还是在远端。<strong>这种"一个二进制两处都完整"恰恰是原生 TUI 独有的</strong>：CLI 两处都能跑但没有工作台，IDE 插件两处都别扭（本地要装 IDE、远程要挂远程开发）。</div>
+<div class="note"><b>三种形态并存而非替代：</b>CLI 留给 CI/脚本；IDE 插件留给本地轻量编码；<strong>原生 TUI 面向"在服务器上做迁移、诊断、调优"这个 DevKit 真正的主战场</strong>。三者共用同一套 Agent Runtime 与 MCP 工具，差异只在壳。</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
      SECTION 1 — TUI ≠ CLI
      ═══════════════════════════════════════════════════════════════ -->
 <section id="tui">
