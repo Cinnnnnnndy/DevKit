@@ -439,7 +439,6 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <a href="#elev">Elevation &amp; Border</a>
   <a href="#motion">Motion</a>
   <a href="#cheat">★ 视觉规范速查</a>
-  <a href="./tui-capability.html" class="ngrp" style="text-decoration:none;color:inherit">Rendering · 渲染能力 ↗</a>
   <div class="ngrp">Components · 组件与图元</div>
   <a href="#comp">组件清单</a>
   <a href="#primlib">★ 图元库 · 十四种</a>
@@ -451,6 +450,10 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <a href="#s-opt">Optimize</a>
   <a href="#s-obs">Observe</a>
   <a href="#s-kb">Knowledge</a>
+  <a href="#d1">Demo · Migration</a>
+  <a href="#d2">Demo · Optimize</a>
+  <a href="#d3">Demo · Diagnose</a>
+  <a href="#d4">Demo · Observe</a>
   <a href="#p3">P21–P26 TUI 原生</a>
   <a href="#p2">P13–P20 已验证</a>
   <a href="#p1">P01–P12 核心</a>
@@ -467,11 +470,6 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <a href="#jmap">旅程地图</a>
   <a href="#jstory">Demo 故事线</a>
   <a href="#jscreen">阶段屏幕</a>
-  <div class="ngrp">Demos · 演示</div>
-  <a href="#d1">Demo · Migration</a>
-  <a href="#d2">Demo · Optimize</a>
-  <a href="#d3">Demo · Diagnose</a>
-  <a href="#d4">Demo · Observe</a>
   <div class="ngrp">System · 系统</div>
   <a href="#docs">规范文档索引</a>
   <a href="#road">Roadmap</a>
@@ -1436,6 +1434,106 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 <p class="rule">规格与判决都在 <code>app/devkitai/layout.py</code>：<code>PRIMITIVES</code> 是十七种画法的规格表，<code>chart_box()</code> 把 Canvas 外尺寸换算成图元可用盒子，<code>fit_box()</code> 给出「在这个盒子里实际该画多大」——<b>返回 <code>None</code> 就是「不该画，走 fallback」</b>，<code>shrink_order()</code> 给同屏收缩顺序。跟 <code>resolve_layout()</code> 一样是纯函数，因为这类逻辑<b>平时不会有人手动把终端拖到 97 列去验</b>，不测就等于没写。<code>app/tests/test_layout.py</code> 里压了这些：规格自洽（自己在自己声明的尺寸上得画得下）· 判决永不超出给定盒子 · 低于最小尺寸必须返回「不画」· 三条硬约束各自的失真 · 六档整屏里每一档都容得下全部 ① 档图元 · 全宽度扫描 40–400 列不许出现「什么图都画不了」的空栏。</p>
 </section>
 
+<section id="p3">
+<div class="eyebrow">Scenarios · Patterns</div>
+<h2>P21–P26 TUI 原生 Patterns</h2>
+<p class="desc">依赖 TUI 增量能力，<strong>在 CLI 里无法实现</strong>。这是"这个产品必须是 TUI"的理由。</p>
+
+<div class="pat"><div class="hd"><span class="no">P21</span><span class="nm">Live Canvas</span><span class="sc">依赖：局部重绘 + Braille</span></div><div class="bd">
+<pre class="dense tight">┌<span class="pr">npu</span>──<span class="fw">采集中</span>────────────<span class="pr"><span class="fw">⠹</span></span>─<span class="cm">500ms ▾</span>─<span class="cm">[space] <span class="fw">暂停</span></span>─┐
+│ <span class="cm"><span class="fw">⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀</span></span>               │
+│ <span class="v4"><span class="fw">⣠⣴⣾⣿⣷⣿⣿⣷⣦⣄⣠⣴⣾⣿⣿⣿⣿⣷⣤⣀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣄</span></span>  <span class="er">peak 94%</span>     │
+└──────────────────────────────────────────────┘</pre>
+<p class="rule">采样率档位可调（250ms/500ms/2s/5s），<kbd>space</kbd> 冻结画面便于读数，冻结态明确标记。<strong>CLI 只能反复重跑命令，看不到连续形态。</strong></p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P22</span><span class="nm">Linked Drill-down</span><span class="sc">依赖：鼠标 + 多面板联动</span></div><div class="bd">
+<pre class="dense">Trace   <span class="v8">░░░</span><span class="v3">████</span><span class="sel"><span class="v6">▓▓▓▓</span></span><span class="v3">████</span><span class="v8">░░</span>   <span class="pr">← <span class="fw">点选此段</span></span>
+   ├─▸ <span class="pr">Kernel <span class="fw">面板</span></span>  <span class="fw">跳到</span> attention_fwd <span class="fw">行并高亮</span>
+   ├─▸ <span class="pr">Metric <span class="fw">面板</span></span>  <span class="fw">切到该区间</span> 18.2ms <span class="fw">的</span> HBM <span class="fw">带宽</span>
+   └─▸ <span class="pr">Code <span class="fw">面板</span></span>    <span class="fw">定位</span> attention.cpp:142</pre>
+<p class="rule">兑现"问题呈现要能下钻到对应观测对象的值"——诊断结论 → 证据 → 观测值 → 源码四跳联动。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P23</span><span class="nm">Workspace Layout Preset</span><span class="sc">依赖：resizable split</span></div><div class="bd">
+<pre class="dense"><span class="cm">F1</span> <span class="pr">Migrate</span>   <span class="fw">树</span> 40% │ Diff 60%          │ Agent 30%
+<span class="cm">F2</span> <span class="pr">Diagnose</span>  <span class="fw">日志</span> 50% │ <span class="fw">根因图</span> 50%        │ Agent 20%
+<span class="cm">F3</span> <span class="pr">Optimize</span>  Trace 60% │ <span class="fw">算子表</span> 40%       │ Agent 15%
+<span class="cm">F4</span> <span class="pr">Observe</span>   <span class="fw">全屏仪表盘（</span>Agent <span class="fw">收起）</span></pre>
+<p class="rule">避免"一套布局适配所有场景"——诊断需要大日志区，调优需要大图表区。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P24</span><span class="nm">Sortable / Filterable Table</span><span class="sc">依赖：焦点 + 列头</span></div><div class="bd">
+<p class="rule">列头点击/快捷键排序（<code>▾</code> 标记）、行内筛选表达式、多选批量操作。用于算子排行、进程表、Issue 表、文件风险表。基于 <code>@opentui/core</code> Table 原语实现。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P25</span><span class="nm">Non-destructive Overlay</span><span class="sc">依赖：浮层缓冲</span></div><div class="bd">
+<pre class="dense"><span class="cm">│ Agent Console  ▶ Generate Patch <span class="fw">⠹</span>    ← <span class="fw">底层继续运行（压暗）</span></span>
+│      ╭─ <span class="pr">Approval</span> ────────────────────╮
+│      │ Modify 12 files  <span class="wn">Risk Medium</span>  │
+│      │ <span class="pr">[Y] Apply</span> [R] Review [N] No   │
+│      ╰───────────────────────────────╯</pre>
+<p class="rule">覆盖而非插入，关闭后底层布局与滚动位置完全不变。<strong>浮起感由「底层整体降到 muted 色阶」表达</strong>——见 Elevation 节。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P26</span><span class="nm">AI Annotation Layer</span><span class="sc">依赖：真彩 + 图层叠加</span></div><div class="bd">
+<pre class="dense"><span class="cm"><span class="fw">数据层（顺序色阶）</span></span>      <span class="cm"><span class="fw">标注层（语义色）</span></span>
+64-core   <span class="o6">▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁</span>  <span class="er">▚▚▚</span><span class="o6">▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span>
+                        <span class="er">└──┘</span>
+                        <span class="er">⚠ AI: core 34-38 <span class="fw">跨</span> NUMA <span class="fw">访问</span></span>
+                          <span class="cm"><span class="fw">置信度</span> 87% · [Enter] <span class="fw">查看证据</span></span></pre>
+<p class="rule"><strong>本规范最具差异化的 pattern。</strong>AI 的判断不是另起一段文字，而是<strong>作为图层叠加在数据可视化之上</strong>——热点描边、异常标色、瓶颈角标、Trace 气泡高亮。让"AI 说了什么"和"数据长什么样"在同一视觉空间对齐，人可以立即验证。与 P03 Evidence 组合：图上标注 → Enter → 证据列表 → 下钻源码。</p></div></div>
+</section>
+
+<section id="p2">
+<div class="eyebrow">Scenarios · Patterns</div>
+<h2>P13–P20 已验证 Patterns</h2>
+<p class="desc">移植自 CodeArts CLI/TUI 研究库中已做过完整交互稿的方案，避免重复设计。</p>
+
+<div class="pat"><div class="hd"><span class="no">P13</span><span class="nm">Model / Quota Switcher</span><span class="sc">源：/model</span></div><div class="bd">
+<pre><span class="pr">❯</span> /mo▌
+┌ Models ─────────────────────────────────┐
+│ Pool A<span class="fw">（共享额度池）</span>                    │
+│  <span class="ok">✓</span> qwen-72b        <span class="cm">current</span>              │
+│    deepseek-v3                          │
+├─────────────────────────────────────────┤
+│ 5h  <span class="ok">████</span><span class="cm">░░░░░░</span> 38%   reset 14:00        │
+│ 7d  <span class="wn">███████</span><span class="cm">░░░</span> 72%   reset <span class="fw">周一</span>         │
+└─────────────────────────────────────────┘</pre>
+<p class="rule">用量四级风险色（0–49 / 50–69 / 70–84 / 85–100）——<strong>提醒但不替用户做决策</strong>，接近上限仍可切换。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P14</span><span class="nm">Index / Asset State</span><span class="sc">源：/codebase</span></div><div class="bd">
+<pre><span class="fw">状态机：未构建</span> → <span class="hv"><span class="fw">构建中</span> ◉</span> → <span class="ok"><span class="fw">已构建</span> ● + <span class="fw">时间戳</span></span></pre>
+<p class="rule">上传等非关键步骤对用户隐藏；异常统一 warning 色 + 建议方案，不滥用 danger；破坏性操作 Y/N 二次确认。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P15</span><span class="nm">Run Mode</span><span class="sc">源：/RunMode</span></div><div class="bd">
+<pre>/runmode   <span class="ok">Auto</span> · Manual · <span class="wn">Sandbox<span class="fw">（先配置后生效）</span></span>
+<span class="fw">底栏永驻：</span><span class="cm">[mode:auto] [model:qwen] [ctx:38%]</span></pre></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P16</span><span class="nm">Side Question（/btw）</span><span class="sc">源：/btw</span></div><div class="bd">
+<pre>│ <span class="pr">▶</span> Generate Migration Patch <span class="fw">⠹</span>   <span class="cm">← <span class="fw">主任务继续</span></span>
+│ <span class="hv">┃ /btw yield <span class="fw">和</span> pause <span class="fw">的语义差异？</span></span>
+│ <span class="hv">┃ <span class="fw">侧链回答流式渲染（</span>fork <span class="fw">上下文）</span></span>
+│ <span class="cm"><span class="fw">主任务输出缓冲中</span>… esc <span class="fw">后一次性刷入，零污染</span></span></pre></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P17</span><span class="nm">State-Gated Toggle</span><span class="sc">源：/lsp-toggle</span></div><div class="bd">
+<pre>Off→On<span class="fw">：</span><span class="wn">┃ <span class="fw">警示（内存</span> 150–500MB/<span class="fw">服务）</span></span> → <span class="fw">二次确认</span>
+On→Off<span class="fw">：直接写配置</span>
+Sidebar<span class="fw">：</span><span class="ok">● <span class="fw">运行中</span></span> · <span class="wn"><span class="hw">⟳</span> <span class="fw">待重启生效</span></span> · <span class="cm"><span class="fw">灰</span> <span class="fw">未启用</span></span></pre>
+<p class="rule">非对称确认；配置分级 enabled / pendingEnabled。适用于 Profiler 采集、Trace 埋点等耗资源开关。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P18</span><span class="nm">Output Collapsing</span><span class="sc">源：HAI CLI</span></div><div class="bd">
+<pre><span class="cm">▸ read  src/crypto.c            <span class="fw">（自动折叠）</span></span>
+<span class="wn">▾ write src/memory.c  [WRITE]</span>   <span class="fw">（展开</span> + <span class="fw">徽标）</span>
+   <span class="er">- _mm_pause();</span>
+   <span class="ok">+ asm volatile("yield");</span></pre>
+<p class="rule">READ 自动折叠、WRITE 展开——信噪比管理，长会话不被读文件日志淹没。</p></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P19</span><span class="nm">Permission Tiers</span><span class="sc">源：HAI CLI</span></div><div class="bd">
+<pre><span class="fw">风险着色：</span><span class="br"><span class="fw">蓝</span> = read</span> · <span class="wn"><span class="fw">橙</span> = write</span> · <span class="er"><span class="fw">红</span> = execute</span>
+<span class="fw">授权范围：</span>[1] <span class="fw">仅本次</span> · [S] <span class="fw">本会话</span> · [P] <span class="fw">永久</span></pre></div></div>
+
+<div class="pat"><div class="hd"><span class="no">P20</span><span class="nm">Context Management</span><span class="sc">源：HAI CLI</span></div><div class="bd">
+<pre><span class="fw">底栏常驻：</span><span class="cm">[ctx: <span class="wn">████████░░ 72% ⚠</span>]</span>
+/fork <span class="fw">快照分叉</span> · /compact <span class="fw">压缩</span> · /clear <span class="fw">重置</span></pre>
+<p class="rule">用量仪表 70%+ 变色告警。迁移大工程时上下文极易爆，此 pattern 为 P0 依赖。</p></div></div>
+</section>
+
 <section id="p1">
 <div class="eyebrow">Scenarios · Patterns</div>
 <h2>P01–P12 核心 Patterns</h2>
@@ -1527,106 +1625,6 @@ Out:  3 incompatible instructions found</pre>
 <span class="ok">✓ 21 issues fixed</span>   <span class="wn">⚠ 2 need manual review</span>
 Build: <span class="ok">PASS</span>    Benchmark: 100ms → <span class="ok">70ms (−30%)</span>
 <span class="pr">[S]ave report</span>   [N]ew task   [Q]uit</pre></div></div>
-</section>
-
-<section id="p2">
-<div class="eyebrow">Scenarios · Patterns</div>
-<h2>P13–P20 已验证 Patterns</h2>
-<p class="desc">移植自 CodeArts CLI/TUI 研究库中已做过完整交互稿的方案，避免重复设计。</p>
-
-<div class="pat"><div class="hd"><span class="no">P13</span><span class="nm">Model / Quota Switcher</span><span class="sc">源：/model</span></div><div class="bd">
-<pre><span class="pr">❯</span> /mo▌
-┌ Models ─────────────────────────────────┐
-│ Pool A<span class="fw">（共享额度池）</span>                    │
-│  <span class="ok">✓</span> qwen-72b        <span class="cm">current</span>              │
-│    deepseek-v3                          │
-├─────────────────────────────────────────┤
-│ 5h  <span class="ok">████</span><span class="cm">░░░░░░</span> 38%   reset 14:00        │
-│ 7d  <span class="wn">███████</span><span class="cm">░░░</span> 72%   reset <span class="fw">周一</span>         │
-└─────────────────────────────────────────┘</pre>
-<p class="rule">用量四级风险色（0–49 / 50–69 / 70–84 / 85–100）——<strong>提醒但不替用户做决策</strong>，接近上限仍可切换。</p></div></div>
-
-<div class="pat"><div class="hd"><span class="no">P14</span><span class="nm">Index / Asset State</span><span class="sc">源：/codebase</span></div><div class="bd">
-<pre><span class="fw">状态机：未构建</span> → <span class="hv"><span class="fw">构建中</span> ◉</span> → <span class="ok"><span class="fw">已构建</span> ● + <span class="fw">时间戳</span></span></pre>
-<p class="rule">上传等非关键步骤对用户隐藏；异常统一 warning 色 + 建议方案，不滥用 danger；破坏性操作 Y/N 二次确认。</p></div></div>
-
-<div class="pat"><div class="hd"><span class="no">P15</span><span class="nm">Run Mode</span><span class="sc">源：/RunMode</span></div><div class="bd">
-<pre>/runmode   <span class="ok">Auto</span> · Manual · <span class="wn">Sandbox<span class="fw">（先配置后生效）</span></span>
-<span class="fw">底栏永驻：</span><span class="cm">[mode:auto] [model:qwen] [ctx:38%]</span></pre></div></div>
-
-<div class="pat"><div class="hd"><span class="no">P16</span><span class="nm">Side Question（/btw）</span><span class="sc">源：/btw</span></div><div class="bd">
-<pre>│ <span class="pr">▶</span> Generate Migration Patch <span class="fw">⠹</span>   <span class="cm">← <span class="fw">主任务继续</span></span>
-│ <span class="hv">┃ /btw yield <span class="fw">和</span> pause <span class="fw">的语义差异？</span></span>
-│ <span class="hv">┃ <span class="fw">侧链回答流式渲染（</span>fork <span class="fw">上下文）</span></span>
-│ <span class="cm"><span class="fw">主任务输出缓冲中</span>… esc <span class="fw">后一次性刷入，零污染</span></span></pre></div></div>
-
-<div class="pat"><div class="hd"><span class="no">P17</span><span class="nm">State-Gated Toggle</span><span class="sc">源：/lsp-toggle</span></div><div class="bd">
-<pre>Off→On<span class="fw">：</span><span class="wn">┃ <span class="fw">警示（内存</span> 150–500MB/<span class="fw">服务）</span></span> → <span class="fw">二次确认</span>
-On→Off<span class="fw">：直接写配置</span>
-Sidebar<span class="fw">：</span><span class="ok">● <span class="fw">运行中</span></span> · <span class="wn"><span class="hw">⟳</span> <span class="fw">待重启生效</span></span> · <span class="cm"><span class="fw">灰</span> <span class="fw">未启用</span></span></pre>
-<p class="rule">非对称确认；配置分级 enabled / pendingEnabled。适用于 Profiler 采集、Trace 埋点等耗资源开关。</p></div></div>
-
-<div class="pat"><div class="hd"><span class="no">P18</span><span class="nm">Output Collapsing</span><span class="sc">源：HAI CLI</span></div><div class="bd">
-<pre><span class="cm">▸ read  src/crypto.c            <span class="fw">（自动折叠）</span></span>
-<span class="wn">▾ write src/memory.c  [WRITE]</span>   <span class="fw">（展开</span> + <span class="fw">徽标）</span>
-   <span class="er">- _mm_pause();</span>
-   <span class="ok">+ asm volatile("yield");</span></pre>
-<p class="rule">READ 自动折叠、WRITE 展开——信噪比管理，长会话不被读文件日志淹没。</p></div></div>
-
-<div class="pat"><div class="hd"><span class="no">P19</span><span class="nm">Permission Tiers</span><span class="sc">源：HAI CLI</span></div><div class="bd">
-<pre><span class="fw">风险着色：</span><span class="br"><span class="fw">蓝</span> = read</span> · <span class="wn"><span class="fw">橙</span> = write</span> · <span class="er"><span class="fw">红</span> = execute</span>
-<span class="fw">授权范围：</span>[1] <span class="fw">仅本次</span> · [S] <span class="fw">本会话</span> · [P] <span class="fw">永久</span></pre></div></div>
-
-<div class="pat"><div class="hd"><span class="no">P20</span><span class="nm">Context Management</span><span class="sc">源：HAI CLI</span></div><div class="bd">
-<pre><span class="fw">底栏常驻：</span><span class="cm">[ctx: <span class="wn">████████░░ 72% ⚠</span>]</span>
-/fork <span class="fw">快照分叉</span> · /compact <span class="fw">压缩</span> · /clear <span class="fw">重置</span></pre>
-<p class="rule">用量仪表 70%+ 变色告警。迁移大工程时上下文极易爆，此 pattern 为 P0 依赖。</p></div></div>
-</section>
-
-<section id="p3">
-<div class="eyebrow">Scenarios · Patterns</div>
-<h2>P21–P26 TUI 原生 Patterns</h2>
-<p class="desc">依赖 TUI 增量能力，<strong>在 CLI 里无法实现</strong>。这是"这个产品必须是 TUI"的理由。</p>
-
-<div class="pat"><div class="hd"><span class="no">P21</span><span class="nm">Live Canvas</span><span class="sc">依赖：局部重绘 + Braille</span></div><div class="bd">
-<pre class="dense tight">┌<span class="pr">npu</span>──<span class="fw">采集中</span>────────────<span class="pr"><span class="fw">⠹</span></span>─<span class="cm">500ms ▾</span>─<span class="cm">[space] <span class="fw">暂停</span></span>─┐
-│ <span class="cm"><span class="fw">⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀</span></span>               │
-│ <span class="v4"><span class="fw">⣠⣴⣾⣿⣷⣿⣿⣷⣦⣄⣠⣴⣾⣿⣿⣿⣿⣷⣤⣀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣄</span></span>  <span class="er">peak 94%</span>     │
-└──────────────────────────────────────────────┘</pre>
-<p class="rule">采样率档位可调（250ms/500ms/2s/5s），<kbd>space</kbd> 冻结画面便于读数，冻结态明确标记。<strong>CLI 只能反复重跑命令，看不到连续形态。</strong></p></div></div>
-
-<div class="pat"><div class="hd"><span class="no">P22</span><span class="nm">Linked Drill-down</span><span class="sc">依赖：鼠标 + 多面板联动</span></div><div class="bd">
-<pre class="dense">Trace   <span class="v8">░░░</span><span class="v3">████</span><span class="sel"><span class="v6">▓▓▓▓</span></span><span class="v3">████</span><span class="v8">░░</span>   <span class="pr">← <span class="fw">点选此段</span></span>
-   ├─▸ <span class="pr">Kernel <span class="fw">面板</span></span>  <span class="fw">跳到</span> attention_fwd <span class="fw">行并高亮</span>
-   ├─▸ <span class="pr">Metric <span class="fw">面板</span></span>  <span class="fw">切到该区间</span> 18.2ms <span class="fw">的</span> HBM <span class="fw">带宽</span>
-   └─▸ <span class="pr">Code <span class="fw">面板</span></span>    <span class="fw">定位</span> attention.cpp:142</pre>
-<p class="rule">兑现"问题呈现要能下钻到对应观测对象的值"——诊断结论 → 证据 → 观测值 → 源码四跳联动。</p></div></div>
-
-<div class="pat"><div class="hd"><span class="no">P23</span><span class="nm">Workspace Layout Preset</span><span class="sc">依赖：resizable split</span></div><div class="bd">
-<pre class="dense"><span class="cm">F1</span> <span class="pr">Migrate</span>   <span class="fw">树</span> 40% │ Diff 60%          │ Agent 30%
-<span class="cm">F2</span> <span class="pr">Diagnose</span>  <span class="fw">日志</span> 50% │ <span class="fw">根因图</span> 50%        │ Agent 20%
-<span class="cm">F3</span> <span class="pr">Optimize</span>  Trace 60% │ <span class="fw">算子表</span> 40%       │ Agent 15%
-<span class="cm">F4</span> <span class="pr">Observe</span>   <span class="fw">全屏仪表盘（</span>Agent <span class="fw">收起）</span></pre>
-<p class="rule">避免"一套布局适配所有场景"——诊断需要大日志区，调优需要大图表区。</p></div></div>
-
-<div class="pat"><div class="hd"><span class="no">P24</span><span class="nm">Sortable / Filterable Table</span><span class="sc">依赖：焦点 + 列头</span></div><div class="bd">
-<p class="rule">列头点击/快捷键排序（<code>▾</code> 标记）、行内筛选表达式、多选批量操作。用于算子排行、进程表、Issue 表、文件风险表。基于 <code>@opentui/core</code> Table 原语实现。</p></div></div>
-
-<div class="pat"><div class="hd"><span class="no">P25</span><span class="nm">Non-destructive Overlay</span><span class="sc">依赖：浮层缓冲</span></div><div class="bd">
-<pre class="dense"><span class="cm">│ Agent Console  ▶ Generate Patch <span class="fw">⠹</span>    ← <span class="fw">底层继续运行（压暗）</span></span>
-│      ╭─ <span class="pr">Approval</span> ────────────────────╮
-│      │ Modify 12 files  <span class="wn">Risk Medium</span>  │
-│      │ <span class="pr">[Y] Apply</span> [R] Review [N] No   │
-│      ╰───────────────────────────────╯</pre>
-<p class="rule">覆盖而非插入，关闭后底层布局与滚动位置完全不变。<strong>浮起感由「底层整体降到 muted 色阶」表达</strong>——见 Elevation 节。</p></div></div>
-
-<div class="pat"><div class="hd"><span class="no">P26</span><span class="nm">AI Annotation Layer</span><span class="sc">依赖：真彩 + 图层叠加</span></div><div class="bd">
-<pre class="dense"><span class="cm"><span class="fw">数据层（顺序色阶）</span></span>      <span class="cm"><span class="fw">标注层（语义色）</span></span>
-64-core   <span class="o6">▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁</span>  <span class="er">▚▚▚</span><span class="o6">▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span>
-                        <span class="er">└──┘</span>
-                        <span class="er">⚠ AI: core 34-38 <span class="fw">跨</span> NUMA <span class="fw">访问</span></span>
-                          <span class="cm"><span class="fw">置信度</span> 87% · [Enter] <span class="fw">查看证据</span></span></pre>
-<p class="rule"><strong>本规范最具差异化的 pattern。</strong>AI 的判断不是另起一段文字，而是<strong>作为图层叠加在数据可视化之上</strong>——热点描边、异常标色、瓶颈角标、Trace 气泡高亮。让"AI 说了什么"和"数据长什么样"在同一视觉空间对齐，人可以立即验证。与 P03 Evidence 组合：图上标注 → Enter → 证据列表 → 下钻源码。</p></div></div>
 </section>
 
 <section id="frame">
@@ -2002,6 +2000,117 @@ A: Use <span class="pr">yield</span> instruction instead of <span class="er">pau
 <p class="rule">引用必须可溯源、可跳转：Retrieval → Citation → Action。</p>
 </section>
 
+<section id="d1">
+<div class="eyebrow">Scenarios · Patterns</div>
+<h2>Demo 1 · AI Migration Agent <span class="badge d">P0</span></h2>
+<pre class="dense"><span class="cm">Step 1 · <span class="fw">入口</span></span>
+╭─ DevKit AI ────────────────────────────────────╮
+│   What do you want?                            │
+│   <span class="pr">❯</span> migrate nginx project▌                     │
+│   <span class="cm">/migrate  /diagnose  /optimize  /observe</span>     │
+╰────────────────────────────────────────────────╯
+
+<span class="cm">Step 3 · Agent <span class="fw">执行流</span></span>
+│ <span class="ok">●</span> Source Scan                <span class="cm">1,204 files  1.2s</span> │
+│ <span class="ok">●</span> Dependency Analysis        <span class="cm">18 libs</span>           │
+│ <span class="pr">▶</span> API Compatibility  <span class="pr"><span class="fw">⠹</span></span>       <span class="cm">tool:cpp_migrator</span> │
+│ <span class="cm">○</span> Generate Patch  ○ Build Verify               │
+
+<span class="cm">Step 4 · <span class="fw">迁移报告</span></span>
+╭─ Migration Report · nginx ─────────────────────╮
+│ Compatibility  <span class="br">████████</span><span class="cm">░░</span> 82%                  │
+│ <span class="er">Critical 2</span> · <span class="wn">Warning 8</span> · <span class="ok">Auto-fixable 21</span>       │
+│ ├ SSE instruction  <span class="wn">⚠</span>  crypto.c:88              │
+│ ├ atomic API       <span class="wn">⚠</span>  memory.c:223             │
+│ └ Makefile flags   <span class="ok">✓</span>                           │
+│ Files: crypto.c <span class="o3">███████</span> · memory.c <span class="o5">████</span> · mk <span class="o7">██</span>│
+╰────────────────────────────────────────────────╯
+
+<span class="cm">Step 5 · Patch Review</span>
+│ <span class="er">- _mm_pause();</span>                                 │
+│ <span class="ok">+ asm volatile("yield");</span>                       │
+│ Evidence: <span class="fw">指令替换案例库</span> #4471 · ARM ARM §B2.5 │
+│ <span class="pr">[A]ccept</span>  [E]dit  [R]eject  [Space] next       │
+
+<span class="cm">Step 6 · <span class="fw">总结</span></span>
+│ <span class="ok">✓ 21 fixed</span>  <span class="wn">⚠ 2 manual</span>  Build <span class="ok">PASS</span>             │
+│ Bench  100ms → <span class="ok">70ms (−30%)</span>                     │</pre>
+</section>
+
+<section id="d2">
+<div class="eyebrow">Scenarios · Patterns</div>
+<h2>Demo 2 · Performance Optimize <span class="badge w">P1</span></h2>
+<pre class="dense chart"><span class="pr">❯</span> optimize model.bin
+┌<span class="pr">roofline</span>─<span class="cm">Qwen-72B @ 910B</span>──────────────┐┌<span class="pr">bottleneck</span>──────<span class="pr">▾ share</span>──┐
+│ <span class="cm">GFLOPS</span>          <span class="ac"><span class="fw">⣀⣠⣤⣴⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿</span></span>       │ <span class="sel">attention  <span class="er">█████████</span> 45%</span> │
+│         <span class="ac"><span class="fw">⣠⣴⡾⠟⠋</span></span>       <span class="cm">compute roof</span>     │ matmul    <span class="o5">███████</span>   35%  │
+│      <span class="ac"><span class="fw">⣴⠟⠁</span></span>   <span class="er">◆attention</span>  <span class="wn">◆matmul</span>       │ memcpy    <span class="o7">████</span>      20%  │
+│   <span class="ac"><span class="fw">⣴⠟</span></span>  <span class="cm">mem roof</span>   <span class="er">▲ <span class="fw">落在内存墙下方</span></span>    │ <span class="cm">↵ <span class="fw">下钻</span> · s <span class="fw">排序</span></span>          │
+└──────────────────────────────────────┘└─────────────────────────┘
+┌<span class="pr">trace</span>────────<span class="cm">[+/-] zoom [drag] pan</span>─────────────────────────────────┐
+│ NPU  <span class="v8">░░</span><span class="v3">██████████</span><span class="sel"><span class="v6">▓▓▓▓▓▓</span></span><span class="v3">████████</span><span class="v8">░░░</span><span class="v3">████████</span><span class="v6">▓▓▓</span><span class="v8">░░░░░░░░░░░</span>          │
+│ HBM  <span class="o5">▓▓</span><span class="o3">████████████████████</span><span class="o5">▓▓▓▓</span><span class="o3">██████████</span><span class="o5">▓▓</span><span class="o8">░░░░░░░░░░░░</span>           │
+│                <span class="er">└─ ⚠ AI: HBM <span class="fw">持续饱和而</span> NPU <span class="fw">有气泡</span> → memory-bound</span>  │
+└──────────────────────────────────────────────────────────────────────┘
+┌<span class="pr">operator</span>─<span class="cm">attention_fwd</span>────────────────────────────────────────────────┐
+│ Compute <span class="o5">███████</span><span class="cm">░░░</span> 70%   Memory <span class="er">██████████</span> 98%   <span class="er">◀ <span class="fw">瓶颈维度</span></span>          │
+│ AI Proposal                              Expected                    │
+│  <span class="ok">✓</span> FlashAttention <span class="fw">融合</span>                  18.2ms → <span class="ok">9.6ms</span>  <span class="ok">−47%</span>         │
+│  <span class="ok">✓</span> KV Cache INT8 <span class="fw">量化</span>                    HBM   <span class="er">98%</span> → <span class="ok">61%</span>             │
+│  <span class="ok">✓</span> tiling 128×128 <span class="fw">适配</span> 910B L2          <span class="cm">Evidence: <span class="fw">知识库</span> #2213</span>       │
+│ <span class="pr">[Y] Apply &amp; Benchmark</span>  [R] Review  [E] <span class="fw">编辑参数</span>                      │
+└──────────────────────────────────────────────────────────────────────┘
+Before <span class="er">████████████████████</span> 120ms │ After <span class="ok">███████████</span> 70ms <span class="ok">−42% ✓</span></pre>
+</section>
+
+<section id="d3">
+<div class="eyebrow">Scenarios · Patterns</div>
+<h2>Demo 3 · AI Diagnose <span class="badge w">P1</span></h2>
+<pre class="dense"><span class="pr">❯</span> diagnose crash.log
+
+╭─ Crash Diagnosis ──────────────────────────────╮
+│ Signal  <span class="er">SIGSEGV</span>                                │
+│ Problem Graph                                  │
+│  app → runtime.so → memory allocator           │
+│      → <span class="er">unaligned access</span>   <span class="pr">◀ Root Cause</span>         │
+│        ═══════════════                         │
+│ Confidence  <span class="br">█████████</span><span class="cm">░</span> 91%                     │
+│ Evidence                                       │
+│  <span class="ac">[1]</span> runtime.log:223  "unaligned access"       │
+│  <span class="ac">[2]</span> kernel.c:88   <span class="ac">[3]</span> ARM ARM §B2.5           │
+│ Fix: replace malloc → aligned_alloc            │
+│ <span class="pr">[Y] Apply fix</span>   [R] Review diff   [N] Dismiss  │
+╰────────────────────────────────────────────────╯</pre>
+</section>
+
+<section id="d4">
+<div class="eyebrow">Scenarios · Patterns</div>
+<h2>Demo 4 · Observe <span class="badge">P2</span></h2>
+<p class="desc">这一屏同时消费 T2 braille、T3 热力、T4 交互三层能力，并使用设计系统高亮色阶着色。</p>
+<pre class="dense chart">┌<span class="pr">cpu</span>─<span class="cm">kunpeng920</span>──────────────────────────21:02─<span class="cm">2000ms ▾</span>─┐┌<span class="pr">npu</span>─<span class="cm">910B×8</span>────────────┐
+│<span class="cm"><span class="fw">⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>│ <span class="cm">64C 2.6GHz</span>  ││ <span class="cm"><span class="fw">⠀⠀⢀⣀⠀⠀⠀⢀⣠⣀⠀⠀⠀</span></span>            │
+│<span class="g4"><span class="fw">⣠⣴⣾⣿⣷⣿⣿⣷⣦⣄⣠⣴⣾⣿⣿⣿⣿⣷⣤⣀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣄⣠⣴⣶⣤⣀⣠⣴</span></span>│ <span class="wn">62%  54°C</span>   ││ <span class="v4"><span class="fw">⣴⣿⣿⣿⣷⣦⣴⣿⣿⣿⣷⣄⣠</span></span>  <span class="er">88%</span>       │
+├<span class="cm">64-core</span>──────────────────────────────────────────────┤│ <span class="cm">HBM</span> <span class="o3">██████</span><span class="o5">██</span><span class="o8">░░</span> 78%     │
+│ <span class="cm">0-15</span>  <span class="o3">█</span><span class="o4">▇▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃</span><span class="o8">▁</span>  NUMA0 <span class="o4">██████</span><span class="o8">░░</span> 78%          ││ <span class="cm">P2P</span> <span class="o6">███</span><span class="o8">░░░░░</span> 31%       │
+│ <span class="cm">16-31</span> <span class="o6">▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁▁</span><span class="o6">▂</span>  NUMA1 <span class="o5">████</span><span class="o8">░░░░</span> 44%          │└────────────────────────┘
+│ <span class="cm">32-47</span> <span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span>  NUMA2 <span class="o3">███████</span><span class="o8">░</span> 82% <span class="er">▚▚▚</span>      │┌<span class="pr">mem</span>────────────────────────┐
+│ <span class="cm">48-63</span> <span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span>  NUMA3 <span class="o6">███</span><span class="o8">░░░░░</span> 31%          ││ <span class="o3">████████</span><span class="o5">██████</span><span class="o7">████</span><span class="cm">░░</span>      │
+│ <span class="er">⚠ AI: core 34-38 <span class="fw">持续</span> &gt;80% · <span class="fw">疑似跨</span> NUMA <span class="fw">访问</span> · 87% [↵]</span>    ││ <span class="o3">used22</span> <span class="o5">cache12</span> <span class="o7">kv4</span> │
+└─────────────────────────────────────────────────────┘│ 38.2 / 64 GiB             │
+┌<span class="pr">net</span>─<span class="cm">enp3s0</span>────────────┐┌<span class="pr">kernels</span>─<span class="cm">filter▸</span>─────reverse─<span class="pr">▾total</span>─┐└───────────────────┘
+│<span class="a3">↑<span class="fw">⣀⣠⣴⣶⣤⣀⣠⣴⣿⣷⣦⣄⣠⣴⣶⣤⣀</span></span>││ <span class="sel">attention_fwd  1024  18.2ms <span class="er">18.6s</span> <span class="er">mem</span></span>                      │
+│<span class="a6">↓<span class="fw">⠉⠛⠿⣿⣿⠿⠛⠙⠻⢿⡿⠟⠋⠛⠿⠟⠉</span></span>││ matmul_4096    512  12.4ms  6.3s <span class="wn">comp</span>                      │  <span class="cm">P22 <span class="fw">联动：</span></span>
+│ <span class="a3">↑ 1.30 KiB/s</span>  <span class="a6">↓ 346 B/s</span>  ││ layernorm     2048   0.8ms  1.6s <span class="er">mem</span>               │  <span class="cm"><span class="fw">选中行</span> → Trace</span>
+└──────────────────┘└──<span class="cm">▲▼<span class="fw">选择</span> ↵<span class="fw">下钻</span> /<span class="fw">筛选</span> s<span class="fw">排序</span></span>──────────────────────────────────┘  <span class="cm">→ <span class="fw">源码定位</span></span>
+┌<span class="pr">trace</span>─────────────────────<span class="cm">[+/-] zoom  [drag] pan  [f] filter</span>──────────────────┐
+│ CPU    <span class="g4">████</span><span class="g6">▓▓▓▓</span><span class="g8">░░░░</span><span class="g6">▓▓▓</span><span class="g8">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>                │
+│ NPU    <span class="v8">░░░░░░░</span><span class="v3">███████</span><span class="v4">████████</span><span class="sel"><span class="v6">▓▓▓▓▓▓▓</span></span><span class="v3">██████████</span><span class="v8">░░░░░░░░░░░░░░</span>                 │
+│ HBM    <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><span class="o3">████</span><span class="o5">▓▓</span><span class="o3">████████</span><span class="o5">▓▓▓▓▓▓</span><span class="o3">██████</span><span class="o6">▓▓</span><span class="o8">░░░░░░░░░░░░░░░░</span>                   │
+│                       <span class="pr">└─ selected: attention_fwd 18.2ms · mem-bound ⚠</span>        │
+└───────────────────────────────────────────────────────────────────────────┘
+<span class="cm">❯</span> top 10 slow kernel                     <span class="cm">[mode:auto] [model:qwen] [ctx:</span><span class="wn">72%⚠</span><span class="cm">]</span></pre>
+</section>
+
 <section id="jmap">
 <div class="eyebrow">Journey</div>
 <h2>用户旅程地图</h2>
@@ -2143,117 +2252,6 @@ A: Use <span class="pr">yield</span> instruction instead of <span class="er">pau
 │ <span class="wn">⚠</span> <span class="cm">4</span> migrate order-svc      <span class="wn"><span class="hw">⏸</span> <span class="fw">等待补充配置</span></span>  <span class="cm">[↵] <span class="fw">去处理</span></span>       │
 └─────────────────────────────────────────────────────────────┘</pre>
 <p class="rule">长任务（迁移大工程、性能采集）必须能后台跑。要点：① 任务状态徽标复用全局符号体系；② <strong>⏸ 等待配置</strong>是最需要突出的状态——它卡着不动且需要人，要在底栏常驻提示；③ 后台任务完成时给<strong>非打断式通知</strong>（底栏闪一下 + 任务列表徽标变化），不抢当前焦点。</p>
-</section>
-
-<section id="d1">
-<div class="eyebrow">Demos</div>
-<h2>Demo 1 · AI Migration Agent <span class="badge d">P0</span></h2>
-<pre class="dense"><span class="cm">Step 1 · <span class="fw">入口</span></span>
-╭─ DevKit AI ────────────────────────────────────╮
-│   What do you want?                            │
-│   <span class="pr">❯</span> migrate nginx project▌                     │
-│   <span class="cm">/migrate  /diagnose  /optimize  /observe</span>     │
-╰────────────────────────────────────────────────╯
-
-<span class="cm">Step 3 · Agent <span class="fw">执行流</span></span>
-│ <span class="ok">●</span> Source Scan                <span class="cm">1,204 files  1.2s</span> │
-│ <span class="ok">●</span> Dependency Analysis        <span class="cm">18 libs</span>           │
-│ <span class="pr">▶</span> API Compatibility  <span class="pr"><span class="fw">⠹</span></span>       <span class="cm">tool:cpp_migrator</span> │
-│ <span class="cm">○</span> Generate Patch  ○ Build Verify               │
-
-<span class="cm">Step 4 · <span class="fw">迁移报告</span></span>
-╭─ Migration Report · nginx ─────────────────────╮
-│ Compatibility  <span class="br">████████</span><span class="cm">░░</span> 82%                  │
-│ <span class="er">Critical 2</span> · <span class="wn">Warning 8</span> · <span class="ok">Auto-fixable 21</span>       │
-│ ├ SSE instruction  <span class="wn">⚠</span>  crypto.c:88              │
-│ ├ atomic API       <span class="wn">⚠</span>  memory.c:223             │
-│ └ Makefile flags   <span class="ok">✓</span>                           │
-│ Files: crypto.c <span class="o3">███████</span> · memory.c <span class="o5">████</span> · mk <span class="o7">██</span>│
-╰────────────────────────────────────────────────╯
-
-<span class="cm">Step 5 · Patch Review</span>
-│ <span class="er">- _mm_pause();</span>                                 │
-│ <span class="ok">+ asm volatile("yield");</span>                       │
-│ Evidence: <span class="fw">指令替换案例库</span> #4471 · ARM ARM §B2.5 │
-│ <span class="pr">[A]ccept</span>  [E]dit  [R]eject  [Space] next       │
-
-<span class="cm">Step 6 · <span class="fw">总结</span></span>
-│ <span class="ok">✓ 21 fixed</span>  <span class="wn">⚠ 2 manual</span>  Build <span class="ok">PASS</span>             │
-│ Bench  100ms → <span class="ok">70ms (−30%)</span>                     │</pre>
-</section>
-
-<section id="d2">
-<div class="eyebrow">Demos</div>
-<h2>Demo 2 · Performance Optimize <span class="badge w">P1</span></h2>
-<pre class="dense chart"><span class="pr">❯</span> optimize model.bin
-┌<span class="pr">roofline</span>─<span class="cm">Qwen-72B @ 910B</span>──────────────┐┌<span class="pr">bottleneck</span>──────<span class="pr">▾ share</span>──┐
-│ <span class="cm">GFLOPS</span>          <span class="ac"><span class="fw">⣀⣠⣤⣴⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿</span></span>       │ <span class="sel">attention  <span class="er">█████████</span> 45%</span> │
-│         <span class="ac"><span class="fw">⣠⣴⡾⠟⠋</span></span>       <span class="cm">compute roof</span>     │ matmul    <span class="o5">███████</span>   35%  │
-│      <span class="ac"><span class="fw">⣴⠟⠁</span></span>   <span class="er">◆attention</span>  <span class="wn">◆matmul</span>       │ memcpy    <span class="o7">████</span>      20%  │
-│   <span class="ac"><span class="fw">⣴⠟</span></span>  <span class="cm">mem roof</span>   <span class="er">▲ <span class="fw">落在内存墙下方</span></span>    │ <span class="cm">↵ <span class="fw">下钻</span> · s <span class="fw">排序</span></span>          │
-└──────────────────────────────────────┘└─────────────────────────┘
-┌<span class="pr">trace</span>────────<span class="cm">[+/-] zoom [drag] pan</span>─────────────────────────────────┐
-│ NPU  <span class="v8">░░</span><span class="v3">██████████</span><span class="sel"><span class="v6">▓▓▓▓▓▓</span></span><span class="v3">████████</span><span class="v8">░░░</span><span class="v3">████████</span><span class="v6">▓▓▓</span><span class="v8">░░░░░░░░░░░</span>          │
-│ HBM  <span class="o5">▓▓</span><span class="o3">████████████████████</span><span class="o5">▓▓▓▓</span><span class="o3">██████████</span><span class="o5">▓▓</span><span class="o8">░░░░░░░░░░░░</span>           │
-│                <span class="er">└─ ⚠ AI: HBM <span class="fw">持续饱和而</span> NPU <span class="fw">有气泡</span> → memory-bound</span>  │
-└──────────────────────────────────────────────────────────────────────┘
-┌<span class="pr">operator</span>─<span class="cm">attention_fwd</span>────────────────────────────────────────────────┐
-│ Compute <span class="o5">███████</span><span class="cm">░░░</span> 70%   Memory <span class="er">██████████</span> 98%   <span class="er">◀ <span class="fw">瓶颈维度</span></span>          │
-│ AI Proposal                              Expected                    │
-│  <span class="ok">✓</span> FlashAttention <span class="fw">融合</span>                  18.2ms → <span class="ok">9.6ms</span>  <span class="ok">−47%</span>         │
-│  <span class="ok">✓</span> KV Cache INT8 <span class="fw">量化</span>                    HBM   <span class="er">98%</span> → <span class="ok">61%</span>             │
-│  <span class="ok">✓</span> tiling 128×128 <span class="fw">适配</span> 910B L2          <span class="cm">Evidence: <span class="fw">知识库</span> #2213</span>       │
-│ <span class="pr">[Y] Apply &amp; Benchmark</span>  [R] Review  [E] <span class="fw">编辑参数</span>                      │
-└──────────────────────────────────────────────────────────────────────┘
-Before <span class="er">████████████████████</span> 120ms │ After <span class="ok">███████████</span> 70ms <span class="ok">−42% ✓</span></pre>
-</section>
-
-<section id="d3">
-<div class="eyebrow">Demos</div>
-<h2>Demo 3 · AI Diagnose <span class="badge w">P1</span></h2>
-<pre class="dense"><span class="pr">❯</span> diagnose crash.log
-
-╭─ Crash Diagnosis ──────────────────────────────╮
-│ Signal  <span class="er">SIGSEGV</span>                                │
-│ Problem Graph                                  │
-│  app → runtime.so → memory allocator           │
-│      → <span class="er">unaligned access</span>   <span class="pr">◀ Root Cause</span>         │
-│        ═══════════════                         │
-│ Confidence  <span class="br">█████████</span><span class="cm">░</span> 91%                     │
-│ Evidence                                       │
-│  <span class="ac">[1]</span> runtime.log:223  "unaligned access"       │
-│  <span class="ac">[2]</span> kernel.c:88   <span class="ac">[3]</span> ARM ARM §B2.5           │
-│ Fix: replace malloc → aligned_alloc            │
-│ <span class="pr">[Y] Apply fix</span>   [R] Review diff   [N] Dismiss  │
-╰────────────────────────────────────────────────╯</pre>
-</section>
-
-<section id="d4">
-<div class="eyebrow">Demos</div>
-<h2>Demo 4 · Observe <span class="badge">P2</span></h2>
-<p class="desc">这一屏同时消费 T2 braille、T3 热力、T4 交互三层能力，并使用设计系统高亮色阶着色。</p>
-<pre class="dense chart">┌<span class="pr">cpu</span>─<span class="cm">kunpeng920</span>──────────────────────────21:02─<span class="cm">2000ms ▾</span>─┐┌<span class="pr">npu</span>─<span class="cm">910B×8</span>────────────┐
-│<span class="cm"><span class="fw">⠀⠀⠀⠀⠀⢀⣀⠀⠀⠀⠀⠀⠀⠀⢀⣠⡀⠀⠀⠀⠀⠀⠀⠀⢀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span>│ <span class="cm">64C 2.6GHz</span>  ││ <span class="cm"><span class="fw">⠀⠀⢀⣀⠀⠀⠀⢀⣠⣀⠀⠀⠀</span></span>            │
-│<span class="g4"><span class="fw">⣠⣴⣾⣿⣷⣿⣿⣷⣦⣄⣠⣴⣾⣿⣿⣿⣿⣷⣤⣀⣠⣴⣾⣿⣿⣿⣿⣿⣷⣄⣠⣴⣶⣤⣀⣠⣴</span></span>│ <span class="wn">62%  54°C</span>   ││ <span class="v4"><span class="fw">⣴⣿⣿⣿⣷⣦⣴⣿⣿⣿⣷⣄⣠</span></span>  <span class="er">88%</span>       │
-├<span class="cm">64-core</span>──────────────────────────────────────────────┤│ <span class="cm">HBM</span> <span class="o3">██████</span><span class="o5">██</span><span class="o8">░░</span> 78%     │
-│ <span class="cm">0-15</span>  <span class="o3">█</span><span class="o4">▇▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃</span><span class="o8">▁</span>  NUMA0 <span class="o4">██████</span><span class="o8">░░</span> 78%          ││ <span class="cm">P2P</span> <span class="o6">███</span><span class="o8">░░░░░</span> 31%       │
-│ <span class="cm">16-31</span> <span class="o6">▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁▁</span><span class="o6">▂</span>  NUMA1 <span class="o5">████</span><span class="o8">░░░░</span> 44%          │└────────────────────────┘
-│ <span class="cm">32-47</span> <span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span>  NUMA2 <span class="o3">███████</span><span class="o8">░</span> 82% <span class="er">▚▚▚</span>      │┌<span class="pr">mem</span>────────────────────────┐
-│ <span class="cm">48-63</span> <span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span><span class="o4">▇</span><span class="o3">█</span><span class="o4">▇</span><span class="o5">▅</span><span class="o6">▃▂</span><span class="o8">▁▁</span><span class="o6">▂▃</span><span class="o5">▅</span>  NUMA3 <span class="o6">███</span><span class="o8">░░░░░</span> 31%          ││ <span class="o3">████████</span><span class="o5">██████</span><span class="o7">████</span><span class="cm">░░</span>      │
-│ <span class="er">⚠ AI: core 34-38 <span class="fw">持续</span> &gt;80% · <span class="fw">疑似跨</span> NUMA <span class="fw">访问</span> · 87% [↵]</span>    ││ <span class="o3">used22</span> <span class="o5">cache12</span> <span class="o7">kv4</span> │
-└─────────────────────────────────────────────────────┘│ 38.2 / 64 GiB             │
-┌<span class="pr">net</span>─<span class="cm">enp3s0</span>────────────┐┌<span class="pr">kernels</span>─<span class="cm">filter▸</span>─────reverse─<span class="pr">▾total</span>─┐└───────────────────┘
-│<span class="a3">↑<span class="fw">⣀⣠⣴⣶⣤⣀⣠⣴⣿⣷⣦⣄⣠⣴⣶⣤⣀</span></span>││ <span class="sel">attention_fwd  1024  18.2ms <span class="er">18.6s</span> <span class="er">mem</span></span>                      │
-│<span class="a6">↓<span class="fw">⠉⠛⠿⣿⣿⠿⠛⠙⠻⢿⡿⠟⠋⠛⠿⠟⠉</span></span>││ matmul_4096    512  12.4ms  6.3s <span class="wn">comp</span>                      │  <span class="cm">P22 <span class="fw">联动：</span></span>
-│ <span class="a3">↑ 1.30 KiB/s</span>  <span class="a6">↓ 346 B/s</span>  ││ layernorm     2048   0.8ms  1.6s <span class="er">mem</span>               │  <span class="cm"><span class="fw">选中行</span> → Trace</span>
-└──────────────────┘└──<span class="cm">▲▼<span class="fw">选择</span> ↵<span class="fw">下钻</span> /<span class="fw">筛选</span> s<span class="fw">排序</span></span>──────────────────────────────────┘  <span class="cm">→ <span class="fw">源码定位</span></span>
-┌<span class="pr">trace</span>─────────────────────<span class="cm">[+/-] zoom  [drag] pan  [f] filter</span>──────────────────┐
-│ CPU    <span class="g4">████</span><span class="g6">▓▓▓▓</span><span class="g8">░░░░</span><span class="g6">▓▓▓</span><span class="g8">░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span>                │
-│ NPU    <span class="v8">░░░░░░░</span><span class="v3">███████</span><span class="v4">████████</span><span class="sel"><span class="v6">▓▓▓▓▓▓▓</span></span><span class="v3">██████████</span><span class="v8">░░░░░░░░░░░░░░</span>                 │
-│ HBM    <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><span class="o3">████</span><span class="o5">▓▓</span><span class="o3">████████</span><span class="o5">▓▓▓▓▓▓</span><span class="o3">██████</span><span class="o6">▓▓</span><span class="o8">░░░░░░░░░░░░░░░░</span>                   │
-│                       <span class="pr">└─ selected: attention_fwd 18.2ms · mem-bound ⚠</span>        │
-└───────────────────────────────────────────────────────────────────────────┘
-<span class="cm">❯</span> top 10 slow kernel                     <span class="cm">[mode:auto] [model:qwen] [ctx:</span><span class="wn">72%⚠</span><span class="cm">]</span></pre>
 </section>
 
 <section id="docs">
