@@ -944,7 +944,17 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td><b>CommandPalette</b><br><span class="chipm">Select / Modal</span></td><td class="mono">overlays.tsx</td><td class="mono">ModalFrame + input + 列表</td><td>query 过滤 · selected 高亮 · disabled 项</td><td>Ctrl+P 开 · ↑/↓ 选 · Enter 执行 · Esc 关</td></tr>
 <tr><td><b>ModalFrame / OverlayScrim</b><br><span class="chipm">Modal 基座</span></td><td class="mono">overlays.tsx</td><td class="mono">absolute 定位 box + 全屏遮罩</td><td>tone：neutral · warning · danger</td><td>Esc 关闭（各 Overlay 自行绑定）</td></tr>
 <tr><td><b>HelpOverlay / ConfigOverlay / ApprovalOverlay</b></td><td class="mono">overlays.tsx</td><td class="mono">ModalFrame 派生</td><td>各自 selected / sensitive 字段</td><td>Esc 关 · Enter 确认 · ↑/↓ 选字段</td></tr>
+<tr><td><b>Suggestion Chip</b><br><span class="chipm">反色文字块</span></td><td class="mono">landing.tsx</td><td class="mono">text（反色底，无边框）</td><td>default · muted</td><td>点击等价 —— 建议项对应真实命令</td></tr>
 </table>
+
+<div class="sublabel">demo.html 有、tui/ 代码还没有的组件 —— 只收能在终端画出来的</div>
+<p class="rule">下面两个来自 <code>web/demo.html</code>（设计稿，纯 CSS/HTML 模拟，不是 OpenTUI 渲染）里出现、但 <code>tui/src/components/ui/</code> 还没实现的组件。<strong>能收进来是因为它们只需要反色文字块 + 描边 box——landing.tsx 的建议 chip、ActionButton 的激活态描边已经在用同一套技法</strong>，不是新渲染能力。demo.html 里的圆角径向阴影、发光、模糊这些纯 CSS 效果<strong>一律不带进来</strong>——终端画不出，带进规范就是画大饼。</p>
+<table>
+<tr><th>组件</th><th>demo.html 类名</th><th>建立在（可行方案）</th><th>状态</th></tr>
+<tr><td><b>Status Badge</b><br><span class="chipm">状态徽章</span></td><td class="mono">.sb</td><td class="mono">text（语义色反色底，仿 <code>KunpengBrand</code> 的 <code>DEVKIT AI</code> 徽标写法）</td><td>ok · warning · danger · neutral</td></tr>
+<tr><td><b>Toggle Group</b><br><span class="chipm">排序/筛选按钮组</span></td><td class="mono">.sortg .sbtn</td><td class="mono">多个 <code>ActionButton</code> 并排，激活态只描边不填充</td><td>on · off，互斥或多选</td></tr>
+</table>
+<p class="rule">先例：Agent Console 目前用纯色小字形（●▶⚠✕○）表状态，没有用 Status Badge——这是<strong>信息密度的取舍</strong>，不是技术限制。加 Badge 前先确认这一屏是否真的需要比字形更重的强调，别为了好看而加。</p>
 
 <div class="sublabel">实际用法 —— 直接摘自源码</div>
 <pre class="dense tight"><span class="cm">// primitives.tsx —— Button</span>
@@ -964,23 +974,23 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <p class="rule">≥80 列 Dock 才存在；&lt;80 列（<code>layoutForWidth</code> 的 <code>narrow</code> 档）Dock 让位，TaskTabs 切到 <code>showBrand</code> 变体。Dock 自身在 &lt;100 列（或 <kbd>Ctrl+B</kbd> 强制）时收成 3 列图标带。品牌字标同样分三档：<code>full</code> ≥22 列（◢ KUNPENG + DEVKIT AI 徽标）· <code>wordmark</code> ≥10 列（只留 ◢ KUNPENG）· <code>none</code> &lt;10 列<strong>整个不画</strong>——<code>brand.tsx</code> 原话："低于最小宽度不画，不缩着画"。</p>
 
 <div class="fig"><span class="fig-t">TaskTabs · 宽屏（≥80 列，Dock 存在）</span>
-<pre class="dense tight"><span class="ok">▶</span> <span class="pr">1 migrate nginx</span>   <span class="cm">✓</span> 2 optimize qwen-7   <span class="cm">○</span> 3 diagnose crash   <span class="cm"><span class="hw">⏸</span></span> 4 order-svc   <span class="cm">+</span>            <span class="s2">v0.1.0 · Kunpeng ARM64 · </span><span class="ok">● READY</span></pre>
+<pre class="dense"><span class="ok">▶</span> <span class="pr">1 migrate nginx</span>   <span class="cm">✓</span> 2 optimize qwen-7   <span class="cm">○</span> 3 diagnose crash   <span class="cm"><span class="hw">⏸</span></span> 4 order-svc   <span class="cm">+</span>            <span class="s2">v0.1.0 · Kunpeng ARM64 · </span><span class="ok">● READY</span></pre>
 </div>
 <div class="fig"><span class="fig-t">TaskTabs · 窄屏（&lt;80 列，showBrand 变体，wordmark 字标）</span>
-<pre class="dense tight"><span class="br">◢</span> KUNPENG <span class="sel">│▶ migrate nginx</span>                                                <span class="ok">●</span></pre>
+<pre class="dense"><span class="br">◢</span> KUNPENG <span class="sel">│▶ migrate nginx</span>                                                <span class="ok">●</span></pre>
 </div>
 
 <div class="fig"><span class="fig-t">Dock · 展开（≥100 列，dockWidth 23–27，full 字标）</span>
-<pre class="dense tight">┌ <span class="br">◢</span> KUNPENG <span class="t">DEVKIT AI</span> ──┐
+<pre class="dense">┌ <span class="br">◢</span> KUNPENG <span class="t">DEVKIT AI</span> ──┐
 │ <span class="s2">T A S K S</span>  <span class="ac">4</span>          │
-│ <span class="sel">▎</span><span class="ok">✓</span> migrate nginx     │
-│  <span class="pr">▶</span> optimize qwen-7   │
+│ <span class="sel">▎</span><span class="ok">✓</span> migrate nginx      │
+│  <span class="pr">▶</span> optimize qwen-7    │
 │ <span class="s2">P R O J E C T</span>  <span class="ac">6</span>      │
-│  <span class="sel">▎</span>○ nginx/          │
+│  <span class="sel">▎</span>○ nginx/            │
 └───────────────────────┘</pre>
 </div>
 <div class="fig"><span class="fig-t">Dock · 折叠（&lt;100 列或 Ctrl+B 强制，3 列——none 字标）</span>
-<pre class="dense tight">┌───┐
+<pre class="dense">┌───┐
 │   │  <span class="cm">← 3 列 &lt; wordmark 最小宽度 10，标识不画</span>
 │ <span class="sel">▮</span> │  <span class="cm">← 当前任务</span>
 │ ▯ │
