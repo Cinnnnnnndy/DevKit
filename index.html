@@ -10,7 +10,9 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23101010'/%3E%3Crect x='2' y='3' width='5' height='3' fill='%23ed1c24'/%3E%3Crect x='2' y='7' width='9' height='2' fill='%23e8e8e8'/%3E%3Crect x='2' y='10' width='6' height='2' fill='%23777'/%3E%3Crect x='12' y='10' width='2' height='2' fill='%230077ff'/%3E%3C/svg%3E" type="image/svg+xml" />
 <!--
   Kunpeng DevKit AI · 项目启动页
-  把仓库里的四份可交互 HTML、十一份设计规范、整套视觉 token 收成一页入口。
+  把仓库里的八份自包含 HTML、十一份设计规范、整套视觉 token 收成一页入口。
+  别写成"八份可交互原型"——真正能交互的只有 TUI 设计 demo（十幕可切换）
+  与原生 TUI 实录（录像可播放/暂停），其余是静帧和文档，说法要对得上东西。
   自包含单文件，无外部依赖、无联网。
 
   · 部署位置：仓库根 /index.html —— 它就是站点首页，Pages 走分支模式
@@ -254,7 +256,7 @@ pre .hw{font-size:1ch}
       面向鲲鹏迁移 / 开发 / 诊断 / 调优的 <b>AI Native Terminal Engineering Workspace</b> 的完整设计文档集。
       产品形态先钉死一条——这是<b>原生 TUI 应用</b>：独立常驻进程、全屏接管终端、自有事件循环，
       不是 CLI 命令集合，不是 IDE 里的终端面板，不是聊天窗口套壳。
-      八份可交互 HTML 收在这一页，点开即看——最新一份是<a href="./kunpeng-devkit-ai-tui/web/screens.html" style="color:var(--pri-h)">四个典型页面</a>的整屏字符帧，与之配套的<a href="./kunpeng-devkit-ai-tui/web/design-input.html" style="color:var(--pri-h)">设计输入</a>取代了旧的旅程地图作为设计依据。设计系统、实现实况、视觉 token 速查与十二份规范原文，全部整合在<a href="./kunpeng-devkit-ai-tui/web/index.html" style="color:var(--pri-h)">设计系统页</a>里——这一页只做入口，内容归内容页。
+      八份自包含 HTML 收在这一页，按用途分三组：<b>界面产出</b>（静帧、可交互原型、真机录像）、<b>设计依据</b>、<b>前期分析</b>——最新一份是<a href="./kunpeng-devkit-ai-tui/web/screens.html" style="color:var(--pri-h)">四个典型页面</a>的整屏字符帧，与之配套的<a href="./kunpeng-devkit-ai-tui/web/design-input.html" style="color:var(--pri-h)">设计输入</a>取代了旧的旅程地图作为设计依据。设计系统、实现实况、视觉 token 速查与十二份规范原文，全部整合在<a href="./kunpeng-devkit-ai-tui/web/index.html" style="color:var(--pri-h)">设计系统页</a>里——这一页只做入口，内容归内容页。
       设计规范已收敛，实现进行中——渲染底座、Chrome 层外壳与十四种图表原语已落地，
       Agent Runtime 与 MCP 客户端尚未开始。
     </p>
@@ -620,11 +622,11 @@ pre .hw{font-size:1ch}
 
   <!-- ═══════════════════════════ footer ═══════════════════════════ -->
   <footer class="foot">
-    <div>本页是站点首页 <a href="https://cinnnnnnndy.github.io/DevKit/">cinnnnnnndy.github.io/DevKit/</a>，源文件是仓库根的 <span class="mono">index.html</span>（Pages 分支模式发布，发布分支在 Settings → Pages 里指定）。站内链接走相对路径 <span class="mono">./kunpeng-devkit-ai-tui/web/*.html</span>，所以在线打开和本地双击打开是同一套链接；四份 HTML 都是自包含单文件，无需构建、无需联网。</div>
+    <div>本页是站点首页 <a href="https://cinnnnnnndy.github.io/DevKit/">cinnnnnnndy.github.io/DevKit/</a>，源文件是仓库根的 <span class="mono">index.html</span>（Pages 分支模式发布，发布分支在 Settings → Pages 里指定）。站内链接走相对路径 <span class="mono">./kunpeng-devkit-ai-tui/web/*.html</span>，所以在线打开和本地双击打开是同一套链接；八份 HTML 都是自包含单文件，无需构建、无需联网——但自包含不等于可交互：能点能翻的只有 TUI 设计 demo 与原生 TUI 实录，其余是静帧与文档。</div>
     <div>卡片按用途分三组，顺序就是评审顺序：<b>界面产出</b>先看长什么样，<b>设计依据</b>回答凭什么这么设计，<b>前期分析</b>是结论的来处。同一份文件只在一组里出现，跨组的引用走卡片里的链接条。</div>
     <div>卡片里指向 <span class="mono">app/</span> 与 Markdown 原文的链接都落到 GitHub：终端应用在浏览器里跑不了，只能给源码（本地 <span class="mono">bun run dev</span> / <span class="mono">preview</span> / <span class="mono">gallery</span> 可直接跑起来）；<span class="mono">.md</span> 被 Pages 当纯文本返回，读起来不方便。每张卡片底部的灰色路径是它在仓库里的位置，点进去就是源。</div>
     <div>视觉 token 的速查表在<a href="./kunpeng-devkit-ai-tui/web/index.html#cheat">设计系统页</a>——规范内容归规范页，这一页只做入口。本页视觉直接取自 <span class="mono">docs/VISUAL.md</span>：Dark-first 六级表面、预合成前景实色、红身份 / 蓝交互 / 粉红语义的三分工、方形为默认（圆角 = 浮起）。<b>启动页本身就是这套规范的第一个样例</b>——参照页是浅色的，这里没有照抄，因为这套 token 是 Dark-first 的。</div>
-    <div>本页生成于 <span id="build-stamp">2026-08-17 11:51 UTC · 基于 1a6ae11</span>。浏览器缓存 10 分钟，看到的不是这个时间就按 <span class="mono">Ctrl/Cmd+Shift+R</span> 强刷，或在地址后加 <span class="mono">?v=1</span>。</div>
+    <div>本页生成于 <span id="build-stamp">2026-08-17 11:56 UTC · 基于 1faf286</span>。浏览器缓存 10 分钟，看到的不是这个时间就按 <span class="mono">Ctrl/Cmd+Shift+R</span> 强刷，或在地址后加 <span class="mono">?v=1</span>。</div>
     <div>本页与全站均为 noindex。内部设计资料，授权方式待定；Kunpeng 标识及华为品牌色版权归华为技术有限公司所有，本仓库仅在设计示意中引用。</div>
   </footer>
 
