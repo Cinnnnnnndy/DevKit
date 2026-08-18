@@ -11,6 +11,7 @@
 <!--
   Kunpeng DevKit AI · 项目启动页
   把仓库里的八份自包含 HTML、十一份设计规范、整套视觉 token 收成一页入口。
+  按用途分四组：研究 / 设计系统 / Demo / 实机录屏。
   别写成"八份可交互原型"——真正能交互的只有 TUI 设计 demo（十幕可切换）
   与原生 TUI 实录（录像可播放/暂停），其余是静帧和文档，说法要对得上东西。
   自包含单文件，无外部依赖、无联网。
@@ -113,8 +114,8 @@ body{
 .group-note{font-size:12px;color:var(--fg3);white-space:nowrap}
 .group-rule{flex:1;height:1px;background:var(--line);align-self:center}
 
-/* 三列而不是四列：分类之后每组只有 2–3 张卡，四列会让每组都缺半行。
-   三列时「界面产出」「前期分析」各占满一行，中间那组空一格，行末不再参差。 */
+/* 三列而不是四列：分四组后每组只有 1–3 张卡，四列会让每组都缺半行。
+   三列时研究组占满一行，Demo 两张、设计系统两张各空一格，实机录屏独占一格。 */
 .card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 
 /* ═══════════ card ═══════════ */
@@ -256,7 +257,7 @@ pre .hw{font-size:1ch}
       面向鲲鹏迁移 / 开发 / 诊断 / 调优的 <b>AI Native Terminal Engineering Workspace</b> 的完整设计文档集。
       产品形态先钉死一条——这是<b>原生 TUI 应用</b>：独立常驻进程、全屏接管终端、自有事件循环，
       不是 CLI 命令集合，不是 IDE 里的终端面板，不是聊天窗口套壳。
-      八份自包含 HTML 收在这一页，按用途分三组：<b>界面产出</b>（静帧、可交互原型、真机录像）、<b>设计依据</b>、<b>前期分析</b>——最新一份是<a href="./kunpeng-devkit-ai-tui/web/screens.html" style="color:var(--pri-h)">四个典型页面</a>的整屏字符帧，与之配套的<a href="./kunpeng-devkit-ai-tui/web/design-input.html" style="color:var(--pri-h)">设计输入</a>取代了旧的旅程地图作为设计依据。设计系统、实现实况、视觉 token 速查与十二份规范原文，全部整合在<a href="./kunpeng-devkit-ai-tui/web/index.html" style="color:var(--pri-h)">设计系统页</a>里——这一页只做入口，内容归内容页。
+      八份自包含 HTML 收在这一页，按用途分四组：<b>研究</b>（竞品 / 视觉 / 渲染能力三份分析）、<b>设计系统</b>（设计输入 + 整合版设计系统页）、<b>Demo</b>（四屏静帧 + 十幕可交互原型）、<b>实机录屏</b>（真实 PTY 字符流）。设计系统、实现实况、视觉 token 速查与十二份规范原文，全部整合在<a href="./kunpeng-devkit-ai-tui/web/index.html" style="color:var(--pri-h)">设计系统页</a>里——这一页只做入口，内容归内容页。
       设计规范已收敛，实现进行中——渲染底座、Chrome 层外壳与十四种图表原语已落地，
       Agent Runtime 与 MCP 客户端尚未开始。
     </p>
@@ -277,217 +278,10 @@ pre .hw{font-size:1ch}
 
   <section class="groups" aria-label="项目入口导航">
 
-    <!-- ═══════════ 界面产出 · 看长什么样 ═══════════ -->
-    <section class="card-group" aria-labelledby="g-screen">
-      <div class="group-header">
-        <h2 class="group-title" id="g-screen">界面产出 · 看长什么样</h2>
-        <span class="group-note">评审先看这组：四屏静帧、十幕连续剧、真机录像；都是自包含单文件，下载双击即开</span>
-        <div class="group-rule" aria-hidden="true"></div>
-      </div>
-      <div class="card-grid">
-
-        <!-- screens.html -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/screens.html">四个典型页面</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--star">新</span>
-              <span class="tag tag--impl">整屏字符帧</span>
-              <span class="tag">160 列 + 80 列</span>
-              <span class="tag">宽度经断言</span>
-            </div>
-          </div>
-          <div class="card-preview tall" aria-hidden="true">
-<pre><span class="pv-dim">┌ </span><span class="pv-ok">✓ Task Completed</span><span class="pv-dim"> · hotspot ───────────</span>
-<span class="pv-dim">│</span> <span class="pv-fg">Top 30 <span class="fw">热点函数</span></span>   <span class="pv-dim"><span class="fw">周期数占比</span> ▾</span>
-<span class="pv-dim">│</span> <span class="pv-run">▸</span> <span class="pv-fg">inc_b</span>  <span class="pv-wn">█████▌</span><span class="pv-dim">░░░░░</span>  <span class="pv-fg">50.00%</span>
-<span class="pv-dim">│</span> <span class="pv-run">▸</span> <span class="pv-fg">sum_a</span>  <span class="pv-wn">█████▌</span><span class="pv-dim">░░░░░</span>  <span class="pv-fg">50.00%</span>
-<span class="pv-dim">├─ </span><span class="pv-dim"><span class="fw">火焰图</span></span>
-<span class="pv-dim">│</span> <span class="pv-ok">████████████████████████</span> <span class="pv-dim">all</span>
-<span class="pv-dim">│</span> <span class="pv-wn">███████████ ███████████</span> <span class="pv-dim">inc_b/sum_a</span>
-<span class="pv-dim">│</span> <span class="pv-wn">3 <span class="fw">帧过窄未显示</span></span>
-<span class="pv-dim">└─</span> <span class="pv-er">120 98.65%</span> <span class="pv-fg">++f.y;</span> <span class="pv-dim">→ <span class="fw">伪共享</span></span></pre>
-          </div>
-          <p class="card-desc"><b>启动页 · Agent Workspace · 执行中 Tool+Diff · 任务结果页</b>四屏，各给一张 <b>160 列宽屏帧</b>和一张 <b>80 列窄屏降级帧</b>。不是配色示意图——每行宽度在生成时被断言把着（CJK 按 2 格、Braille 按 1 格），<b>页面上看到的对齐关系就是终端里的对齐关系</b>。结果页的信息结构对齐 DevKit Web 端「热点函数分析」：热点调用栈表、火焰图、源码级逐行百分比，字段名与分组方式沿用 Web 端。这一版<b>没有录屏</b>——录屏适合讲流程，不适合评审单屏。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/screens.html">看四屏</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/screens.html#s3">#执行中 Diff</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/screens.html#s4">#热点函数</a>
-            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/design-input.html">设计输入</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/screens.html" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/screens.html
-            </a>
-          </div>
-        </article>
-
-        <!-- demo.html -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/demo.html">TUI 设计 demo</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--html">演示</span>
-              <span class="tag">两种风格</span>
-              <span class="tag">并排比较</span>
-              <span class="tag">1920×1080</span>
-            </div>
-          </div>
-          <div class="card-preview tall" aria-hidden="true">
-<pre><span class="pv-dim">╭─</span> <span class="pv-kp">▰</span> <span class="pv-fg">DEVKIT AI</span> <span class="pv-dim">─── migrate nginx ────</span>
-<span class="pv-dim">│</span> <span class="pv-ok">●</span> <span class="pv-fg">Analyze dependency</span>      <span class="pv-dim">18 libs</span>
-<span class="pv-dim">│</span> <span class="pv-ok">●</span> <span class="pv-fg">Generate patches</span>       <span class="pv-dim">12 file</span>
-<span class="pv-dim">│</span> <span class="pv-run">▶</span> <span class="pv-fg">Build verify</span>          <span class="pv-run"><span class="fw">⠹</span> 2.1s</span>
-<span class="pv-dim">│</span> <span class="pv-dim">○ Performance check</span>
-<span class="pv-dim">├──────────────────────────────────</span>
-<span class="pv-dim">│</span> <span class="pv-fg">crypto.c</span> <span class="pv-er">████████</span><span class="pv-wn">███</span><span class="pv-dim">░░</span>  <span class="pv-er">2 crit</span>
-<span class="pv-dim">│</span> <span class="pv-fg">memory.c</span> <span class="pv-wn">█████</span><span class="pv-dim">░░░░░░</span>  <span class="pv-wn">8 warn</span>
-<span class="pv-dim">╰─ 1 2 3 4 5 </span><span class="pv-run">6</span><span class="pv-dim"> 7 8 9 10 ─────────</span></pre>
-          </div>
-          <p class="card-desc"><b>风格 A · 字符质感是主线</b>，后续迭代都在它上面做。十幕连续剧，可自动播放或键盘切换，含"编译翻车"转诊断的关键一幕；主角是性能工程师，要把一套 x86 上的 nginx 迁到鲲鹏 ARM64 并调到可上线性能。<b>风格 B · 面板质感</b>作为<b>备选方案</b>单独保留一页：单张典型工作屏，圆角卡片、描边毛玻璃、背景辉光，设计 token 配色。两者画布都固定 <span class="mono">1920×1080</span>，整台舞台等比缩放到视口——任何屏幕上看到的都是同一张设计稿。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/demo.html">风格 A · 字符质感（主线）</a>
-            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/demo-studio.html">风格 B · 面板质感（备选）</a>
-            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/tui-demo.html">两种风格对照</a>
-            <a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/JOURNEY.md" target="_blank" rel="noopener">故事线文档</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/demo.html" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/demo.html
-            </a>
-          </div>
-        </article>
-
-        <!-- tui-live.html -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/tui-live.html">原生 TUI 实录</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--impl">实况</span>
-              <span class="tag tag--star">真机录像</span>
-              <span class="tag">字符流</span>
-              <span class="tag">160×45</span>
-            </div>
-          </div>
-          <div class="card-preview tall" aria-hidden="true">
-<pre><span class="pv-dim">┌ </span><span class="pv-fg">ACT 10 · SESSION SUMMARY</span><span class="pv-dim"> ──────────────</span>
-<span class="pv-dim">│</span> <span class="pv-fg">nginx x86_64 → Kunpeng ARM64</span>
-<span class="pv-dim">│</span> <span class="pv-ok">✓ 21 issues fixed</span>
-<span class="pv-dim">│</span> <span class="pv-wn">⚠ 2 need manual review</span>
-<span class="pv-dim">│</span> <span class="pv-ok">Build PASSED</span>
-<span class="pv-dim">├─ </span><span class="pv-dim">PERFORMANCE</span>
-<span class="pv-dim">│</span> <span class="pv-fg">QPS</span> <span class="pv-dim">42,000 →</span> <span class="pv-ok">61,000</span> <span class="pv-ok">+45%</span>
-<span class="pv-dim">│</span> <span class="pv-fg">P99</span> <span class="pv-dim">18ms →</span> <span class="pv-ok">12ms</span>
-<span class="pv-dim">└─</span> <span class="pv-run">▎S Export Markdown</span> <span class="pv-dim">│ J Export JSON</span></pre>
-          </div>
-          <p class="card-desc"><b>这一页不是设计稿，是程序真的跑了一遍。</b><span class="mono">devkitai</span> 二进制在一个 <b>160×45 的真实 PTY</b> 里被按键脚本驱动，跑完十幕迁移流程，整段以 <a href="https://docs.asciinema.org/manual/asciicast/v2/" target="_blank" rel="noopener">asciicast v2</a> 录下来。录的是<b>字符和 ANSI 序列而非像素</b>——所以 gzip 后只有 <span class="mono">124&nbsp;KB</span>，文字可选中复制，24-bit 真彩原样保留，放大不糊。页面同时列出<b>这一版做不到什么</b>（T5 图形协议未实现、后端未接、<span class="mono">UI-SPEC.md</span> 仍是 draft），以及在自己机器上跑起来的完整命令。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/tui-live.html">打开实录 ▶</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/tui-live.html#limits">#能力边界</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/tui-live.html#run">#本机运行</a>
-            <a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/tree/main/kunpeng-devkit-ai-tui/tui" target="_blank" rel="noopener">实现源码</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/tui-live.html" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/tui-live.html
-            </a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- ═══════════ 设计依据 · 规范 ═══════════ -->
-    <section class="card-group" aria-labelledby="g-spec">
-      <div class="group-header">
-        <h2 class="group-title" id="g-spec">设计依据 · 规范</h2>
-        <span class="group-note">界面为什么长成这样——设计输入定「必须提供什么」，设计系统定「怎么画」</span>
-        <div class="group-rule" aria-hidden="true"></div>
-      </div>
-      <div class="card-grid">
-
-        <!-- design-input.html -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/design-input.html">设计输入</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--star">新</span>
-              <span class="tag tag--html">规范输入</span>
-              <span class="tag">11 章</span>
-              <span class="tag">含阶段规划</span>
-            </div>
-          </div>
-          <div class="card-preview tall" aria-hidden="true">
-<pre><span class="pv-dim"><span class="fw">背景</span> → <span class="fw">用户</span> → <span class="fw">场景</span> → <span class="fw">设计目标</span></span>
-<span class="pv-dim">  → <span class="fw">核心能力</span> → <span class="fw">关键交互</span> → <span class="fw">状态体系</span></span>
-<span class="pv-dim">  → <span class="fw">页面组件</span> → <span class="fw">原则</span> → <span class="fw">待验证</span></span>
-
-<span class="pv-fg"><span class="fw">六个必须答上的问题</span></span>
-<span class="pv-dim">①</span> <span class="pv-fg"><span class="fw">我能不能马上开始</span></span>
-<span class="pv-dim">②</span> <span class="pv-fg">Agent <span class="fw">能不能工作</span></span>
-<span class="pv-dim">③</span> <span class="pv-fg">Agent <span class="fw">在干什么</span></span>
-<span class="pv-dim">④</span> <span class="pv-fg"><span class="fw">有没有跑偏</span></span>   <span class="pv-dim">⑤ <span class="fw">多任务</span></span>
-<span class="pv-dim">⑥</span> <span class="pv-fg"><span class="fw">我得到了什么</span></span>
-<span class="pv-dim">─────────────────────────────</span>
-<span class="pv-ok">S0 <span class="fw">已完成</span></span> <span class="pv-dim">→</span> <span class="pv-run">S1 IA</span> <span class="pv-dim">→ S2 <span class="fw">页面</span> → S3 <span class="fw">原型</span></span></pre>
-          </div>
-          <p class="card-desc">把旅程地图换成<b>可被交互 / 视觉 / 实现直接接住</b>的输入结构：背景 → 用户 → 场景 → 设计目标 → 核心能力 → 关键交互 → 状态体系 → 页面与组件 → 设计原则 → 待验证问题 → 阶段规划。旅程地图回答「用户经历了什么」，设计输入回答<b>「因此界面必须提供什么」</b>。含四类状态机与统一符号体系、四类错误的用户化文案、20 个组件的归属判定，以及<b>十个待验证问题（每个都标了裁决人）</b>与 S0–S4 五阶段的完成判据。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/design-input.html">打开设计输入</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/design-input.html#state">#状态体系</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/design-input.html#plan">#阶段规划 ★</a>
-            <a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/DESIGN-INPUT.md" target="_blank" rel="noopener">Markdown 原文</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/design-input.html" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/design-input.html
-            </a>
-          </div>
-        </article>
-
-        <!-- index.html -->
-        <article class="card">
-          <div class="card-head">
-            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/index.html">设计系统</a></h3>
-            <div class="card-tags">
-              <span class="tag tag--html">设计系统</span>
-              <span class="tag">评审用</span>
-              <span class="tag">十组导航</span>
-              <span class="tag">深浅双主题</span>
-            </div>
-          </div>
-          <div class="card-preview tall" aria-hidden="true">
-<pre><span class="pv-dim">┌──────────┬───────────────────────</span>
-<span class="pv-dim">│ OVERVIEW │</span> <span class="pv-fg">COLORS</span>
-<span class="pv-dim">│ ·</span> <span class="pv-fg">Intro</span>  <span class="pv-dim">│ ████ ████ ████ ████</span>
-<span class="pv-dim">│ ·</span> <span class="pv-fg">Form</span>   <span class="pv-dim">│ surface-1 .. surface-4</span>
-<span class="pv-dim">│ FOUNDAT. │ ──────────────────────</span>
-<span class="pv-dim">│</span> <span class="pv-run">· Chrome★</span><span class="pv-dim">│</span> <span class="pv-cpu">████</span><span class="pv-npu">████</span><span class="pv-mem">████</span><span class="pv-io">████</span> <span class="pv-dim">domain</span>
-<span class="pv-dim">│ ·</span> <span class="pv-fg">Colors</span> <span class="pv-dim">│ ──────────────────────</span>
-<span class="pv-dim">│ PATTERNS │</span> <span class="pv-fg">T0 T1 T2 T3 T4 T5</span>
-<span class="pv-dim">└──────────┴───────────────────────</span></pre>
-          </div>
-          <p class="card-desc">设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的<b>整合版</b>，左侧十组导航一路读到底，评审时用这一份。它同时是这套 token 在 Web 侧的样例实现——深浅两套变量都写在同一个 <span class="mono">:root</span> 里。</p>
-          <div class="card-links">
-            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/index.html">打开设计系统</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#cheat">#cheat 速查 ★</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#chrome">#chrome</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#color">#color</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#tier">#tier</a>
-            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#p3">#p3</a>
-          </div>
-          <div class="card-src">
-            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/index.html" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/index.html
-            </a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- ═══════════ 前期分析 · 结论从哪来 ═══════════ -->
+    <!-- ═══════════ 研究 ═══════════ -->
     <section class="card-group" aria-labelledby="g-res">
       <div class="group-header">
-        <h2 class="group-title" id="g-res">前期分析 · 结论从哪来</h2>
+        <h2 class="group-title" id="g-res">研究</h2>
         <span class="group-note">三份都是结论先行；规范与界面里的判断，都能追回这里</span>
         <div class="group-rule" aria-hidden="true"></div>
       </div>
@@ -597,6 +391,224 @@ pre .hw{font-size:1ch}
       </div>
     </section>
 
+    <!-- ═══════════ 设计系统 ═══════════ -->
+    <section class="card-group" aria-labelledby="g-ds">
+      <div class="group-header">
+        <h2 class="group-title" id="g-ds">设计系统</h2>
+        <span class="group-note">界面为什么长成这样——设计输入定「必须提供什么」，设计系统定「怎么画」</span>
+        <div class="group-rule" aria-hidden="true"></div>
+      </div>
+      <div class="card-grid">
+
+        <!-- design-input.html -->
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/design-input.html">设计输入</a></h3>
+            <div class="card-tags">
+              <span class="tag tag--star">新</span>
+              <span class="tag tag--html">规范输入</span>
+              <span class="tag">11 章</span>
+              <span class="tag">含阶段规划</span>
+            </div>
+          </div>
+          <div class="card-preview tall" aria-hidden="true">
+<pre><span class="pv-dim"><span class="fw">背景</span> → <span class="fw">用户</span> → <span class="fw">场景</span> → <span class="fw">设计目标</span></span>
+<span class="pv-dim">  → <span class="fw">核心能力</span> → <span class="fw">关键交互</span> → <span class="fw">状态体系</span></span>
+<span class="pv-dim">  → <span class="fw">页面组件</span> → <span class="fw">原则</span> → <span class="fw">待验证</span></span>
+
+<span class="pv-fg"><span class="fw">六个必须答上的问题</span></span>
+<span class="pv-dim">①</span> <span class="pv-fg"><span class="fw">我能不能马上开始</span></span>
+<span class="pv-dim">②</span> <span class="pv-fg">Agent <span class="fw">能不能工作</span></span>
+<span class="pv-dim">③</span> <span class="pv-fg">Agent <span class="fw">在干什么</span></span>
+<span class="pv-dim">④</span> <span class="pv-fg"><span class="fw">有没有跑偏</span></span>   <span class="pv-dim">⑤ <span class="fw">多任务</span></span>
+<span class="pv-dim">⑥</span> <span class="pv-fg"><span class="fw">我得到了什么</span></span>
+<span class="pv-dim">─────────────────────────────</span>
+<span class="pv-ok">S0 <span class="fw">已完成</span></span> <span class="pv-dim">→</span> <span class="pv-run">S1 IA</span> <span class="pv-dim">→ S2 <span class="fw">页面</span> → S3 <span class="fw">原型</span></span></pre>
+          </div>
+          <p class="card-desc">把旅程地图换成<b>可被交互 / 视觉 / 实现直接接住</b>的输入结构：背景 → 用户 → 场景 → 设计目标 → 核心能力 → 关键交互 → 状态体系 → 页面与组件 → 设计原则 → 待验证问题 → 阶段规划。旅程地图回答「用户经历了什么」，设计输入回答<b>「因此界面必须提供什么」</b>。含四类状态机与统一符号体系、四类错误的用户化文案、20 个组件的归属判定，以及<b>十个待验证问题（每个都标了裁决人）</b>与 S0–S4 五阶段的完成判据。</p>
+          <div class="card-links">
+            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/design-input.html">打开设计输入</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/design-input.html#state">#状态体系</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/design-input.html#plan">#阶段规划 ★</a>
+            <a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/DESIGN-INPUT.md" target="_blank" rel="noopener">Markdown 原文</a>
+          </div>
+          <div class="card-src">
+            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/design-input.html" target="_blank" rel="noopener">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/design-input.html
+            </a>
+          </div>
+        </article>
+
+        <!-- index.html -->
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/index.html">设计系统</a></h3>
+            <div class="card-tags">
+              <span class="tag tag--html">设计系统</span>
+              <span class="tag">评审用</span>
+              <span class="tag">十组导航</span>
+              <span class="tag">深浅双主题</span>
+            </div>
+          </div>
+          <div class="card-preview tall" aria-hidden="true">
+<pre><span class="pv-dim">┌──────────┬───────────────────────</span>
+<span class="pv-dim">│ OVERVIEW │</span> <span class="pv-fg">COLORS</span>
+<span class="pv-dim">│ ·</span> <span class="pv-fg">Intro</span>  <span class="pv-dim">│ ████ ████ ████ ████</span>
+<span class="pv-dim">│ ·</span> <span class="pv-fg">Form</span>   <span class="pv-dim">│ surface-1 .. surface-4</span>
+<span class="pv-dim">│ FOUNDAT. │ ──────────────────────</span>
+<span class="pv-dim">│</span> <span class="pv-run">· Chrome★</span><span class="pv-dim">│</span> <span class="pv-cpu">████</span><span class="pv-npu">████</span><span class="pv-mem">████</span><span class="pv-io">████</span> <span class="pv-dim">domain</span>
+<span class="pv-dim">│ ·</span> <span class="pv-fg">Colors</span> <span class="pv-dim">│ ──────────────────────</span>
+<span class="pv-dim">│ PATTERNS │</span> <span class="pv-fg">T0 T1 T2 T3 T4 T5</span>
+<span class="pv-dim">└──────────┴───────────────────────</span></pre>
+          </div>
+          <p class="card-desc">设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的<b>整合版</b>，左侧十组导航一路读到底，评审时用这一份。它同时是这套 token 在 Web 侧的样例实现——深浅两套变量都写在同一个 <span class="mono">:root</span> 里。</p>
+          <div class="card-links">
+            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/index.html">打开设计系统</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#cheat">#cheat 速查 ★</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#chrome">#chrome</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#color">#color</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#tier">#tier</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/index.html#p3">#p3</a>
+          </div>
+          <div class="card-src">
+            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/index.html" target="_blank" rel="noopener">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/index.html
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ═══════════ Demo ═══════════ -->
+    <section class="card-group" aria-labelledby="g-demo">
+      <div class="group-header">
+        <h2 class="group-title" id="g-demo">Demo</h2>
+        <span class="group-note">四屏静帧与十幕可交互原型，都是自包含单文件，下载双击即开</span>
+        <div class="group-rule" aria-hidden="true"></div>
+      </div>
+      <div class="card-grid">
+
+        <!-- screens.html -->
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/screens.html">四个典型页面</a></h3>
+            <div class="card-tags">
+              <span class="tag tag--star">新</span>
+              <span class="tag tag--impl">整屏字符帧</span>
+              <span class="tag">160 列 + 80 列</span>
+              <span class="tag">宽度经断言</span>
+            </div>
+          </div>
+          <div class="card-preview tall" aria-hidden="true">
+<pre><span class="pv-dim">┌ </span><span class="pv-ok">✓ Task Completed</span><span class="pv-dim"> · hotspot ───────────</span>
+<span class="pv-dim">│</span> <span class="pv-fg">Top 30 <span class="fw">热点函数</span></span>   <span class="pv-dim"><span class="fw">周期数占比</span> ▾</span>
+<span class="pv-dim">│</span> <span class="pv-run">▸</span> <span class="pv-fg">inc_b</span>  <span class="pv-wn">█████▌</span><span class="pv-dim">░░░░░</span>  <span class="pv-fg">50.00%</span>
+<span class="pv-dim">│</span> <span class="pv-run">▸</span> <span class="pv-fg">sum_a</span>  <span class="pv-wn">█████▌</span><span class="pv-dim">░░░░░</span>  <span class="pv-fg">50.00%</span>
+<span class="pv-dim">├─ </span><span class="pv-dim"><span class="fw">火焰图</span></span>
+<span class="pv-dim">│</span> <span class="pv-ok">████████████████████████</span> <span class="pv-dim">all</span>
+<span class="pv-dim">│</span> <span class="pv-wn">███████████ ███████████</span> <span class="pv-dim">inc_b/sum_a</span>
+<span class="pv-dim">│</span> <span class="pv-wn">3 <span class="fw">帧过窄未显示</span></span>
+<span class="pv-dim">└─</span> <span class="pv-er">120 98.65%</span> <span class="pv-fg">++f.y;</span> <span class="pv-dim">→ <span class="fw">伪共享</span></span></pre>
+          </div>
+          <p class="card-desc"><b>启动页 · Agent Workspace · 执行中 Tool+Diff · 任务结果页</b>四屏，各给一张 <b>160 列宽屏帧</b>和一张 <b>80 列窄屏降级帧</b>。不是配色示意图——每行宽度在生成时被断言把着（CJK 按 2 格、Braille 按 1 格），<b>页面上看到的对齐关系就是终端里的对齐关系</b>。结果页的信息结构对齐 DevKit Web 端「热点函数分析」：热点调用栈表、火焰图、源码级逐行百分比，字段名与分组方式沿用 Web 端。这一版<b>没有录屏</b>——录屏适合讲流程，不适合评审单屏。</p>
+          <div class="card-links">
+            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/screens.html">看四屏</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/screens.html#s3">#执行中 Diff</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/screens.html#s4">#热点函数</a>
+            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/design-input.html">设计输入</a>
+          </div>
+          <div class="card-src">
+            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/screens.html" target="_blank" rel="noopener">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/screens.html
+            </a>
+          </div>
+        </article>
+
+        <!-- demo.html -->
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/demo.html">TUI 设计 demo</a></h3>
+            <div class="card-tags">
+              <span class="tag tag--html">演示</span>
+              <span class="tag">两种风格</span>
+              <span class="tag">并排比较</span>
+              <span class="tag">1920×1080</span>
+            </div>
+          </div>
+          <div class="card-preview tall" aria-hidden="true">
+<pre><span class="pv-dim">╭─</span> <span class="pv-kp">▰</span> <span class="pv-fg">DEVKIT AI</span> <span class="pv-dim">─── migrate nginx ────</span>
+<span class="pv-dim">│</span> <span class="pv-ok">●</span> <span class="pv-fg">Analyze dependency</span>      <span class="pv-dim">18 libs</span>
+<span class="pv-dim">│</span> <span class="pv-ok">●</span> <span class="pv-fg">Generate patches</span>       <span class="pv-dim">12 file</span>
+<span class="pv-dim">│</span> <span class="pv-run">▶</span> <span class="pv-fg">Build verify</span>          <span class="pv-run"><span class="fw">⠹</span> 2.1s</span>
+<span class="pv-dim">│</span> <span class="pv-dim">○ Performance check</span>
+<span class="pv-dim">├──────────────────────────────────</span>
+<span class="pv-dim">│</span> <span class="pv-fg">crypto.c</span> <span class="pv-er">████████</span><span class="pv-wn">███</span><span class="pv-dim">░░</span>  <span class="pv-er">2 crit</span>
+<span class="pv-dim">│</span> <span class="pv-fg">memory.c</span> <span class="pv-wn">█████</span><span class="pv-dim">░░░░░░</span>  <span class="pv-wn">8 warn</span>
+<span class="pv-dim">╰─ 1 2 3 4 5 </span><span class="pv-run">6</span><span class="pv-dim"> 7 8 9 10 ─────────</span></pre>
+          </div>
+          <p class="card-desc"><b>风格 A · 字符质感是主线</b>，后续迭代都在它上面做。十幕连续剧，可自动播放或键盘切换，含"编译翻车"转诊断的关键一幕；主角是性能工程师，要把一套 x86 上的 nginx 迁到鲲鹏 ARM64 并调到可上线性能。<b>风格 B · 面板质感</b>作为<b>备选方案</b>单独保留一页：单张典型工作屏，圆角卡片、描边毛玻璃、背景辉光，设计 token 配色。两者画布都固定 <span class="mono">1920×1080</span>，整台舞台等比缩放到视口——任何屏幕上看到的都是同一张设计稿。</p>
+          <div class="card-links">
+            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/demo.html">风格 A · 字符质感（主线）</a>
+            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/demo-studio.html">风格 B · 面板质感（备选）</a>
+            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/tui-demo.html">两种风格对照</a>
+            <a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/JOURNEY.md" target="_blank" rel="noopener">故事线文档</a>
+          </div>
+          <div class="card-src">
+            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/demo.html" target="_blank" rel="noopener">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/demo.html
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ═══════════ 实机录屏 ═══════════ -->
+    <section class="card-group" aria-labelledby="g-live">
+      <div class="group-header">
+        <h2 class="group-title" id="g-live">实机录屏</h2>
+        <span class="group-note">程序真的跑了一遍——在真实 PTY 里录下来的字符流，不是设计稿</span>
+        <div class="group-rule" aria-hidden="true"></div>
+      </div>
+      <div class="card-grid">
+
+        <!-- tui-live.html -->
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/tui-live.html">原生 TUI 实录</a></h3>
+            <div class="card-tags">
+              <span class="tag tag--impl">实况</span>
+              <span class="tag tag--star">真机录像</span>
+              <span class="tag">字符流</span>
+              <span class="tag">160×45</span>
+            </div>
+          </div>
+          <div class="card-preview tall" aria-hidden="true">
+<pre><span class="pv-dim">┌ </span><span class="pv-fg">ACT 10 · SESSION SUMMARY</span><span class="pv-dim"> ──────────────</span>
+<span class="pv-dim">│</span> <span class="pv-fg">nginx x86_64 → Kunpeng ARM64</span>
+<span class="pv-dim">│</span> <span class="pv-ok">✓ 21 issues fixed</span>
+<span class="pv-dim">│</span> <span class="pv-wn">⚠ 2 need manual review</span>
+<span class="pv-dim">│</span> <span class="pv-ok">Build PASSED</span>
+<span class="pv-dim">├─ </span><span class="pv-dim">PERFORMANCE</span>
+<span class="pv-dim">│</span> <span class="pv-fg">QPS</span> <span class="pv-dim">42,000 →</span> <span class="pv-ok">61,000</span> <span class="pv-ok">+45%</span>
+<span class="pv-dim">│</span> <span class="pv-fg">P99</span> <span class="pv-dim">18ms →</span> <span class="pv-ok">12ms</span>
+<span class="pv-dim">└─</span> <span class="pv-run">▎S Export Markdown</span> <span class="pv-dim">│ J Export JSON</span></pre>
+          </div>
+          <p class="card-desc"><b>这一页不是设计稿，是程序真的跑了一遍。</b><span class="mono">devkitai</span> 二进制在一个 <b>160×45 的真实 PTY</b> 里被按键脚本驱动，跑完十幕迁移流程，整段以 <a href="https://docs.asciinema.org/manual/asciicast/v2/" target="_blank" rel="noopener">asciicast v2</a> 录下来。录的是<b>字符和 ANSI 序列而非像素</b>——所以 gzip 后只有 <span class="mono">124&nbsp;KB</span>，文字可选中复制，24-bit 真彩原样保留，放大不糊。页面同时列出<b>这一版做不到什么</b>（T5 图形协议未实现、后端未接、<span class="mono">UI-SPEC.md</span> 仍是 draft），以及在自己机器上跑起来的完整命令。</p>
+          <div class="card-links">
+            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/tui-live.html">打开实录 ▶</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/tui-live.html#limits">#能力边界</a>
+            <a class="lnk lnk--hash" href="./kunpeng-devkit-ai-tui/web/tui-live.html#run">#本机运行</a>
+            <a class="lnk" href="https://github.com/Cinnnnnnndy/DevKit/tree/main/kunpeng-devkit-ai-tui/tui" target="_blank" rel="noopener">实现源码</a>
+          </div>
+          <div class="card-src">
+            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/tui-live.html" target="_blank" rel="noopener">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/tui-live.html
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
   </section>
 
   <!-- ═══════════════════════════ 状态与下一步 ═══════════════════════════ -->
@@ -623,10 +635,10 @@ pre .hw{font-size:1ch}
   <!-- ═══════════════════════════ footer ═══════════════════════════ -->
   <footer class="foot">
     <div>本页是站点首页 <a href="https://cinnnnnnndy.github.io/DevKit/">cinnnnnnndy.github.io/DevKit/</a>，源文件是仓库根的 <span class="mono">index.html</span>（Pages 分支模式发布，发布分支在 Settings → Pages 里指定）。站内链接走相对路径 <span class="mono">./kunpeng-devkit-ai-tui/web/*.html</span>，所以在线打开和本地双击打开是同一套链接；八份 HTML 都是自包含单文件，无需构建、无需联网——但自包含不等于可交互：能点能翻的只有 TUI 设计 demo 与原生 TUI 实录，其余是静帧与文档。</div>
-    <div>卡片按用途分三组，顺序就是评审顺序：<b>界面产出</b>先看长什么样，<b>设计依据</b>回答凭什么这么设计，<b>前期分析</b>是结论的来处。同一份文件只在一组里出现，跨组的引用走卡片里的链接条。</div>
+    <div>卡片按用途分四组：<b>研究</b>是结论的来处，<b>设计系统</b>回答凭什么这么设计，<b>Demo</b>看界面长什么样，<b>实机录屏</b>证明程序真的跑了。同一份文件只在一组里出现，跨组的引用走卡片里的链接条。</div>
     <div>卡片里指向 <span class="mono">app/</span> 与 Markdown 原文的链接都落到 GitHub：终端应用在浏览器里跑不了，只能给源码（本地 <span class="mono">bun run dev</span> / <span class="mono">preview</span> / <span class="mono">gallery</span> 可直接跑起来）；<span class="mono">.md</span> 被 Pages 当纯文本返回，读起来不方便。每张卡片底部的灰色路径是它在仓库里的位置，点进去就是源。</div>
     <div>视觉 token 的速查表在<a href="./kunpeng-devkit-ai-tui/web/index.html#cheat">设计系统页</a>——规范内容归规范页，这一页只做入口。本页视觉直接取自 <span class="mono">docs/VISUAL.md</span>：Dark-first 六级表面、预合成前景实色、红身份 / 蓝交互 / 粉红语义的三分工、方形为默认（圆角 = 浮起）。<b>启动页本身就是这套规范的第一个样例</b>——参照页是浅色的，这里没有照抄，因为这套 token 是 Dark-first 的。</div>
-    <div>本页生成于 <span id="build-stamp">2026-08-17 11:56 UTC · 基于 1faf286</span>。浏览器缓存 10 分钟，看到的不是这个时间就按 <span class="mono">Ctrl/Cmd+Shift+R</span> 强刷，或在地址后加 <span class="mono">?v=1</span>。</div>
+    <div>本页生成于 <span id="build-stamp">2026-08-18 01:10 UTC · 基于 9021869</span>。浏览器缓存 10 分钟，看到的不是这个时间就按 <span class="mono">Ctrl/Cmd+Shift+R</span> 强刷，或在地址后加 <span class="mono">?v=1</span>。</div>
     <div>本页与全站均为 noindex。内部设计资料，授权方式待定；Kunpeng 标识及华为品牌色版权归华为技术有限公司所有，本仓库仅在设计示意中引用。</div>
   </footer>
 
