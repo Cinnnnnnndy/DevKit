@@ -1028,9 +1028,6 @@ TEMPLATE = """<!DOCTYPE html>
 
 <div class="wrap">
 <nav id="nav">
-  <div class="ngrp">Overview</div>
-  <a href="#intro">这五屏是什么</a>
-  <a href="#rules">五屏共用的规则</a>
   <div class="ngrp">Screens · 五屏</div>
   <a href="#s1">屏 1 · 启动页</a>
   <a href="#s2">屏 2 · Agent Workspace</a>
@@ -1045,50 +1042,7 @@ TEMPLATE = """<!DOCTYPE html>
 
 <main>
 
-<section id="intro">
-<div class="eyebrow">Key Screens</div>
-<h1>五个典型页面</h1>
-<p class="desc">从《<a href="./design-input.html">DevKit AI TUI 设计输入</a>》里挑出五屏最吃劲的：<strong>启动页</strong>（能不能马上开始）、<strong>Agent Workspace</strong>（Agent 在干什么）、<strong>执行中 Tool + Diff</strong>（有没有跑偏）、<strong>任务结果页</strong>（我得到了什么）、<strong>管理配置</strong>（Agent 到底能不能工作）。五屏刚好把设计输入 §9.1 的六个问题答完 ①②③④⑥，只剩 ⑤ 多任务由 Task Manager 承接。</p>
-<div class="grid g3">
-  <div class="card"><h4>对着实现画，不是对着想象画</h4>
-  <p>布局尺寸取自 <code>platform/terminal/layout.ts</code> 的 <code>layoutForWidth()</code>——160 列是 <code>wide-three</code>：Dock 27 列、console 8 行；80 列是 <code>single-canvas</code>：Dock 收成 3 列图标条、console 6 行。状态栏字段顺序、任务页签字形、折叠态图标 <code>▮ ▯ ◇ ?</code>、选中标记 <code>▎</code> 全部与 <code>src/components/ui/</code> 里跑着的代码一致。<strong>每屏下方标出用了哪些现成组件、哪些还得新增。</strong></p></div>
-  <div class="card"><h4>视觉与 Demo 同源</h4>
-  <p>窗口外壳、AI PLAN 卡的编号 + 耗时、工具名 chip、diff 的整行底色带与左侧竖条、状态栏胶囊，都跟 <a href="./demo.html">设计 Demo</a> 是同一套语言。色值不是照着截图取的——<strong>直接取自实现的 <code>theme/tokens.ts</code></strong>：selected <code>#18293C</code>、focus <code>#162E49</code>、dangerBackground <code>#351B24</code>、surface2/3/4。</p></div>
-  <div class="card"><h4>设计系统的纪律照旧生效</h4>
-  <p>语义色只上字符与短文本、<strong>永不上色块</strong>（文件风险热力因此走 accum-orange 顺序色阶而不是 danger 红）；一屏只允许一个填充蓝，留给当前唯一推荐动作；圆角只给浮层。<a href="./index.html#color">Colors</a> · <a href="./index.html#frame">应用框架</a></p></div>
-</div>
-<p class="desc">五屏都是<strong>整屏字符帧</strong>，不是配色示意图：160 列宽屏 + 80 列窄屏各一帧，每行宽度在生成时被断言把着（<code>tools/screens.py</code>），CJK 按 2 格、Braille 按 1 格算——<strong>页面上看到的对齐关系，就是终端里的对齐关系</strong>。色值全部取自<a href="./index.html#color">设计系统</a>的既有色阶，未新造调色板。</p>
-<div class="grid g4">
-  <div class="stat"><b style="color:var(--primary-hover)">5</b><span>典型页面</span></div>
-  <div class="stat"><b style="color:var(--success)">12</b><span>字符帧（宽 + 窄）</span></div>
-  <div class="stat"><b style="color:var(--warning)">25</b><span>覆盖组件</span></div>
-  <div class="stat"><b style="color:var(--accent)">0</b><span>新增色值</span></div>
-</div>
-<div class="note warn"><b>一处需要补的 token。</b><code>theme/tokens.ts</code> 现在只有 <code>infoBackground</code> / <code>warningBackground</code> / <code>dangerBackground</code> 三档底色，<strong>没有 <code>successBackground</code></strong>——而 diff 的新增行需要它。本稿按同族推导取 <code>#0E2F24</code>（base <code>#101010</code> + 15.5% 的 success 色，与另外三档同一算法），需要在实现里补进 tokens 并同步到 <code>UI-SPEC.md</code>。<code>&lt;text bg=…&gt;</code> 本身是支持的，<code>StatusBar</code> 已经在用同一手法。</div>
-<div class="note"><b>这一版没有录屏。</b>录屏适合讲流程，不适合评审单屏——它没法定格、没法量宽度、没法比对齐。要看十幕连贯流程仍去<a href="./tui-live.html">实录回放</a>；这一页只回答“每一屏长什么样、每个像素为什么在那儿”。</div>
-</section>
-
-<section id="rules">
-<div class="eyebrow">Foundation</div>
-<h2>五屏共用的规则</h2>
-<p class="desc">这些规则不属于任何单屏，写在这里，五屏都遵守；与<a href="./index.html#frame">应用框架</a>一节同源。</p>
-<div class="grid g2">
-  <div class="card"><h4>① 三条锚点永不隐藏</h4>
-  <p>Header（我在哪 / 连什么机器）、Input（我怎么说话）、Status（现在什么状态）在各屏里位置一致、永不折叠。高度不够时先砍 Console，再砍 Canvas，最后砍 Tab Bar。</p></div>
-  <div class="card"><h4>② 状态先于内容</h4>
-  <p>每屏左上角第一个非框线字符就是状态符号（<code>●</code> Running / <code>✓</code> Completed / <code>⏸</code> 待配置 / <code>⚠</code> 风险）。用户扫一眼左上角就知道要不要继续读。</p></div>
-  <div class="card"><h4>③ 结论与证据同屏</h4>
-  <p>屏 2/3/4 都留了证据位：Inspector 的案例库编号、Diff 的“为什么”、结果页的源码行。<strong>没有证据位的结论不允许出现在画布上。</strong></p></div>
-  <div class="card"><h4>④ 数据走色阶，结论走语义色</h4>
-  <p>bar、火焰图、热力走域色阶（<code>o3–o8</code> / <code>g3–g8</code>）；只有被判定为问题的<strong>数值与文字</strong>才上 warning / danger。50% 的占比本身不是错误。</p></div>
-  <div class="card"><h4>⑤ 画不下就显式说</h4>
-  <p>火焰图标 <code>3 帧过窄未显示</code>、热点表标 <code>… 24 more</code>、Console 标 <code>9 行未展开</code>。悄悄省略会把“我看全了”变成错觉。</p></div>
-  <div class="card"><h4>⑥ 圆角等于浮起</h4>
-  <p>固定区域一律直角 <code>┌┐└┘</code>；Plan 卡、Tool call、高危确认、错误卡这些浮层才用圆角 <code>╭╮╰╯</code>。五屏里出现的每一个圆角都是浮层。</p></div>
-</div>
-</section>
-
-<section id="s1">
+<section id=”s1”>
 <div class="eyebrow">Screen 01</div>
 <h2>启动页 —— 回答“我能不能马上开始”</h2>
 <p class="desc">用户敲完 <code>devkitai</code> 看到的第一屏。它要同时交付四件事：<strong>我是谁</strong>（Logo + 能力）、<strong>环境行不行</strong>（本机架构 / 工具链 / 模型连通性）、<strong>怎么开口</strong>（输入框 + 命令）、<strong>能不能接着上次干</strong>（最近 Session）。缺任何一件，用户都得多问一轮。</p>
