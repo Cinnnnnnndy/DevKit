@@ -101,103 +101,70 @@ def panel(w: int, title: str, lines: list[str], right: str = "") -> list[str]:
     return [head, *body, f"⟦cm|╰{'─' * (w - 2)}╯⟧"]
 
 
-# ── 鲲鹏鸟标识（半块像素）——由 kpmark.py 生成，用于启动页 ────────────
-BIRD = [
-    "                      ⟦kr|▄▄⟧      ",
-    "                    ⟦kr|▄██⟧       ",
-    "                 ⟦kr|▄██▀⟧⟦krg|▀⟧⟦kg|█⟧       ",
-    "               ⟦kr|▄███⟧⟦krg|▀⟧⟦kg|▄█⟧        ",
-    "           ⟦kr|▄▄████▀⟧⟦kg|███⟧         ",
-    "         ⟦kr|▄██████⟧⟦kg|▄███⟧          ",
-    "      ⟦kr|▄███████⟧⟦krg|▀⟧⟦kg|████⟧           ",
-    "     ⟦kr|███████▀⟧⟦kg|▄████⟧            ",
-    "⟦kr|▄▄⟧  ⟦kr|▄█████▀⟧⟦kg|██████⟧             ",
-    "⟦kr|▀████████▀⟧⟦kg|██████⟧              ",
-    "   ⟦kr|████⟧⟦kg|▄███████⟧               ",
-    "    ⟦kr|▀▀⟧⟦kg|▄███████⟧                ",
-    "       ⟦kg|███████⟧                ",
-    "        ⟦kg|▀█████▄⟧               ",
-    "           ⟦kg|████▄⟧              ",
-    "            ⟦kg|▀███⟧              ",
-    "               ⟦kg|██▄⟧            ",
-    "                ⟦kg|▀▀⟧            ",
-]
-
-
 # ══════════════════════════════════════════════════════════════════════
-# 屏 1 · 启动页（与 demo.html 启动页同源）
+# 屏 1 · 启动页
 # ══════════════════════════════════════════════════════════════════════
 def screen_launch() -> str:
     f = Frame(W, "⟦br|▪⟧ ⟦t|DevKit AI⟧", "◈ Kunpeng 920 · aarch64 · ⟦ok|●⟧ 就绪")
     f.blank()
-
-    # 鲲鹏鸟标识 + 字标 KUNPENG / DEVKIT AI，与 demo.html 同布局
-    wm_kp = wordmark("KUNPENG")
-    wm_da = wordmark("DEVKIT AI")
-    # bird 18行, wordmark 5+1+5=11行；鸟居中，字标 = 鸟底部对齐
-    bird_h = len(BIRD)
-    wm_h = len(wm_kp) + 1 + len(wm_da)  # 11
-    pad_top = bird_h - wm_h  # 7 行 — 字标从第 8 行开始
-    for i in range(bird_h):
-        bline = BIRD[i]
-        wm_i = i - pad_top
-        if 0 <= wm_i < len(wm_kp):
-            rhs = wm_kp[wm_i]
-        elif wm_i == len(wm_kp):
-            rhs = ""
-        elif len(wm_kp) < wm_i <= len(wm_kp) + len(wm_da):
-            rhs = wm_da[wm_i - len(wm_kp) - 1]
-        else:
-            rhs = ""
-        f.add("  " + bline + "  " + rhs if rhs else "  " + bline)
+    for line in wordmark("DEVKIT AI"):
+        f.add("        " + line if line else "")
+    f.add("        ⟦cm|AI Terminal Workspace for Kunpeng⟧      ⟦cm|v0.6 · 2026-08⟧")
     f.blank()
-
-    # 标签芯片行：AI TERMINAL · NATIVE TUI · v0.6 · KUNPENG ARM64
     f.add(
-        "                    ⟦cm|┌──────────────┐ ┌────────────┐ ┌──────┐ ┌───────────────┐⟧"
-    )
-    f.add(
-        "                    ⟦cm|│⟧⟦t| AI TERMINAL  ⟧⟦cm|│ │⟧⟦t| NATIVE TUI ⟧⟦cm|│ │⟧⟦t| v0.6 ⟧⟦cm|│ │⟧⟦t| KUNPENG ARM64 ⟧⟦cm|│⟧"
-    )
-    f.add(
-        "                    ⟦cm|└──────────────┘ └────────────┘ └──────┘ └───────────────┘⟧"
+        "  您好，欢迎使用 DevKit AI，我是鲲鹏智能助手，"
+        "可以辅助鲲鹏领域的⟦t|迁移⟧、⟦t|开发⟧、⟦t|诊断⟧与⟦t|调优⟧。"
     )
     f.blank()
 
-    # 启动自检序列（与 demo.html boot log 同结构）
+    cw = 37
+    caps = [
+        ("迁移", ["系统迁移 · 应用源码迁移", "容器迁移 · 依赖兼容性扫描", "数据库 SQL 迁移"]),
+        ("开发", ["代码开发 · 代码分析", "代码优化 · 亲和加速库替换", "构建与编译验证"]),
+        ("诊断", ["鲲鹏服务器硬件诊断", "系统与内核问题诊断", "崩溃 · 内存 · IO 定位"]),
+        ("调优", ["系统调优 · 参数调优", "热点函数 · 火焰图", "NUMA 亲和 · 缓存行为"]),
+    ]
+    cards = [card(cw, t, body) for t, body in caps]
+    for parts in zip(*cards):
+        f.add("  " + "  ".join(parts))
+    f.add("  ⟦cm|更多能力 ⟧⟦ac|/info⟧⟦cm|，安装与卸载 ⟧⟦ac|/skill⟧")
+    f.blank()
+
+    col = 68
     f.add(
-        "      ⟦cm|[ 0.004]⟧ ⟦ok|ok  ⟧ runtime          本地已就绪，无需连接服务器"
+        pad("  ⟦cm|环境⟧    ⟦ok|●⟧ 本机 ⟦t|Kunpeng 920⟧ · aarch64 · openEuler 22.03 LTS", col)
+        + "⟦cm|Runtime 本地已就绪，不联网也能用⟧"
     )
     f.add(
-        "      ⟦cm|[ 0.011]⟧ ⟦ok|ok  ⟧ toolchain        交叉编译 x86_64 → Kunpeng ARM64"
+        pad("          ⟦wn|⚠⟧ 未检测到 aarch64 交叉编译工具链", col)
+        + "⟦pr|[F]⟧ 修复    ⟦pr|[C]⟧ 连接远程鲲鹏服务器"
     )
     f.add(
-        "      ⟦cm|[ 0.019]⟧ ⟦ok|ok  ⟧ mcp tools        2/4 已装载  cpp_migrator · knowledge_base"
+        pad("  ⟦cm|模型⟧    ⟦ok|●⟧ devkit-gateway · qwen2.5-72b-instruct", col)
+        + "⟦ok|✓⟧ 连接正常 218ms    ⟦ac|/model⟧ 切换"
     )
+    f.blank()
+    f.add("  ⟦pr|❯⟧ ⟦t|想做什么？直接说⟧ ⟦cm|·  或按 ⟧⟦ac|Ctrl+P⟧⟦cm| 打开命令面板⟧▌")
+    f.blank()
     f.add(
-        spread(
-            "      ⟦cm|[ 0.024]⟧ ⟦wn|warn⟧ capabilities     3 项能力未安装",
-            "⟦cm|[Enter] 查看⟧",
-            INNER,
+        pad(
+            "  ⟦cm|最近⟧    ⟦ac|migrate nginx⟧        3 天前 · 兼容性 82% · "
+            "⟦wn|2 项待人工确认⟧",
+            col,
         )
+        + "⟦pr|[↵]⟧ 继续"
     )
     f.add(
-        "      ⟦cm|[ 0.031]⟧ ⟦ok|ok  ⟧ session          恢复 1 个会话  "
-        "⟦ac|migrate nginx⟧  3 天前 · 82% · ⟦wn|2 项待人工确认⟧"
+        pad("          ⟦ac|hotspot falsesharing⟧   昨天 · ⟦ok|已完成⟧ · 伪共享已修复", col)
+        + "⟦cm|/sessions 看全部⟧"
     )
-    f.blank()
-
-    # 输入框
     f.add(
-        "  ⟦pr|❯⟧ ⟦t|想做什么？直接说⟧ ⟦cm|—— 例如「把 ./nginx 迁到鲲鹏」⟧▌"
-        "                              ⟦ac|Ctrl+P⟧⟦cm| 命令面板⟧"
+        "  ⟦cm|建议⟧    扫描当前工程   ·   安装 SQL 迁移能力包   ·   跑一次性能基线"
     )
     f.blank()
-
-    # 建议行
     f.add(
-        "          ⟦cm|建议⟧   ⟦bs3| 安装迁移能力包 ⟧  ⟦bs3| 扫描当前工程 ⟧"
-        "  ⟦bs3| 继续上次任务 ⟧"
+        "  ⟦cm|命令⟧    ⟦ac|/help⟧  ⟦ac|/skill⟧  ⟦ac|/view-skills⟧  ⟦ac|/sessions⟧  "
+        "⟦ac|/model⟧  ⟦ac|/provider⟧  ⟦ac|/connect-server⟧"
     )
     f.foot(
         "⟦bs4| home ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:qwen2.5-72b │ ctx:0%⟧",
@@ -210,20 +177,17 @@ def screen_launch_narrow() -> str:
     f = Frame(80, "⟦br|▪⟧ ⟦t|DevKit AI⟧", "⟦ok|●⟧ 就绪")
     f.blank()
     f.add("  ⟦br|▪⟧ ⟦t|DevKit AI⟧ ⟦cm|· AI Terminal Workspace⟧      ⟦cm|v0.6⟧")
-    f.add("  ⟦cm|窄屏不画 Logo——行数留给自检⟧")
+    f.add("  ⟦cm|窄屏不画块字符 Logo——行数留给状态⟧")
     f.blank()
-    f.add("  ⟦cm|[ 0.004]⟧ ⟦ok|ok  ⟧ runtime     本地已就绪")
-    f.add("  ⟦cm|[ 0.011]⟧ ⟦ok|ok  ⟧ toolchain   x86_64 → Kunpeng ARM64")
-    f.add("  ⟦cm|[ 0.019]⟧ ⟦ok|ok  ⟧ mcp tools   2/4 已装载")
-    f.add("  ⟦cm|[ 0.024]⟧ ⟦wn|warn⟧ capabilities 3 项未安装  ⟦cm|[Enter]⟧")
-    f.add(
-        "  ⟦cm|[ 0.031]⟧ ⟦ok|ok  ⟧ session     ⟦ac|migrate nginx⟧ · ⟦wn|2 待确认⟧"
-    )
+    f.add("  鲲鹏智能助手 · 迁移 / 开发 / 诊断 / 调优      ⟦ac|/info⟧")
+    f.blank()
+    f.add("  ⟦cm|环境⟧  ⟦ok|●⟧ Kunpeng 920 · aarch64      ⟦wn|⚠⟧ 缺工具链 ⟦pr|[F]⟧")
+    f.add("  ⟦cm|模型⟧  ⟦ok|●⟧ qwen2.5-72b · ⟦ok|✓⟧ 218ms      ⟦ac|/model⟧")
     f.blank()
     f.add("  ⟦pr|❯⟧ 想做什么？直接说▌")
     f.blank()
-    f.add("  ⟦cm|建议⟧ ⟦bs3| 安装迁移能力包 ⟧ ⟦bs3| 扫描当前工程 ⟧")
-    f.foot("⟦cm|[Ctrl+P]⟧ 命令面板", "⟦cm|<80 列 · Logo 收为文字标⟧")
+    f.add("  ⟦cm|最近⟧  ⟦ac|migrate nginx⟧ · 82% · ⟦wn|2 项待确认⟧  ⟦pr|[↵]⟧")
+    f.foot("⟦cm|[Ctrl+P]⟧ 命令面板", "⟦cm|<80 列 · 能力卡收为一行⟧")
     return check(f.render(), 80, "launch-narrow")
 
 
