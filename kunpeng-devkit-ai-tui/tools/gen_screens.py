@@ -18,6 +18,61 @@ W = 160
 INNER = W - 2
 OUT = pathlib.Path(__file__).resolve().parent.parent / "web" / "screens.html"
 
+KPI_B64 = (
+    "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"
+)
+KPI_IMG = f'<img class="kpi" alt="K" src="data:image/png;base64,{KPI_B64}">'
+
 
 # ── 小工具 ──────────────────────────────────────────────────────────────
 def colsep(widths: list[int], left: str = "├", right: str = "┤", mid: str = "┼") -> str:
@@ -46,70 +101,103 @@ def panel(w: int, title: str, lines: list[str], right: str = "") -> list[str]:
     return [head, *body, f"⟦cm|╰{'─' * (w - 2)}╯⟧"]
 
 
+# ── 鲲鹏鸟标识（半块像素）——由 kpmark.py 生成，用于启动页 ────────────
+BIRD = [
+    "                      ⟦kr|▄▄⟧      ",
+    "                    ⟦kr|▄██⟧       ",
+    "                 ⟦kr|▄██▀⟧⟦krg|▀⟧⟦kg|█⟧       ",
+    "               ⟦kr|▄███⟧⟦krg|▀⟧⟦kg|▄█⟧        ",
+    "           ⟦kr|▄▄████▀⟧⟦kg|███⟧         ",
+    "         ⟦kr|▄██████⟧⟦kg|▄███⟧          ",
+    "      ⟦kr|▄███████⟧⟦krg|▀⟧⟦kg|████⟧           ",
+    "     ⟦kr|███████▀⟧⟦kg|▄████⟧            ",
+    "⟦kr|▄▄⟧  ⟦kr|▄█████▀⟧⟦kg|██████⟧             ",
+    "⟦kr|▀████████▀⟧⟦kg|██████⟧              ",
+    "   ⟦kr|████⟧⟦kg|▄███████⟧               ",
+    "    ⟦kr|▀▀⟧⟦kg|▄███████⟧                ",
+    "       ⟦kg|███████⟧                ",
+    "        ⟦kg|▀█████▄⟧               ",
+    "           ⟦kg|████▄⟧              ",
+    "            ⟦kg|▀███⟧              ",
+    "               ⟦kg|██▄⟧            ",
+    "                ⟦kg|▀▀⟧            ",
+]
+
+
 # ══════════════════════════════════════════════════════════════════════
-# 屏 1 · 启动页
+# 屏 1 · 启动页（与 demo.html 启动页同源）
 # ══════════════════════════════════════════════════════════════════════
 def screen_launch() -> str:
     f = Frame(W, "⟦br|▪⟧ ⟦t|DevKit AI⟧", "◈ Kunpeng 920 · aarch64 · ⟦ok|●⟧ 就绪")
     f.blank()
-    for line in wordmark("DEVKIT AI"):
-        f.add("        " + line if line else "")
-    f.add("        ⟦cm|AI Terminal Workspace for Kunpeng⟧      ⟦cm|v0.6 · 2026-08⟧")
+
+    # 鲲鹏鸟标识 + 字标 KUNPENG / DEVKIT AI，与 demo.html 同布局
+    wm_kp = wordmark("KUNPENG")
+    wm_da = wordmark("DEVKIT AI")
+    # bird 18行, wordmark 5+1+5=11行；鸟居中，字标 = 鸟底部对齐
+    bird_h = len(BIRD)
+    wm_h = len(wm_kp) + 1 + len(wm_da)  # 11
+    pad_top = bird_h - wm_h  # 7 行 — 字标从第 8 行开始
+    for i in range(bird_h):
+        bline = BIRD[i]
+        wm_i = i - pad_top
+        if 0 <= wm_i < len(wm_kp):
+            rhs = wm_kp[wm_i]
+        elif wm_i == len(wm_kp):
+            rhs = ""
+        elif len(wm_kp) < wm_i <= len(wm_kp) + len(wm_da):
+            rhs = wm_da[wm_i - len(wm_kp) - 1]
+        else:
+            rhs = ""
+        f.add("  " + bline + "  " + rhs if rhs else "  " + bline)
     f.blank()
+
+    # 标签芯片行：AI TERMINAL · NATIVE TUI · v0.6 · KUNPENG ARM64
     f.add(
-        "  您好，欢迎使用 DevKit AI，我是鲲鹏智能助手，"
-        "可以辅助鲲鹏领域的⟦t|迁移⟧、⟦t|开发⟧、⟦t|诊断⟧与⟦t|调优⟧。"
+        "                    ⟦cm|┌──────────────┐ ┌────────────┐ ┌──────┐ ┌───────────────┐⟧"
+    )
+    f.add(
+        "                    ⟦cm|│⟧⟦t| AI TERMINAL  ⟧⟦cm|│ │⟧⟦t| NATIVE TUI ⟧⟦cm|│ │⟧⟦t| v0.6 ⟧⟦cm|│ │⟧⟦t| KUNPENG ARM64 ⟧⟦cm|│⟧"
+    )
+    f.add(
+        "                    ⟦cm|└──────────────┘ └────────────┘ └──────┘ └───────────────┘⟧"
     )
     f.blank()
 
-    cw = 37
-    caps = [
-        ("迁移", ["系统迁移 · 应用源码迁移", "容器迁移 · 依赖兼容性扫描", "数据库 SQL 迁移"]),
-        ("开发", ["代码开发 · 代码分析", "代码优化 · 亲和加速库替换", "构建与编译验证"]),
-        ("诊断", ["鲲鹏服务器硬件诊断", "系统与内核问题诊断", "崩溃 · 内存 · IO 定位"]),
-        ("调优", ["系统调优 · 参数调优", "热点函数 · 火焰图", "NUMA 亲和 · 缓存行为"]),
-    ]
-    cards = [card(cw, t, body) for t, body in caps]
-    for parts in zip(*cards):
-        f.add("  " + "  ".join(parts))
-    f.add("  ⟦cm|更多能力 ⟧⟦ac|/info⟧⟦cm|，安装与卸载 ⟧⟦ac|/skill⟧")
-    f.blank()
-
-    col = 68  # 右列锚点：三行状态的动作/结论必须落在同一列，否则扫读要来回折返
+    # 启动自检序列（与 demo.html boot log 同结构）
     f.add(
-        pad("  ⟦cm|环境⟧    ⟦ok|●⟧ 本机 ⟦t|Kunpeng 920⟧ · aarch64 · openEuler 22.03 LTS", col)
-        + "⟦cm|Runtime 本地已就绪，不联网也能用⟧"
+        "      ⟦cm|[ 0.004]⟧ ⟦ok|ok  ⟧ runtime          本地已就绪，无需连接服务器"
     )
     f.add(
-        pad("          ⟦wn|⚠⟧ 未检测到 aarch64 交叉编译工具链", col)
-        + "⟦pr|[F]⟧ 修复    ⟦pr|[C]⟧ 连接远程鲲鹏服务器"
+        "      ⟦cm|[ 0.011]⟧ ⟦ok|ok  ⟧ toolchain        交叉编译 x86_64 → Kunpeng ARM64"
     )
     f.add(
-        pad("  ⟦cm|模型⟧    ⟦ok|●⟧ devkit-gateway · qwen2.5-72b-instruct", col)
-        + "⟦ok|✓⟧ 连接正常 218ms    ⟦ac|/model⟧ 切换"
+        "      ⟦cm|[ 0.019]⟧ ⟦ok|ok  ⟧ mcp tools        2/4 已装载  cpp_migrator · knowledge_base"
     )
-    f.blank()
-    f.add("  ⟦pr|❯⟧ ⟦t|想做什么？直接说⟧ ⟦cm|·  或按 ⟧⟦ac|Ctrl+P⟧⟦cm| 打开命令面板⟧▌")
-    f.blank()
     f.add(
-        pad(
-            "  ⟦cm|最近⟧    ⟦ac|migrate nginx⟧        3 天前 · 兼容性 82% · "
-            "⟦wn|2 项待人工确认⟧",
-            col,
+        spread(
+            "      ⟦cm|[ 0.024]⟧ ⟦wn|warn⟧ capabilities     3 项能力未安装",
+            "⟦cm|[Enter] 查看⟧",
+            INNER,
         )
-        + "⟦pr|[↵]⟧ 继续"
     )
     f.add(
-        pad("          ⟦ac|hotspot falsesharing⟧   昨天 · ⟦ok|已完成⟧ · 伪共享已修复", col)
-        + "⟦cm|/sessions 看全部⟧"
-    )
-    f.add(
-        "  ⟦cm|建议⟧    扫描当前工程   ·   安装 SQL 迁移能力包   ·   跑一次性能基线"
+        "      ⟦cm|[ 0.031]⟧ ⟦ok|ok  ⟧ session          恢复 1 个会话  "
+        "⟦ac|migrate nginx⟧  3 天前 · 82% · ⟦wn|2 项待人工确认⟧"
     )
     f.blank()
+
+    # 输入框
     f.add(
-        "  ⟦cm|命令⟧    ⟦ac|/help⟧  ⟦ac|/skill⟧  ⟦ac|/view-skills⟧  ⟦ac|/sessions⟧  "
-        "⟦ac|/model⟧  ⟦ac|/provider⟧  ⟦ac|/connect-server⟧"
+        "  ⟦pr|❯⟧ ⟦t|想做什么？直接说⟧ ⟦cm|—— 例如「把 ./nginx 迁到鲲鹏」⟧▌"
+        "                              ⟦ac|Ctrl+P⟧⟦cm| 命令面板⟧"
+    )
+    f.blank()
+
+    # 建议行
+    f.add(
+        "          ⟦cm|建议⟧   ⟦bs3| 安装迁移能力包 ⟧  ⟦bs3| 扫描当前工程 ⟧"
+        "  ⟦bs3| 继续上次任务 ⟧"
     )
     f.foot(
         "⟦bs4| home ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:qwen2.5-72b │ ctx:0%⟧",
@@ -122,17 +210,20 @@ def screen_launch_narrow() -> str:
     f = Frame(80, "⟦br|▪⟧ ⟦t|DevKit AI⟧", "⟦ok|●⟧ 就绪")
     f.blank()
     f.add("  ⟦br|▪⟧ ⟦t|DevKit AI⟧ ⟦cm|· AI Terminal Workspace⟧      ⟦cm|v0.6⟧")
-    f.add("  ⟦cm|窄屏不画块字符 Logo——行数留给状态⟧")
+    f.add("  ⟦cm|窄屏不画 Logo——行数留给自检⟧")
     f.blank()
-    f.add("  鲲鹏智能助手 · 迁移 / 开发 / 诊断 / 调优      ⟦ac|/info⟧")
-    f.blank()
-    f.add("  ⟦cm|环境⟧  ⟦ok|●⟧ Kunpeng 920 · aarch64      ⟦wn|⚠⟧ 缺工具链 ⟦pr|[F]⟧")
-    f.add("  ⟦cm|模型⟧  ⟦ok|●⟧ qwen2.5-72b · ⟦ok|✓⟧ 218ms      ⟦ac|/model⟧")
+    f.add("  ⟦cm|[ 0.004]⟧ ⟦ok|ok  ⟧ runtime     本地已就绪")
+    f.add("  ⟦cm|[ 0.011]⟧ ⟦ok|ok  ⟧ toolchain   x86_64 → Kunpeng ARM64")
+    f.add("  ⟦cm|[ 0.019]⟧ ⟦ok|ok  ⟧ mcp tools   2/4 已装载")
+    f.add("  ⟦cm|[ 0.024]⟧ ⟦wn|warn⟧ capabilities 3 项未安装  ⟦cm|[Enter]⟧")
+    f.add(
+        "  ⟦cm|[ 0.031]⟧ ⟦ok|ok  ⟧ session     ⟦ac|migrate nginx⟧ · ⟦wn|2 待确认⟧"
+    )
     f.blank()
     f.add("  ⟦pr|❯⟧ 想做什么？直接说▌")
     f.blank()
-    f.add("  ⟦cm|最近⟧  ⟦ac|migrate nginx⟧ · 82% · ⟦wn|2 项待确认⟧  ⟦pr|[↵]⟧")
-    f.foot("⟦cm|[Ctrl+P]⟧ 命令面板", "⟦cm|<80 列 · 能力卡收为一行⟧")
+    f.add("  ⟦cm|建议⟧ ⟦bs3| 安装迁移能力包 ⟧ ⟦bs3| 扫描当前工程 ⟧")
+    f.foot("⟦cm|[Ctrl+P]⟧ 命令面板", "⟦cm|<80 列 · Logo 收为文字标⟧")
     return check(f.render(), 80, "launch-narrow")
 
 
@@ -897,7 +988,7 @@ def fig(title: str, frame: str, foot: str = "", cls: str = "dense screen") -> st
     mode = {160: "wide-three", 80: "single-canvas"}.get(cols, f"{cols} 列")
     return (
         '<div class="win">\n'
-        '  <div class="win-bar"><span class="kp">◤</span>'
+        f'  <div class="win-bar">{KPI_IMG}'
         '<span class="nm">Kunpeng DevKit AI</span>'
         f'<span class="sub">{title}</span>'
         '<span class="meta">'
@@ -931,6 +1022,7 @@ def build() -> str:
     body = TEMPLATE.format(
         css=CSS,
         js=JS,
+        kpi_b64=KPI_B64,
         s1=fig("屏 1 · 启动页", rows["s1"][0]),
         s1n=fig("窄屏降级", rows["s1"][1]),
         s2=fig("屏 2 · Agent Workspace", rows["s2"][0]),
@@ -959,7 +1051,7 @@ TEMPLATE = """<!DOCTYPE html>
 <body>
 
 <div class="topbar">
-  <span class="kpmark">◢</span>
+  <img class="kpmark" alt="Kunpeng" src="data:image/png;base64,{kpi_b64}">
   <span class="brand">Kunpeng DevKit AI</span>
   <span class="vchip">五个典型页面</span>
   <span class="tagline">启动 · 工作台 · 执行 · 结果 · 配置 —— 整屏字符帧，非示意图</span>

@@ -46,7 +46,7 @@ a:hover{color:var(--primary)}
 .topbar{position:fixed;top:0;left:0;right:0;height:56px;background:var(--background-elevated);
   border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:var(--space-3);
   padding:0 var(--space-5);z-index:60}
-.kpmark{color:var(--kunpeng);font-size:15px}
+.kpmark{width:22px;height:22px;object-fit:contain;vertical-align:middle}
 .brand{font-weight:700;font-size:15px;letter-spacing:-.01em}
 .vchip{font-family:var(--font-mono);font-size:var(--fs-label);color:var(--foreground-muted);
   background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:2px 7px}
@@ -101,16 +101,18 @@ pre.screen{--row:16px;font-size:12.5px;line-height:var(--row);background:#0B0B0B
 /* ── 应用窗口外壳：让整屏帧看起来像一个跑起来的应用，而不是一段代码 ── */
 .win{border:1px solid var(--border-default);border-radius:var(--radius-lg);overflow:hidden;
   background:#0B0B0B;box-shadow:0 1px 3px rgba(0,0,0,.4),0 18px 44px rgba(0,0,0,.5);
-  margin:var(--space-4) 0 var(--space-5)}
+  margin:var(--space-4) 0 var(--space-5);aspect-ratio:16/9;display:flex;flex-direction:column}
+.win .win-scroll{flex:1;display:flex;flex-direction:column}
+.win .win-scroll pre{flex:1}
 .win-bar{display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;
   background:linear-gradient(180deg,#1a1a1a,#141414);border-bottom:1px solid var(--border-subtle)}
-.win-bar .kp{color:var(--kunpeng);font-size:13px;line-height:1}
+.win-bar .kpi{width:18px;height:18px;object-fit:contain;flex:none}
 .win-bar .nm{font-size:12px;font-weight:600;color:var(--foreground);letter-spacing:-.01em}
 .win-bar .sub{font-family:var(--font-mono);font-size:10.5px;color:var(--foreground-disabled)}
 .win-bar .meta{margin-left:auto;display:flex;gap:8px;align-items:center}
 .win-bar .tag{font-family:var(--font-mono);font-size:10px;padding:2px 7px;border-radius:var(--radius-sm);
   background:var(--surface-2);border:1px solid var(--border-subtle);color:var(--foreground-muted)}
-.win-bar .tag.on{color:var(--primary-hover);border-color:rgba(0,119,255,.34);background:rgba(0,119,255,.12)}
+.win-bar .tag.on{color:var(--foreground-secondary);border-color:var(--border-default)}
 .win-scroll{overflow-x:auto}
 .win-foot{display:flex;gap:14px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid var(--border-subtle);
   background:var(--surface-1);font-size:11.5px;color:var(--foreground-muted)}
@@ -133,6 +135,8 @@ pre .bdel{background:#351B24} pre .badd{background:#0E2F24}
 pre .bwarn{background:#382A18} pre .binfo{background:#142538}
 pre .bpri{background:#0077FF;color:#fff;font-weight:600}
 pre .bkp{background:#ED1C24;color:#fff;font-weight:600}
+pre .kr{color:#ED1C24} pre .kg{color:#c9c9c9}
+pre .krg{color:#ED1C24;background:#c9c9c9} pre .kgr{color:#c9c9c9;background:#ED1C24}
 pre .fw{font-size:2ch}
 /* 回退字体给 Braille / ⏸ 的步进因字体而异（实测 1.217 / 0.830 格），调字号治不了。
    钉成 width:1ch 的行内块：无论用哪个回退字体，它都只占一格，整行不会被推歪。 */
