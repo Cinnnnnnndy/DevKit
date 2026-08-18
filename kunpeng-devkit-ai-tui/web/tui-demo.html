@@ -37,6 +37,8 @@ body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px
 .jump:hover{color:var(--fg);border-color:var(--fg4)}
 .jump.a:hover{border-color:var(--pri)}
 .jump.b:hover{border-color:var(--accent)}
+.jump i{font-style:normal;font-size:10px;letter-spacing:.1em;color:var(--fg4);margin-left:3px}
+.jump:hover i{color:var(--fg3)}
 
 /* ══ 每种风格一屏 ══
    高度不写死 100vh：舞台是固定宽高比的画布，强撑满屏时窗口一高就被宽度卡住，
@@ -55,6 +57,10 @@ body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px
   letter-spacing:.08em;padding:2px 7px;border-radius:3px}
 .mainline{color:#bcd7ff;background:rgba(0,119,255,.16);border:1px solid rgba(0,119,255,.45)}
 .altline{color:var(--fg3);background:var(--s2);border:1px solid var(--bd2)}
+.form{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.06em;color:var(--fg2);background:var(--s2);
+  border:1px solid var(--bd2);border-radius:3px;padding:2.5px 9px}
+.form i{font-style:normal;font-size:9.5px;letter-spacing:.16em;color:var(--fg4)}
 .cap .sub{font-size:12.5px;color:var(--fg3)}
 .cap .go{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--fg3);
   text-decoration:none;border:1px solid var(--bd2);border-radius:4px;padding:5px 11px;background:var(--s2)}
@@ -78,8 +84,8 @@ body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px
   <span class="c">Kunpeng DevKit AI</span>
   <span class="c">两种风格</span>
   <span class="r">
-    <a class="jump a" href="#a">风格 A · 字符质感</a>
-    <a class="jump b" href="#b">风格 B · 面板质感</a>
+    <a class="jump a" href="#a">风格 A · 字符质感 <i>纯 CLI</i></a>
+    <a class="jump b" href="#b">风格 B · 面板质感 <i>GUI + CLI</i></a>
   </span>
 </div>
 
@@ -87,20 +93,22 @@ body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:14px
   <div class="cap">
     <span class="tagn">风格 A</span>
     <h2>字符质感 <span class="mainline">主线</span></h2>
-    <span class="sub">方角 · 1px 描边 · 字符网格 —— 全靠字符与分隔线组织</span>
+    <span class="form"><i>形态</i>纯 CLI</span>
+    <span class="sub">方角 · 1px 描边 · 字符网格 —— 全靠字符与分隔线组织，整屏跑在终端里，没有窗口壳</span>
     <a class="go" href="demo.html" target="_blank">整屏打开 ↗</a>
   </div>
-  <div class="frame"><iframe data-src="demo.html" title="风格 A · 字符质感"></iframe></div>
+  <div class="frame"><iframe data-src="demo.html" title="风格 A · 字符质感 · 纯 CLI"></iframe></div>
 </section>
 
 <section class="sec sec-b" id="b">
   <div class="cap">
     <span class="tagn">风格 B</span>
     <h2>面板质感 <span class="altline">备选</span></h2>
-    <span class="sub">圆角卡片 · 描边毛玻璃 · 背景辉光 · PTO token 配色</span>
+    <span class="form"><i>形态</i>GUI + CLI</span>
+    <span class="sub">圆角卡片 · 描边毛玻璃 · 背景辉光 · PTO token 配色 —— 图形外壳里嵌一块终端</span>
     <a class="go" href="demo-studio.html" target="_blank">整屏打开 ↗</a>
   </div>
-  <div class="frame"><iframe data-src="demo-studio.html" title="风格 B · 面板质感"></iframe></div>
+  <div class="frame"><iframe data-src="demo-studio.html" title="风格 B · 面板质感 · GUI + CLI"></iframe></div>
 </section>
 
 <script>
