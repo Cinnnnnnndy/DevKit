@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kunpeng DevKit AI · TUI 竞品分析 · 第二部分</title>
+<script>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.setAttribute('data-theme','light')}})()</script>
+<style>
+:root{
+  --background:#101010; --bg-elev:#141414;
+  --surface-1:#161616; --surface-2:#1c1c1c; --surface-3:#262626; --surface-4:#313131;
+  --fg:rgba(255,255,255,.90); --fg2:rgba(255,255,255,.68);
+  --fg3:rgba(255,255,255,.55); --fg4:rgba(255,255,255,.38);
+  --bd1:rgba(255,255,255,.10); --bd2:rgba(255,255,255,.14); --bd3:rgba(255,255,255,.18);
+  --primary:#0077ff; --primary-h:#3d98ff; --accent:#7c8db8;
+  --ok:#04d793; --warn:#ffaa3b; --danger:#ff4b7b;
+  --hl-b:#3C7CF6; --hl-v:#9B3CF6; --hl-o:#FA8838; --hl-g:#B3F141; --hl-a:#F4CB22;
+  --cell-bg:rgba(255,255,255,.015); --cell-bg2:rgba(255,255,255,.03); --cell-bg3:rgba(255,255,255,.04);
+  --cell-border:rgba(255,255,255,.06); --cell-border2:rgba(255,255,255,.1);
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px;
+  --r-sm:6px; --r-md:8px; --r-lg:12px; --r-xl:16px; --r-pill:999px;
+  --fast:100ms; --base:200ms; --slow:350ms; --ease:cubic-bezier(.4,0,.2,1);
+  --sans:'Inter','Source Han Sans SC','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
+  --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
+}
+html[data-theme="light"] {
+  --background:#fafafa; --bg-elev:#fafafa;
+  --surface-1:#fff; --surface-2:#f8f8f8; --surface-3:#fff; --surface-4:#fff;
+  --fg:rgba(0,0,0,.88); --fg2:rgba(0,0,0,.62);
+  --fg3:rgba(0,0,0,.48); --fg4:rgba(0,0,0,.32);
+  --bd1:rgba(0,0,0,.08); --bd2:rgba(0,0,0,.12); --bd3:rgba(0,0,0,.18);
+  --primary:#0062cc; --primary-h:#0055b3; --accent:#556688;
+  --ok:#00995f; --warn:#cc7700; --danger:#cc2255;
+  --hl-b:#2266dd; --hl-v:#7722dd; --hl-o:#dd6611; --hl-g:#779922; --hl-a:#cc9911;
+  --cell-bg:rgba(0,0,0,.015); --cell-bg2:rgba(0,0,0,.03); --cell-bg3:rgba(0,0,0,.04);
+  --cell-border:rgba(0,0,0,.06); --cell-border2:rgba(0,0,0,.1);
+}
+html[data-theme="light"] .hstat{background:#fff}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:60px}
+body{background:var(--background);color:var(--fg);font-family:var(--sans);font-size:14px;line-height:1.65;
+  -webkit-font-smoothing:antialiased}
+::selection{background:rgba(0,119,255,.28)}
+a{color:var(--primary-h);text-decoration:none}
+
+/* ══ 像素 / 游戏化点缀（仅用于非数据区）══ */
+.pixel{font-family:var(--mono);font-weight:700;letter-spacing:.06em;
+  text-shadow:0 0 12px rgba(0,119,255,.35)}
+.scan{position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.35;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px)}
+html[data-theme="light"] .scan{opacity:.10}
+#pfield{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+
+/* ══ topbar ══ */
+.top{position:fixed;top:0;left:0;right:0;height:52px;background:var(--bg-elev);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--bd1);display:flex;align-items:center;
+  gap:var(--s3);padding:0 var(--s5);z-index:60}
+.logo{width:22px;height:22px;border-radius:var(--r-sm);background:var(--primary);
+  display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:5px;flex-shrink:0}
+.logo i{background:#fff;border-radius:1px}
+.logo i:nth-child(1){opacity:.95}.logo i:nth-child(2){opacity:.6}
+.logo i:nth-child(3){opacity:.6}.logo i:nth-child(4){opacity:.32}
+.top b{font-size:14px;font-weight:700}
+.chip{font-family:var(--mono);font-size:11px;color:var(--fg3);background:var(--surface-2);
+  border-radius:var(--r-sm);padding:2px 7px}
+.top .r{margin-left:auto;font-size:11px;color:var(--fg3);font-family:var(--mono)}
+
+/* theme toggle */
+.theme-btn{width:30px;height:30px;border-radius:var(--r-sm);border:1px solid var(--bd2);
+  background:var(--surface-2);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:14px;line-height:1;padding:0;transition:all var(--fast) var(--ease);margin-left:var(--s2);
+  color:var(--fg2);flex-shrink:0}
+.theme-btn:hover{background:var(--surface-3);border-color:var(--bd3);color:var(--fg)}
+.theme-btn .theme-icon-light,
+.theme-btn .theme-icon-dark{display:none;line-height:1;pointer-events:none}
+html[data-theme="dark"] .theme-btn .theme-icon-light{display:inline}
+html[data-theme="light"] .theme-btn .theme-icon-dark{display:inline}
+
+/* ══ hero ══ */
+.hero{position:relative;min-height:82vh;display:flex;align-items:center;justify-content:center;
+  padding:110px var(--s6) 70px;overflow:hidden;border-bottom:1px solid var(--bd1)}
+.hero-in{position:relative;z-index:2;max-width:960px;text-align:center}
+.eyebrow{font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--primary-h);margin-bottom:var(--s4)}
+.hero h1{font-size:52px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin-bottom:var(--s4)}
+.hero h1 em{font-style:normal;color:var(--primary-h)}
+.hero p{color:var(--fg2);font-size:15px;max-width:62ch;margin:0 auto var(--s6)}
+.hero-stats{display:flex;gap:var(--s3);justify-content:center;flex-wrap:wrap;margin-top:var(--s6)}
+.hstat{background:rgba(22,22,22,.72);border-radius:var(--r-lg);
+  padding:var(--s3) var(--s5);min-width:116px;backdrop-filter:blur(4px)}
+.hstat b{display:block;font-family:var(--mono);font-size:26px;font-weight:700;line-height:1.2}
+.hstat span{font-size:11px;color:var(--fg3);letter-spacing:.06em}
+.scrollhint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:2;
+  font-family:var(--mono);font-size:11px;color:var(--fg4);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,6px)}}
+
+/* ══ nav ══ */
+.floornav{position:fixed;right:var(--s5);top:50%;transform:translateY(-50%);z-index:50;
+  display:flex;flex-direction:column;gap:9px}
+.floornav a{display:flex;align-items:center;gap:9px;justify-content:flex-end;
+  font-family:var(--mono);font-size:10.5px;color:var(--fg4);transition:color var(--fast) var(--ease)}
+.floornav a i{width:14px;height:2px;background:var(--fg4);display:block;
+  transition:all var(--base) var(--ease)}
+.floornav a:hover{color:var(--fg2)}
+.floornav a.on{color:var(--primary-h)}
+.floornav a.on i{width:26px;background:var(--primary-h)}
+.floornav a span{opacity:0;transition:opacity var(--fast) var(--ease)}
+.floornav a:hover span,.floornav a.on span{opacity:1}
+
+/* ══ floors ══ */
+.floor{max-width:1120px;margin:0 auto;padding:76px var(--s6) 30px;position:relative;z-index:2}
+.fnum{font-family:var(--mono);font-size:11px;color:var(--fg4);letter-spacing:.18em;margin-bottom:var(--s2)}
+.floor h2{font-size:30px;font-weight:700;letter-spacing:-.02em;margin-bottom:var(--s3)}
+.floor .lead{color:var(--fg2);max-width:78ch;margin-bottom:var(--s5)}
+h3{font-size:16px;font-weight:600;margin:var(--s6) 0 var(--s3)}
+.sub{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);
+  margin:var(--s6) 0 var(--s3);display:flex;align-items:center;gap:var(--s3)}
+.sub::after{content:'';flex:1;height:1px;background:var(--bd1)}
+p{margin:var(--s3) 0;color:var(--fg2)}
+strong,b{color:var(--fg);font-weight:600}
+code{font-family:var(--mono);font-size:12px;background:var(--surface-2);
+  padding:1px 6px;border-radius:var(--r-sm);color:var(--fg);white-space:nowrap}
+
+/* ══ cards ══ */
+.grid{display:grid;gap:var(--s3);margin:var(--s4) 0}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.card{background:var(--surface-1);border-radius:var(--r-lg);padding:var(--s4);
+  transition:all var(--fast) var(--ease)}
+.card:hover{background:var(--surface-2)}
+.card h4{font-size:13px;font-weight:600;margin-bottom:var(--s2)}
+.card p{font-size:12.5px;margin:var(--s2) 0}
+.pcard{position:relative;overflow:hidden}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--tint,var(--primary))}
+.pname{display:flex;align-items:baseline;gap:var(--s2);margin-bottom:var(--s1)}
+.pname b{font-size:15px}
+.pname .ver{font-family:var(--mono);font-size:11px;color:var(--fg4)}
+.plane{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--tint,var(--primary));margin-bottom:var(--s3)}
+
+/* ══ 布局线框简图 ══ */
+.wf{background:var(--surface-1);border-radius:8px;overflow:hidden;
+  display:flex;flex-direction:column;height:150px;margin:0 0 var(--s3);
+  font-family:var(--mono);font-size:10.5px;line-height:1.3;user-select:none}
+.wf .row{display:flex;flex:1;min-height:0}
+.wf .col{display:flex;flex-direction:column;min-width:0}
+.wf .z{margin:1px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;color:var(--fg4);text-align:center;
+  padding:1px 3px;overflow:hidden;min-width:0;border-radius:2px}
+.wf .z br{display:none}
+.wf .z.fx{flex:none}
+.wf .col>.z{flex:1}
+.wf .row>.z{flex:1}
+.wf .z.hi{background:rgba(0,119,255,.13);color:var(--primary-h);font-weight:600}
+.wf .z.sh{background:var(--cell-bg2)}
+.wf .z.dash{color:var(--fg3)}
+.wf .z.warn{background:rgba(255,75,123,.08);color:var(--danger)}
+.wfcap{font-size:11px;color:var(--fg4);margin:-6px 0 var(--s3);font-family:var(--mono)}
+.wfcap b{color:var(--primary-h);font-weight:500}
+.wfleg{display:flex;gap:var(--s4);flex-wrap:wrap;font-size:11px;color:var(--fg3);margin:var(--s3) 0}
+.wfleg span{display:flex;align-items:center;gap:6px}
+.wfleg i{width:16px;height:11px;border-radius:2px;display:block}
+
+/* ══ badges ══ */
+.b{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:var(--r-pill);
+  background:var(--surface-2);color:var(--fg2);margin:2px 3px 2px 0}
+.b.p{color:var(--primary-h)}
+.b.s{color:var(--ok)}
+.b.w{color:var(--warn)}
+.b.d{color:var(--danger)}
+
+/* ══ tables ══ */
+table{width:100%;border-collapse:collapse;margin:var(--s3) 0;font-size:12.5px}
+th{text-align:left;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--fg3);padding:var(--s2) var(--s3);border-bottom:1px solid var(--bd2);white-space:nowrap}
+td{padding:var(--s2) var(--s3);border-bottom:1px solid var(--bd1);vertical-align:top;color:var(--fg2)}
+tr:hover td{background:var(--cell-bg2)}
+td:first-child{color:var(--fg);font-weight:500}
+.mono{font-family:var(--mono)}
+.tp{font-family:var(--mono);font-size:11px;color:var(--accent);white-space:nowrap}
+
+/* ══ journey ══ */
+.jrow{display:grid;grid-template-columns:96px repeat(6,1fr);gap:1px;background:var(--bd1);
+  border-radius:var(--r-lg);overflow:hidden;margin:var(--s4) 0;font-size:11.5px}
+.jrow>div{background:var(--background);padding:var(--s3)}
+.jrow .jh{background:var(--surface-2);font-weight:600;color:var(--fg);font-size:11px}
+.jrow .jl{background:var(--surface-2);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--fg3);display:flex;align-items:center}
+.jrow ul{list-style:none;color:var(--fg2)}
+.jrow li{margin:3px 0;padding-left:9px;position:relative;line-height:1.5}
+.jrow li::before{content:'';position:absolute;left:0;top:8px;width:3px;height:3px;border-radius:50%;
+  background:var(--fg4)}
+.fric{color:var(--danger)} .oppo{color:var(--ok)}
+.emo{margin:var(--s4) 0;background:var(--surface-1);
+  border-radius:var(--r-lg);padding:var(--s4)}
+
+/* ══ callouts ══ */
+.note{background:rgba(0,119,255,.09);border-radius:var(--r-lg);
+  padding:var(--s3) var(--s4);margin:var(--s4) 0;font-size:13px;color:var(--fg2)}
+.note b{color:var(--primary-h)}
+.note.w{background:rgba(255,170,59,.09)}
+.note.w b{color:var(--warn)}
+.note.d{background:rgba(255,75,123,.08)}
+.note.d b{color:var(--danger)}
+.note.s{background:rgba(4,215,147,.08)}
+.note.s b{color:var(--ok)}
+.rule{font-size:12.5px;color:var(--fg2);border-left:2px solid var(--bd3);padding-left:var(--s3);margin:var(--s3) 0}
+
+/* ══ opportunity cards（游戏化计分板）══ */
+.opp{background:var(--surface-1);border-radius:var(--r-lg);
+  padding:var(--s4);margin:var(--s3) 0;display:flex;gap:var(--s4);align-items:flex-start}
+.opp .n{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--primary-h);
+  line-height:1;min-width:44px;text-shadow:0 0 14px rgba(0,119,255,.4)}
+.opp h4{font-size:14px;margin-bottom:var(--s2)}
+.opp p{font-size:12.5px;margin:var(--s2) 0}
+.meter{display:inline-flex;gap:2px;vertical-align:middle;margin-left:var(--s2)}
+.meter i{width:7px;height:11px;background:var(--surface-4);border-radius:1px;display:block}
+.meter i.on{background:var(--primary-h);box-shadow:0 0 6px rgba(0,119,255,.5)}
+.meter.g i.on{background:var(--ok);box-shadow:0 0 6px rgba(4,215,147,.45)}
+
+pre{font-family:var(--mono);background:var(--surface-1);border-radius:var(--r-lg);
+  padding:var(--s4);overflow-x:auto;font-size:11.5px;line-height:1.5;color:#E8E8E8;margin:var(--s3) 0}
+pre .cm{color:#707070} pre .pr{color:#3d98ff} pre .ok{color:#04d793}
+pre .wn{color:#ffaa3b} pre .er{color:#ff4b7b} pre .ac{color:#7c8db8}
+
+footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;border-top:1px solid var(--bd1);
+  font-family:var(--mono);font-size:11px;color:var(--fg4);line-height:2}
+@media(max-width:900px){.floornav{display:none}.hero h1{font-size:34px}
+  .jrow{grid-template-columns:1fr;font-size:12px}.floor{padding:56px var(--s4) 24px}}
+.kpmark{width:22px;height:22px;object-fit:contain;vertical-align:-6px;margin-right:9px;flex:none}
+.kplock{display:flex;align-items:center;gap:0;margin-bottom:14px}
+.kplock .nm{font-family:var(--mono,monospace);font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--fg2,#a4a4a4)}
+.kplock .sep{opacity:.35;margin:0 9px}
+
+/* ══ 示意图组件 ══ */
+.diag{background:var(--surface-1);border-radius:var(--r-lg);
+  padding:var(--s4);margin:var(--s4) 0;overflow:hidden;position:relative}
+.diag-cap{font-size:11px;color:var(--fg3);font-family:var(--mono);margin-bottom:var(--s3);
+  letter-spacing:.04em;display:flex;align-items:center;gap:var(--s3)}
+.diag-cap::after{content:'';flex:1;height:1px;background:var(--bd1)}
+
+/* Cell Grid 示意图 */
+.diag-grid{display:flex;flex-direction:column;gap:0;font-family:var(--mono)}
+.diag-grid .grow{display:flex;gap:0}
+.diag-grid .gcell{width:28px;height:24px;border:1px solid var(--cell-border2);
+  display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--fg4);
+  background:var(--cell-bg);transition:all var(--fast) var(--ease);position:relative}
+.diag-grid .gcell.hi{background:rgba(0,119,255,.15);border-color:rgba(0,119,255,.45);color:var(--primary-h)}
+.diag-grid .gcell.edge{background:rgba(255,75,123,.1);border-color:rgba(255,75,123,.35);color:var(--danger)}
+.diag-grid .gcell.half{background:rgba(255,170,59,.1);border-color:rgba(255,170,59,.3);
+  border-style:dashed;color:var(--warn)}
+.diag-grid .gcol-label{text-align:center;font-size:10.5px;color:var(--fg4);padding-top:4px}
+.diag-grid .gcol-label.hi{color:var(--primary-h);font-weight:600}
+.diag-grid .gcol-label.edge{color:var(--danger)}
+.diag-grid .gcol-label.warn{color:var(--warn)}
+
+/* Braille dot matrix */
+.diag-braille{display:flex;gap:var(--s5);align-items:center;flex-wrap:wrap}
+.diag-braille .dot-matrix{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,1fr);
+  gap:3px;width:56px;height:96px}
+.diag-braille .dot{width:22px;height:20px;border-radius:50%;background:var(--surface-4);
+  transition:all var(--base) var(--ease)}
+.diag-braille .dot.on{background:var(--primary-h);box-shadow:0 0 10px rgba(0,119,255,.5)}
+.diag-braille .arrow-block{font-family:var(--mono);font-size:20px;color:var(--fg3)}
+.diag-braille .result{font-family:var(--mono);font-size:48px;color:var(--primary-h);
+  line-height:1;text-shadow:0 0 20px rgba(0,119,255,.3)}
+
+/* 并排对比 */
+.diag-compare{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+.diag-compare .side{background:var(--surface-2);border-radius:var(--r-md);
+  padding:var(--s3)}
+.diag-compare .side h5{font-size:11px;font-weight:600;margin-bottom:var(--s2);
+  font-family:var(--mono);letter-spacing:.04em}
+.diag-compare .side.bad h5{color:var(--danger)}
+.diag-compare .side.good h5{color:var(--ok)}
+.diag-vs{display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:13px;font-weight:700;color:var(--fg3);padding:var(--s2) 0}
+.diag-vs span{padding:var(--s1) var(--s3);background:var(--surface-1);
+  border-radius:var(--r-pill)}
+
+/* 两层画布 */
+.diag-layers{position:relative;background:var(--surface-1);border-radius:var(--r-md);
+  padding:var(--s3);min-height:220px}
+.diag-layers .layer{position:relative;border-radius:var(--r-sm);padding:var(--s2);margin:var(--s2) 0}
+.diag-layers .layer-top{background:rgba(0,119,255,.06);
+  min-height:90px}
+.diag-layers .layer-label{font-family:var(--mono);font-size:11px;color:var(--primary-h);
+  letter-spacing:.06em;margin-bottom:var(--s2)}
+.diag-layers .layer-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px}
+.diag-layers .layer-grid .lgc{border:1px solid var(--cell-border2);font-family:var(--mono);
+  font-size:10.5px;color:var(--fg4);text-align:center;padding:4px 0;border-radius:1px}
+.diag-layers .layer-grid .lgc.hi{background:rgba(0,119,255,.12);color:var(--primary-h);
+  border-color:rgba(0,119,255,.3)}
+.diag-layers .layer-plus{text-align:center;font-family:var(--mono);font-size:16px;color:var(--fg3);
+  padding:var(--s2) 0}
+.diag-layers .layer-bottom{background:rgba(4,215,147,.05);
+  min-height:60px;display:flex;align-items:center;justify-content:center}
+.diag-layers .layer-bottom .raster{width:70%;height:40px;
+  background:linear-gradient(90deg,rgba(4,215,147,.15) 0%,rgba(0,119,255,.15) 50%,rgba(156,59,246,.15) 100%);
+  border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:11px;color:var(--fg3)}
+.diag-layers .layer-bottom .label{font-family:var(--mono);font-size:11px;color:var(--ok)}
+
+/* 产品谱系 */
+.diag-spectrum{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3)}
+.diag-spectrum .lvl{background:var(--surface-2);border-radius:var(--r-md);
+  padding:var(--s3);text-align:center;position:relative;overflow:hidden}
+.diag-spectrum .lvl .lvl-num{font-family:var(--mono);font-size:36px;font-weight:700;line-height:1;
+  margin-bottom:var(--s2);opacity:.25}
+.diag-spectrum .lvl:nth-child(1) .lvl-num{color:var(--fg)}
+.diag-spectrum .lvl:nth-child(2) .lvl-num{color:var(--hl-o)}
+.diag-spectrum .lvl:nth-child(3) .lvl-num{color:var(--hl-g)}
+.diag-spectrum .lvl h5{font-size:12px;font-weight:600;margin-bottom:var(--s2)}
+.diag-spectrum .lvl .lvl-viz{height:80px;display:flex;align-items:center;justify-content:center;
+  margin:var(--s2) 0;font-family:var(--mono)}
+.diag-spectrum .lvl:nth-child(1) .lvl-viz{font-size:10.5px;color:var(--fg3);
+  background:var(--cell-bg2);border-radius:var(--r-sm)}
+.diag-spectrum .lvl:nth-child(2) .lvl-viz{font-size:22px;color:var(--hl-o);
+  background:rgba(250,136,56,.04);border-radius:var(--r-sm);
+  letter-spacing:2px}
+.diag-spectrum .lvl:nth-child(3) .lvl-viz{background:rgba(179,241,65,.03);
+  border-radius:var(--r-sm);display:flex;gap:3px}
+.diag-spectrum .lvl:nth-child(3) .lvl-viz .lvl-txt{flex:1;font-size:10.5px;color:var(--fg4);
+  display:flex;align-items:center;justify-content:center;background:var(--cell-bg2)}
+.diag-spectrum .lvl:nth-child(3) .lvl-viz .lvl-img{flex:1.2;
+  background:linear-gradient(135deg,rgba(179,241,65,.08),rgba(0,119,255,.12));
+  display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--hl-g)}
+.diag-spectrum .lvl .lvl-tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-top:var(--s2)}
+.diag-spectrum .lvl .lvl-tags span{font-size:11px;padding:2px 7px;border-radius:var(--r-pill);
+  background:var(--surface-3);color:var(--fg3)}
+
+/* 管线对比 */
+.diag-pipeline{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)}
+.diag-pipeline .pipe{background:var(--surface-2);border-radius:var(--r-md);
+  padding:var(--s3)}
+.diag-pipeline .pipe h5{font-size:11px;font-weight:600;margin-bottom:var(--s3);font-family:var(--mono)}
+.diag-pipeline .pipe-steps{display:flex;align-items:center;gap:4px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:11px}
+.diag-pipeline .pipe-steps .step{background:var(--surface-3);
+  padding:5px 9px;border-radius:var(--r-sm);color:var(--fg2);white-space:nowrap}
+.diag-pipeline .pipe-steps .step.hi{background:rgba(0,119,255,.1);
+  color:var(--primary-h)}
+.diag-pipeline .pipe-steps .arr{color:var(--fg4);font-weight:700}
+.diag-pipeline .pipe.bad h5{color:var(--danger)}
+
+/* 协议降级链 */
+.diag-fallback{display:flex;align-items:center;gap:0;padding:var(--s3) 0;flex-wrap:wrap;
+  font-family:var(--mono)}
+.diag-fallback .fnode{background:var(--surface-2);padding:var(--s2) var(--s3);
+  border-radius:var(--r-md);font-size:11px;color:var(--fg);white-space:nowrap;
+  position:relative;z-index:1}
+.diag-fallback .fnode.best{background:rgba(4,215,147,.1);color:var(--ok)}
+.diag-fallback .fnode.last{background:var(--cell-bg2);color:var(--fg3)}
+.diag-fallback .farr{font-size:14px;color:var(--fg4);padding:0 var(--s1);flex-shrink:0}
+.diag-fallback .farrow-down{display:flex;flex-direction:column;align-items:center;
+  font-size:11px;color:var(--fg4);font-family:var(--mono);padding:0 var(--s1)}
+
+/* TUI vs GUI layout 树 */
+.diag-layout-tree{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+.diag-layout-tree .lt{background:var(--surface-2);border-radius:var(--r-md);
+  padding:var(--s3);font-family:var(--mono);font-size:11px}
+.diag-layout-tree .lt h5{font-size:11px;font-weight:600;margin-bottom:var(--s3)}
+.diag-layout-tree .lt ul{list-style:none;padding-left:var(--s3)}
+.diag-layout-tree .lt li{margin:4px 0;padding:4px 8px;border-radius:var(--r-sm);position:relative}
+.diag-layout-tree .lt li.root{background:rgba(0,119,255,.1);
+  color:var(--primary-h);font-weight:600;margin-bottom:var(--s2)}
+.diag-layout-tree .lt li.branch{background:var(--surface-3);
+  color:var(--fg2);margin-left:var(--s3)}
+.diag-layout-tree .lt li.leaf{background:var(--cell-bg2);
+  color:var(--fg3);margin-left:var(--s5)}
+.diag-layout-tree .lt li.leaf-pixel{background:rgba(4,215,147,.08);
+  color:var(--ok);margin-left:var(--s5)}
+.diag-layout-tree .lt .conn{color:var(--fg4);padding-left:var(--s3)}
+
+/* 箭头标注 */
+.diag-annotate{position:relative}
+.diag-annotate .annot{display:flex;align-items:flex-start;gap:var(--s2);margin:var(--s2) 0;
+  font-size:11px;font-family:var(--mono)}
+.diag-annotate .annot .arr{color:var(--primary-h);flex-shrink:0}
+.diag-annotate .annot .txt{color:var(--fg3)}
+.diag-annotate .annot .txt b{color:var(--fg)}
+
+/* 格子计数图 */
+.diag-count-grid{background:var(--surface-1);border-radius:var(--r-md);
+  padding:var(--s3);text-align:center}
+.diag-count-grid .mini-grid{display:grid;grid-template-columns:repeat(20,1fr);gap:1px;
+  max-width:300px;margin:0 auto var(--s2)}
+.diag-count-grid .mini-grid .mg{aspect-ratio:1;background:var(--cell-bg3);
+  border-radius:1px;min-width:10px}
+.diag-count-grid .mini-grid .mg.hi{background:rgba(0,119,255,.2)}
+.diag-count-grid .count-label{font-family:var(--mono);font-size:11px;color:var(--fg3)}
+.diag-count-grid .count-label b{color:var(--primary-h)}
+
+/* 分辨率 token 层级 */
+.diag-token-stack{display:flex;flex-direction:column;gap:var(--s2);max-width:500px;margin:0 auto}
+.diag-token-stack .tk{display:flex;align-items:center;gap:var(--s3);padding:var(--s2) var(--s3);
+  border-radius:var(--r-md);font-family:var(--mono);font-size:11px}
+.diag-token-stack .tk:nth-child(1){background:rgba(0,119,255,.08)}
+.diag-token-stack .tk:nth-child(2){background:rgba(250,136,56,.06)}
+.diag-token-stack .tk:nth-child(3){background:rgba(179,241,65,.06)}
+.diag-token-stack .tk .tk-num{font-size:16px;font-weight:700;min-width:24px;text-align:center}
+.diag-token-stack .tk:nth-child(1) .tk-num{color:var(--primary-h)}
+.diag-token-stack .tk:nth-child(2) .tk-num{color:var(--hl-o)}
+.diag-token-stack .tk:nth-child(3) .tk-num{color:var(--hl-g)}
+.diag-token-stack .tk .tk-desc{color:var(--fg2);font-size:11px}
+.diag-token-stack .tk .tk-val{color:var(--fg3);font-size:11px;margin-left:auto}
+.diag-token-stack .tk-arrow{text-align:center;color:var(--fg4);font-size:14px}
+
+/* 能力决策树 */
+.diag-tree{font-family:var(--mono);font-size:11px;padding:var(--s2)}
+.diag-tree .tnode{display:flex;align-items:center;gap:var(--s2);padding:var(--s1) 0}
+.diag-tree .tnode .tbullet{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.diag-tree .tnode .tbullet.q{background:var(--warn);box-shadow:0 0 6px rgba(255,170,59,.3)}
+.diag-tree .tnode .tbullet.a{background:var(--ok);box-shadow:0 0 6px rgba(4,215,147,.3)}
+.diag-tree .tnode .tbullet.e{background:var(--fg4)}
+.diag-tree .tindent{padding-left:var(--s5);border-left:1px solid var(--bd1);margin-left:9px}
+.diag-tree .tpath{color:var(--ok);font-weight:600}
+.diag-tree .tpath.alt{color:var(--warn)}
+.diag-tree .tpath.last{color:var(--fg3)}
+
+/* ══ 第二部分新增组件 ══ */
+.vb{font-family:var(--mono);font-size:10.5px;color:var(--ok);background:rgba(4,215,147,.10);
+  border-radius:var(--r-sm);padding:1px 6px;white-space:nowrap;display:inline-block}
+.vb.o{color:var(--warn);background:rgba(255,170,59,.10)}
+.vb.d{color:var(--danger);background:rgba(255,75,123,.10)}
+.vb.n{color:var(--fg3);background:var(--surface-2)}
+kbd{font-family:var(--mono);font-size:11px;background:var(--surface-3);border-bottom:2px solid var(--bd3);
+  border-radius:4px;padding:1px 5px;color:var(--fg);white-space:nowrap}
+.stack{display:flex;flex-direction:column;gap:2px;margin:var(--s4) 0}
+.stack .lyr{display:flex;align-items:stretch;background:var(--surface-1);border-radius:var(--r-sm);overflow:hidden}
+.stack .lyr .no{width:36px;flex:none;display:flex;align-items:center;justify-content:center;
+  background:var(--surface-3);color:var(--fg4);font-family:var(--mono);font-size:10.5px}
+.stack .lyr .nm{width:180px;flex:none;padding:8px var(--s3);color:var(--primary-h);font-weight:600;
+  font-family:var(--mono);font-size:11.5px;border-right:1px solid var(--bd1)}
+.stack .lyr .ds{flex:1;padding:8px var(--s3);color:var(--fg2);font-size:12.5px;min-width:0}
+.stack .lyr.risk .nm{color:var(--danger)}
+.stack .lyr.gap .nm{color:var(--warn)}
+@media(max-width:700px){.stack .lyr{flex-wrap:wrap}.stack .lyr .nm{width:auto;border-right:none}}
+.dim{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:var(--s2);margin:var(--s4) 0}
+.dim a{background:var(--surface-1);border-radius:var(--r-md);padding:var(--s3);display:block;
+  transition:background var(--fast) var(--ease)}
+.dim a:hover{background:var(--surface-2)}
+.dim a b{display:block;font-size:12.5px;color:var(--fg);margin-bottom:2px;font-weight:600}
+.dim a span{font-size:10.5px;color:var(--fg4);font-family:var(--mono);letter-spacing:.04em}
+.ct{counter-reset:ct;margin:var(--s4) 0}
+.ct .it{display:flex;gap:var(--s3);margin:var(--s3) 0;font-size:12.5px;color:var(--fg2);line-height:1.6}
+.ct .it::before{counter-increment:ct;content:counter(ct,decimal-leading-zero);font-family:var(--mono);
+  font-size:11px;color:var(--primary-h);flex:none;padding-top:2px;min-width:22px}
+.ct .it b{color:var(--fg)}
+.src{font-family:var(--mono);font-size:10.5px;color:var(--fg4)}
+.win{display:flex;gap:var(--s2);flex-wrap:wrap;margin:var(--s3) 0}
+.win .m{font-family:var(--mono);font-size:11px;background:var(--surface-2);border-radius:var(--r-sm);
+  padding:3px 9px;color:var(--fg3)}
+.win .m b{color:var(--primary-h);font-weight:600}
+table.tight td,table.tight th{padding:6px var(--s3);font-size:12px}
+.tw{overflow-x:auto;max-width:100%;margin:var(--s3) 0}
+.tw table{margin:0}
+@media(max-width:760px){.tw table{min-width:640px}}
+.yn{font-family:var(--mono);font-size:12px;font-weight:600}
+.yn.y{color:var(--ok)} .yn.n{color:var(--fg4)} .yn.p{color:var(--warn)} .yn.x{color:var(--danger)}
+.tocbar{display:flex;gap:var(--s2);flex-wrap:wrap;margin:var(--s4) 0 0}
+.tocbar a{font-family:var(--mono);font-size:11px;background:var(--surface-2);border-radius:var(--r-pill);
+  padding:4px 11px;color:var(--fg3);transition:all var(--fast) var(--ease)}
+.tocbar a:hover{background:var(--surface-3);color:var(--primary-h)}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+
+<div class="top">
+  <img class="kpmark" alt="Kunpeng" src="data:image/png;base64,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">
+  <b>Kunpeng DevKit AI</b><span class="chip">TUI 竞品分析 · 第二部分</span>
+  <span class="chip">AI Agent TUI 交互全景 · 12 交互域</span>
+  <button id="themeToggle" class="theme-btn" title="切换亮色/暗色主题" aria-label="切换主题">
+    <span class="theme-icon-light">☀️</span><span class="theme-icon-dark">🌙</span>
+  </button>
+  <span class="r">2026-08 · 证据窗口 06→08</span>
+</div>
+
+<nav class="floornav" id="fnav">
+  <a href="#f1"><span>定位与方法</span><i></i></a>
+  <a href="#f2"><span>竞品全景</span><i></i></a>
+  <a href="#f3"><span>输入方式</span><i></i></a>
+  <a href="#f4"><span>配置方法</span><i></i></a>
+  <a href="#f5"><span>上下文</span><i></i></a>
+  <a href="#f6"><span>对话压缩</span><i></i></a>
+  <a href="#f7"><span>代码联动</span><i></i></a>
+  <a href="#f8"><span>图标字符</span><i></i></a>
+  <a href="#f9"><span>左树与空间</span><i></i></a>
+  <a href="#f10"><span>对白</span><i></i></a>
+  <a href="#f11"><span>项目与会话</span><i></i></a>
+  <a href="#f12"><span>补充场景</span><i></i></a>
+  <a href="#f13"><span>模式识别</span><i></i></a>
+  <a href="#f14"><span>反面教训</span><i></i></a>
+  <a href="#f15"><span>机会点</span><i></i></a>
+  <a href="#f16"><span>资料库</span><i></i></a>
+</nav>
+
+<!-- ══════ HERO ══════ -->
+<section class="hero">
+  <canvas id="pfield"></canvas>
+  <div class="hero-in">
+    <div class="kplock"><img class="kpmark" alt="Kunpeng" src="data:image/png;base64,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"><span class="nm">Kunpeng DevKit AI</span><span class="nm sep">/</span><span class="nm">Competitive Analysis · Part II</span></div>
+    <h1>Agent 在终端里<br>到底怎么<em>被操作</em></h1>
+    <p>第一部分回答了「TUI 该长什么样」——框架、分辨率、布局。第二部分只回答一件事：<strong>人和 Agent 在 Cell 网格里怎么交互</strong>。
+       12 个交互域、48 条触点，证据全部落在 <strong>2026 年 6–8 月</strong>的版本里——这一层三个月就会翻一遍，去年的结论已经不能用了。</p>
+    <div class="hero-stats">
+      <div class="hstat"><b class="pixel" style="color:var(--primary-h)">10</b><span>竞品</span></div>
+      <div class="hstat"><b class="pixel" style="color:var(--ok)">12</b><span>交互域</span></div>
+      <div class="hstat"><b class="pixel" style="color:var(--warn)">48</b><span>触点</span></div>
+      <div class="hstat"><b class="pixel" style="color:var(--danger)">9</b><span>新坑</span></div>
+      <div class="hstat"><b class="pixel" style="color:var(--accent)">90d</b><span>证据窗口</span></div>
+    </div>
+    <div class="tocbar">
+      <a href="#f3">输入方式</a><a href="#f4">配置方法</a><a href="#f5">上下文</a><a href="#f6">对话压缩</a>
+      <a href="#f7">代码联动</a><a href="#f8">图标</a><a href="#f9">左树</a><a href="#f10">对白</a>
+      <a href="#f11">项目与会话</a><a href="#f12">另外 8 个场景</a>
+      <a href="competitive-analysis.html">← 第一部分</a>
+    </div>
+  </div>
+  <div class="scrollhint">▼ scroll</div>
+</section>
+
+<!-- ══════ F1 ══════ -->
+<section class="floor" id="f1">
+  <div class="fnum">FLOOR 01</div>
+  <h2>第二部分的定位与方法</h2>
+  <p class="lead">第一部分是<strong>空间学</strong>：Cell 分辨率、画布分层、布局范式、产品谱系。第二部分是<strong>操作学</strong>：同样一块 Cell 网格，人怎么把意图打进去，Agent 怎么把过程吐回来，两边怎么谈判。</p>
+
+  <div class="grid g2">
+    <div class="card"><h4>与第一部分的分工</h4>
+      <p><b>第一部分</b>问的是「这个界面由什么构成」——8 竞品 × 22 触点，覆盖框架 / 布局 / 分辨率 / 渲染降级。</p>
+      <p><b>第二部分</b>问的是「这个界面怎么被操作」——10 竞品 × 12 交互域 × 48 触点，覆盖输入 / 配置 / 上下文 / 压缩 / 联动 / 图标 / 树 / 对白 / 会话 + 8 个补充场景。</p>
+      <p class="src">两部分不重复触点。第一部分已判定的（键位体系、输出折叠、diff 粒度、窄屏降级）在此只作为前提引用，不再重新论证。</p>
+    </div>
+    <div class="card"><h4>为什么必须重取证据</h4>
+      <p>AI Agent TUI 这一层<strong>三个月翻一次</strong>。举一个可核对的例子：Claude Code 在 2026-07-14 到 08-20 的 37 天里发了 <strong>20 多个带 TUI 行为变更的版本</strong>（2.1.208 → 2.1.237），涉及输入高亮偏移、全屏重绘、权限对话框文案、markdown 缩进、emoji 截断……</p>
+      <p>结论是：<strong>任何超过半年的 AI TUI 交互结论都要重新验证</strong>。本部分的取证窗口固定为 <b>2026-06-01 → 2026-08-20</b>。</p>
+    </div>
+  </div>
+
+  <div class="sub">证据规则</div>
+  <div class="ct">
+    <div class="it"><span><b>版本号 + 日期是硬要求。</b>正文中每条产品行为都尽量带 <span class="vb">v2.1.235 · 8/18</span> 这样的出处；拿不到版本号的写「文档态」，拿不到日期的标 <span class="vb o">⚠️ 待核查</span>。</span></div>
+    <div class="it"><span><b>一手 &gt; 二手。</b>官方 changelog、官方文档、仓库 README 为一手；技术媒体与聚合站为二手，仅用于「存在性」而不用于「细节」。二手来源在表格中以 <span class="src">〔二手〕</span> 标注。</span></div>
+    <div class="it"><span><b>行为差异优先于功能罗列。</b>「有没有 @ 引用」没有信息量，「@ 补全在多行输入里高亮偏移一格、8/18 才修」才有。</span></div>
+    <div class="it"><span><b>Bug 与其说明书同等重要。</b>一条被修掉的渲染 bug，等于一条被公开的实现约束——我们照抄约束比照抄功能安全。</span></div>
+  </div>
+
+  <div class="note w"><b>一处口径澄清：</b>需求里的「harness」在 2026 年有两个所指——① 泛指<strong>Agent 脚手架层</strong>（组装上下文 → 调模型 → 解析回复 → 派发工具）；② 特指以此自我标榜的一类产品，代表是 <strong>Grok Build</strong>（SpaceXAI，2026-07 开源，自称 "coding agent harness and TUI"）与 <strong>Pi</strong>。本报告<strong>两个都收</strong>：把 harness 作为一条产品线（F2 收 Grok Build 与 Pi），同时把「harness 化」当作一种架构趋势来分析（F11 leader 模式、F7 ACP）。</div>
+
+  <div class="sub">12 个交互域</div>
+  <div class="dim">
+    <a href="#f3"><b>输入方式</b><span>11 触点</span></a>
+    <a href="#f4"><b>配置方法</b><span>5 触点</span></a>
+    <a href="#f5"><b>上下文</b><span>5 触点</span></a>
+    <a href="#f6"><b>对话压缩</b><span>4 触点</span></a>
+    <a href="#f7"><b>代码联动</b><span>5 触点</span></a>
+    <a href="#f8"><b>图标与字符</b><span>3 触点</span></a>
+    <a href="#f9"><b>左树与空间</b><span>3 触点</span></a>
+    <a href="#f10"><b>对白</b><span>6 触点</span></a>
+    <a href="#f11"><b>项目与会话</b><span>6 触点</span></a>
+    <a href="#f12"><b>中断 · 鼠标 · 滚动</b><span>3 触点</span></a>
+    <a href="#f12"><b>通知 · 无障碍</b><span>2 触点</span></a>
+    <a href="#f12"><b>能力协商 · 计费 · 多端</b><span>3 触点</span></a>
+  </div>
+</section>
+
+<!-- ══════ F2 ══════ -->
+<section class="floor" id="f2">
+  <div class="fnum">FLOOR 02</div>
+  <h2>竞品全景 · 2026 夏</h2>
+  <p class="lead">10 个产品，四条线。选样标准只有一条：<strong>在取证窗口内有可核对的 TUI 交互变更</strong>——只发模型不动界面的不收，只有 CLI 没有全屏 TUI 的不收。</p>
+
+  <div class="win">
+    <span class="m">证据窗口 <b>2026-06-01 → 08-20</b></span>
+    <span class="m">AI Agent TUI <b>7</b></span>
+    <span class="m">通用 TUI 参照 <b>3</b></span>
+    <span class="m">全部为 <b>全屏 / 常驻</b> 形态</span>
+  </div>
+
+  <div class="sub">线 A · 第一方 Agent TUI</div>
+  <div class="grid g2">
+    <div class="card pcard" style="--tint:#3C7CF6">
+      <div class="pname"><b>Claude Code</b><span class="ver">v2.1.208 → 2.1.237 · 7/14–8/20</span></div>
+      <div class="plane">Fullscreen Renderer · Alt-Screen</div>
+      <p><b>本窗口最激进的一个。</b>全屏渲染器（alt-screen + 鼠标捕获 + 只渲染可见消息、内存恒定）已对 <span class="vb">2026-05-06 之后的新用户默认开启</span>，老用户用 <code>/tui fullscreen</code> 切，<code>/tui default</code> 切回。</p>
+      <p>窗口内的变更密度极高：输入高亮偏移、多行清空后残留空带、resize 后 pane 不重绘、对话框超出右边界、markdown 三级列表错位、emoji 截断乱码——<strong>几乎全是全屏渲染器带来的新 bug 面</strong>。</p>
+      <p class="src">一手：官方 changelog + fullscreen 文档</p>
+    </div>
+    <div class="card pcard" style="--tint:#04d793">
+      <div class="pname"><b>Codex CLI</b><span class="ver">v0.147.0 · 8/7 &nbsp;/&nbsp; v0.148.0 · 8/18</span></div>
+      <div class="plane">TOML 可配置 TUI · Sections</div>
+      <p><b>本窗口配置能力最强的一个。</b><code>[tui]</code> 命名空间自 v0.128.0 起成体系：7 个 keymap context、32 套内置主题 + <code>.tmTheme</code>、<code>status_line</code> 与 <code>terminal_title</code> 都是可排序数组。</p>
+      <p>窗口内两件大事：<span class="vb">0.147.0</span> 上了<strong>会话分区（sections，可手工排序、可持久）</strong>与增量浏览长 transcript；<span class="vb">0.148.0</span> 上了 <code>/export</code> 导出 Markdown、<code>codex exec fork</code>、resume picker 里归档/恢复，以及「TUI 初始化时就能先起草 prompt」。</p>
+      <p class="src">一手：官方 changelog；<span class="src">〔二手〕</span>[tui] 键位细节</p>
+    </div>
+    <div class="card pcard" style="--tint:#FA8838">
+      <div class="pname"><b>Gemini CLI</b><span class="ver">v0.46 → v0.56 · 6/9–8/13</span></div>
+      <div class="plane">PTY 内嵌 · 交互式 Shell</div>
+      <p>形态上最特殊：<strong>把真正的 PTY 装进了 Agent 会话</strong>——vim / htop / 交互式 git 直接在会话内跑。本窗口的变更集中在<strong>加固而非扩张</strong>：<span class="vb">v0.46 · 6/9</span> 加固 PTY resize 防原生崩溃、<span class="vb">v0.53 · 7/28</span> 收紧 workspace trust 防 RCE、<span class="vb">v0.54 · 8/6</span> 修 <code>/compress</code> 后会话重载丢工具响应。</p>
+      <p class="src">〔二手〕releasebot 聚合的版本条目</p>
+    </div>
+    <div class="card pcard" style="--tint:#9B3CF6">
+      <div class="pname"><b>Grok Build</b><span class="ver">开源 2026-07-15 · Apache-2.0</span></div>
+      <div class="plane">Harness-First · ratatui + crossterm</div>
+      <p><b>本窗口最重要的一次架构公开。</b>SpaceXAI 把整套 harness + TUI + 工具层开源（约 84 万行 Rust）。关键不是它开源，而是它<strong>把 ACP 当成内部产品 API</strong>：TUI 只是「公共协议线上的一个客户端」，headless / leader / WebSocket / stdio 共享同一套会话架构。</p>
+      <p>由此派生出 <strong>leader 模式</strong>：一个长活 agent 进程带多个客户端，UI 断开不影响会话。</p>
+      <p class="src">仓库 README 为一手；架构细节〔二手〕，标 ⚠️ 待核查</p>
+    </div>
+  </div>
+
+  <div class="sub">线 B · 开源 Agent TUI</div>
+  <div class="grid g2">
+    <div class="card pcard" style="--tint:#B3F141">
+      <div class="pname"><b>opencode</b><span class="ver">v1.18.x · 7–8 月</span></div>
+      <div class="plane">Leader 键 · tui.json</div>
+      <p>键位体系仍是标杆：leader <kbd>ctrl+x</kbd> + <code>leader_timeout 2000ms</code>，全部可在 <code>tui.json</code> 重绑或设 <code>"none"</code> 禁用。父子会话原地导航（<kbd>&lt;leader&gt;↓</kbd> 进子、<kbd>←</kbd>/<kbd>→</kbd> 循环、<kbd>↑</kbd> 回父）到现在仍没有对手。</p>
+      <p>本窗口的信号是<strong>产品线分叉</strong>：release notes 已按 <b>Core / TUI / Desktop</b> 三段发布，TUI 侧主要做延迟与 markdown 渲染（解析移出主线程）。<span class="vb o">⚠️ 仓库归属由 sst 变为 anomalyco，待核查</span></p>
+      <p class="src">官方 docs（keybinds / tui）为一手</p>
+    </div>
+    <div class="card pcard" style="--tint:#F4CB22">
+      <div class="pname"><b>Crush</b><span class="ver">v0.86 → v0.90 · 7/20–8/19</span></div>
+      <div class="plane">Charm 系 · 侧栏可聚焦</div>
+      <p>本窗口在<strong>侧栏与代码联动</strong>上推进最明确：<span class="vb">v0.86 · 7/20</span> 侧栏变成可滚动、可聚焦（<kbd>j</kbd>/<kbd>k</kbd>/<kbd>g</kbd>/<kbd>G</kbd>），同版加了 <code>lsp_rename</code> / <code>lsp_replace_symbol</code> 两个 LSP 工具并配 fancy diff 预览。</p>
+      <p>细节做得很「桌面」：附件 chip 上有可点的 <b>✕</b>、退出时给一张带「怎么快速接上刚才那个会话」提示的 splash、认证对话框加 <kbd>u</kbd> 复制 URL（专为 SSH 场景）。</p>
+      <p class="src">〔二手〕releases 聚合</p>
+    </div>
+    <div class="card pcard" style="--tint:#7c8db8">
+      <div class="pname"><b>Pi / pi-tui</b><span class="ver">文档态 · 2026</span></div>
+      <div class="plane">最小 harness · 渲染引擎可读</div>
+      <p>选它<strong>不是因为产品，是因为它的 TUI 层是公开可读的工程答案</strong>：差分渲染三策略、全部更新包在 <code>CSI ?2026h/l</code> 同步输出里、启动时协商 Kitty 键盘协议（为了分清 Esc 与 Alt、拿到 key-release）、组件接口只有 <code>render(width)</code> / <code>handleInput(data)</code> / <code>invalidate()</code>。</p>
+      <p>图片走 Kitty / iTerm2 协议，不支持则降级为文字占位；<strong>alt-screen 下 iTerm2 协议一律降级为占位</strong>——因为该协议缺少删除与裁剪操作，重绘视口时会出错。这条是我们做 Hybrid 渲染时必须抄的约束。</p>
+      <p class="src">仓库 README 为一手</p>
+    </div>
+    <div class="card pcard" style="--tint:#ff4b7b">
+      <div class="pname"><b>Amp</b><span class="ver">CLI 重构「Neo」· 2026</span></div>
+      <div class="plane">远程可控 · 插件化</div>
+      <p>只作为趋势样本收入：CLI 重构目标是<strong>可远程控制、插件驱动、面向长时任务</strong>，并存在基于 Ink（React 终端 UI）的替代实现。它与 Grok Build 的 leader 模式指向同一件事——<strong>TUI 正在与会话解耦</strong>。</p>
+      <p class="src">〔二手〕媒体报道，细节不引用</p>
+    </div>
+  </div>
+
+  <div class="sub">线 C · 通用 TUI 参照（只取本窗口的新证据）</div>
+  <div class="tw"><table class="tight">
+    <tr><th>产品</th><th>版本 · 日期</th><th>本窗口贡献给我们的东西</th></tr>
+    <tr><td><b>Yazi</b></td><td><span class="vb">v26.8.15 · 8/15</span></td><td><strong>图标进对话框</strong>（trash / delete / overwrite 确认框里带文件图标）· <strong>输入框上下文图标</strong> · 自动明暗主题切换 · <code>which</code> 组件边框可配 · Zellij 下经 Kitty 协议出图 · 动态 keymap Lua API · <kbd>&lt;BackTab&gt;</kbd> 更名 <kbd>&lt;S-Tab&gt;</kbd></td></tr>
+    <tr><td><b>superfile</b></td><td><span class="vb">v1.6.0 · 6/7</span></td><td><strong>侧栏分区可隐藏、可重排（写在配置文件里）</strong>——AI 派至今没人做到这一步；预览可靠性靠升级到 Bubble Tea v2 解决</td></tr>
+    <tr><td><b>lazygit</b></td><td><span class="vb">v0.63.1 · 7/15</span></td><td><kbd>w</kbd> 在分支 / 提交 / stash 面板上<strong>直接从选中项建 worktree</strong>，不再弹确认菜单——「选中即操作」的又一例；提交图换成兼容性更好的 Unicode 符号</td></tr>
+  </table></div>
+
+  <div class="note"><b>看完全景先给一句判断：</b>这三个月里，AI Agent TUI 的竞争焦点已经从「能不能做」转到了<strong>「在 Cell 网格上做得够不够准」</strong>——高亮偏移一格、截断切到 emoji 中间、对话框比终端高一行，这些第一部分不会讨论的问题，现在是各家 changelog 的主体。这正是我们做规范时必须提前吃掉的成本。</div>
+</section>
+
+<!-- ══════ F3 输入 ══════ -->
+<section class="floor" id="f3">
+  <div class="fnum">FLOOR 03 · 交互域 01</div>
+  <h2>输入方式 · 一个输入框有七层</h2>
+  <p class="lead">「输入框」在 AI TUI 里不是一个控件，是<strong>七层栈</strong>。绝大多数难缠的 bug 不在最上面那层，而在下面两层——键盘协议和粘贴通道。先把栈画清楚，再逐层比。</p>
+
+  <div class="stack">
+    <div class="lyr"><div class="no">L7</div><div class="nm">语义层</div><div class="ds">意图 · 计划 · 引用哪些文件 · 用哪个 agent —— 唯一一层用户真正想操心的</div></div>
+    <div class="lyr"><div class="no">L6</div><div class="nm">补全与提示层</div><div class="ds"><code>/</code> 命令 · <code>@</code> 文件 · <code>@</code> 会话 · <code>:emoji:</code> · 模糊匹配与错字处理 · ghost text</div></div>
+    <div class="lyr"><div class="no">L5</div><div class="nm">模式层</div><div class="ds"><code>!</code> 转 shell · <code>#</code> 记忆 · Vim NORMAL/INSERT · 队列态 · 草稿态</div></div>
+    <div class="lyr"><div class="no">L4</div><div class="nm">编辑层</div><div class="ds">多行 · 光标自由移动 · Readline/Emacs 键 · 历史 · 外部编辑器 · 拼写检查</div></div>
+    <div class="lyr risk"><div class="no">L3</div><div class="nm">粘贴通道</div><div class="ds">bracketed paste · CRLF · 多行折叠 · 图片粘贴 · 启动期缓冲输入 —— <b>第一大 bug 源</b></div></div>
+    <div class="lyr risk"><div class="no">L2</div><div class="nm">键盘协议层</div><div class="ds">Kitty keyboard protocol · extended key reporting · <kbd>Ctrl+J</kbd> 与换行的冲突 —— <b>第二大 bug 源</b></div></div>
+    <div class="lyr"><div class="no">L1</div><div class="nm">字符与宽度层</div><div class="ds">CJK 双宽 · emoji · Nerd Font 字形 · 截断与 ANSI 保留 · display width ≠ 字节数</div></div>
+  </div>
+
+  <div class="note w"><b>为什么这么排：</b>本窗口 Claude Code 的输入相关修复里，落在 L1–L3 的数量<strong>超过落在 L4–L7 的总和</strong>。「输入框做得好」在 TUI 里的实际含义是<strong>「协议层与宽度层没有漏」</strong>，而不是「功能多」。</div>
+
+  <div class="sub">L2 键盘协议层 · 三条硬事实</div>
+  <div class="grid g3">
+    <div class="card"><h4>协议要主动协商</h4>
+      <p>pi-tui <strong>启动时就去协商 Kitty 键盘协议</strong>，目的很具体：分清 <kbd>Esc</kbd> 与 <kbd>Alt+x</kbd> 序列，并拿到 key-release 事件（复杂组合键必需）。</p>
+      <p class="src">来源：pi-tui README</p>
+    </div>
+    <div class="card"><h4>Ctrl+J 是个雷</h4>
+      <p>开了 extended key reporting 的终端上，<kbd>Ctrl+J</kbd> 在 agent view 的输入里插不进换行——Claude Code <span class="vb">2.1.212 · 7/17</span> 修了一次，<span class="vb">2.1.229 · 8/12</span> 又修一次，第二次顺手把换行快捷键<strong>补进了 <kbd>?</kbd> 帮助面板</strong>。</p>
+      <p class="rule">修 bug 的同时补可发现性——这个动作值得抄。</p>
+    </div>
+    <div class="card"><h4>复制键也归协议管</h4>
+      <p>Claude Code 全屏模式下 <kbd>Ctrl+Shift+C</kbd> 复制；<strong>仅在支持 Kitty 键盘协议的终端</strong>（kitty / WezTerm / Ghostty / iTerm2）上 <kbd>Cmd+C</kbd> 才可用。</p>
+      <p class="rule">同一功能在不同终端有不同键 = 提示文案必须按能力动态变。</p>
+    </div>
+  </div>
+
+  <div class="sub">L3 粘贴通道 · 本窗口的四个真实故障</div>
+  <div class="tw"><table class="tight">
+    <tr><th>故障</th><th>产品 · 版本</th><th>现象</th><th>抽象出的规则</th></tr>
+    <tr><td>多行粘贴被压成一行</td><td>Claude Code <span class="vb">2.1.221 · 8/4</span></td><td>终端把粘贴的换行编码成 <kbd>Ctrl+J</kbd> 时，多行内容折叠成一行，换行位置变成字面量 <code>j</code></td><td>粘贴解码必须<strong>与按键解码分离</strong>，不能共用一张键表</td></tr>
+    <tr><td>CRLF 粘贴</td><td>Codex <span class="vb">0.148.0 · 8/18</span></td><td>composer 与 transcript 现在才正确处理 CRLF 粘贴、行尾空白与超长 URL 的折行</td><td>Windows 剪贴板是<strong>默认场景不是边缘场景</strong></td></tr>
+    <tr><td>CRLF 进入提案内容</td><td>Gemini CLI <span class="vb">v0.55.1 · 8/11</span></td><td>提案内容里的 CRLF 统一归一为 LF</td><td>行尾归一要做在<strong>入口</strong>，不是做在 diff 阶段</td></tr>
+    <tr><td>启动期缓冲输入误触发</td><td>Codex <span class="vb">0.148.0 · 8/18</span></td><td>TUI 启动过程中，终端缓冲里的输入会「意外激活提示」</td><td>启动窗口期必须<strong>吞掉或隔离</strong>缓冲输入；同版还上了「初始化时先起草 prompt」把这段等待变成可用时间</td></tr>
+  </table></div>
+
+  <div class="note s"><b>把等待变成输入：</b>Codex <span class="vb">0.148.0</span> 的「TUI 还在初始化时就能先打字」，以及同版的「resume / fork 进度在启动过程中就显示」，是本窗口最值得抄的一条小设计——<strong>冷启动的几百毫秒不是空白，是可以承载输入的</strong>。DevKit 启动要连 SSH、探测终端能力、拉工程索引，这段时间只会更长。</div>
+
+  <div class="sub">L4–L6 · 逐项对比</div>
+  <div class="tw"><table class="tight">
+    <tr><th>输入触点</th><th>Claude Code</th><th>Codex</th><th>opencode</th><th>Crush</th><th>判断</th></tr>
+    <tr><td>提交 / 换行</td><td>Enter 提交；全屏下输入框固定底部不随输出移动</td><td>可重绑：<code>submit = ["enter","ctrl-m"]</code></td><td><strong>4 个换行绑定</strong>：<kbd>shift+↵</kbd> <kbd>ctrl+↵</kbd> <kbd>alt+↵</kbd> <kbd>ctrl+j</kbd></td><td>—</td><td>opencode 给足冗余是对的：<strong>不同终端能送出的组合键不一样</strong></td></tr>
+    <tr><td>行内编辑</td><td>Vim 模式（<kbd>s</kbd>/<kbd>S</kbd> 于 8/4 补齐；<code>vimInsertModeRemaps</code> 可把 <code>jj</code> 映射成 Esc）</td><td>7 个 keymap context，<code>composer</code> 独立成一档</td><td>全套 Readline/Emacs：<kbd>ctrl+a</kbd> <kbd>ctrl+e</kbd> <kbd>ctrl+k</kbd> <kbd>ctrl+u</kbd></td><td>—</td><td><strong>三种流派并存，没有收敛</strong>。可配置是唯一解</td></tr>
+    <tr><td><code>/</code> 命令菜单</td><td>8/10–8/12 改造：蓝色<strong>只标选中行</strong>，匹配字符<strong>加粗</strong>而不是变色，emoji / 带音标的命令名保留字形</td><td><code>/keymap</code> 可查当前绑定；<code>/theme</code> 带实时预览</td><td><kbd>ctrl+p</kbd> 命令面板</td><td>—</td><td>「用加粗而不是改色来表示匹配」是<strong>纯 TUI 的正确解</strong>——终端色位有限，色要留给语义</td></tr>
+    <tr><td>打错命令怎么办</td><td><span class="vb">2.1.229 → 2.1.237</span> 连续改：Enter 打错<strong>不再模糊匹配去跑最近的那个</strong>，直接报错；前缀与别名仍然可跑</td><td>—</td><td>—</td><td>—</td><td><strong>行业级教训</strong>：Agent 场景下「猜你想跑哪个」= 有可能替你跑了不该跑的</td></tr>
+    <tr><td><code>@</code> 文件引用</td><td>模糊补全；多行输入里高亮曾整体偏移 ≥1 字符，<span class="vb">2.1.235 · 8/18</span> 才修</td><td>—</td><td><code>@</code> 模糊搜文件<strong>内容自动进对话</strong>；<code>@alias</code> 补全预置引用</td><td>附件 chip 带可点 <b>✕</b></td><td>已是共识能力，差距在<strong>渲染精度</strong>与<strong>移除路径</strong></td></tr>
+    <tr><td><code>@</code> 引用「人」</td><td><span class="vb">2.1.232 · 8/13</span> <code>@</code> 可点名<strong>另一个 Claude 会话</strong>，直接发消息过去</td><td>—</td><td>—</td><td>—</td><td><strong>本窗口最新的一条输入语义</strong>：@ 的宾语从「文件」扩展到「会话」</td></tr>
+    <tr><td>shell 直通</td><td><code>!</code> 前缀；<span class="vb">2.1.232</span> 修了「排队的 <code>!</code> 命令经上箭头编辑后被当纯文本发出」</td><td>—</td><td><code>!</code> 前缀</td><td>工具输出加 bash 语法高亮</td><td>共识。<strong>风险点在「排队 + 编辑」的组合态</strong></td></tr>
+    <tr><td>队列与草稿</td><td>可排队消息；<span class="vb">2.1.234 · 8/17</span> 修「排队中的消息又出现在历史里」「选中排队消息时按 Esc 误中断本轮」「<code>!</code> 模式在中途提交后粘住」</td><td>初始化期可起草</td><td>—</td><td>—</td><td><strong>队列是新增的一等状态</strong>，且它与 Esc / 历史 / 模式前缀全都会打架</td></tr>
+    <tr><td>外部编辑器</td><td><kbd>Ctrl+G</kbd> 编辑计划；GUI 编辑器打开时曾往终端漏鼠标与焦点乱码（<span class="vb">2.1.216 · 7/20</span> 修）</td><td><code>editor</code> 为独立 keymap context</td><td><code>/editor</code> · <kbd>&lt;leader&gt;e</kbd></td><td>—</td><td>共识能力。<strong>坑在「让出终端再收回」</strong>的那一刻</td></tr>
+    <tr><td>拼写检查</td><td><span class="vb">2.1.235 · 8/18</span> 新增 <code>spellcheck</code> 设置，接 <code>aspell</code>/<code>hunspell</code>/<code>ispell</code> 给错词加下划线</td><td class="yn n">—</td><td class="yn n">—</td><td class="yn n">—</td><td><strong>独一份</strong>。思路值得注意：<strong>不自己实现，挂系统已有的</strong></td></tr>
+    <tr><td>emoji 输入</td><td><span class="vb">2.1.221 · 8/4</span> <code>:heart:</code> 短码补全，<code>emojiCompletionEnabled</code> 可关</td><td class="yn n">—</td><td class="yn n">—</td><td class="yn n">—</td><td>对 DevKit 价值低，但<strong>它暴露了 L1 层的宽度问题</strong>（见 F8）</td></tr>
+  </table></div>
+
+  <div class="sub">给 DevKit 的输入结论</div>
+  <div class="ct">
+    <div class="it"><span><b>换行给足冗余绑定。</b>照 opencode 给 4 个：<kbd>shift+↵</kbd> / <kbd>ctrl+↵</kbd> / <kbd>alt+↵</kbd> / <kbd>ctrl+j</kbd>，并在 <kbd>?</kbd> 帮助里列出——SSH + tmux 会吃掉其中任意一个。</span></div>
+    <div class="it"><span><b>粘贴独立解码。</b>bracketed paste 单独通道，CRLF 在入口归一，多行永不折叠；粘贴期间不走按键表。</span></div>
+    <div class="it"><span><b>命令打错必须报错，不许猜。</b>Agent 场景下模糊执行是安全问题，不是体验问题。</span></div>
+    <div class="it"><span><b>匹配高亮用字重不用颜色。</b>颜色预算留给语义（风险 / 状态 / diff）。</span></div>
+    <div class="it"><span><b>把队列做成显式的一等状态。</b>队列 × Esc × 历史 × 模式前缀的四向组合要在规范里穷举，不要留给实现自行解释。</span></div>
+    <div class="it"><span><b>冷启动期就接受输入。</b>DevKit 要连 SSH、探能力、建索引，这段时间必须能起草，并显示恢复进度。</span></div>
+  </div>
+</section>
+
+<!-- ══════ F4 配置 ══════ -->
+<section class="floor" id="f4">
+  <div class="fnum">FLOOR 04 · 交互域 02</div>
+  <h2>配置方法 · 四种哲学，且它们互不兼容</h2>
+  <p class="lead">这一层没有共识，只有<strong>四种立场</strong>。选哪种不是口味问题——它直接决定「用户改一个键位要付出多少认知成本」和「我们能不能把配置讲清楚」。</p>
+
+  <div class="grid g2">
+    <div class="card pcard" style="--tint:#04d793">
+      <div class="pname"><b>① 声明式命名空间</b><span class="ver">Codex</span></div>
+      <div class="plane">TOML · 可版本化 · 可 diff</div>
+      <p>全部塞进 <code>~/.codex/config.toml</code> 的 <code>[tui]</code> 段，结构极其规整：</p>
+      <pre><span class="cm"># keymap 按 7 个 context 分层</span>
+<span class="pr">[tui.keymap.global]</span>
+clear_context = <span class="ok">"ctrl-shift-l"</span>
+<span class="pr">[tui.keymap.composer]</span>
+submit       = [<span class="ok">"enter"</span>, <span class="ok">"ctrl-m"</span>]
+history_prev = <span class="ok">"ctrl-p"</span>
+open_external_editor = []   <span class="cm"># 空数组 = 解绑</span>
+
+<span class="cm"># 状态栏 = 有序数组，不是布尔开关</span>
+tui.status_line = [<span class="ok">"model"</span>, <span class="ok">"approval"</span>, <span class="ok">"context_usage"</span>]
+tui.terminal_title = [<span class="ok">"spinner"</span>, <span class="ok">"project"</span>]
+tui.theme = <span class="ok">"dracula"</span></pre>
+      <p><b>三个设计决定值得抄：</b>① keymap 按 context 分层（global / chat / composer / editor / pager / list / approval），具体覆盖全局；② 解绑用空数组，不用魔法值；③ <strong>状态栏与终端标题都是「有序数组」</strong>——用户决定显示什么、按什么顺序。</p>
+      <p class="src">〔二手〕[tui] 细节；命名空间自 v0.128.0 起</p>
+    </div>
+    <div class="card pcard" style="--tint:#B3F141">
+      <div class="pname"><b>② Schema 化分家</b><span class="ver">opencode</span></div>
+      <div class="plane">JSON + Schema · UI 与 Runtime 分离</div>
+      <p><strong>把「界面配置」和「运行时配置」拆成两个文件</strong>：<code>tui.json</code>（主题 / 键位 / 滚动 / 光标 / 鼠标 / 通知）与 <code>opencode.json</code>（服务端与运行时）。<code>tui.json</code> 带 <code>$schema</code> 指向 <code>opencode.ai/tui.json</code>，编辑器直接有补全和校验。</p>
+      <p>键位可设 <code>"none"</code> 或 <code>false</code> 禁用；<code>leader_timeout</code>、<code>scroll_speed</code>、<code>diff_style</code>（<code>auto</code>/<code>stacked</code>）、鼠标捕获开关都在这里。</p>
+      <p class="rule"><b>这条分家是对的。</b>换终端要改的只有 <code>tui.json</code>，换模型/服务端要改的只有 <code>opencode.json</code>——DevKit 有本地终端 / SSH / 低能力终端三套场景，这个切分能省掉大量解释成本。</p>
+    </div>
+    <div class="card pcard" style="--tint:#3C7CF6">
+      <div class="pname"><b>③ 对话内改配置</b><span class="ver">Claude Code</span></div>
+      <div class="plane">/config 对话框 · 不用离开会话</div>
+      <p>三条路径并行：<code>settings.json</code>、环境变量、<strong>会话内 <code>/config</code> 对话框</strong>。本窗口最大的变化是<strong>把「改配置」从「停下来」变成「顺手」</strong>：</p>
+      <p><span class="vb">2.1.234 · 8/17</span> <code>/add-dir</code> <code>/autocompact</code> <code>/theme</code> <code>/help</code> <code>/config</code> <code>/advisor</code> 全部<strong>可在 Agent 工作到一半时打开</strong>；<code>/permissions</code> 也能在工作中打开，<strong>改完的规则立刻对本轮剩余部分生效</strong>。</p>
+      <p>新增开关的粒度很细：<code>spellcheck</code>、<code>emojiCompletionEnabled</code>、<code>wheelScrollAccelerationEnabled</code>、Dialog expiry、跨会话收信策略（接受 / 挂起 / 拒绝）、Auto-scroll 开关、Copy on select 开关。</p>
+      <p class="rule"><b>坑也在这里：</b>三条路径并行必然产生优先级问题。<span class="vb">2.1.236 · 8/19</span> 新增 <code>ANTHROPIC_DEFAULT_MODEL</code> 时不得不解释：它只定<strong>新会话的起点</strong>，<code>/model</code> 选过就覆盖并持久化——与旧的 <code>ANTHROPIC_MODEL</code> 语义不同。</p>
+    </div>
+    <div class="card pcard" style="--tint:#9B3CF6">
+      <div class="pname"><b>④ 可解释性优先</b><span class="ver">Grok Build</span></div>
+      <div class="plane">grok inspect · 配置来源可追溯</div>
+      <p>配置本身平淡（<code>~/.grok/config.toml</code>），但它给了一条别人都没有的命令：<code>grok inspect</code>——<strong>在当前目录下列出配置来源、instructions、skills、plugins、hooks 和 MCP servers</strong>。</p>
+      <p class="rule"><b>这是本层最重要的一条发现。</b>当配置有「项目 → 用户 → 命令行 → 插件 → hook」五层来源时，用户真正的问题从来不是「怎么配」，而是<strong>「我这条到底是从哪儿来的」</strong>。第一部分已记录 btop「退出覆盖用户配置」的教训（F7）；<code>inspect</code> 是它的正面解法。</p>
+    </div>
+  </div>
+
+  <div class="sub">配置分层：三家的共同结构</div>
+  <div class="diag">
+    <div class="diag-cap">config resolution order（越靠下越优先）</div>
+    <div class="stack">
+      <div class="lyr"><div class="no">1</div><div class="nm">内置默认</div><div class="ds">产品自带；用户永远看不见但必须能被 inspect 出来</div></div>
+      <div class="lyr"><div class="no">2</div><div class="nm">用户级</div><div class="ds"><code>~/.codex/config.toml</code> · <code>~/.claude/settings.json</code> · <code>~/.grok/config.toml</code> · opencode config 目录</div></div>
+      <div class="lyr"><div class="no">3</div><div class="nm">项目级</div><div class="ds"><code>.codex/config.toml</code> · 仓库内 <code>AGENTS.md</code> / <code>CLAUDE.md</code> —— <b>信任边界也在这一层</b></div></div>
+      <div class="lyr"><div class="no">4</div><div class="nm">Profile / 预设</div><div class="ds">Codex <code>--profile</code> 可整套切换视觉配置 —— 对应第一部分的「预设循环 &gt; 拖拽调整」</div></div>
+      <div class="lyr"><div class="no">5</div><div class="nm">命令行 flag</div><div class="ds">最高优先级，且<b>不一定能被带过重启</b>（见下方）</div></div>
+      <div class="lyr gap"><div class="no">6</div><div class="nm">会话内临时改</div><div class="ds"><code>/config</code> · <code>/model</code> · <code>/permissions</code> —— <b>行业空白：临时改动写不写回文件、下次是否还在，各家规则不一致</b></div></div>
+    </div>
+  </div>
+
+  <div class="note d"><b>本窗口最贵的一条配置教训 ——「重启会丢配置」：</b>Claude Code <span class="vb">2.1.234 · 8/17</span> 修了两个同源问题：接受「要不要试试全屏渲染器」后重启，<strong>丢掉了 <code>--dangerously-skip-permissions</code> 等权限模式、工具允许/拒绝规则、模型与 effort 参数</strong>；<code>/tui</code> 也会丢掉启动时传的 <code>--allowed-tools</code>/<code>--disallowed-tools</code>。修复方式很坚决：<strong>凡是带不过去的限制，就拒绝切换并说明原因</strong>（错误名就叫 <code>Cannot switch renderers in this session</code>）。<br><br>对我们的直接含义：<strong>任何「切换视图 / 切换渲染器 / 切主题」的动作，如果实现是 relaunch，就必须先做一次「可携带性检查」，宁可拒绝也不能静默降权。</strong></div>
+
+  <div class="sub">主题系统 · 一条被低估的能力</div>
+  <div class="tw"><table class="tight">
+    <tr><th>产品</th><th>主题机制</th><th>切换方式</th><th>对我们的意义</th></tr>
+    <tr><td>Codex</td><td><strong>syntect 引擎</strong>（与 <code>bat</code> 同源）· 32 套内置 · 支持把 <code>.tmTheme</code> 丢进 <code>$CODEX_HOME/themes/</code></td><td><code>/theme</code> 交互选择器<strong>带实时预览</strong>；也可 <code>tui.theme = "dracula"</code></td><td><strong>复用编辑器生态的主题格式</strong>，等于免费拿到几百套配色；DevKit 若要做主题，不要自创格式</td></tr>
+    <tr><td>opencode</td><td>主题在 <code>tui.json</code></td><td><code>/themes</code> · <kbd>&lt;leader&gt;t</kbd></td><td>主题与键位同文件，换终端一次性搞定</td></tr>
+    <tr><td>Yazi <span class="vb">26.8.15</span></td><td>—</td><td><strong>自动明暗切换</strong>（检测算法本窗口刚调过）+ 主题热重载 DDS 事件供插件监听</td><td>终端背景色会变（白天/夜间 profile），<strong>主题不该只在启动时定一次</strong></td></tr>
+    <tr><td>Claude Code</td><td><code>/theme</code> 对话框（本窗口起可在工作中打开）</td><td>会话内</td><td>—</td></tr>
+  </table></div>
+
+  <div class="note s"><b>给 DevKit 的配置结论：</b>① 采 opencode 的<strong>分家</strong>（UI 配置与运行时配置两个文件，都带 schema）；② 采 Codex 的<strong>结构</strong>（keymap 按 context 分层、解绑用空值、状态栏是有序数组、profile 整套切）；③ 采 Claude Code 的<strong>入口</strong>（会话内可改，且工作中也能改，权限改动立刻对本轮生效）；④ 采 Grok Build 的 <strong><code>inspect</code></strong>（配置来源可追溯——这条对「部署在别人服务器上的工具」尤其重要，因为现场排查成本极高）；⑤ 主题<strong>复用 <code>.tmTheme</code></strong>，不自创格式。</div>
+</section>
+
+<!-- ══════ F5 上下文 ══════ -->
+<section class="floor" id="f5">
+  <div class="fnum">FLOOR 05 · 交互域 03</div>
+  <h2>上下文 · 从「装了多少」到「谁在占、能不能拿走」</h2>
+  <p class="lead">上下文在 2026 年已经不是一个数字，而是一套<strong>可见、可归因、可回收</strong>的资源系统。本窗口三家产品同时在同一个方向上推进：<strong>把上下文变成状态栏里的一等公民</strong>。</p>
+
+  <div class="tw"><table class="tight">
+    <tr><th>触点</th><th>本窗口证据</th><th>判断</th></tr>
+    <tr><td><b>用量可见性</b></td><td>Codex <code>tui.status_line</code> 可把 <code>context_usage</code> 放进状态栏、与 <code>model</code> <code>approval</code> 同级 · Claude Code <code>/context</code> <span class="vb">2.1.229 · 8/12</span> 起在超窗时给<strong>显式警告</strong>，且 <code>/compact</code> 失败会<strong>以错误形态展示</strong>而不是静默</td><td><strong>已成范式。</strong>但只有 Codex 把它做成了「用户可决定是否显示、显示在第几位」</td></tr>
+    <tr><td><b>用量归因</b></td><td>—</td><td><span class="vb d">行业空白</span> 没有一个产品回答「这 60% 里，多少是系统提示、多少是工程索引、多少是工具结果、多少是上一次压缩摘要」</td></tr>
+    <tr><td><b>引用注入</b></td><td>opencode <code>@</code> 模糊搜文件、内容自动进对话，<code>@alias</code> 补全预置引用 · Claude Code <code>@</code> 引用文件与<strong>会话</strong>（<span class="vb">2.1.232 · 8/13</span>）· Gemini CLI <span class="vb">v0.51 · 7/16</span> 改进 at-reference 文件处理并加了大小写不敏感的敏感文件黑名单</td><td>引用是共识；<strong>「引用什么」正在扩张</strong>：文件 → 目录 → 会话 → 人</td></tr>
+    <tr><td><b>作用域扩张</b></td><td>Claude Code <code>/add-dir &lt;path&gt;</code> <span class="vb">2.1.234 · 8/17</span> 起<strong>可在工作中执行</strong>，并新增 <code>DirectoryAdded</code> hook 在其后触发；<span class="vb">2.1.229 · 8/12</span> 修了「目录不存在时 <code>/add-dir</code> 直接失败」</td><td><strong>值得抄：</strong>作用域变更是一个<strong>可被 hook 的事件</strong>，不是一次静默的内部状态修改——DevKit 加一台目标机 / 换一个交叉编译根目录都属于这类</td></tr>
+    <tr><td><b>窗口上限的强制</b></td><td>Claude Code <span class="vb">2.1.229 · 8/12</span>：<code>CLAUDE_CODE_DISABLE_1M_CONTEXT</code> 改成<strong>把所有 1M 模型压到 200K</strong>（靠自动压缩实现），做不到时<strong>启动就给警告</strong>；对无法识别的模型 ID 也按假定窗口执行，可用 <code>CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1</code> 关掉</td><td><strong>本窗口最有工程味的一条。</strong>「上限」不再是提示，而是<strong>被强制执行且失败可见</strong>的约束</td></tr>
+  </table></div>
+
+  <div class="note w"><b>一条容易被忽略的耦合 —— 上下文缓存会被界面事件打穿：</b>Claude Code <span class="vb">2.1.235 · 8/18</span> 修了「language server 中途断开再重连，导致<strong>整个 prompt cache 失效</strong>」；<span class="vb">2.1.234 · 8/17</span> 修了「超长会话中，auto 模式在<strong>压缩之后</strong>反复重新检查沙箱命令的网络访问」。<br><br>含义：<strong>上下文不是只跟对话有关</strong>——LSP 连接、压缩事件、权限判定共用同一份缓存。DevKit 会接编译器、性能计数器、远程主机，这类「外部连接抖动 → 缓存全废 → 成本翻倍」的路径必须在规范里点名。</div>
+</section>
+
+<!-- ══════ F6 压缩 ══════ -->
+<section class="floor" id="f6">
+  <div class="fnum">FLOOR 06 · 交互域 04</div>
+  <h2>对话压缩 · 四种策略，一个共同的 UI 债</h2>
+  <p class="lead">压缩已经从「省 token 的后台动作」变成<strong>会改变用户可见历史的前台动作</strong>。四家做法差别很大，但踩的坑一模一样：<strong>压缩之后，界面显示的东西和模型看到的东西不再是一回事</strong>。</p>
+
+  <div class="tw"><table>
+    <tr><th>策略</th><th>代表</th><th>做法</th><th>取舍</th></tr>
+    <tr><td><b>全量替换 + 结构化交接</b></td><td>Grok Build</td><td>压缩产出一份<strong>九段式 successor brief</strong>：意图 / 涉及文件 / 报错 / 未完成事项 / 下一步等固定分节。压缩提示词里明写：<strong>若更早的轮次里已含上一次压缩摘要，视其为权威</strong></td><td>结构化 = 可校验、可迭代压缩不失真；代价是模板僵硬。<span class="vb o">⚠️ 二手来源，待核查</span></td></tr>
+    <tr><td><b>自动压缩 + 全量 scrollback</b></td><td>Claude Code</td><td>自动压缩；<strong>全屏模式下把每一次压缩之前的完整历史都留在应用内 scrollback 里</strong>（<span class="vb">2.1.216 · 7/20</span>），可反复压缩后仍滚回会话最开头。模型从摘要继续，<strong>人从原文继续</strong></td><td><b>本窗口最值得抄的一条。</b>把「模型的上下文」与「人的可见历史」正式分开，直接消掉了「压缩后我看不到之前说过什么」这个最大抱怨</td></tr>
+    <tr><td><b>远端压缩</b></td><td>Codex <span class="vb">0.147.0 · 8/7</span></td><td>为 Amazon Bedrock 启用<strong>远程会话压缩</strong>与缓存化 web search</td><td>压缩本身成为一项<strong>可被后端接管</strong>的能力——意味着它有延迟、有失败态，必须有 UI</td></tr>
+    <tr><td><b>压缩即重载</b></td><td>Gemini CLI <span class="vb">v0.54 · 8/6</span></td><td>修 <code>/compress</code> 引起的会话重载与 quota-fallback 工具响应丢失</td><td><strong>反面证据</strong>：压缩若实现为「重建会话」，就会丢在途的工具响应</td></tr>
+  </table></div>
+
+  <div class="sub">压缩的 UI 契约 · 5 条（全部有本窗口证据支撑）</div>
+  <div class="ct">
+    <div class="it"><span><b>压缩失败必须是错误，不是静默。</b><span class="vb">CC 2.1.229 · 8/12</span> 把失败的 <code>/compact</code> 显示为错误，并改进了「prompt is too long」的报错去解释<strong>为什么自动压缩没能救回来</strong>。</span></div>
+    <div class="it"><span><b>压缩后的读数必须立刻刷新。</b><span class="vb">CC 2.1.218 · 7/22</span> 修了「从消息选择器触发压缩后，<code>/context</code> 仍报压缩前的陈旧 token 用量」。<strong>用量读数陈旧 = 用户据此做的所有决定都是错的。</strong></span></div>
+    <div class="it"><span><b>人的历史不随模型的上下文一起被砍。</b>见上表 Claude Code 一行。这条应写进 DevKit 的规范作为硬要求。</span></div>
+    <div class="it"><span><b>迭代压缩不能失真。</b>Grok Build 的「把上一次压缩摘要当权威」是对「摘要的摘要的摘要」漂移的直接防御。</span></div>
+    <div class="it"><span><b>压缩会重置周边状态，要显式声明。</b>压缩之后重新触发的沙箱网络复检（<span class="vb">CC 2.1.234</span>）说明：压缩事件会波及权限缓存、LSP 上下文、成本计数。<strong>规范里要列出「压缩会影响哪些状态」的清单。</strong></span></div>
+  </div>
+
+  <div class="note"><b>与第一部分的衔接：</b>第一部分把 Claude Code 的 <strong>rewind 双向摘要</strong>（压前半段 / 压后半段）列为「必抄」。本窗口补上了它的边界：<span class="vb">2.1.216 · 7/20</span> 起 <code>/rewind</code> <strong>不再通过符号链接或硬链接去恢复/删除文件</strong>，并会报告被跳过的路径。<strong>「撤销的覆盖范围要显式告知」这条又多了一个正面实例</strong>——对照第一部分记录的 checkpoint 不覆盖 bash 与 subagent 的假安全感问题。</div>
+</section>
+
+<!-- ══════ F7 代码联动 ══════ -->
+<section class="floor" id="f7">
+  <div class="fnum">FLOOR 07 · 交互域 05</div>
+  <h2>代码联动 · LSP 从「上下文来源」变成「可调用工具」</h2>
+  <p class="lead">这是本窗口<strong>方向性变化最明确</strong>的一域。过去 LSP 在 Agent TUI 里的角色是「悄悄提供符号信息」；现在它开始<strong>作为工具出现在工具列表里，并带自己的预览 UI</strong>。</p>
+
+  <div class="grid g2">
+    <div class="card"><h4>① LSP 工具化 <span class="vb">Crush v0.86 · 7/20</span></h4>
+      <p>新增 <code>lsp_rename</code>、<code>lsp_replace_symbol</code> 两个工具，并配<strong>「fancy diff view」渲染重构预览</strong>。</p>
+      <p class="rule">意义：重构不再是「让模型自己写正则改一堆文件」，而是<strong>调用语言服务器做语义级改名，再把结果作为 diff 给人看</strong>。对 DevKit 的迁移场景（改 intrinsic、换头文件、替换编译选项）这是最直接可移植的一条。</p>
+    </div>
+    <div class="card"><h4>② diff 的数据源要绕开工程配置 <span class="vb">CC 2.1.222 · 8/4</span></h4>
+      <p><code>/diff</code> 视图与文件编辑 diff 改为使用 <strong>raw git blob 内容，忽略 workspace 配置的 diff driver</strong>。</p>
+      <p class="rule">这是一条很硬的工程教训：仓库里配了自定义 diff driver（常见于 lockfile、notebook、二进制），Agent 展示的 diff 就不再是真实字节差异。<strong>审查界面必须绕开一切「美化中间层」。</strong></p>
+    </div>
+    <div class="card"><h4>③ 窄屏会吃掉 diff 的语义 <span class="vb">CC 2.1.216 · 7/20</span></h4>
+      <p>修复「窄布局下 diff 预览丢失行号与 +/− 标记」。</p>
+      <p class="rule">对照第一部分 F5「窄屏无显式降级」的教训：<strong>diff 的降级顺序必须写死</strong>——先丢上下文行，再丢语法高亮，<b>行号与 ± 号永不丢</b>。opencode 的 <code>diff_style: auto | stacked</code> 是这条的可配置版本。</p>
+    </div>
+    <div class="card"><h4>④ 点击路径打开文件 · 以及一次安全决策</h4>
+      <p>Claude Code 全屏模式：<kbd>Cmd</kbd>（macOS）/ <kbd>Ctrl</kbd> + 点击可打开 URL 与<strong>工具输出里的文件路径</strong>（Edit / Write 之后打印的那些）。</p>
+      <p><b>但是</b>：UNC 网络路径（<code>\\server\share\file.ts</code>）<strong>被渲染成纯文本，不做成链接</strong>——因为打开网络路径可能把 Windows 凭据发给该主机。</p>
+      <p class="rule"><strong>「可点」是一项权限决定，不是一项渲染决定。</strong>DevKit 会大量出现远程主机路径，这条必须照抄。</p>
+    </div>
+  </div>
+
+  <div class="sub">⑤ ACP · 编辑器联动的总线正在成形</div>
+  <div class="grid g2">
+    <div class="card"><h4>时间线</h4>
+      <p><span class="vb n">2025-06</span> 协议创建 → <span class="vb n">2025-12</span> JetBrains 内置 → <span class="vb">2026-01-28</span> 与 JetBrains 合推公共 agent registry → <span class="vb">2026-01</span> GitHub Copilot CLI 支持 → <span class="vb">2026-03</span> 25+ agent 采用 → <span class="vb">2026-04-29</span> 成为 Zed 1.0 的头号特性。Neovim / Emacs / VS Code 走社区插件；Claude Code 经 Zed 做的桥接适配器接入。<span class="vb o">〔二手〕</span></p>
+    </div>
+    <div class="card"><h4>为什么这对 TUI 设计很重要</h4>
+      <p>Grok Build 的做法把结论摆明了：<strong>TUI 是协议上的一个客户端，不是产品的全部</strong>。由此得到一条很硬的设计约束——<b>权限确认不能是「TUI 里的一个模态 hack」，必须是协议上可见、任何客户端都能渲染的决策。</b></p>
+      <p class="rule">DevKit 的直接含义：即使我们第一版只做 TUI，<strong>权限、计划批准、diff 审查这三类交互的「数据结构」也要独立于渲染层定义</strong>，否则以后接 IDE 或 Web 面板要重做一遍。</p>
+    </div>
+  </div>
+
+  <div class="sub">⑥ 并行改代码：worktree 成为标配</div>
+  <div class="tw"><table class="tight">
+    <tr><th>产品</th><th>做法</th><th>启示</th></tr>
+    <tr><td>Grok Build</td><td>专门的 <code>xai-fast-worktree</code> 组件，<strong>子 agent 在隔离 checkout 上并行工作</strong>，避免文件冲突；配 <code>xai-grok-workspace</code> 做文件系统/VCS 抽象 <span class="vb o">⚠️〔二手〕</span></td><td>并行子 agent 的前提是<strong>文件系统隔离</strong>，不是调度</td></tr>
+    <tr><td>Claude Code</td><td><span class="vb">2.1.212 · 7/17</span> 修「worktree 创建会跟随仓库中提交的 <code>.claude/worktrees</code> 符号链接」</td><td>worktree 路径是<strong>攻击面</strong>，仓库内容不能决定 worktree 落在哪</td></tr>
+    <tr><td>lazygit <span class="vb">v0.63.x</span></td><td><kbd>w</kbd> 在分支/提交/stash 面板上<strong>直接从选中项建 worktree</strong>，不再弹确认菜单</td><td>「选中即操作」的成熟范例，对应第一部分 M5 选中联动</td></tr>
+  </table></div>
+</section>
+
+<!-- ══════ F8 图标 ══════ -->
+<section class="floor" id="f8">
+  <div class="fnum">FLOOR 08 · 交互域 06</div>
+  <h2>图标与字符资产 · 一个字形宽了一格，整个界面就歪了</h2>
+  <p class="lead">GUI 里图标是装饰，TUI 里图标是<strong>会占格子的字符</strong>。这一域的全部难点可以压成一句话：<strong>display width ≠ 字节数 ≠ 码点数</strong>，而布局引擎只认 cell。</p>
+
+  <div class="sub">三档字符资产及其降级链</div>
+  <div class="stack">
+    <div class="lyr"><div class="no">T1</div><div class="nm">Nerd Font 图标</div><div class="ds">3600+ 字形（Font Awesome / Devicons / Octicons / Material）。<b>必须用 Mono 变体</b>——它保证每个字形恰好占一个 cell，否则图标会撑破列对齐。也可保留自己的字体、只装 SymbolsOnly 变体走系统 fallback（Linux 上需手工装 <code>10-nerd-font-symbols.conf</code>）</div></div>
+    <div class="lyr gap"><div class="no">T2</div><div class="nm">Emoji</div><div class="ds">几乎所有终端都有，但<b>宽度不可靠</b>：多数是双宽，部分是单宽，ZWJ 组合序列各终端算法不一致。Claude Code <span class="vb">2.1.233 · 8/14</span> 就修过「长预览在 emoji 中间被截断产生乱码字符」</div></div>
+    <div class="lyr"><div class="no">T3</div><div class="nm">ASCII / Box Drawing</div><div class="ds">永远可用的底线。lazygit <span class="vb">v0.63.x</span> 把提交图换成<b>兼容性更好的 Unicode 符号</b>，正是这一层的现实主义选择</div></div>
+  </div>
+
+  <div class="sub">本窗口的三条具体证据</div>
+  <div class="grid g3">
+    <div class="card"><h4>图标要进对话框 <span class="vb">Yazi 26.8.15 · 8/15</span></h4>
+      <p>两个小改动方向一致：<strong>输入框有了上下文相关图标</strong>；<strong>trash / delete / overwrite 确认框里带上了文件图标</strong>。</p>
+      <p class="rule">高风险确认框里放<strong>被操作对象的图标</strong>，是把「你正在删的到底是什么」变成一眼可辨。DevKit 的高风险确认（覆盖源码、重跑编译、改远程机器配置）应照此办理。</p>
+    </div>
+    <div class="card"><h4>宽度计算要贯穿到截断 <span class="vb">pi-tui</span></h4>
+      <p><code>visibleWidth()</code> 忽略 ANSI 转义算显示宽度；<code>truncateToWidth()</code> <strong>在截断时保留 ANSI 并补省略号</strong>。宽字符按显示宽度而非字节长度处理。</p>
+      <p class="rule">这正是我们 <code>UI-SPEC.md</code> 里 CJK / emoji / Braille display width 规则要对齐的实现形态：<strong>宽度函数是基础设施，不是某个组件的私有工具。</strong></p>
+    </div>
+    <div class="card"><h4>一格之差会传染 <span class="vb">CC 2.1.233 · 8/14</span></h4>
+      <p>同一版修了两条：<strong>内容尺寸的浮层在文本被截断时会多渲染一列</strong>；长 shell 命令或 agent 描述预览<strong>在 emoji 中间截断产生乱码</strong>。</p>
+      <p class="rule">两条同源：<strong>「测量」和「绘制」用了不同的宽度口径</strong>。规范里必须规定：measure 与 render 共用同一个宽度函数，任何组件不得自行实现。</p>
+    </div>
+  </div>
+
+  <div class="note w"><b>给 DevKit 的图标决策：</b>DevKit 跑在鲲鹏 Linux 服务器上、经常是 <code>ssh</code> 进去的裸终端，<strong>不能假设有 Nerd Font</strong>。建议：① 图标定义为<strong>三档 token</strong>（nerdfont / emoji / ascii），与第一部分的渲染分档（braille / block / tty）同构、同一个 capability 探测结果驱动；② 默认档位<strong>按探测结果自动选择</strong>，并允许在 <code>tui.json</code> 里锁死；③ <strong>任何图标都不得承载唯一语义</strong>——去掉图标后信息必须完整（这条同时满足 <code>NO_COLOR</code> 与屏幕阅读器场景）。</div>
+</section>
+
+<!-- ══════ F9 左树 ══════ -->
+<section class="floor" id="f9">
+  <div class="fnum">FLOOR 09 · 交互域 07</div>
+  <h2>左树与空间结构 · 一个反直觉的事实</h2>
+  <p class="lead">先给结论：<strong>2026 年 8 月，主流 AI Agent TUI 里没有一个把「常驻左侧文件树」作为默认布局。</strong>这不是没做完，是主动放弃——它们用<strong>模糊搜索取代了空间浏览</strong>。</p>
+
+  <div class="grid g2">
+    <div class="card"><h4>AI 派的现状</h4>
+      <div class="wf">
+        <div class="row">
+          <div class="z sh fx" style="flex:0 0 22%">Sidebar<br>（可选 · 默认关）</div>
+          <div class="z hi">对话流 · 全宽</div>
+        </div>
+        <div class="row" style="flex:0 0 26%"><div class="z sh">输入区（固定底部）</div></div>
+        <div class="row" style="flex:0 0 14%"><div class="z dash">status / keybar</div></div>
+      </div>
+      <div class="wfcap">opencode：侧栏 <b>&lt;leader&gt;b</b> 才出来，且在<b>右侧</b>；Crush：右栏，v0.86 起可滚动可聚焦（<b>j/k/g/G</b>）；Claude Code：<b>没有树</b></div>
+      <p>三家的共同选择是：<strong>把整块横向空间给对话流，文件靠 <code>@</code> 模糊搜索按需拉进来</strong>。opencode 的侧栏和 Crush 的侧栏都在右侧、都不承载文件浏览的主任务。</p>
+    </div>
+    <div class="card"><h4>文件管理派的现状</h4>
+      <div class="wf">
+        <div class="row">
+          <div class="z sh fx" style="flex:0 0 20%">父目录</div>
+          <div class="z hi fx" style="flex:0 0 34%">当前目录</div>
+          <div class="z fx" style="flex:1">预览（可为 pixel）</div>
+        </div>
+        <div class="row" style="flex:0 0 16%"><div class="z dash">which / keybar</div></div>
+      </div>
+      <div class="wfcap">Yazi：Miller 三列，第一部分已判定为 Hybrid 分辨率代表；superfile <b>v1.6.0</b>：侧栏分区<b>可隐藏、可重排，写在配置里</b></div>
+      <p>lazygit 是第三种：<strong>左栏是「上下文列表」而非文件树</strong>（分支 / 提交 / stash / worktree 各占一档），右侧主区随选中项联动——第一部分已把它列为选中联动的标杆。</p>
+    </div>
+  </div>
+
+  <div class="sub">三种「找到东西」的范式</div>
+  <div class="tw"><table class="tight">
+    <tr><th>范式</th><th>代表</th><th>成立条件</th><th>失效场景</th></tr>
+    <tr><td><b>空间浏览</b>（树 / Miller）</td><td>Yazi · superfile · lf</td><td>用户<strong>知道大概在哪</strong>，且层级稳定</td><td>单仓十万文件；或用户根本不知道文件叫什么</td></tr>
+    <tr><td><b>模糊搜索</b>（@ / fzf / 命令面板）</td><td>全部 AI TUI · television 的 channels · k9s 的 <code>:</code></td><td>用户<strong>知道名字片段</strong></td><td>「我不知道要找什么，我想看看这个模块里有啥」——<b>这正是 DevKit 迁移场景的常态</b></td></tr>
+    <tr><td><b>结果驱动</b>（列表即入口）</td><td>lazygit 左栏 · k9s 栈式下钻</td><td>存在<strong>天然的实体列表</strong>（分支 / Pod / 文件风险项）</td><td>无天然列表的自由探索</td></tr>
+  </table></div>
+
+  <div class="note s"><b>给 DevKit 的判断（与主流分歧的一条）：</b>AI 派放弃左树是<strong>合理的，但不完全适用于我们</strong>。它们面对的是「我知道要改哪个文件」的日常编码；DevKit 面对的是<strong>「一个陌生的百万行 C 工程要迁到 ARM，我不知道风险在哪」</strong>——用户根本给不出文件名片段，模糊搜索这条路是断的。<br><br>但也不能退回成「文件资源管理器」。正确形态是第三种：<strong>结果驱动的树</strong>——树的节点不是目录结构，而是<strong>风险项 / 待改项 / 编译失败项</strong>（对应第一部分记录的「文件风险热力一眼定位到 crypto.c」）。它同时满足两件事：有天然实体列表可供 lazygit 式选中联动；且不需要用户先知道名字。<br><br>三条具体要求：① 树是<strong>可折叠、非默认常驻</strong>的（默认把宽度给对话流，一个键唤出）；② 树的分区<strong>可隐藏可重排</strong>（照 superfile v1.6.0）；③ 树的选中<strong>驱动右侧主区</strong>（照 lazygit），而不是只做一次跳转。</div>
+</section>
+
+<!-- ══════ F10 对白 ══════ -->
+<section class="floor" id="f10">
+  <div class="fnum">FLOOR 10 · 交互域 08</div>
+  <h2>对白 · 对话流的呈现，与打断对话的对话框</h2>
+  <p class="lead">「对白」在 TUI 里其实是两件事：<strong>A. 消息流怎么渲染</strong>（连续、可滚、可折叠、可搜索），<strong>B. 模态对话框怎么插进来</strong>（权限、选择、确认）。本窗口这两件事都出了大量可引用的教训——尤其 B，密度惊人。</p>
+
+  <div class="sub">A · 对话流的呈现</div>
+  <div class="tw"><table class="tight">
+    <tr><th>触点</th><th>本窗口证据</th><th>规则</th></tr>
+    <tr><td><b>流式性能</b></td><td>Claude Code <span class="vb">2.1.232 · 8/13</span>：改进全屏流式，<strong>长会话不再在每次更新时把整个对话重新规范化一遍</strong>；<span class="vb">2.1.216 · 7/20</span> 修「长会话中消息规范化成本呈二次增长」。opencode 把 <strong>markdown 解析移出主线程</strong></td><td><strong>渲染成本必须与「新增内容」成正比，不能与「历史长度」成正比。</strong>这是长会话可用性的分水岭</td></tr>
+    <tr><td><b>工具卡片</b></td><td><span class="vb">CC 2.1.210 · 7/14</span> 折叠的工具摘要行加了<strong>实时计时器</strong>（长工具会「看得见地走动」而不是像卡死），且计时器<strong>调暗</strong>以免与加粗计数抢注意力。全屏下<strong>点击折叠的工具结果即可展开</strong>，且工具调用与结果一起展开</td><td>① 进行中必须有<strong>时间维度</strong>的证据；② 新增信息不得抢占既有信息的视觉层级</td></tr>
+    <tr><td><b>思考过程</b></td><td>第一部分已判定「默认一行摘要可展开」。本窗口补充：Claude Code 在 VSCode 侧的折叠显示 <code>Thought for Ns</code> 并<strong>在本轮结束时自动重新折叠</strong>；Gemini CLI <span class="vb">v0.55.1 · 8/11</span> 在剥离 thought 部分时<strong>保留 functionCall 的 thoughtSignature</strong></td><td>「折叠」是显示层动作，<strong>不能连带丢掉模型协议需要的字段</strong></td></tr>
+    <tr><td><b>Markdown 渲染</b></td><td><span class="vb">CC 2.1.235 · 8/18</span>：修<strong>三级以上嵌套列表错位</strong>，并给折行的列表项加<strong>悬挂缩进</strong>。<span class="vb">2.1.208 · 7/14</span>：超大 markdown 表格会拖垮渲染或吃爆内存，改为<strong>&gt;200 行只显示前 200 行 + 「… 还有 N 行」</strong>。<span class="vb">2.1.229 · 8/12</span>：极窄终端下渲染进度条或 markdown 表格会 <code>RangeError</code> 崩溃</td><td><b>三条硬规则：</b>① 嵌套缩进与折行悬挂缩进要一起定义；② <strong>任何无界内容都要有截断上限 + 明确的省略提示</strong>；③ 极窄宽度是<strong>崩溃级</strong>输入，必须有下限保护</td></tr>
+    <tr><td><b>极简视图</b></td><td>Claude Code <code>/focus</code>：只显示你的最后一条 prompt、工具调用的一行摘要（含编辑 diffstat）、以及最终回复；设置<strong>跨会话持久</strong></td><td>第一部分已收；本窗口补上「持久化」这条——<strong>视图密度是用户的长期偏好，不是一次性开关</strong></td></tr>
+    <tr><td><b>搜索与交还</b></td><td>全屏下 <kbd>Ctrl+O</kbd> 进 transcript 模式，得到 <code>less</code> 风格导航：<kbd>/</kbd> 搜索、<kbd>n</kbd>/<kbd>N</kbd> 跳转、<kbd>{</kbd>/<kbd>}</kbd> <strong>在 prompt 之间跳</strong>、<kbd>g</kbd>/<kbd>G</kbd>、<kbd>Ctrl+U/D/B/F</kbd>。<kbd>[</kbd> 把整段对话<strong>展开写回终端原生 scrollback</strong>，<kbd>v</kbd> 写临时文件并用 <code>$VISUAL</code>/<code>$EDITOR</code> 打开</td><td>第一部分把 <kbd>[</kbd> 列为「必抄」。本窗口补上更完整的形态：<strong><kbd>{</kbd>/<kbd>}</kbd> 按 prompt 跳转</strong>是对话流特有的导航单位——DevKit 应有等价的「按任务跳转」</td></tr>
+  </table></div>
+
+  <div class="sub">B · 对话框 · 本窗口密度最高的一组教训</div>
+  <div class="ct">
+    <div class="it"><span><b>对话框文案必须与它实际授予的权限完全一致。</b><span class="vb">CC 2.1.229 · 8/12</span> 与 <span class="vb">2.1.235 · 8/18</span> 连续两版改进：权限对话框的显示文本与「不再询问」选项<strong>必须与授权范围匹配</strong>；<strong>当内容无法完整显示时，直接不给「不再询问」这个选项</strong>。</span></div>
+    <div class="it"><span><b>看不全就不许永久授权。</b>上一条的后半句值得单独立为一条规则。它比任何「请仔细阅读」都有效。</span></div>
+    <div class="it"><span><b>对话框里的隐藏字符是攻击面。</b><span class="vb">CC 2.1.223 · 8/6</span> 修「用制表符或不可见 Unicode 填充的命令可以把一部分内容藏出批准对话框之外」；<span class="vb">2.1.221 · 8/4</span> 修「转发到聊天频道的权限预览未中和<strong>双向覆写字符、零宽字符、形近引号</strong>」。</span></div>
+    <div class="it"><span><b>连按会选错项。</b><span class="vb">CC 2.1.235 · 8/18</span>：对话框里方向键与 Enter<strong>快速连按</strong>时，会选中「之前高亮的那一项」而不是刚导航到的那一项。<strong>这是一个纯竞态 bug，但后果是误批准。</strong></span></div>
+    <div class="it"><span><b>子控件的键位不能溢出成主操作。</b><span class="vb">CC 2.1.235 · 8/18</span>：在权限对话框的<strong>备注输入框里按 <kbd>Shift+Tab</kbd> 会直接批准这次编辑</strong>，而不是关闭该输入框。</span></div>
+    <div class="it"><span><b>对话框不得越界。</b><span class="vb">CC 2.1.232 · 8/13</span>：全屏模式下对话框<strong>会伸出终端右边缘</strong>；同版还修了 <code>/config</code> 设置列表<strong>裁掉底部键位提示</strong>。<span class="vb">2.1.234 · 8/17</span>：<code>/model</code> 选择器<strong>画得比终端还高</strong>，改为只显示装得下的部分、其余可滚。</span></div>
+    <div class="it"><span><b>信任对话框要点名它覆盖的根目录。</b><span class="vb">CC 2.1.216 · 7/20</span> 起信任对话框会说明授权覆盖到哪个仓库根；<span class="vb">2.1.232 · 8/13</span> 起<strong>嵌套 git 仓库不再从父目录继承信任</strong>，每个仓库要单独确认。</span></div>
+    <div class="it"><span><b>对话框要能在 Agent 工作中打开。</b><span class="vb">CC 2.1.234 · 8/17</span>：<code>/add-dir</code> <code>/autocompact</code> <code>/theme</code> <code>/help</code> <code>/config</code> <code>/advisor</code> 全部可在全屏 TUI 中途打开；<code>/permissions</code> 改完立刻对本轮剩余部分生效。<strong>模态不必等待 Agent 空闲</strong>。</span></div>
+    <div class="it"><span><b>启动期的第一次按键不能被当成批准。</b><span class="vb">CC 2.1.237 · 8/20</span>：托管设置的批准提示<strong>有时不显示，却把第一次按键当成了批准</strong>。与 F3 里 Codex 的「启动缓冲输入误触发提示」是同一类问题。</span></div>
+  </div>
+
+  <div class="note d"><b>把这九条压成一句写进规范：</b>在 TUI 里，<strong>对话框是唯一一个「用户按一个键就产生不可逆后果」的组件</strong>。所以它的验收条件应该比任何其他组件都严：文案与授权范围一致 · 显示不全就降级为一次性授权 · 输入内容做双向覆写与零宽字符中和 · 导航与确认之间有竞态保护 · 子控件键位不溢出 · 永不越界且键位提示永不被裁 · 明确声明作用域 · 可在工作中打开 · 启动窗口期不接受确认键。</div>
+</section>
+
+<!-- ══════ F11 会话 ══════ -->
+<section class="floor" id="f11">
+  <div class="fnum">FLOOR 11 · 交互域 09</div>
+  <h2>项目与会话管理 · 从「一次对话」到「一批可归档的工作」</h2>
+  <p class="lead">这是本窗口<strong>新增能力最多</strong>的一域。三个月内，AI TUI 的会话模型从「新建 / 恢复 / 清空」扩张到了<strong>分叉 · 分区 · 归档 · 后台 · 跨会话通信 · 多客户端共享</strong>。</p>
+
+  <div class="tw"><table>
+    <tr><th>能力</th><th>Claude Code</th><th>Codex</th><th>opencode</th><th>Crush / 其他</th></tr>
+    <tr><td><b>恢复</b></td><td><code>/resume</code>；<span class="vb">2.1.212 · 7/17</span> 起在 agent view 里 <code>/resume</code> 打开<strong>历史会话选择器（含已删除的）</strong>并以后台会话恢复</td><td><span class="vb">0.148.0 · 8/18</span> resume 与 fork 的<strong>进度在启动过程中就显示</strong>；恢复的会话<strong>连工作目录与审批策略一起还原</strong></td><td><kbd>&lt;leader&gt;l</kbd> 会话列表 · <kbd>&lt;leader&gt;g</kbd> 会话时间线</td><td>Crush 退出时给一张 splash，<strong>直接告诉你怎么接回刚才那个会话</strong></td></tr>
+    <tr><td><b>分叉</b></td><td><span class="vb">2.1.212 · 7/17</span> <code>/fork</code> 改为<strong>把对话复制进一个新的后台会话，你可以继续干活</strong>；会话没标题时用你的 prompt 命名副本；原来的会话内子 agent 改名 <code>/subtask</code></td><td><span class="vb">0.148.0</span> <code>codex exec fork</code></td><td>—</td><td>—</td></tr>
+    <tr><td><b>归档 / 分区</b></td><td>—</td><td><span class="vb">0.148.0</span> resume picker 里<strong>归档与恢复</strong>；<span class="vb">0.147.0 · 8/7</span> <strong>会话分区（sections）：可持久、可手工排序</strong>，并支持增量浏览超长 transcript</td><td>—</td><td>—</td></tr>
+    <tr><td><b>父子会话</b></td><td>agent view + <code>/tasks</code>；等待输入的后台会话显示为 <strong>Needs input</strong> 而非 Working（<span class="vb">2.1.212</span>）</td><td>—</td><td><strong>原地导航仍是最好的</strong>：<kbd>&lt;leader&gt;↓</kbd> 进第一个子会话 · <kbd>→</kbd>/<kbd>←</kbd> 循环 · <kbd>↑</kbd> 回父</td><td>—</td></tr>
+    <tr><td><b>跨会话通信</b></td><td><span class="vb">2.1.232 · 8/13</span> <code>@</code> 点名另一个会话直接发消息；<code>/config</code> 新增 <strong>Dialog expiry</strong> 与<strong>收信策略（接受 / 挂起 / 拒绝）</strong>；同机的交互式会话<strong>保证名字唯一</strong>（重名自动加 <code>-word-word</code> 后缀）</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td><b>多客户端共享</b></td><td>Remote Control / cloud session</td><td>—</td><td>—</td><td><b>Grok Build 的 leader 模式</b>：一个长活 agent 进程接<strong>多个客户端</strong>，UI 断开不杀会话，可在多个 pane 里分工而不产生重复 agent，权限上下文统一 <span class="vb o">⚠️〔二手〕</span></td></tr>
+    <tr><td><b>导出</b></td><td><kbd>Ctrl+O</kbd> → <kbd>[</kbd> 写回 scrollback / <kbd>v</kbd> 写文件开编辑器</td><td><span class="vb">0.148.0</span> <code>/export</code> <strong>导出完整 TUI 对话为 Markdown</strong>（到剪贴板或文件）</td><td><code>/export</code> 导出 Markdown</td><td>—</td></tr>
+  </table></div>
+
+  <div class="note d"><b>一个必须记住的失败案例 —— 会话身份认错项目：</b>Claude Code <span class="vb">2.1.224 · 8/7</span> 修复：<strong>超过 200 字符的长项目路径，会在共享的「清洗后前缀」下解析到另一个项目的会话目录</strong>；同版一并修正了会话列表、重命名、fork、删除、<code>/resume</code> <strong>跨项目串台</strong>的问题。<br><br>DevKit 的路径只会更长（远程主机 + 交叉编译根 + worktree + 多目标架构）。<strong>会话身份必须用稳定 ID，绝不能用「路径清洗后的字符串」做主键。</strong></div>
+
+  <div class="note s"><b>给 DevKit 的会话模型建议：</b>把「一次迁移任务」当作<strong>项目</strong>，而不是把「一次对话」当作项目。一个迁移项目下天然有多条并行线（分析 / 改代码 / 编译 / 调优 / 出报告），对应 Codex 的 <strong>sections</strong>（可持久可排序的分区）+ Claude Code 的 <strong>fork 到后台</strong>（不打断当前工作）+ opencode 的<strong>父子原地导航</strong>。<strong>归档能力必须第一版就有</strong>——迁移项目周期以周计，会话列表三天就会塞满。</div>
+</section>
+
+<!-- ══════ F12 补充场景 ══════ -->
+<section class="floor" id="f12">
+  <div class="fnum">FLOOR 12 · 交互域 10–12</div>
+  <h2>需求没点名、但同样是 TUI 一等场景的 8 件事</h2>
+  <p class="lead">下面这八件事在 GUI 里要么不存在，要么是浏览器/系统替你做完的。<strong>在 TUI 里它们全都要产品自己做，而且做不好会直接毁掉可用性。</strong>本窗口每一件都有可引用的新证据。</p>
+
+  <div class="sub">① 中断与排队 —— Esc 是本产品最重要的一个键</div>
+  <p>第一部分已判定「Esc 必须始终可达」。本窗口补的是它的<strong>状态机</strong>：<span class="vb">CC 2.1.234 · 8/17</span> 修「选中排队消息时按 Esc 会误中断本轮」；<span class="vb">2.1.236 · 8/19</span> 改为<strong>全屏下 Esc 不再清除鼠标选区，但仍然中断/关闭对话框</strong>；<span class="vb">2.1.216 · 7/20</span> 修「长会话且有后台任务时，空闲提示符下连按两次 Esc 打不开 rewind 选择器」。
+  <span class="vb">2.1.218 · 7/22</span> 还修了一个更凶的：<strong>按左箭头会在无撤销的情况下丢弃整个对话</strong>——修法是改成先弹确认。</p>
+  <div class="rule"><b>规则：</b>Esc 的行为是 <code>(当前焦点, 是否有选区, 是否有队列, 是否在跑)</code> 的函数，必须在规范里画成完整状态表；<strong>任何「一个键即不可逆丢失」的路径都要加确认</strong>。</div>
+
+  <div class="sub">② 鼠标捕获 vs 终端原生选择 —— 一个必须给逃生舱的取舍</div>
+  <p>这是第一部分 F1「全屏接管破坏终端原生复制」的正面解法，而且被做到了很完整的程度。Claude Code 全屏模式提供<strong>三档</strong>：</p>
+  <div class="tw"><table class="tight">
+    <tr><th>档位</th><th>开关</th><th>保留</th><th>失去</th></tr>
+    <tr><td>全捕获（默认）</td><td>—</td><td>点击定位光标 · 点击展开工具结果 · 点击选项 · 拖选（松手自动复制）· 双击选词（按 iTerm2 词边界，路径算一个整体）· 三击选行 · <kbd>Shift+方向键</kbd> 键盘扩展选区 · 滚轮</td><td>终端原生 copy-on-select</td></tr>
+    <tr><td>只保留滚轮</td><td><code>CLAUDE_CODE_DISABLE_MOUSE_CLICKS=1</code></td><td>滚轮 / 触控板滚动</td><td>左键点击类交互</td></tr>
+    <tr><td>完全放弃鼠标</td><td><code>CLAUDE_CODE_DISABLE_MOUSE=1</code></td><td>无闪烁渲染 + 内存恒定 + 键盘滚动</td><td>点击定位 / 展开 / 链接 / 滚轮</td></tr>
+  </table></div>
+  <p>更值得抄的是<strong>「一次性原生选择」的按键因终端而异</strong>：Terminal.app 用 <kbd>Fn</kbd>、iTerm2 用 <kbd>Option</kbd>、VS Code 系用 <kbd>Shift</kbd>、其余多数 <kbd>Shift</kbd>；<strong>产品会在屏幕提示里显示正确的那个键</strong>，而在 SSH / tmux 下探测不到时<strong>就把候选键都列出来</strong>。剪贴板通路也分场景：本地走 <code>pbcopy</code>/<code>wl-copy</code>/<code>xclip</code>/<code>Set-Clipboard</code>，tmux 里额外写 tmux buffer，SSH 下退回 <strong>OSC 52</strong>，并且<strong>每次复制后弹一条提示告诉你走的是哪条路</strong>。</p>
+  <div class="note w"><b>DevKit 直接适用：</b>我们的主场景就是 <code>ssh</code> 到鲲鹏服务器，很可能还套着 tmux。<strong>「复制走了哪条路」的提示、以及探测不到终端时列出候选键，这两条必须抄。</strong>OSC 52 还有一层坑：部分终端默认禁用（iTerm2 要手工打开剪贴板访问）。</div>
+
+  <div class="sub">③ 滚动与自动跟随 —— 长任务的核心体验</div>
+  <p>Agent 会连续输出几分钟，滚动就成了主要交互。Claude Code 的做法完整到可以直接当规范抄：</p>
+  <div class="ct">
+    <div class="it"><span><b>向上滚动即暂停自动跟随</b>，新输出不再把你拽回底部；一个浮动的 <code>Jump to bottom</code> 按钮出现，并显示 <code>3 new messages</code> 这样的计数。</span></div>
+    <div class="it"><span><b>按钮的键盘提示随「你的键盘能送出什么」而变</b>：MacBook 键盘发不出 <kbd>Ctrl+Fn+→</kbd>，所以提示改成「点击」或 <kbd>Fn+↓</kbd>；重绑 <code>scroll:bottom</code> 后按钮显示你的组合键。<b>终端太窄时按钮缩短文案，而不是折行压到下面那行内容上。</b></span></div>
+    <div class="it"><span><b>滚动速度是可调的一等设置</b>：<code>CLAUDE_CODE_SCROLL_SPEED</code>（0.25–20），<code>/scroll-speed</code> 打开一个<strong>带尺子、可以边滚边感受</strong>的对话框，<kbd>←</kbd>/<kbd>→</kbd> 调、<kbd>r</kbd> 恢复自动探测值。另有 <code>wheelScrollAccelerationEnabled</code> 关掉快速滚动加速。</span></div>
+    <div class="it"><span><b>宿主差异要单独处理</b>：JetBrains 终端事件速率高得多，直接忽略全局倍率并自适应；2025.2 版本已知的滚轮 bug（产生虚假方向键、方向反了）由产品在运行时探测并绕开，还会在你第一次滚动时给一次提示。</span></div>
+  </div>
+  <div class="rule"><b>规则：</b>滚动不是「终端的事」——一旦进了 alt-screen，<strong>滚动的手感、速度、加速曲线、跟随策略全部变成产品责任</strong>，且必须按宿主差异分别校准。</div>
+
+  <div class="sub">④ 注意力与通知 —— Agent 会等你，你不会一直盯着</div>
+  <div class="tw"><table class="tight">
+    <tr><th>产品</th><th>做法</th></tr>
+    <tr><td>opencode</td><td>专门的 <code>attention</code> 配置：<strong>提问 / 权限请求 / 会话事件</strong>三类触发桌面通知与提示音，<strong>音量可调、支持自定义音效包</strong></td></tr>
+    <tr><td>Codex</td><td><code>tui.notifications</code>（布尔或数组，可按类型筛）；<code>tui.terminal_title</code> 可放 <code>spinner</code>，用终端标题栏当状态指示</td></tr>
+    <tr><td>Claude Code</td><td>后台 agent 等待输入时，agent view 页脚提示<strong>在计数变化时用颜色强调</strong>（<span class="vb">2.1.216 · 7/20</span>）；<code>/goal</code> 空闲会话 <span class="vb">2.1.234 · 8/17</span> 起<strong>按 30 分钟 → 1 小时 → 2 小时的退避自动来汇报</strong>，不再无限期挂着</td></tr>
+    <tr><td colspan="2"><b>反面细节：</b><span class="vb">CC 2.1.236 · 8/19</span> 修了「tmux + iTerm 集成下终端标签标题不停跳动」——原因是<strong>每 960ms 就写一次标题做动画</strong>，改为<strong>只在文本真正变化时才写</strong>。<span class="vb">2.1.212</span> 也更新过终端标题的忙碌 spinner 字形以减少标签栏抖动。<b>把终端标题当动画区是错的，它是别人的 UI。</b></td></tr>
+  </table></div>
+
+  <div class="sub">⑤ 无障碍 —— 本窗口新出现的一整条产品线</div>
+  <p>Claude Code <span class="vb">2.1.208 · 7/14</span> 引入屏幕阅读器模式（<code>claude --ax-screen-reader</code> / <code>CLAUDE_AX_SCREEN_READER=1</code> / <code>"axScreenReader": true</code>），随后持续打磨：</p>
+  <div class="ct">
+    <div class="it"><span>修「每次退格都重读整行输入」——改为行尾删除时<strong>只回显被删掉的字符</strong>（<span class="vb">2.1.208</span>）。</span></div>
+    <div class="it"><span><span class="vb">2.1.217 · 7/21</span> 为按词/按行删除（<kbd>Option+Delete</kbd> <kbd>Ctrl+W</kbd> <kbd>Cmd+Backspace</kbd> <kbd>Ctrl+U</kbd> <kbd>Ctrl+K</kbd>）<strong>播报被删除的文本</strong>。</span></div>
+    <div class="it"><span><span class="vb">2.1.229 · 8/12</span> 屏幕阅读器模式下 <code>/effort</code> 选择器<strong>改渲染成带编号的列表 + 输入数字</strong>，而不是靠方向键在高亮之间移动。</span></div>
+    <div class="it"><span><b>最关键的一条架构决定：</b>屏幕阅读器模式下<strong>强制使用经典渲染器</strong>（alt-screen 全屏对屏幕阅读器不友好），只有 attach 上去的后台会话例外；此时执行 <code>/tui fullscreen</code> 会<strong>打印解释而不切换，也不改动已保存设置</strong>。</span></div>
+  </div>
+  <div class="rule"><b>规则：</b>无障碍不是「加 ARIA 标签」，在 TUI 里它是<strong>一条平行的渲染路径 + 一套平行的控件形态</strong>（列表用编号、选择用输入数字、删除要播报）。这条与我们 <code>UI-SPEC.md</code> 里的「纯键盘降级」要合并考虑。</div>
+
+  <div class="sub">⑥ 终端能力协商与降级 —— 我们与宿主的谈判协议</div>
+  <div class="tw"><table class="tight">
+    <tr><th>能力</th><th>怎么协商</th><th>协商失败怎么办</th></tr>
+    <tr><td>同步输出 <code>CSI ?2026</code></td><td>启动时探测；pi-tui <strong>把每一次更新都包在 <code>\x1b[?2026h ... l</code> 里</strong>，主屏与 alt-screen 都包</td><td><strong>tmux 3.6 及以前不实现同步输出</strong> → 会看到更多闪烁；产品的建议是升级 tmux 或不要在 tmux 里跑</td></tr>
+    <tr><td>Kitty 键盘协议</td><td>pi-tui 启动时协商，用于区分 Esc / Alt 与拿 key-release</td><td>回退到普通键序解析，部分组合键不可用 → <strong>提示文案要跟着变</strong></td></tr>
+    <tr><td>图形协议</td><td>Kitty graphics / iTerm2 inline images</td><td>降级为<strong>文字占位</strong>；<b>alt-screen 下 iTerm2 协议一律占位</b>——该协议缺少删除与裁剪，重绘视口会出错</td></tr>
+    <tr><td>增量重绘</td><td>只发生变化的 cell</td><td><strong>ConPTY 系（Windows Terminal 等）会把定位写入合并错，留下上一帧残影</strong> → <code>CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT=1</code> 改为每帧全量重绘；Windows 上后台会话与 agent view 已默认开启</td></tr>
+    <tr><td>鼠标上报</td><td>终端需转发鼠标事件</td><td>iTerm2 是 per-profile 开关（关着时滚轮无效但 PgUp/PgDn 有效）；tmux 需 <code>set -g mouse on</code>，<strong>产品检测到 tmux 未开鼠标会在启动时给一次性提示</strong></td></tr>
+    <tr><td>整体兜底</td><td>—</td><td><span class="vb">CC 2.1.237 · 8/20</span>：<strong>全屏渲染器启动失败一次后不再永久失败，而是回落到经典渲染器</strong></td></tr>
+  </table></div>
+  <div class="note w"><b>已知不兼容也要写进规范：</b>全屏渲染与 <strong>iTerm2 的 tmux 集成模式（<code>tmux -CC</code>）不兼容</strong>——该模式下 iTerm2 把每个 tmux pane 渲染成原生分屏，alt-screen 与鼠标跟踪都不正确（滚轮无效，双击可能损坏终端状态）。<strong>「已知不可用的宿主组合」应当在文档里点名，而不是让用户自己撞。</strong></div>
+
+  <div class="sub">⑦ 计费与用量 —— 状态栏里的第三种数字</div>
+  <p>Codex <span class="vb">0.148.0 · 8/18</span> 把<strong>预估 thread credits / 成本</strong>同时放进 <code>/status</code>、状态行和<strong>终端标题</strong>。Claude Code 这边是配额侧：<span class="vb">2.1.211 · 7/15</span> 修 <code>/clear</code> 不重置会话成本计数（状态行成本现在从 $0 开始）；<span class="vb">8/7–8/8</span> 加入网关消费上限支持，<strong>触顶提示会写明上限值、重置时间和运营方留言</strong>；<span class="vb">2.1.234 · 8/17</span> <code>/config</code> 新增「用量触顶后自动继续」开关。</p>
+  <div class="rule"><b>规则：</b>成本是<strong>会话级状态</strong>，不是消息级装饰（第一部分已判定「费用角标常驻、不出现在每条输出中」）。本窗口补两条：<strong>清空会话必须重置计数</strong>；<strong>触顶提示必须给出上限值与恢复时间，而不是只说「超了」</strong>。</div>
+
+  <div class="sub">⑧ 多端与远程 —— TUI 正在与会话解耦</div>
+  <p>三条独立证据指向同一个方向：Grok Build 的 <strong>leader 模式</strong>（一个 agent 进程多个客户端，UI 断开会话不死）；Claude Code 的 <strong>Remote Control / cloud session</strong>（<code>ListAgents</code> 把断开的标为 <code>offline</code>、云会话标为 <code>cloud</code>；<code>/teleport</code> 提示怎么在本地接着干）；Amp 重构 CLI 的目标之一就是<strong>可远程控制</strong>。</p>
+  <div class="note s"><b>对 DevKit 是刚需，不是加分项。</b>我们的会话跑在鲲鹏服务器上，一次迁移编译可能几十分钟。<strong>「关掉本地终端 → 会话继续 → 明天换台机器接回来」是基本诉求。</strong>这要求会话状态从第一版起就<strong>不绑定在 TUI 进程里</strong>——这是架构决定，不是后续可以补的功能。</div>
+</section>
+
+<!-- ══════ F13 模式 ══════ -->
+<section class="floor" id="f13">
+  <div class="fnum">FLOOR 13</div>
+  <h2>模式识别 · 2026 夏收敛出的 12 条</h2>
+  <p class="lead">编号接第一部分的 M1–M7，从 <b>M8</b> 起。每条都要求<strong>至少两个独立产品</strong>或<strong>同一产品连续多版</strong>的证据。</p>
+
+  <div class="tw"><table>
+    <tr><th>#</th><th>模式</th><th>证据</th><th>代价 / 反证</th></tr>
+    <tr><td>M8</td><td><b>全屏 alt-screen 成为默认，并自带一整套逃生舱</b></td><td>Claude Code 对新用户默认全屏（2026-05-06 起）；Grok Build「fullscreen, mouse interactive」写进 README 第一句；Crush / opencode 均为常驻全屏</td><td>代价是要自建滚动、选择、搜索、复制四套能力，且每套都要给关闭开关</td></tr>
+    <tr><td>M9</td><td><b>渲染更新必须原子化（同步输出）</b></td><td>pi-tui 全部更新包在 <code>CSI ?2026</code>；Claude Code 启动时探测同步输出支持并在支持时使用</td><td>tmux ≤3.6 不实现 → 闪烁回来；这不是产品能修的</td></tr>
+    <tr><td>M10</td><td><b>渲染成本与「变化量」成正比，而非与「历史长度」成正比</b></td><td>Claude Code 全屏只渲染可见消息、内存恒定，并连修两次「规范化成本随会话增长」；opencode 把 markdown 解析移出主线程；pi-tui 差分渲染 + 组件级缓存</td><td>差分渲染在 ConPTY 上会留残影 → 必须提供全量重绘开关</td></tr>
+    <tr><td>M11</td><td><b>配置从「文件」走向「文件 + 会话内对话框 + 环境变量」三条腿</b></td><td>Claude Code 三者并行且本窗口把对话框做到可在工作中打开；Codex 项目 → 用户 → flag 分层 + profile；opencode UI/Runtime 分家</td><td>三条腿必然产生优先级歧义（<code>ANTHROPIC_DEFAULT_MODEL</code> vs <code>ANTHROPIC_MODEL</code> 要专门解释）</td></tr>
+    <tr><td>M12</td><td><b>模型的上下文与人的可见历史正式分离</b></td><td>Claude Code 压缩后仍保留全部历史在应用内 scrollback；Codex sections + 增量浏览长 transcript</td><td>需要独立于上下文窗口的历史存储，内存/磁盘成本上升</td></tr>
+    <tr><td>M13</td><td><b>压缩产出结构化摘要，而非自由文本</b></td><td>Grok Build 九段式 successor brief 且视上次摘要为权威 <span class="vb o">⚠️</span>；Codex 支持远端压缩（意味着摘要是可传输的结构）</td><td>模板僵硬；跨语言/跨领域的分节可能不适配</td></tr>
+    <tr><td>M14</td><td><b>LSP 从上下文来源升级为可调用工具，并配专门的预览 UI</b></td><td>Crush <code>lsp_rename</code>/<code>lsp_replace_symbol</code> + fancy diff（v0.86 · 7/20）；Claude Code 修「LSP 断连导致整包 prompt cache 失效」说明 LSP 已深度进入上下文管线</td><td>LSP 连接抖动会波及缓存与成本</td></tr>
+    <tr><td>M15</td><td><b>Agent 协议化：TUI 只是众多客户端之一</b></td><td>ACP 2026 年成为 Zed 1.0 头号特性、JetBrains 内置、25+ agent 采用；Grok Build 直接把 ACP 当内部产品 API <span class="vb o">⚠️</span></td><td>权限、批准、diff 这些交互必须先有协议级数据结构，前期成本更高</td></tr>
+    <tr><td>M16</td><td><b>会话具备「工作项」属性：可分叉、可归档、可分区、可后台</b></td><td>Codex sections + archive + <code>exec fork</code>（0.147/0.148）；Claude Code <code>/fork</code> 到后台 + agent view + Needs input 状态</td><td>会话身份必须用稳定 ID，路径派生会串台（2.1.224 的教训）</td></tr>
+    <tr><td>M17</td><td><b>权限对话框的文案与授权范围必须逐字对应，且看不全就不给永久授权</b></td><td>Claude Code 在 8/4、8/12、8/18 三次迭代同一条规则</td><td>会导致「不再询问」在复杂命令上频繁不可用 —— 这是正确的代价</td></tr>
+    <tr><td>M18</td><td><b>终端能力探测一次、全组件复用，并对已知不兼容宿主直接点名</b></td><td>同步输出 / Kitty 键盘协议 / 图形协议 / 鼠标上报四类探测；<code>tmux -CC</code> 被官方文档写明不兼容；tmux 未开鼠标给一次性提示</td><td>探测矩阵会持续膨胀，需要版本化管理</td></tr>
+    <tr><td>M19</td><td><b>无障碍是一条平行渲染路径，不是样式开关</b></td><td>Claude Code 屏幕阅读器模式强制经典渲染器、选择器改编号列表、删除播报</td><td>两条渲染路径 = 两倍验收成本</td></tr>
+  </table></div>
+</section>
+
+<!-- ══════ F14 教训 ══════ -->
+<section class="floor" id="f14">
+  <div class="fnum">FLOOR 14</div>
+  <h2>反面教训 · 9 个新坑（接第一部分 F1–F7）</h2>
+  <p class="lead">每条都有具体版本出处。它们的共同特征是：<strong>都不是「功能没做」，而是「做了但在 Cell 网格 / 终端协议 / 状态机上漏了一格」</strong>——也就是我们最容易在规范阶段放过去的那类。</p>
+
+  <div class="tw"><table>
+    <tr><th>#</th><th>坑</th><th>证据</th><th>规范里怎么防</th></tr>
+    <tr><td>F8</td><td><b>切换渲染器 / 视图时静默丢掉启动限制</b></td><td>CC <span class="vb d">2.1.234 · 8/17</span>：接受全屏提示后重启，丢掉权限模式、工具允许/拒绝规则、模型与 effort；<code>/tui</code> 丢 <code>--allowed-tools</code></td><td>凡 relaunch 类操作，先做<strong>可携带性检查</strong>，带不过去就<strong>拒绝并说明原因</strong></td></tr>
+    <tr><td>F9</td><td><b>命令打错时模糊匹配去执行最近的那个</b></td><td>CC <span class="vb d">2.1.229 → 2.1.237</span> 连续改：Enter 打错改为报错</td><td>Agent 场景禁止「猜测执行」；前缀与显式别名可以，模糊不行</td></tr>
+    <tr><td>F10</td><td><b>不可见字符能把内容藏出批准对话框</b></td><td>CC <span class="vb d">2.1.223 · 8/6</span>（制表符/不可见 Unicode）与 <span class="vb d">2.1.221 · 8/4</span>（双向覆写、零宽、形近引号）</td><td>所有<strong>进入确认界面的文本</strong>统一做中和与可视化；无法完整显示则降级为一次性授权</td></tr>
+    <tr><td>F11</td><td><b>对话框超出终端边界，或裁掉自己的键位提示</b></td><td>CC <span class="vb d">2.1.232 · 8/13</span>（伸出右边缘 · <code>/config</code> 裁掉底部提示 · transcript 提示在 &lt;104 列折行）与 <span class="vb d">2.1.234</span>（<code>/model</code> 比终端高）</td><td>浮层尺寸<strong>先按终端夹取再渲染</strong>；<strong>键位提示行为不可裁区域</strong>，内容区先滚动</td></tr>
+    <tr><td>F12</td><td><b>导航与确认之间存在竞态</b></td><td>CC <span class="vb d">2.1.235 · 8/18</span>：方向键 + Enter 快速连按会选中上一个高亮项</td><td>确认动作必须读<strong>提交时刻</strong>的选中态；对话框打开后设最短可确认延迟</td></tr>
+    <tr><td>F13</td><td><b>启动窗口期把缓冲输入当成用户确认</b></td><td>CC <span class="vb d">2.1.237 · 8/20</span>（托管设置批准提示不显示却吃掉首次按键）；Codex <span class="vb d">0.148.0</span>（启动缓冲输入激活提示）</td><td>启动期<strong>丢弃或隔离</strong>预输入；确认类 UI 未完成绘制前不接受按键</td></tr>
+    <tr><td>F14</td><td><b>会话身份由路径派生 → 长路径下串项目</b></td><td>CC <span class="vb d">2.1.224 · 8/7</span>：&gt;200 字符路径解析到别的项目的会话目录，列表/重命名/fork/删除/resume 全部跨项目串台</td><td>会话主键用<strong>稳定 ID</strong>；路径只作展示；对长路径与同前缀路径专门写测试</td></tr>
+    <tr><td>F15</td><td><b>把终端标题当动画区</b></td><td>CC <span class="vb d">2.1.236 · 8/19</span>：tmux + iTerm 集成下标题每 960ms 重写一次导致标签栏跳动，改为仅在文本变化时写</td><td>终端标题<strong>是宿主的 UI</strong>：只在语义变化时写，且写入频率要有下限</td></tr>
+    <tr><td>F16</td><td><b>渲染器启动失败即永久失败</b></td><td>CC <span class="vb d">2.1.237 · 8/20</span>：全屏渲染器一次启动失败后永久失败，改为回落经典渲染器</td><td>渲染路径必须<strong>可回落且回落是自动的</strong>；回落要留痕可诊断</td></tr>
+  </table></div>
+
+  <div class="note d"><b>把 9 条压成一句：</b>AI Agent TUI 这一层，<strong>绝大多数严重缺陷发生在「边界」——终端边界、启动边界、状态切换边界、字符宽度边界</strong>。功能清单再全也不能替代边界定义。这正是 <code>UI-SPEC.md</code> 要求「每条规则可验证、每个页面给宽窄两套字符帧、每个状态给验收条件」的现实依据。</div>
+</section>
+
+<!-- ══════ F15 机会点 ══════ -->
+<section class="floor" id="f15">
+  <div class="fnum">FLOOR 15</div>
+  <h2>机会点 · 第二部分给 DevKit 的 8 条</h2>
+  <p class="lead">按<strong>差异化价值 × 实现成本</strong>排序。前四条是「行业还没解决、且我们有场景优势」；后四条是「行业已有答案、我们必须一次做对」。<span class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span> = 差异化价值，<span class="meter g"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span> = 实现成本。</p>
+
+  <div class="opp"><div class="n">01</div><div>
+    <h4>上下文用量归因面板<span class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="meter g"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></h4>
+    <p><b>空白：</b>全行业只显示「用了百分之多少」，<strong>没有一个回答「谁在占」</strong>。</p>
+    <p><b>我们做：</b>把上下文拆成<strong>系统提示 / 工程索引 / 已引用文件 / 工具结果 / 压缩摘要</strong>五段，用第一部分已有的单色阶条形展示，每段可下钻、可释放（「丢掉这 12 个已读文件」）。DevKit 的上下文里工程索引和编译日志占比极高，这个面板对我们比对通用编码 Agent 更有价值。</p>
+  </div></div>
+
+  <div class="opp"><div class="n">02</div><div>
+    <h4>结果驱动的左树（风险树，不是文件树）<span class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><span class="meter g"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></h4>
+    <p><b>分歧点：</b>AI 派放弃左树、改用 <code>@</code> 模糊搜索；但模糊搜索要求用户<strong>先知道文件名片段</strong>——迁移场景不成立。</p>
+    <p><b>我们做：</b>左树的节点是<strong>风险项 / 待改项 / 编译失败项</strong>，选中驱动右侧（照 lazygit），分区可隐藏可重排（照 superfile v1.6.0），默认折叠、一键唤出（把宽度让给对话流）。<strong>这是我们与所有 AI Agent TUI 最正当的一处形态差异</strong>，理由来自场景而不是审美。</p>
+  </div></div>
+
+  <div class="opp"><div class="n">03</div><div>
+    <h4>缺配置 = 一等公民的暂停-补齐-续跑<span class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><span class="meter g"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></h4>
+    <p><b>空白仍在：</b>第一部分已判定「没有一个产品把缺配置做成一等公民的流程」。本窗口有了最接近的两个零件：Claude Code 的 <strong><code>/permissions</code> 可在工作中打开且立刻对本轮生效</strong>，和 <code>/goal</code> 的<strong>退避式自动汇报</strong>（30min → 1h → 2h）。</p>
+    <p><b>我们做：</b>Agent 卡在「缺交叉编译器 / 缺目标机凭据 / 缺性能计数器权限」时，进入<strong>显式的 Needs-input 态</strong>（照 Claude Code 的 agent view 状态名），给出补齐入口，补齐后<strong>从断点续跑而不是重来</strong>，长时间未补齐则退避提醒。</p>
+  </div></div>
+
+  <div class="opp"><div class="n">04</div><div>
+    <h4>配置来源可追溯：<code>devkit inspect</code><span class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><span class="meter g"><i class="on"></i><i></i><i></i><i></i><i></i></span></h4>
+    <p><b>来自：</b>Grok Build 的 <code>grok inspect</code>（列出配置来源 / instructions / skills / plugins / hooks / MCP servers）。</p>
+    <p><b>为什么对我们更重要：</b>DevKit 装在客户的鲲鹏服务器上，<strong>现场排查成本极高</strong>，而配置来源有五层。这条实现成本很低、诊断价值极高，建议第一版就有。</p>
+  </div></div>
+
+  <div class="opp"><div class="n">05</div><div>
+    <h4>会话与 TUI 进程解耦（leader 模式）<span class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><span class="meter g"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></h4>
+    <p><b>来自：</b>Grok Build 的 leader 模式、Claude Code 的后台会话与 Remote Control、Amp 的远程可控重构。</p>
+    <p><b>为什么是刚需：</b>一次迁移编译几十分钟，用户会关掉本地终端。<strong>这是架构决定，第一版不做以后补不上。</strong>实现成本高，但必须现在决定。</p>
+  </div></div>
+
+  <div class="opp"><div class="n">06</div><div>
+    <h4>三档字符资产 token（nerdfont / emoji / ascii）<span class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><span class="meter g"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></h4>
+    <p>与第一部分的渲染分档（braille / block / tty）<strong>同构、共用同一次 capability 探测</strong>。硬要求：任何图标都不得承载唯一语义；measure 与 render 共用同一个 display-width 函数（照 pi-tui 的 <code>visibleWidth()</code> / <code>truncateToWidth()</code>）。</p>
+  </div></div>
+
+  <div class="opp"><div class="n">07</div><div>
+    <h4>审查界面绕开一切美化中间层<span class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span><span class="meter g"><i class="on"></i><i></i><i></i><i></i><i></i></span></h4>
+    <p><b>来自：</b>Claude Code <span class="vb">2.1.222 · 8/4</span> 把 diff 数据源改为 raw git blob、忽略 workspace 配置的 diff driver。</p>
+    <p><b>我们的场景更严：</b>迁移会改编译选项、intrinsic、汇编片段——<strong>任何「帮你美化过」的 diff 都可能掩盖真实字节差异</strong>。同时定死 diff 降级顺序：先丢上下文行 → 再丢语法高亮 → <b>行号与 ± 号永不丢</b>。</p>
+  </div></div>
+
+  <div class="opp"><div class="n">08</div><div>
+    <h4>把权限 / 计划 / diff 定义成协议数据结构<span class="meter"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span><span class="meter g"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></h4>
+    <p><b>来自：</b>ACP 的行业化，以及 Grok Build 的那句判断——<strong>权限不是 TUI 里的模态 hack，而是协议上可见、任何客户端都能渲染的决策</strong>。</p>
+    <p><b>我们做：</b>即使第一版只有 TUI，这三类交互的数据结构也独立于渲染层定义。这样以后接 IDE、Web 评审页或 CI 报告时，<strong>渲染换掉、语义不动</strong>。</p>
+  </div></div>
+</section>
+
+<!-- ══════ F16 资料库 ══════ -->
+<section class="floor" id="f16">
+  <div class="fnum">FLOOR 16</div>
+  <h2>资料库与跟踪表</h2>
+  <p class="lead">第二部分的证据全部来自下表。<strong>标 ⚠️ 的条目在正文中已同步标注，不作为设计决策的唯一依据。</strong></p>
+
+  <div class="sub">一手来源（官方 changelog / 文档 / 仓库）</div>
+  <div class="tw"><table class="tight">
+    <tr><th>产品</th><th>来源</th><th>本部分用它证明了什么</th></tr>
+    <tr><td>Claude Code</td><td><a href="https://code.claude.com/docs/en/changelog">changelog</a> · <a href="https://code.claude.com/docs/en/fullscreen">fullscreen 文档</a></td><td>本部分证据量最大的一份：输入 / 对话框 / 全屏渲染 / 压缩 / 会话 / 无障碍 / 鼠标与滚动 / 能力探测，几乎每条都有版本号与日期</td></tr>
+    <tr><td>Codex CLI</td><td><a href="https://developers.openai.com/codex/changelog">changelog</a> · <a href="https://github.com/openai/codex/releases">releases</a></td><td>sections / archive / <code>/export</code> / <code>exec fork</code> / 启动期起草 / CRLF 粘贴 / thread credits</td></tr>
+    <tr><td>opencode</td><td><a href="https://opencode.ai/docs/tui/">TUI 文档</a> · <a href="https://opencode.ai/docs/keybinds/">keybinds 文档</a></td><td>leader 键体系 · 父子会话导航 · <code>tui.json</code> 与 <code>opencode.json</code> 分家 · 4 个换行绑定 · attention 通知</td></tr>
+    <tr><td>Grok Build</td><td><a href="https://github.com/xai-org/grok-build">xai-org/grok-build</a> · <a href="https://docs.x.ai/build/overview">docs.x.ai/build</a></td><td>fullscreen + mouse + ACP 三面形态 · <code>~/.grok/config.toml</code> · <code>grok inspect</code></td></tr>
+    <tr><td>Pi / pi-tui</td><td><a href="https://github.com/earendil-works/pi/blob/main/packages/tui/README.md">pi-tui README</a></td><td>差分渲染三策略 · <code>CSI ?2026</code> 同步输出 · Kitty 键盘协议协商 · 图片协议降级与 alt-screen 下 iTerm2 的限制 · 宽度函数</td></tr>
+    <tr><td>Yazi</td><td><a href="https://github.com/sxyazi/yazi/releases">releases</a> · CHANGELOG</td><td>v26.8.15 的图标进对话框 · 输入框上下文图标 · 自动明暗主题 · Zellij 下 Kitty 出图 · 动态 keymap Lua API</td></tr>
+    <tr><td>Nerd Fonts</td><td><a href="https://github.com/ryanoasis/nerd-fonts">ryanoasis/nerd-fonts</a></td><td>Mono 变体的单 cell 宽度保证 · SymbolsOnly + fontconfig fallback 路径</td></tr>
+  </table></div>
+
+  <div class="sub">二手来源（仅用于「存在性」，细节不作依据）</div>
+  <div class="tw"><table class="tight">
+    <tr><th>条目</th><th>来源类型</th><th>状态</th></tr>
+    <tr><td>Grok Build 的 harness 架构、leader 模式、九段式压缩摘要、<code>xai-fast-worktree</code></td><td>第三方架构分析文章</td><td><span class="vb o">⚠️ 待核查</span> 建议直接读 <code>xai-org/grok-build</code> 仓库中 pager crate 内的 user-guide 与 compaction 相关代码核实</td></tr>
+    <tr><td>Codex <code>[tui]</code> 命名空间的键名细节（keymap context 列表 / status_line 可选项 / 32 套主题）</td><td>第三方 Codex 知识库</td><td><span class="vb o">⚠️ 待核查</span> 建议以 <code>codex --help</code> 与官方 config 文档为准</td></tr>
+    <tr><td>Crush v0.86–v0.90 的逐条变更</td><td>releases 聚合</td><td><span class="vb o">⚠️</span> 大方向可信（侧栏 / LSP 工具 / splash），逐条措辞待核</td></tr>
+    <tr><td>Gemini CLI v0.46–v0.56 的版本条目</td><td>releasebot 聚合</td><td><span class="vb o">⚠️</span> 版本号与日期可信度中等，建议以 GitHub releases 复核</td></tr>
+    <tr><td>opencode 仓库归属由 sst 变更为 anomalyco</td><td>搜索结果与仓库跳转</td><td><span class="vb o">⚠️ 待核查</span> 不影响本部分任何设计结论</td></tr>
+    <tr><td>ACP 采用时间线（Zed 1.0 / JetBrains / registry / 25+ agents）</td><td>多篇第三方综述交叉</td><td><span class="vb o">⚠️</span> 趋势可信，具体日期建议以 Zed 官方公告复核</td></tr>
+  </table></div>
+
+  <div class="sub">下一轮跟踪建议</div>
+  <div class="ct">
+    <div class="it"><span><b>三个月一轮，不要更长。</b>本窗口 37 天内出现 20+ 个带 TUI 行为变更的版本，半年前的结论已不可用。</span></div>
+    <div class="it"><span><b>重点盯三件事：</b>① 有没有产品开始做<strong>上下文用量归因</strong>（机会点 01 的护城河期）；② 有没有 AI TUI 重新引入<strong>常驻侧树</strong>（机会点 02 的判断是否仍成立）；③ <strong>ACP 是否成为事实标准</strong>（决定机会点 08 的优先级）。</span></div>
+    <div class="it"><span><b>取证优先读 changelog 而不是评测。</b>本部分几乎所有高价值结论都来自 bug 修复条目——评测文章不会写「emoji 中间截断产生乱码」，但那恰恰是我们要写进规范的东西。</span></div>
+    <div class="it"><span><b>把 ⚠️ 清单当成待办。</b>上表六条待核查项里，Grok Build 的压缩摘要结构与 Codex 的 <code>[tui]</code> 键名<strong>直接影响两条设计决策</strong>（M13 与配置结构），应优先落实。</span></div>
+  </div>
+
+  <div class="note"><b>与其他文档的关系：</b>本页是研究材料，<strong>非规范性产物</strong>。其中被采纳的结论需按仓库约定写入 <code>UI-SPEC.md</code>（跨页面规则）或 <code>pages/&lt;page-id&gt;.md</code>（页面局部规则），并提升 <code>ui-spec-version</code>。<strong>本页的任何一句都不能替代页面文件中缺失的行为、状态或验收条件。</strong></div>
+</section>
+
+<footer>
+  TUI 竞品分析 · 第二部分：AI Agent TUI 交互全景 · UX 视角 · 2026-08 · for Kunpeng DevKit AI<br>
+  证据窗口：2026-06-01 → 2026-08-20 · 10 竞品 · 12 交互域 · 48 触点 · 12 条新模式 · 9 条新教训 · 8 个机会点<br>
+  竞品：Claude Code v2.1.208–2.1.237 · Codex CLI v0.147–0.148 · opencode v1.18.x · Grok Build（2026-07 开源）· Crush v0.86–v0.90 · Gemini CLI v0.46–v0.56 · Pi/pi-tui · Amp · Yazi v26.8.15 · superfile v1.6.0 · lazygit v0.63.x<br>
+  方法：一手 changelog 与官方文档优先，二手来源仅证明存在性并标注 ⚠️；每条产品行为尽量附版本号与日期<br>
+  接续：第一部分见 <a href="competitive-analysis.html">competitive-analysis.html</a>（框架 · 分辨率 · 布局 · 22 触点）
+</footer>
+<script>
+// 粒子场：终端字符雨 + 像素点，克制、低亮度、仅 hero
+(function(){
+  const c=document.getElementById('pfield'); if(!c) return;
+  const x=c.getContext('2d'); let W,H,dots=[],glyphs=[];
+  const G='01<>{}[]/\\|-_=+*#⣿⣷⣠⡀▁▂▃▅▇█'.split('');
+  function size(){const r=c.parentElement.getBoundingClientRect();
+    W=c.width=r.width*devicePixelRatio; H=c.height=r.height*devicePixelRatio;
+    c.style.width=r.width+'px'; c.style.height=r.height+'px';}
+  function init(){
+    dots=[];glyphs=[];
+    const n=Math.min(150,Math.floor(W*H/26000));
+    for(let i=0;i<n;i++)dots.push({x:Math.random()*W,y:Math.random()*H,
+      s:(Math.random()*1.6+.5)*devicePixelRatio,v:Math.random()*.22+.05,
+      a:Math.random()*.4+.08,c:Math.random()<.22?'0,119,255':'255,255,255'});
+    const m=Math.min(34,Math.floor(W/(64*devicePixelRatio)));
+    for(let i=0;i<m;i++)glyphs.push({x:Math.random()*W,y:Math.random()*H,
+      g:G[Math.floor(Math.random()*G.length)],v:Math.random()*.28+.06,
+      a:Math.random()*.16+.03,s:(Math.random()*5+9)*devicePixelRatio,
+      t:Math.random()*200});
+  }
+  function draw(){
+    x.clearRect(0,0,W,H);
+    for(const d of dots){
+      d.y+=d.v*devicePixelRatio; if(d.y>H){d.y=-4;d.x=Math.random()*W;}
+      x.fillStyle='rgba('+d.c+','+d.a+')';
+      x.fillRect(Math.round(d.x),Math.round(d.y),d.s,d.s); // 方形=像素感
+    }
+    x.font='500 '+Math.round(11*devicePixelRatio)+'px ui-monospace,monospace';
+    for(const g of glyphs){
+      g.y+=g.v*devicePixelRatio; g.t++;
+      if(g.t>260){g.g=G[Math.floor(Math.random()*G.length)];g.t=0;}
+      if(g.y>H){g.y=-14;g.x=Math.random()*W;}
+      x.fillStyle='rgba(0,119,255,'+g.a+')';
+      x.fillText(g.g,g.x,g.y);
+    }
+    requestAnimationFrame(draw);
+  }
+  size();init();draw();
+  addEventListener('resize',()=>{size();init();},{passive:true});
+})();
+// floor nav scrollspy
+(function(){
+  const links=[...document.querySelectorAll('.floornav a')];
+  const secs=links.map(a=>document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+  const spy=()=>{let cur=null;
+    for(const s of secs){if(s.getBoundingClientRect().top<180)cur=s.id}
+    links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+cur));};
+  addEventListener('scroll',spy,{passive:true});spy();
+})();
+</script>
+<script>
+(function(){
+  var btn=document.getElementById('themeToggle');
+  var html=document.documentElement;
+  btn.addEventListener('click',function(){
+    var cur=html.getAttribute('data-theme');
+    var next=cur==='light'?'dark':'light';
+    html.setAttribute('data-theme',next);
+    try{localStorage.setItem('theme',next)}catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

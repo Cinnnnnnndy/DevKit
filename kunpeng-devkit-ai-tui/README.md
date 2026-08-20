@@ -39,6 +39,7 @@
 | [`web/demo.html`](web/demo.html) | **十幕交互演示** — 可自动播放或键盘切换，右侧标注每幕的设计 Pattern 与"哇点" |
 | [`web/index.html`](web/index.html) | **产品规范单页** — 设计系统 + 渲染分层 + Pattern 库 + 场景 PRD 的整合版（评审用） |
 | [`web/competitive-analysis.html`](web/competitive-analysis.html) | **TUI 竞品分析** — 7 竞品 × 22 触点 × 6 阶段旅程 |
+| [`web/competitive-analysis-2.html`](web/competitive-analysis-2.html) | **TUI 竞品分析 · 第二部分** — AI Agent TUI 交互全景：10 竞品 × 12 交互域 × 48 触点（输入 / 配置 / 上下文 / 压缩 / 代码联动 / 图标 / 左树 / 对白 / 会话），证据窗口 2026-06→08 |
 | [`web/visual-analysis.html`](web/visual-analysis.html) | **TUI 视觉风格分析** — 五个审美流派 + 皮肤生态 + 手法清单 |
 
 想在浏览器里直接看，可以开启 GitHub Pages（Settings → Pages → Deploy from branch → `main` / `root`），之后访问 `https://<user>.github.io/<repo>/web/demo.html`。

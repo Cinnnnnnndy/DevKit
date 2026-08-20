@@ -17,6 +17,7 @@
 | [FRAMEWORK.md](FRAMEWORK.md) | 应用框架：MobaXterm 结构 × PTO 分割 | 定整体布局时 |
 | [PRD.md](PRD.md) | 六大核心场景需求 | 排功能优先级时 |
 | [COMPETITIVE-ANALYSIS.md](COMPETITIVE-ANALYSIS.md) | 7 竞品 × 22 触点的 UX 对比 | 想知道别人怎么做的 |
+| [COMPETITIVE-ANALYSIS-2.md](COMPETITIVE-ANALYSIS-2.md) | 第二部分：AI Agent TUI 交互全景 — 10 竞品 × 12 交互域 × 48 触点（输入 / 配置 / 上下文 / 压缩 / 代码联动 / 图标 / 左树 / 对白 / 会话），证据窗口 2026-06→08 | 想知道输入框、对话框、会话这些细节怎么做 |
 | [DEMO-WIREFRAME.md](DEMO-WIREFRAME.md) | 四大 Demo 的 ASCII 交互稿 | 准备演示时 |
 
 **★ DESIGN-INPUT.md 是设计的入口。** 旅程地图回答「用户经历了什么」，设计输入回答「因此界面必须提供什么」——后者才能被交互、视觉和实现直接接住。五个典型页面的整屏字符帧见 [`../web/screens.html`](../web/screens.html)。
