@@ -512,7 +512,9 @@ a.vb.d:hover{background:rgba(255,75,123,.2);color:var(--danger)}
 /* 引线标注：左侧固定画布 mockup + 右侧编号图例，ticks 指回画布 */
 .leaderwrap{min-width:860px}
 .leaderbox{display:grid;grid-template-columns:380px 1fr;gap:0;background:var(--surface-1);
-  border-radius:var(--r-lg);overflow:hidden}
+  border-radius:var(--r-lg);overflow:hidden;position:relative}
+.leader-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.leader-svg line{stroke-width:1.5;stroke-dasharray:3 3;opacity:.55}
 .leaderbox .lmock{padding:var(--s4);position:relative;border-right:1px solid var(--bd1)}
 .leaderbox .llegend{display:flex;flex-direction:column}
 .leaderbox .lrow{display:flex;align-items:center;gap:0;flex:1;position:relative;
@@ -561,6 +563,28 @@ a.vb.d:hover{background:rgba(255,75,123,.2);color:var(--danger)}
 .dualtrack .dt-split::after{content:'压缩';position:absolute;top:-18px;left:50%;transform:translateX(-50%);
   font-family:var(--mono);font-size:9.5px;color:var(--danger);white-space:nowrap}
 .dualtrack .dt-note{font-size:11.5px;color:var(--fg3);margin-top:var(--s2)}
+
+/* ══ 精简模板：场景 → 结论 → 各产品图示网格（本轮重构新增） ══ */
+.scenario{font-size:12px;color:var(--fg3);margin:var(--s4) 0 var(--s2);display:flex;gap:8px;align-items:baseline}
+.scenario::before{content:'场景';flex-shrink:0;font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  color:var(--fg4);background:var(--surface-2);border-radius:var(--r-sm);padding:1px 7px}
+.conclusion{font-size:14.5px;font-weight:600;color:var(--fg);margin:0 0 var(--s3);padding:6px 0 6px var(--s3);
+  border-left:3px solid var(--primary-h);line-height:1.5}
+.conclusion b{color:var(--primary-h)}
+.cmpgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:var(--s2);margin:0 0 var(--s3)}
+.cmpgrid .cell{background:var(--surface-1);border-radius:var(--r-md);padding:var(--s3);border-top:2px solid var(--bd2)}
+.cmpgrid .cell.best{border-top-color:var(--ok)}
+.cmpgrid .cell.risk{border-top-color:var(--danger)}
+.cmpgrid .cell.gap{border-top-color:var(--warn)}
+.cmpgrid .cell .pname{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--fg);
+  margin-bottom:5px;letter-spacing:.02em;display:flex;align-items:center;gap:5px}
+.cmpgrid .cell.best .pname::before{content:'✓';color:var(--ok)}
+.cmpgrid .cell.risk .pname::before{content:'✕';color:var(--danger)}
+.cmpgrid .cell.gap .pname::before{content:'△';color:var(--warn)}
+.cmpgrid .cell .pdesc{font-size:12px;color:var(--fg2);line-height:1.55}
+.cmpgrid .cell .pdesc code,.cmpgrid .cell .pdesc kbd{font-size:10px;padding:0 4px}
+.tpoint{margin:var(--s6) 0 var(--s4)}
+.tpoint>h4{font-size:14px;font-weight:700;margin-bottom:var(--s1)}
 </style>
 </head>
 <body>
@@ -695,8 +719,8 @@ a.vb.d:hover{background:rgba(255,75,123,.2);color:var(--danger)}
     <div class="card pcard" style="--tint:#3C7CF6">
       <div class="pname"><b>Claude Code</b><span class="ver">v2.1.208 → 2.1.237 · 7/14–8/20</span></div>
       <div class="plane">Fullscreen Renderer · Alt-Screen</div>
-      <p><b>本窗口最激进的一个。</b>全屏渲染器（alt-screen + 鼠标捕获 + 只渲染可见消息、内存恒定）已对 <span class="vb">2026-05-06 之后的新用户默认开启</span>，老用户用 <code>/tui fullscreen</code> 切，<code>/tui default</code> 切回。</p>
-      <p>窗口内的变更密度极高：输入高亮偏移、多行清空后残留空带、resize 后 pane 不重绘、对话框超出右边界、markdown 三级列表错位、emoji 截断乱码——<strong>几乎全是全屏渲染器带来的新 bug 面</strong>。</p>
+      <p><b>基线：</b>alt-screen 全屏接管终端是 vim / htop / tmux 用了几十年的成熟模式——输入固定、应用接管滚动、鼠标可捕获。Claude Code 把这套模式搬进 AI 对话场景本身不新，新的是<strong>把它定为默认</strong>：<span class="vb">2026-05-06 起</span>新用户默认全屏，老用户用 <code>/tui fullscreen</code> 手动切。</p>
+      <p>本窗口是这次"由可选变默认"之后的<strong>打磨期</strong>：高亮偏移、残留空带等 6 处渲染细节陆续被修——<strong>这是一套成熟模式换新默认后的正常收尾，不是这个模式本身有问题</strong>（详见图 2.1）。</p>
       <p class="src">一手：<a class="src-link" href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">官方 changelog</a> + <a class="src-link" href="https://code.claude.com/docs/en/fullscreen" target="_blank" rel="noopener">fullscreen 文档</a></p>
     </div>
     <div class="card pcard" style="--tint:#04d793">
@@ -721,7 +745,7 @@ a.vb.d:hover{background:rgba(255,75,123,.2);color:var(--danger)}
     </div>
   </div>
 
-  <div class="diag-cap">图 2.1 · 全屏渲染器新增的 bug 面 —— 同一块界面上，六个真实缺陷落在哪</div>
+  <div class="diag-cap">图 2.1 · 转默认后的打磨期 —— alt-screen 模式本身成熟，这六处是新默认下的收尾细节</div>
   <div class="tw">
   <div class="term" style="max-width:760px;position:relative">
     <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-title">claude code — alt-screen（示意，非真实截图）</span></div>
@@ -811,6 +835,15 @@ a.vb.d:hover{background:rgba(255,75,123,.2);color:var(--danger)}
   <div class="tw">
   <div class="leaderwrap">
   <div class="leaderbox">
+    <svg class="leader-svg" preserveAspectRatio="none">
+      <line x1="49" y1="68" x2="392" y2="28" stroke="#3d98ff"/>
+      <line x1="49" y1="103" x2="392" y2="86" stroke="#3d98ff"/>
+      <line x1="49" y1="139" x2="392" y2="144" stroke="#3d98ff"/>
+      <line x1="49" y1="175" x2="392" y2="202" stroke="#3d98ff"/>
+      <line x1="49" y1="211" x2="392" y2="260" stroke="#ff4b7b"/>
+      <line x1="49" y1="229" x2="392" y2="319" stroke="#ff4b7b"/>
+      <line x1="49" y1="262" x2="392" y2="377" stroke="#3d98ff"/>
+    </svg>
     <div class="lmock">
       <div class="term">
         <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-title">devkit — input stack</span></div>
@@ -936,21 +969,49 @@ a.vb.d:hover{background:rgba(255,75,123,.2);color:var(--danger)}
 
   <div class="note s"><b>把等待变成输入：</b>Codex <span class="vb">0.148.0</span> 的「TUI 还在初始化时就能先打字」，以及同版的「resume / fork 进度在启动过程中就显示」，是本窗口最值得抄的一条小设计——<strong>冷启动的几百毫秒不是空白，是可以承载输入的</strong>。DevKit 启动要连 SSH、探测终端能力、拉工程索引，这段时间只会更长。</div>
 
-  <div class="sub">L4–L6 · 逐项对比</div>
-  <div class="tw"><table class="tight">
-    <tr><th>输入触点</th><th>Claude Code</th><th>Codex</th><th>opencode</th><th>Crush</th><th>判断</th></tr>
-    <tr><td>提交 / 换行</td><td>Enter 提交；全屏下输入框固定底部不随输出移动</td><td>可重绑：<code>submit = ["enter","ctrl-m"]</code></td><td><strong>4 个换行绑定</strong>：<kbd>shift+↵</kbd> <kbd>ctrl+↵</kbd> <kbd>alt+↵</kbd> <kbd>ctrl+j</kbd></td><td>—</td><td>opencode 给足冗余是对的：<strong>不同终端能送出的组合键不一样</strong></td></tr>
-    <tr><td>行内编辑</td><td>Vim 模式（<kbd>s</kbd>/<kbd>S</kbd> 于 8/4 补齐；<code>vimInsertModeRemaps</code> 可把 <code>jj</code> 映射成 Esc）</td><td>7 个 keymap context，<code>composer</code> 独立成一档</td><td>全套 Readline/Emacs：<kbd>ctrl+a</kbd> <kbd>ctrl+e</kbd> <kbd>ctrl+k</kbd> <kbd>ctrl+u</kbd></td><td>—</td><td><strong>三种流派并存，没有收敛</strong>。可配置是唯一解</td></tr>
-    <tr><td><code>/</code> 命令菜单</td><td>8/10–8/12 改造：蓝色<strong>只标选中行</strong>，匹配字符<strong>加粗</strong>而不是变色，emoji / 带音标的命令名保留字形</td><td><code>/keymap</code> 可查当前绑定；<code>/theme</code> 带实时预览</td><td><kbd>ctrl+p</kbd> 命令面板</td><td>—</td><td>「用加粗而不是改色来表示匹配」是<strong>纯 TUI 的正确解</strong>——终端色位有限，色要留给语义</td></tr>
-    <tr><td>打错命令怎么办</td><td><span class="vb">2.1.229 → 2.1.237</span> 连续改：Enter 打错<strong>不再模糊匹配去跑最近的那个</strong>，直接报错；前缀与别名仍然可跑</td><td>—</td><td>—</td><td>—</td><td><strong>行业级教训</strong>：Agent 场景下「猜你想跑哪个」= 有可能替你跑了不该跑的</td></tr>
-    <tr><td><code>@</code> 文件引用</td><td>模糊补全；多行输入里高亮曾整体偏移 ≥1 字符，<span class="vb">2.1.235 · 8/18</span> 才修</td><td>—</td><td><code>@</code> 模糊搜文件<strong>内容自动进对话</strong>；<code>@alias</code> 补全预置引用</td><td>附件 chip 带可点 <b>✕</b></td><td>已是共识能力，差距在<strong>渲染精度</strong>与<strong>移除路径</strong></td></tr>
-    <tr><td><code>@</code> 引用「人」</td><td><span class="vb">2.1.232 · 8/13</span> <code>@</code> 可点名<strong>另一个 Claude 会话</strong>，直接发消息过去</td><td>—</td><td>—</td><td>—</td><td><strong>本窗口最新的一条输入语义</strong>：@ 的宾语从「文件」扩展到「会话」</td></tr>
-    <tr><td>shell 直通</td><td><code>!</code> 前缀；<span class="vb">2.1.232</span> 修了「排队的 <code>!</code> 命令经上箭头编辑后被当纯文本发出」</td><td>—</td><td><code>!</code> 前缀</td><td>工具输出加 bash 语法高亮</td><td>共识。<strong>风险点在「排队 + 编辑」的组合态</strong></td></tr>
-    <tr><td>队列与草稿</td><td>可排队消息；<span class="vb">2.1.234 · 8/17</span> 修「排队中的消息又出现在历史里」「选中排队消息时按 Esc 误中断本轮」「<code>!</code> 模式在中途提交后粘住」</td><td>初始化期可起草</td><td>—</td><td>—</td><td><strong>队列是新增的一等状态</strong>，且它与 Esc / 历史 / 模式前缀全都会打架</td></tr>
-    <tr><td>外部编辑器</td><td><kbd>Ctrl+G</kbd> 编辑计划；GUI 编辑器打开时曾往终端漏鼠标与焦点乱码（<span class="vb">2.1.216 · 7/20</span> 修）</td><td><code>editor</code> 为独立 keymap context</td><td><code>/editor</code> · <kbd>&lt;leader&gt;e</kbd></td><td>—</td><td>共识能力。<strong>坑在「让出终端再收回」</strong>的那一刻</td></tr>
-    <tr><td>拼写检查</td><td><span class="vb">2.1.235 · 8/18</span> 新增 <code>spellcheck</code> 设置，接 <code>aspell</code>/<code>hunspell</code>/<code>ispell</code> 给错词加下划线</td><td class="yn n">—</td><td class="yn n">—</td><td class="yn n">—</td><td><strong>独一份</strong>。思路值得注意：<strong>不自己实现，挂系统已有的</strong></td></tr>
-    <tr><td>emoji 输入</td><td><span class="vb">2.1.221 · 8/4</span> <code>:heart:</code> 短码补全，<code>emojiCompletionEnabled</code> 可关</td><td class="yn n">—</td><td class="yn n">—</td><td class="yn n">—</td><td>对 DevKit 价值低，但<strong>它暴露了 L1 层的宽度问题</strong>（见 F8）</td></tr>
-  </table></div>
+  <div class="tpoint">
+    <h4>触点：多行输入按 Enter，该提交还是该换行？</h4>
+    <div class="scenario">用户在输入框里写一条跨行指令（贴一段错误日志、列几个文件），需要换行但不想误提交。终端能送出的组合键因终端/协议而异，没有一个键在所有终端都可靠。</div>
+    <div class="conclusion">给足冗余绑定 &gt; 押注单一按键——<b>opencode 的 4 键并存</b>是这条触点上唯一正确的做法。</div>
+    <div class="cmpgrid">
+      <div class="cell best"><div class="pname">opencode</div><div class="pdesc">4 个换行绑定并存：<kbd>shift+↵</kbd> <kbd>ctrl+↵</kbd> <kbd>alt+↵</kbd> <kbd>ctrl+j</kbd>，总有一个能穿透当前终端</div></div>
+      <div class="cell"><div class="pname">Codex CLI</div><div class="pdesc">可重绑但默认单一：<code>submit = ["enter","ctrl-m"]</code></div></div>
+      <div class="cell gap"><div class="pname">Claude Code</div><div class="pdesc">Enter 提交、输入框固定底部；换行键较少</div></div>
+    </div>
+  </div>
+
+  <div class="tpoint">
+    <h4>触点：<code>/</code> 命令打错字怎么办</h4>
+    <div class="scenario">用户敲 <code>/comit</code> 想调 <code>/commit</code>，字打错了。这在普通 CLI 里"模糊匹配跑最接近的那个"很常见，但 Agent 场景下这个命令可能会真的执行。</div>
+    <div class="conclusion">Agent 场景下「猜你想跑哪个」= 有可能替你跑了不该跑的——<b>只认前缀和别名，绝不模糊执行</b>。</div>
+    <div class="cmpgrid">
+      <div class="cell risk"><div class="pname">Claude Code（8/12 前）</div><div class="pdesc">打错直接模糊匹配去跑最接近的命令——被判定为行业级教训后改掉</div></div>
+      <div class="cell best"><div class="pname">Claude Code（8/12 起）</div><div class="pdesc">打错直接报错；前缀与显式别名仍可正常触发</div></div>
+    </div>
+  </div>
+
+  <div class="tpoint">
+    <h4>触点：<code>@</code> 引用的宾语是什么</h4>
+    <div class="scenario">用户想把上下文拉进对话——最早只是"引用一个文件"，现在这个动作本身在扩张。</div>
+    <div class="conclusion"><b>@ 的宾语正从「文件」扩张到「会话」和「人」</b>——这是本季度最新的一条输入语义变化，值得现在就预留扩展空间。</div>
+    <div class="cmpgrid">
+      <div class="cell"><div class="pname">opencode</div><div class="pdesc"><code>@</code> 模糊搜文件，内容自动进对话；<code>@alias</code> 预置引用</div></div>
+      <div class="cell best"><div class="pname">Claude Code</div><div class="pdesc"><code>@</code> 除文件外，现在<b>可点名另一个会话</b>直接发消息过去</div></div>
+      <div class="cell"><div class="pname">Crush</div><div class="pdesc">附件走 chip 展示，可点 <b>✕</b> 移除</div></div>
+    </div>
+  </div>
+
+  <div class="tpoint">
+    <h4>触点：Agent 还在跑，用户想插队说话</h4>
+    <div class="scenario">长任务执行中，用户想补一句指令、改主意，或者干脆先起草着等 Agent 空出来。</div>
+    <div class="conclusion"><b>队列是新增的一等状态</b>，一旦引入就必须和 Esc / 历史 / shell 模式前缀四向联动设计，不能只当成"输入框里多存一条草稿"。</div>
+    <div class="cmpgrid">
+      <div class="cell gap"><div class="pname">Claude Code</div><div class="pdesc">支持排队；曾出现排队消息重复出现在历史、选中排队消息按 Esc 误中断本轮——组合态是坑</div></div>
+      <div class="cell best"><div class="pname">Codex CLI</div><div class="pdesc">TUI 初始化期就能先起草，把冷启动等待变成可用时间</div></div>
+    </div>
+  </div>
+
+  <p class="src">其余长尾触点：外部编辑器交接（坑在"让出终端再收回"那一刻）、拼写检查（挂系统 aspell/hunspell，不必自研）、emoji 短码补全（价值低但暴露 L1 宽度问题，见 F8）——不逐一展开。</p>
 
   <div class="diag-cap">图 3.3 · 三种输入框视觉形态 —— 同样的七层栈，表面长得完全不一样</div>
   <div class="termrow">
@@ -1007,110 +1068,131 @@ a.vb.d:hover{background:rgba(255,75,123,.2);color:var(--danger)}
 <!-- ══════ F4 配置 ══════ -->
 <section class="floor" id="f4">
   <div class="fnum">FLOOR 04 · 交互域 02</div>
-  <h2>配置方法 · 四种哲学，且它们互不兼容</h2>
-  <p class="lead">这一层没有共识，只有<strong>四种立场</strong>。选哪种不是口味问题——它直接决定「用户改一个键位要付出多少认知成本」和「我们能不能把配置讲清楚」。</p>
+  <h2>配置方法 · 入口在哪，真源在哪</h2>
 
-  <div class="grid g2">
-    <div class="card pcard" style="--tint:#04d793">
-      <div class="pname"><b>① 声明式命名空间</b><span class="ver">Codex</span></div>
-      <div class="plane">TOML · 可版本化 · 可 diff</div>
-      <p>全部塞进 <code>~/.codex/config.toml</code> 的 <code>[tui]</code> 段，结构极其规整：</p>
-      <pre><span class="cm"># keymap 按 7 个 context 分层</span>
-<span class="pr">[tui.keymap.global]</span>
-clear_context = <span class="ok">"ctrl-shift-l"</span>
-<span class="pr">[tui.keymap.composer]</span>
-submit       = [<span class="ok">"enter"</span>, <span class="ok">"ctrl-m"</span>]
-history_prev = <span class="ok">"ctrl-p"</span>
-open_external_editor = []   <span class="cm"># 空数组 = 解绑</span>
-
-<span class="cm"># 状态栏 = 有序数组，不是布尔开关</span>
-tui.status_line = [<span class="ok">"model"</span>, <span class="ok">"approval"</span>, <span class="ok">"context_usage"</span>]
-tui.terminal_title = [<span class="ok">"spinner"</span>, <span class="ok">"project"</span>]
-tui.theme = <span class="ok">"dracula"</span></pre>
-      <p><b>三个设计决定值得抄：</b>① keymap 按 context 分层（global / chat / composer / editor / pager / list / approval），具体覆盖全局；② 解绑用空数组，不用魔法值；③ <strong>状态栏与终端标题都是「有序数组」</strong>——用户决定显示什么、按什么顺序。</p>
-      <p class="src">〔二手〕<a class="src-link" href="https://codex.danielvaughan.com/2026/05/05/codex-cli-tui-customisation-keymaps-themes-status-lines/" target="_blank" rel="noopener">[tui] 细节</a>；命名空间自 v0.128.0 起</p>
-    </div>
-    <div class="card pcard" style="--tint:#B3F141">
-      <div class="pname"><b>② Schema 化分家</b><span class="ver">opencode</span></div>
-      <div class="plane">JSON + Schema · UI 与 Runtime 分离</div>
-      <p><strong>把「界面配置」和「运行时配置」拆成两个文件</strong>：<code>tui.json</code>（主题 / 键位 / 滚动 / 光标 / 鼠标 / 通知）与 <code>opencode.json</code>（服务端与运行时）。<code>tui.json</code> 带 <code>$schema</code> 指向 <code>opencode.ai/tui.json</code>，编辑器直接有补全和校验。</p>
-      <p>键位可设 <code>"none"</code> 或 <code>false</code> 禁用；<code>leader_timeout</code>、<code>scroll_speed</code>、<code>diff_style</code>（<code>auto</code>/<code>stacked</code>）、鼠标捕获开关都在这里。</p>
-      <p class="rule"><b>这条分家是对的。</b>换终端要改的只有 <code>tui.json</code>，换模型/服务端要改的只有 <code>opencode.json</code>——DevKit 有本地终端 / SSH / 低能力终端三套场景，这个切分能省掉大量解释成本。</p>
-    </div>
-    <div class="card pcard" style="--tint:#3C7CF6">
-      <div class="pname"><b>③ 对话内改配置</b><span class="ver">Claude Code</span></div>
-      <div class="plane">/config 对话框 · 不用离开会话</div>
-      <p>三条路径并行：<code>settings.json</code>、环境变量、<strong>会话内 <code>/config</code> 对话框</strong>。本窗口最大的变化是<strong>把「改配置」从「停下来」变成「顺手」</strong>：</p>
-      <p><span class="vb">2.1.234 · 8/17</span> <code>/add-dir</code> <code>/autocompact</code> <code>/theme</code> <code>/help</code> <code>/config</code> <code>/advisor</code> 全部<strong>可在 Agent 工作到一半时打开</strong>；<code>/permissions</code> 也能在工作中打开，<strong>改完的规则立刻对本轮剩余部分生效</strong>。</p>
-      <p>新增开关的粒度很细：<code>spellcheck</code>、<code>emojiCompletionEnabled</code>、<code>wheelScrollAccelerationEnabled</code>、Dialog expiry、跨会话收信策略（接受 / 挂起 / 拒绝）、Auto-scroll 开关、Copy on select 开关。</p>
-      <p class="rule"><b>坑也在这里：</b>三条路径并行必然产生优先级问题。<span class="vb">2.1.236 · 8/19</span> 新增 <code>ANTHROPIC_DEFAULT_MODEL</code> 时不得不解释：它只定<strong>新会话的起点</strong>，<code>/model</code> 选过就覆盖并持久化——与旧的 <code>ANTHROPIC_MODEL</code> 语义不同。</p>
-    </div>
-    <div class="card pcard" style="--tint:#9B3CF6">
-      <div class="pname"><b>④ 可解释性优先</b><span class="ver">Grok Build</span></div>
-      <div class="plane">grok inspect · 配置来源可追溯</div>
-      <p>配置本身平淡（<code>~/.grok/config.toml</code>），但它给了一条别人都没有的命令：<code>grok inspect</code>——<strong>在当前目录下列出配置来源、instructions、skills、plugins、hooks 和 MCP servers</strong>。</p>
-      <p class="rule"><b>这是本层最重要的一条发现。</b>当配置有「项目 → 用户 → 命令行 → 插件 → hook」五层来源时，用户真正的问题从来不是「怎么配」，而是<strong>「我这条到底是从哪儿来的」</strong>。第一部分已记录 btop「退出覆盖用户配置」的教训（F7）；<code>inspect</code> 是它的正面解法。</p>
+  <div class="tpoint">
+    <h4>触点：用户想改一个设置，该去哪改</h4>
+    <div class="scenario">键位撞车了、想换个主题、想调滚动速度——用户想改配置的那一刻，该点开什么？</div>
+    <div class="conclusion">四家的答案高度一致：<b>真源永远是文件，交互入口永远是命令触发的浮层对话框</b>——没有一家做成常驻设置面板。</div>
+    <div class="cmpgrid">
+      <div class="cell"><div class="pname">Claude Code</div><div class="pdesc"><code>settings.json</code> + <code>/config</code> 浮层，盖在对话上方，关闭即回到对话</div></div>
+      <div class="cell"><div class="pname">Codex CLI</div><div class="pdesc"><code>config.toml</code> + <code>/theme</code>/<code>/keymap</code> 选择器浮层，<code>/theme</code> 带实时预览</div></div>
+      <div class="cell"><div class="pname">opencode</div><div class="pdesc"><code>tui.json</code> + <kbd>ctrl+p</kbd> 命令面板 / <kbd>&lt;leader&gt;t</kbd> 弹出列表浮层</div></div>
+      <div class="cell gap"><div class="pname">Grok Build</div><div class="pdesc"><code>config.toml</code> + <code>grok inspect</code>——连浮层都没有，直接打印诊断文本</div></div>
     </div>
   </div>
 
-  <div class="sub">配置分层：三家的共同结构</div>
+  <div class="tpoint">
+    <h4>触点：配置来源太多层，出问题时怎么查</h4>
+    <div class="scenario">DevKit 装在客户的鲲鹏服务器上，一条键位或权限规则可能来自内置默认 / 用户级 / 项目级 / 命令行 / 会话内临时改中的任意一层，现场排查成本极高。</div>
+    <div class="conclusion">Grok Build 的 <code>grok inspect</code> 是本域最重要的一条发现：<b>把"怎么配"之外的"这条从哪来的"也做成一等公民</b>。</div>
+    <div class="diag-cap">图 4.1 · devkit inspect（参照 grok inspect 的构想 mockup）</div>
+    <div class="tw"><div class="term" style="max-width:620px">
+      <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-title">devkit inspect</span></div>
+      <div class="term-body">
+        <div>keymap.leader &nbsp;&nbsp;<span class="ok2">ctrl-x</span> &nbsp;<span class="mut">← ~/.devkit/config.toml（用户级）</span></div>
+        <div>sandbox.network &nbsp;<span class="warn2">ask</span> &nbsp;&nbsp;&nbsp;&nbsp;<span class="mut">← .devkit/config.toml（项目级，覆盖用户级）</span></div>
+        <div>theme &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ok2">kunpeng-dark</span> <span class="mut">← --profile=perf（命令行）</span></div>
+        <div>model &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ok2">sonnet-5</span> &nbsp;&nbsp;<span class="mut">← 会话内 /model（本次临时，未写回文件）</span></div>
+        <div style="height:6px"></div>
+        <div class="mut" style="font-size:10px">已加载：2 个 MCP servers · 1 个 skill · 0 个 hook</div>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="sub">配置真源的分层（越靠下越优先）</div>
   <div class="diag">
-    <div class="diag-cap">config resolution order（越靠下越优先）</div>
     <div class="stack">
-      <div class="lyr"><div class="no">1</div><div class="nm">内置默认</div><div class="ds">产品自带；用户永远看不见但必须能被 inspect 出来</div></div>
-      <div class="lyr"><div class="no">2</div><div class="nm">用户级</div><div class="ds"><code>~/.codex/config.toml</code> · <code>~/.claude/settings.json</code> · <code>~/.grok/config.toml</code> · opencode config 目录</div></div>
-      <div class="lyr"><div class="no">3</div><div class="nm">项目级</div><div class="ds"><code>.codex/config.toml</code> · 仓库内 <code>AGENTS.md</code> / <code>CLAUDE.md</code> —— <b>信任边界也在这一层</b></div></div>
-      <div class="lyr"><div class="no">4</div><div class="nm">Profile / 预设</div><div class="ds">Codex <code>--profile</code> 可整套切换视觉配置 —— 对应第一部分的「预设循环 &gt; 拖拽调整」</div></div>
-      <div class="lyr"><div class="no">5</div><div class="nm">命令行 flag</div><div class="ds">最高优先级，且<b>不一定能被带过重启</b>（见下方）</div></div>
-      <div class="lyr gap"><div class="no">6</div><div class="nm">会话内临时改</div><div class="ds"><code>/config</code> · <code>/model</code> · <code>/permissions</code> —— <b>行业空白：临时改动写不写回文件、下次是否还在，各家规则不一致</b></div></div>
+      <div class="lyr"><div class="no">1</div><div class="nm">内置默认</div><div class="ds">用户看不见，但必须能被 inspect 出来</div></div>
+      <div class="lyr"><div class="no">2</div><div class="nm">用户级</div><div class="ds">各家的 <code>~/.xxx/config</code></div></div>
+      <div class="lyr"><div class="no">3</div><div class="nm">项目级</div><div class="ds">项目内 config · <code>AGENTS.md</code>/<code>CLAUDE.md</code> —— <b>信任边界也在这一层</b></div></div>
+      <div class="lyr"><div class="no">4</div><div class="nm">Profile / 预设</div><div class="ds">Codex <code>--profile</code> 整套切换 —— 呼应第一部分「预设循环 &gt; 拖拽调整」</div></div>
+      <div class="lyr"><div class="no">5</div><div class="nm">命令行 flag</div><div class="ds">最高优先级，且<b>不一定能被带过重启</b>（见下）</div></div>
+      <div class="lyr gap"><div class="no">6</div><div class="nm">会话内临时改</div><div class="ds"><b>行业空白</b>：临时改动写不写回文件、下次是否还在，各家不一致</div></div>
     </div>
   </div>
 
-  <div class="note d"><b>本窗口最贵的一条配置教训 ——「重启会丢配置」：</b>Claude Code <span class="vb">2.1.234 · 8/17</span> 修了两个同源问题：接受「要不要试试全屏渲染器」后重启，<strong>丢掉了 <code>--dangerously-skip-permissions</code> 等权限模式、工具允许/拒绝规则、模型与 effort 参数</strong>；<code>/tui</code> 也会丢掉启动时传的 <code>--allowed-tools</code>/<code>--disallowed-tools</code>。修复方式很坚决：<strong>凡是带不过去的限制，就拒绝切换并说明原因</strong>（错误名就叫 <code>Cannot switch renderers in this session</code>）。<br><br>对我们的直接含义：<strong>任何「切换视图 / 切换渲染器 / 切主题」的动作，如果实现是 relaunch，就必须先做一次「可携带性检查」，宁可拒绝也不能静默降权。</strong></div>
+  <div class="note d"><b>本窗口最贵的教训——重启会丢配置：</b>Claude Code <span class="vb">2.1.234 · 8/17</span> 修复：切换渲染器后重启，曾丢掉权限模式、工具允许/拒绝规则、模型参数。修法很坚决：<strong>带不过去的限制就拒绝切换并说明原因</strong>。→ 任何「切换视图/渲染器/主题」如果实现是 relaunch，必须先做可携带性检查，宁可拒绝也不能静默降权。</div>
 
-  <div class="sub">主题系统 · 一条被低估的能力</div>
-  <div class="tw"><table class="tight">
-    <tr><th>产品</th><th>主题机制</th><th>切换方式</th><th>对我们的意义</th></tr>
-    <tr><td>Codex</td><td><strong>syntect 引擎</strong>（与 <code>bat</code> 同源）· 32 套内置 · 支持把 <code>.tmTheme</code> 丢进 <code>$CODEX_HOME/themes/</code></td><td><code>/theme</code> 交互选择器<strong>带实时预览</strong>；也可 <code>tui.theme = "dracula"</code></td><td><strong>复用编辑器生态的主题格式</strong>，等于免费拿到几百套配色；DevKit 若要做主题，不要自创格式</td></tr>
-    <tr><td>opencode</td><td>主题在 <code>tui.json</code></td><td><code>/themes</code> · <kbd>&lt;leader&gt;t</kbd></td><td>主题与键位同文件，换终端一次性搞定</td></tr>
-    <tr><td>Yazi <span class="vb">26.8.15</span></td><td>—</td><td><strong>自动明暗切换</strong>（检测算法本窗口刚调过）+ 主题热重载 DDS 事件供插件监听</td><td>终端背景色会变（白天/夜间 profile），<strong>主题不该只在启动时定一次</strong></td></tr>
-    <tr><td>Claude Code</td><td><code>/theme</code> 对话框（本窗口起可在工作中打开）</td><td>会话内</td><td>—</td></tr>
-  </table></div>
+  <div class="tpoint">
+    <h4>触点：主题从哪来</h4>
+    <div class="scenario">用户想要一套配色，或者终端本身天亮天黑背景色会变。</div>
+    <div class="conclusion"><b>复用编辑器生态的主题格式，不要自创。</b>Codex 靠 <code>.tmTheme</code> 免费拿到几百套配色，这条最值得抄。</div>
+    <div class="cmpgrid">
+      <div class="cell best"><div class="pname">Codex CLI</div><div class="pdesc">syntect 引擎（同 <code>bat</code>），32 套内置 + 可丢 <code>.tmTheme</code> 进去；<code>/theme</code> 实时预览</div></div>
+      <div class="cell"><div class="pname">Yazi</div><div class="pdesc"><b>自动明暗切换</b> + 主题热重载事件——主题不该只在启动时定一次</div></div>
+      <div class="cell"><div class="pname">opencode</div><div class="pdesc">主题与键位同一个 <code>tui.json</code>，换终端一次搞定</div></div>
+    </div>
+  </div>
 
-  <div class="note s"><b>给 DevKit 的配置结论：</b>① 采 opencode 的<strong>分家</strong>（UI 配置与运行时配置两个文件，都带 schema）；② 采 Codex 的<strong>结构</strong>（keymap 按 context 分层、解绑用空值、状态栏是有序数组、profile 整套切）；③ 采 Claude Code 的<strong>入口</strong>（会话内可改，且工作中也能改，权限改动立刻对本轮生效）；④ 采 Grok Build 的 <strong><code>inspect</code></strong>（配置来源可追溯——这条对「部署在别人服务器上的工具」尤其重要，因为现场排查成本极高）；⑤ 主题<strong>复用 <code>.tmTheme</code></strong>，不自创格式。</div>
+  <div class="note s"><b>给 DevKit 的配置结论：</b>入口用<strong>命令触发浮层</strong>（照四家共识）；真源<strong>文件与运行时配置分家</strong>（照 opencode）；键位按 <strong>context 分层</strong>、主题<strong>复用 <code>.tmTheme</code></strong>（照 Codex）；加一条 <strong><code>devkit inspect</code></strong>（照 Grok Build）——现场排查成本极高，这条实现便宜、诊断价值极高，第一版就该有。</div>
 </section>
 
 <!-- ══════ F5 上下文 ══════ -->
 <section class="floor" id="f5">
   <div class="fnum">FLOOR 05 · 交互域 03</div>
-  <h2>上下文 · 从「装了多少」到「谁在占、能不能拿走」</h2>
-  <p class="lead">上下文在 2026 年已经不是一个数字，而是一套<strong>可见、可归因、可回收</strong>的资源系统。本窗口三家产品同时在同一个方向上推进：<strong>把上下文变成状态栏里的一等公民</strong>。</p>
+  <h2>上下文 · 从「装了多少」到「谁在占」</h2>
 
-  <div class="tw"><table class="tight">
-    <tr><th>触点</th><th>本窗口证据</th><th>判断</th></tr>
-    <tr><td><b>用量可见性</b></td><td>Codex <code>tui.status_line</code> 可把 <code>context_usage</code> 放进状态栏、与 <code>model</code> <code>approval</code> 同级 · Claude Code <code>/context</code> <span class="vb">2.1.229 · 8/12</span> 起在超窗时给<strong>显式警告</strong>，且 <code>/compact</code> 失败会<strong>以错误形态展示</strong>而不是静默</td><td><strong>已成范式。</strong>但只有 Codex 把它做成了「用户可决定是否显示、显示在第几位」</td></tr>
-    <tr><td><b>用量归因</b></td><td>—</td><td><span class="vb d">行业空白</span> 没有一个产品回答「这 60% 里，多少是系统提示、多少是工程索引、多少是工具结果、多少是上一次压缩摘要」</td></tr>
-    <tr><td><b>引用注入</b></td><td>opencode <code>@</code> 模糊搜文件、内容自动进对话，<code>@alias</code> 补全预置引用 · Claude Code <code>@</code> 引用文件与<strong>会话</strong>（<span class="vb">2.1.232 · 8/13</span>）· Gemini CLI <span class="vb">v0.51 · 7/16</span> 改进 at-reference 文件处理并加了大小写不敏感的敏感文件黑名单</td><td>引用是共识；<strong>「引用什么」正在扩张</strong>：文件 → 目录 → 会话 → 人</td></tr>
-    <tr><td><b>作用域扩张</b></td><td>Claude Code <code>/add-dir &lt;path&gt;</code> <span class="vb">2.1.234 · 8/17</span> 起<strong>可在工作中执行</strong>，并新增 <code>DirectoryAdded</code> hook 在其后触发；<span class="vb">2.1.229 · 8/12</span> 修了「目录不存在时 <code>/add-dir</code> 直接失败」</td><td><strong>值得抄：</strong>作用域变更是一个<strong>可被 hook 的事件</strong>，不是一次静默的内部状态修改——DevKit 加一台目标机 / 换一个交叉编译根目录都属于这类</td></tr>
-    <tr><td><b>窗口上限的强制</b></td><td>Claude Code <span class="vb">2.1.229 · 8/12</span>：<code>CLAUDE_CODE_DISABLE_1M_CONTEXT</code> 改成<strong>把所有 1M 模型压到 200K</strong>（靠自动压缩实现），做不到时<strong>启动就给警告</strong>；对无法识别的模型 ID 也按假定窗口执行，可用 <code>CLAUDE_CODE_DISABLE_UNKNOWN_MODEL_WINDOW_ENFORCEMENT=1</code> 关掉</td><td><strong>本窗口最有工程味的一条。</strong>「上限」不再是提示，而是<strong>被强制执行且失败可见</strong>的约束</td></tr>
-  </table></div>
+  <div class="tpoint">
+    <h4>触点：用户想知道还剩多少上下文，以及都被谁占了</h4>
+    <div class="scenario">长会话跑到一半，状态栏显示"已用 62%"——然后呢？用户下一个问题永远是"这 62% 里都是什么，能不能清掉一部分"。</div>
+    <div class="conclusion">显示「用了多少」已是共识，但<b>没有一个产品回答「谁在占」</b>——这是本域最大的空白，也是 F15 排第一的机会点。</div>
+    <div class="diag-cap">图 5.1 · 现状 vs 空白</div>
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:640px;margin-bottom:var(--s3)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="width:64px;font-size:11px;color:var(--fg3);flex-shrink:0">现状</span>
+        <div style="flex:1;height:22px;border-radius:4px;overflow:hidden;display:flex">
+          <div style="width:62%;background:var(--primary-h);display:flex;align-items:center;justify-content:center;font-size:10px;color:#04070d">已用 62%</div>
+          <div style="width:38%;background:var(--surface-3)"></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="width:64px;font-size:11px;color:var(--fg3);flex-shrink:0">空白</span>
+        <div style="flex:1;height:22px;border-radius:4px;overflow:hidden;display:flex;font-size:9.5px;color:#04070d">
+          <div style="width:20%;background:#7c8db8;display:flex;align-items:center;justify-content:center">系统提示</div>
+          <div style="width:22%;background:#3d98ff;display:flex;align-items:center;justify-content:center">工程索引</div>
+          <div style="width:15%;background:#04d793;display:flex;align-items:center;justify-content:center">引用文件</div>
+          <div style="width:18%;background:#ffaa3b;display:flex;align-items:center;justify-content:center">工具结果</div>
+          <div style="width:25%;background:#9b3cf6;display:flex;align-items:center;justify-content:center;color:#fff">压缩摘要</div>
+        </div>
+      </div>
+    </div>
+    <div class="cmpgrid">
+      <div class="cell best"><div class="pname">Codex CLI</div><div class="pdesc"><code>tui.status_line</code> 可把 <code>context_usage</code> 排进状态栏，用户决定显示与否、排第几位</div></div>
+      <div class="cell"><div class="pname">Claude Code</div><div class="pdesc"><code>/context</code> 超窗给显式警告，<code>/compact</code> 失败以错误形态展示而非静默</div></div>
+    </div>
+  </div>
 
-  <div class="note w"><b>一条容易被忽略的耦合 —— 上下文缓存会被界面事件打穿：</b>Claude Code <span class="vb">2.1.235 · 8/18</span> 修了「language server 中途断开再重连，导致<strong>整个 prompt cache 失效</strong>」；<span class="vb">2.1.234 · 8/17</span> 修了「超长会话中，auto 模式在<strong>压缩之后</strong>反复重新检查沙箱命令的网络访问」。<br><br>含义：<strong>上下文不是只跟对话有关</strong>——LSP 连接、压缩事件、权限判定共用同一份缓存。DevKit 会接编译器、性能计数器、远程主机，这类「外部连接抖动 → 缓存全废 → 成本翻倍」的路径必须在规范里点名。</div>
+  <div class="tpoint">
+    <h4>触点：引用与作用域正在扩张</h4>
+    <div class="scenario">用户想把更多东西拉进上下文——不只是文件，还有目录、会话、甚至"人"。</div>
+    <div class="conclusion">引用本身是共识能力，但<b>「引用什么」的边界还在扩张</b>：文件 → 目录 → 会话 → 人；作用域变更应该是<strong>可被 hook 的事件</strong>，不是静默的内部状态修改。</div>
+    <div class="cmpgrid">
+      <div class="cell"><div class="pname">opencode</div><div class="pdesc"><code>@</code> 模糊搜文件，内容自动进对话；<code>@alias</code> 预置引用</div></div>
+      <div class="cell best"><div class="pname">Claude Code</div><div class="pdesc"><code>@</code> 除文件外可引用<b>会话</b>；<code>/add-dir</code> 现在可在工作中执行，并触发 <code>DirectoryAdded</code> hook</div></div>
+      <div class="cell"><div class="pname">Gemini CLI</div><div class="pdesc">改进 at-reference 文件处理，加了大小写不敏感的敏感文件黑名单</div></div>
+    </div>
+  </div>
+
+  <div class="note w"><b>窗口上限从「提示」变成「强制约束」：</b>Claude Code 把超限模型压到 200K（靠自动压缩），做不到就启动即警告——<strong>上限不再是软提示，是被强制执行且失败可见的约束</strong>。<br><br><b>一条容易被忽略的耦合：</b>language server 断连重连会让整个 prompt cache 失效；压缩之后 auto 模式会反复重新检查沙箱网络访问。上下文不是只跟对话有关——LSP 连接、压缩事件、权限判定共用同一份缓存，DevKit 接编译器/性能计数器/远程主机时这类「外部抖动→缓存全废→成本翻倍」的路径必须在规范里点名。</div>
 </section>
 
 <!-- ══════ F6 压缩 ══════ -->
 <section class="floor" id="f6">
   <div class="fnum">FLOOR 06 · 交互域 04</div>
-  <h2>对话压缩 · 四种策略，一个共同的 UI 债</h2>
-  <p class="lead">压缩已经从「省 token 的后台动作」变成<strong>会改变用户可见历史的前台动作</strong>。四家做法差别很大，但踩的坑一模一样：<strong>压缩之后，界面显示的东西和模型看到的东西不再是一回事</strong>。</p>
+  <h2>对话压缩 · 一个共同的 UI 债</h2>
 
-  <div class="tw"><table>
-    <tr><th>策略</th><th>代表</th><th>做法</th><th>取舍</th></tr>
-    <tr><td><b>全量替换 + 结构化交接</b></td><td>Grok Build</td><td>压缩产出一份<strong>九段式 successor brief</strong>：意图 / 涉及文件 / 报错 / 未完成事项 / 下一步等固定分节。压缩提示词里明写：<strong>若更早的轮次里已含上一次压缩摘要，视其为权威</strong></td><td>结构化 = 可校验、可迭代压缩不失真；代价是模板僵硬。<span class="vb o">⚠️ 二手来源，待核查</span></td></tr>
-    <tr><td><b>自动压缩 + 全量 scrollback</b></td><td>Claude Code</td><td>自动压缩；<strong>全屏模式下把每一次压缩之前的完整历史都留在应用内 scrollback 里</strong>（<span class="vb">2.1.216 · 7/20</span>），可反复压缩后仍滚回会话最开头。模型从摘要继续，<strong>人从原文继续</strong></td><td><b>本窗口最值得抄的一条。</b>把「模型的上下文」与「人的可见历史」正式分开，直接消掉了「压缩后我看不到之前说过什么」这个最大抱怨</td></tr>
-    <tr><td><b>远端压缩</b></td><td>Codex <span class="vb">0.147.0 · 8/7</span></td><td>为 Amazon Bedrock 启用<strong>远程会话压缩</strong>与缓存化 web search</td><td>压缩本身成为一项<strong>可被后端接管</strong>的能力——意味着它有延迟、有失败态，必须有 UI</td></tr>
-    <tr><td><b>压缩即重载</b></td><td>Gemini CLI <span class="vb">v0.54 · 8/6</span></td><td>修 <code>/compress</code> 引起的会话重载与 quota-fallback 工具响应丢失</td><td><strong>反面证据</strong>：压缩若实现为「重建会话」，就会丢在途的工具响应</td></tr>
-  </table></div>
+  <div class="tpoint">
+    <h4>触点：长会话跑到上限，压缩之后用户还能看见什么</h4>
+    <div class="scenario">会话跑了几十轮，上下文快满了，系统自动或手动触发一次压缩。用户最怕的是"压缩完我之前说过的话就再也看不到了"。</div>
+    <div class="conclusion">压缩已经从「省 token 的后台动作」变成<b>会改变用户可见历史的前台动作</b>——四家做法差别很大，但踩的坑一模一样：<strong>压缩之后，界面显示的东西和模型看到的东西不再是一回事</strong>。</div>
+    <div class="cmpgrid">
+      <div class="cell risk"><div class="pname">Gemini CLI</div><div class="pdesc"><b>反面证据</b>：压缩实现为"重建会话"，曾丢在途的工具响应</div></div>
+      <div class="cell"><div class="pname">Grok Build</div><div class="pdesc">九段式 successor brief 固定分节；迭代压缩时把上一次摘要视为权威，防止漂移</div></div>
+      <div class="cell"><div class="pname">Codex CLI</div><div class="pdesc">Bedrock 上压缩可被后端接管——意味着有延迟、有失败态，必须有 UI</div></div>
+      <div class="cell best"><div class="pname">Claude Code</div><div class="pdesc"><b>本域最值得抄的一条</b>：全屏下把压缩前的完整历史留在应用内 scrollback，模型从摘要继续，人从原文继续</div></div>
+    </div>
+  </div>
 
   <div class="diag-cap">图 6.1 · 压缩事件前后：模型的上下文与人的可见历史，从这一刻起走两条轨</div>
   <div class="tw">
@@ -1204,13 +1286,16 @@ tui.theme = <span class="ok">"dracula"</span></pre>
     </div>
   </div>
 
-  <div class="sub">⑥ 并行改代码：worktree 成为标配</div>
-  <div class="tw"><table class="tight">
-    <tr><th>产品</th><th>做法</th><th>启示</th></tr>
-    <tr><td>Grok Build</td><td>专门的 <code>xai-fast-worktree</code> 组件，<strong>子 agent 在隔离 checkout 上并行工作</strong>，避免文件冲突；配 <code>xai-grok-workspace</code> 做文件系统/VCS 抽象 <span class="vb o">⚠️〔二手〕</span></td><td>并行子 agent 的前提是<strong>文件系统隔离</strong>，不是调度</td></tr>
-    <tr><td>Claude Code</td><td><span class="vb">2.1.212 · 7/17</span> 修「worktree 创建会跟随仓库中提交的 <code>.claude/worktrees</code> 符号链接」</td><td>worktree 路径是<strong>攻击面</strong>，仓库内容不能决定 worktree 落在哪</td></tr>
-    <tr><td>lazygit <span class="vb">v0.63.x</span></td><td><kbd>w</kbd> 在分支/提交/stash 面板上<strong>直接从选中项建 worktree</strong>，不再弹确认菜单</td><td>「选中即操作」的成熟范例，对应第一部分 M5 选中联动</td></tr>
-  </table></div>
+  <div class="tpoint">
+    <h4>触点：⑥ 子 agent 并行改代码，怎么不撞车</h4>
+    <div class="scenario">多个子 agent 同时改同一个仓库的不同部分（一个改 intrinsic、一个跑测试），需要各自独立的文件系统视图。</div>
+    <div class="conclusion">并行子 agent 的前提是<b>文件系统隔离</b>，不是调度——worktree 正在成为这条的标准答案，但 worktree 路径本身是攻击面。</div>
+    <div class="cmpgrid">
+      <div class="cell"><div class="pname">Grok Build</div><div class="pdesc">专门的 worktree 组件，子 agent 在隔离 checkout 上并行工作 <span class="vb o">⚠️〔二手〕</span></div></div>
+      <div class="cell risk"><div class="pname">Claude Code（修复前）</div><div class="pdesc">worktree 创建曾跟随仓库内提交的符号链接——路径可被仓库内容劫持</div></div>
+      <div class="cell best"><div class="pname">lazygit</div><div class="pdesc"><kbd>w</kbd> 直接从选中项建 worktree，不弹确认菜单——"选中即操作"的成熟范例</div></div>
+    </div>
+  </div>
 </section>
 
 <!-- ══════ F8 图标 ══════ -->
@@ -1312,18 +1397,30 @@ tui.theme = <span class="ok">"dracula"</span></pre>
 <section class="floor" id="f10">
   <div class="fnum">FLOOR 10 · 交互域 08</div>
   <h2>对白 · 对话流的呈现，与打断对话的对话框</h2>
-  <p class="lead">「对白」在 TUI 里其实是两件事：<strong>A. 消息流怎么渲染</strong>（连续、可滚、可折叠、可搜索），<strong>B. 模态对话框怎么插进来</strong>（权限、选择、确认）。本窗口这两件事都出了大量可引用的教训——尤其 B，密度惊人。</p>
+  <p class="lead">「对白」是两件事：<b>A. 消息流怎么渲染</b>，<b>B. 模态对话框怎么插进来</b>。B 的教训密度惊人。</p>
 
   <div class="sub">A · 对话流的呈现</div>
-  <div class="tw"><table class="tight">
-    <tr><th>触点</th><th>本窗口证据</th><th>规则</th></tr>
-    <tr><td><b>流式性能</b></td><td>Claude Code <span class="vb">2.1.232 · 8/13</span>：改进全屏流式，<strong>长会话不再在每次更新时把整个对话重新规范化一遍</strong>；<span class="vb">2.1.216 · 7/20</span> 修「长会话中消息规范化成本呈二次增长」。opencode 把 <strong>markdown 解析移出主线程</strong></td><td><strong>渲染成本必须与「新增内容」成正比，不能与「历史长度」成正比。</strong>这是长会话可用性的分水岭</td></tr>
-    <tr><td><b>工具卡片</b></td><td><span class="vb">CC 2.1.210 · 7/14</span> 折叠的工具摘要行加了<strong>实时计时器</strong>（长工具会「看得见地走动」而不是像卡死），且计时器<strong>调暗</strong>以免与加粗计数抢注意力。全屏下<strong>点击折叠的工具结果即可展开</strong>，且工具调用与结果一起展开</td><td>① 进行中必须有<strong>时间维度</strong>的证据；② 新增信息不得抢占既有信息的视觉层级</td></tr>
-    <tr><td><b>思考过程</b></td><td>第一部分已判定「默认一行摘要可展开」。本窗口补充：Claude Code 在 VSCode 侧的折叠显示 <code>Thought for Ns</code> 并<strong>在本轮结束时自动重新折叠</strong>；Gemini CLI <span class="vb">v0.55.1 · 8/11</span> 在剥离 thought 部分时<strong>保留 functionCall 的 thoughtSignature</strong></td><td>「折叠」是显示层动作，<strong>不能连带丢掉模型协议需要的字段</strong></td></tr>
-    <tr><td><b>Markdown 渲染</b></td><td><span class="vb">CC 2.1.235 · 8/18</span>：修<strong>三级以上嵌套列表错位</strong>，并给折行的列表项加<strong>悬挂缩进</strong>。<span class="vb">2.1.208 · 7/14</span>：超大 markdown 表格会拖垮渲染或吃爆内存，改为<strong>&gt;200 行只显示前 200 行 + 「… 还有 N 行」</strong>。<span class="vb">2.1.229 · 8/12</span>：极窄终端下渲染进度条或 markdown 表格会 <code>RangeError</code> 崩溃</td><td><b>三条硬规则：</b>① 嵌套缩进与折行悬挂缩进要一起定义；② <strong>任何无界内容都要有截断上限 + 明确的省略提示</strong>；③ 极窄宽度是<strong>崩溃级</strong>输入，必须有下限保护</td></tr>
-    <tr><td><b>极简视图</b></td><td>Claude Code <code>/focus</code>：只显示你的最后一条 prompt、工具调用的一行摘要（含编辑 diffstat）、以及最终回复；设置<strong>跨会话持久</strong></td><td>第一部分已收；本窗口补上「持久化」这条——<strong>视图密度是用户的长期偏好，不是一次性开关</strong></td></tr>
-    <tr><td><b>搜索与交还</b></td><td>全屏下 <kbd>Ctrl+O</kbd> 进 transcript 模式，得到 <code>less</code> 风格导航：<kbd>/</kbd> 搜索、<kbd>n</kbd>/<kbd>N</kbd> 跳转、<kbd>{</kbd>/<kbd>}</kbd> <strong>在 prompt 之间跳</strong>、<kbd>g</kbd>/<kbd>G</kbd>、<kbd>Ctrl+U/D/B/F</kbd>。<kbd>[</kbd> 把整段对话<strong>展开写回终端原生 scrollback</strong>，<kbd>v</kbd> 写临时文件并用 <code>$VISUAL</code>/<code>$EDITOR</code> 打开</td><td>第一部分把 <kbd>[</kbd> 列为「必抄」。本窗口补上更完整的形态：<strong><kbd>{</kbd>/<kbd>}</kbd> 按 prompt 跳转</strong>是对话流特有的导航单位——DevKit 应有等价的「按任务跳转」</td></tr>
-  </table></div>
+
+  <div class="tpoint">
+    <h4>触点：会话跑了几百轮，界面还流畅吗</h4>
+    <div class="scenario">长会话持续几十分钟到几小时，每次新输出到达，界面不能因为历史变长而越来越卡。</div>
+    <div class="conclusion"><b>渲染成本必须与「新增内容」成正比，不能与「历史长度」成正比</b>——这是长会话可用性的分水岭，也是极大/极窄内容下崩溃与否的分水岭。</div>
+    <div class="cmpgrid">
+      <div class="cell best"><div class="pname">Claude Code</div><div class="pdesc">全屏下不再每次更新都重新规范化整个对话；折叠工具卡片带实时计时器，看得见地走动</div></div>
+      <div class="cell best"><div class="pname">opencode</div><div class="pdesc">markdown 解析移出主线程，避免阻塞渲染</div></div>
+      <div class="cell risk"><div class="pname">极窄终端（修复前）</div><div class="pdesc">渲染进度条或超大 markdown 表格会直接崩溃；&gt;200 行表格现改为只显示前 200 行 + 省略提示</div></div>
+    </div>
+  </div>
+
+  <div class="tpoint">
+    <h4>触点：想重读之前的内容，或者只想看结论</h4>
+    <div class="scenario">要么想搜一句之前说过的话，要么长任务跑完只想看结论，不想被过程刷屏。</div>
+    <div class="conclusion">第一部分已把 <kbd>[</kbd> 吐回原生 scrollback 列为「必抄」；本窗口补上更完整的导航单位——<b><kbd>{</kbd>/<kbd>}</kbd> 按 prompt 跳转</b>，以及"极简视图"要跨会话持久，不是一次性开关。</div>
+    <div class="cmpgrid">
+      <div class="cell best"><div class="pname">Claude Code · /focus</div><div class="pdesc">只显示最后一条 prompt、工具调用一行摘要、最终回复；跨会话持久</div></div>
+      <div class="cell best"><div class="pname">Claude Code · Ctrl+O</div><div class="pdesc">进 <code>less</code> 风格 transcript：<kbd>/</kbd> 搜索 · <kbd>{</kbd>/<kbd>}</kbd> 按 prompt 跳 · <kbd>[</kbd> 吐回原生 scrollback</div></div>
+    </div>
+  </div>
 
   <div class="sub">B · 对话框 · 本窗口密度最高的一组教训</div>
 
@@ -1377,16 +1474,11 @@ tui.theme = <span class="ok">"dracula"</span></pre>
     <div class="dli"><div class="dnum">6</div><div><b>对话框伸出终端右边缘</b> —— 全屏模式下曾发生，同窗口 <code>/model</code> 选择器也曾画得比终端还高，<span class="vb">2.1.232 · 8/13</span> 与 <span class="vb">2.1.234 · 8/17</span> 修</div></div>
   </div>
 
+  <p class="src">图 10.1 的六个标注对应上面六条最核心的教训；另外三条 mockup 画不出来，补在这里：</p>
   <div class="ct">
-    <div class="it"><span><b>对话框文案必须与它实际授予的权限完全一致。</b><span class="vb">CC 2.1.229 · 8/12</span> 与 <span class="vb">2.1.235 · 8/18</span> 连续两版改进：权限对话框的显示文本与「不再询问」选项<strong>必须与授权范围匹配</strong>；<strong>当内容无法完整显示时，直接不给「不再询问」这个选项</strong>。</span></div>
-    <div class="it"><span><b>看不全就不许永久授权。</b>上一条的后半句值得单独立为一条规则。它比任何「请仔细阅读」都有效。</span></div>
-    <div class="it"><span><b>对话框里的隐藏字符是攻击面。</b><span class="vb">CC 2.1.223 · 8/6</span> 修「用制表符或不可见 Unicode 填充的命令可以把一部分内容藏出批准对话框之外」；<span class="vb">2.1.221 · 8/4</span> 修「转发到聊天频道的权限预览未中和<strong>双向覆写字符、零宽字符、形近引号</strong>」。</span></div>
-    <div class="it"><span><b>连按会选错项。</b><span class="vb">CC 2.1.235 · 8/18</span>：对话框里方向键与 Enter<strong>快速连按</strong>时，会选中「之前高亮的那一项」而不是刚导航到的那一项。<strong>这是一个纯竞态 bug，但后果是误批准。</strong></span></div>
-    <div class="it"><span><b>子控件的键位不能溢出成主操作。</b><span class="vb">CC 2.1.235 · 8/18</span>：在权限对话框的<strong>备注输入框里按 <kbd>Shift+Tab</kbd> 会直接批准这次编辑</strong>，而不是关闭该输入框。</span></div>
-    <div class="it"><span><b>对话框不得越界。</b><span class="vb">CC 2.1.232 · 8/13</span>：全屏模式下对话框<strong>会伸出终端右边缘</strong>；同版还修了 <code>/config</code> 设置列表<strong>裁掉底部键位提示</strong>。<span class="vb">2.1.234 · 8/17</span>：<code>/model</code> 选择器<strong>画得比终端还高</strong>，改为只显示装得下的部分、其余可滚。</span></div>
-    <div class="it"><span><b>信任对话框要点名它覆盖的根目录。</b><span class="vb">CC 2.1.216 · 7/20</span> 起信任对话框会说明授权覆盖到哪个仓库根；<span class="vb">2.1.232 · 8/13</span> 起<strong>嵌套 git 仓库不再从父目录继承信任</strong>，每个仓库要单独确认。</span></div>
-    <div class="it"><span><b>对话框要能在 Agent 工作中打开。</b><span class="vb">CC 2.1.234 · 8/17</span>：<code>/add-dir</code> <code>/autocompact</code> <code>/theme</code> <code>/help</code> <code>/config</code> <code>/advisor</code> 全部可在全屏 TUI 中途打开；<code>/permissions</code> 改完立刻对本轮剩余部分生效。<strong>模态不必等待 Agent 空闲</strong>。</span></div>
-    <div class="it"><span><b>启动期的第一次按键不能被当成批准。</b><span class="vb">CC 2.1.237 · 8/20</span>：托管设置的批准提示<strong>有时不显示，却把第一次按键当成了批准</strong>。与 F3 里 Codex 的「启动缓冲输入误触发提示」是同一类问题。</span></div>
+    <div class="it"><span><b>信任对话框要点名它覆盖的根目录。</b>嵌套 git 仓库不再从父目录继承信任，每个仓库要单独确认。</span></div>
+    <div class="it"><span><b>对话框要能在 Agent 工作中打开。</b><code>/add-dir</code> <code>/theme</code> <code>/permissions</code> 等全部可在全屏 TUI 中途打开，改完立刻生效——<strong>模态不必等待 Agent 空闲</strong>。</span></div>
+    <div class="it"><span><b>启动期的第一次按键不能被当成批准。</b>托管设置的批准提示有时不显示，却把第一次按键当成了批准——与 F3 里 Codex 的启动缓冲输入误触发是同一类问题。</span></div>
   </div>
 
   <div class="note d"><b>把这九条压成一句写进规范：</b>在 TUI 里，<strong>对话框是唯一一个「用户按一个键就产生不可逆后果」的组件</strong>。所以它的验收条件应该比任何其他组件都严：文案与授权范围一致 · 显示不全就降级为一次性授权 · 输入内容做双向覆写与零宽字符中和 · 导航与确认之间有竞态保护 · 子控件键位不溢出 · 永不越界且键位提示永不被裁 · 明确声明作用域 · 可在工作中打开 · 启动窗口期不接受确认键。</div>
@@ -1426,18 +1518,38 @@ tui.theme = <span class="ok">"dracula"</span></pre>
     <div class="mut" style="padding-left:26px;font-size:11px;margin:-2px 0 0">超过阈值未访问自动收起 · DevKit 第一版必须有，见下方建议</div>
   </div>
 
-  <div class="tw"><table>
-    <tr><th>能力</th><th>Claude Code</th><th>Codex</th><th>opencode</th><th>Crush / 其他</th></tr>
-    <tr><td><b>恢复</b></td><td><code>/resume</code>；<span class="vb">2.1.212 · 7/17</span> 起在 agent view 里 <code>/resume</code> 打开<strong>历史会话选择器（含已删除的）</strong>并以后台会话恢复</td><td><span class="vb">0.148.0 · 8/18</span> resume 与 fork 的<strong>进度在启动过程中就显示</strong>；恢复的会话<strong>连工作目录与审批策略一起还原</strong></td><td><kbd>&lt;leader&gt;l</kbd> 会话列表 · <kbd>&lt;leader&gt;g</kbd> 会话时间线</td><td>Crush 退出时给一张 splash，<strong>直接告诉你怎么接回刚才那个会话</strong></td></tr>
-    <tr><td><b>分叉</b></td><td><span class="vb">2.1.212 · 7/17</span> <code>/fork</code> 改为<strong>把对话复制进一个新的后台会话，你可以继续干活</strong>；会话没标题时用你的 prompt 命名副本；原来的会话内子 agent 改名 <code>/subtask</code></td><td><span class="vb">0.148.0</span> <code>codex exec fork</code></td><td>—</td><td>—</td></tr>
-    <tr><td><b>归档 / 分区</b></td><td>—</td><td><span class="vb">0.148.0</span> resume picker 里<strong>归档与恢复</strong>；<span class="vb">0.147.0 · 8/7</span> <strong>会话分区（sections）：可持久、可手工排序</strong>，并支持增量浏览超长 transcript</td><td>—</td><td>—</td></tr>
-    <tr><td><b>父子会话</b></td><td>agent view + <code>/tasks</code>；等待输入的后台会话显示为 <strong>Needs input</strong> 而非 Working（<span class="vb">2.1.212</span>）</td><td>—</td><td><strong>原地导航仍是最好的</strong>：<kbd>&lt;leader&gt;↓</kbd> 进第一个子会话 · <kbd>→</kbd>/<kbd>←</kbd> 循环 · <kbd>↑</kbd> 回父</td><td>—</td></tr>
-    <tr><td><b>跨会话通信</b></td><td><span class="vb">2.1.232 · 8/13</span> <code>@</code> 点名另一个会话直接发消息；<code>/config</code> 新增 <strong>Dialog expiry</strong> 与<strong>收信策略（接受 / 挂起 / 拒绝）</strong>；同机的交互式会话<strong>保证名字唯一</strong>（重名自动加 <code>-word-word</code> 后缀）</td><td>—</td><td>—</td><td>—</td></tr>
-    <tr><td><b>多客户端共享</b></td><td>Remote Control / cloud session</td><td>—</td><td>—</td><td><b>Grok Build 的 leader 模式</b>：一个长活 agent 进程接<strong>多个客户端</strong>，UI 断开不杀会话，可在多个 pane 里分工而不产生重复 agent，权限上下文统一 <span class="vb o">⚠️〔二手〕</span></td></tr>
-    <tr><td><b>导出</b></td><td><kbd>Ctrl+O</kbd> → <kbd>[</kbd> 写回 scrollback / <kbd>v</kbd> 写文件开编辑器</td><td><span class="vb">0.148.0</span> <code>/export</code> <strong>导出完整 TUI 对话为 Markdown</strong>（到剪贴板或文件）</td><td><code>/export</code> 导出 Markdown</td><td>—</td></tr>
-  </table></div>
+  <div class="tpoint">
+    <h4>触点：关掉终端，明天怎么接回来</h4>
+    <div class="scenario">用户关掉本地终端，或者想在不打断主线的情况下先分个身验证一个想法。</div>
+    <div class="conclusion">恢复与分叉已是共识能力，<b>差距在"接回来"的摩擦有多小</b>——最好的做法是恢复时连工作目录、审批策略一起还原，退出时主动提示怎么接回。</div>
+    <div class="cmpgrid">
+      <div class="cell best"><div class="pname">Codex CLI</div><div class="pdesc">resume/fork 进度在启动过程中就显示；恢复的会话连工作目录与审批策略一起还原</div></div>
+      <div class="cell best"><div class="pname">Claude Code</div><div class="pdesc"><code>/resume</code> 打开含已删除会话的选择器；<code>/fork</code> 把对话复制进新后台会话，主线不中断</div></div>
+      <div class="cell"><div class="pname">Crush</div><div class="pdesc">退出时给一张 splash，直接提示怎么接回刚才的会话</div></div>
+    </div>
+  </div>
 
-  <div class="note d"><b>一个必须记住的失败案例 —— 会话身份认错项目：</b>Claude Code <span class="vb">2.1.224 · 8/7</span> 修复：<strong>超过 200 字符的长项目路径，会在共享的「清洗后前缀」下解析到另一个项目的会话目录</strong>；同版一并修正了会话列表、重命名、fork、删除、<code>/resume</code> <strong>跨项目串台</strong>的问题。<br><br>DevKit 的路径只会更长（远程主机 + 交叉编译根 + worktree + 多目标架构）。<strong>会话身份必须用稳定 ID，绝不能用「路径清洗后的字符串」做主键。</strong></div>
+  <div class="tpoint">
+    <h4>触点：会话多了会乱，怎么归类</h4>
+    <div class="scenario">一个迁移项目下天然有多条并行线——分析、改代码、编译、出报告，全堆在一个会话列表里很快就找不到东西。</div>
+    <div class="conclusion"><b>归档能力必须第一版就有</b>——迁移项目周期以周计，会话列表三天就会塞满；分区应可持久、可手工排序，父子会话应支持原地导航而不是黑盒。</div>
+    <div class="cmpgrid">
+      <div class="cell best"><div class="pname">Codex CLI</div><div class="pdesc">会话分区（sections）：可持久、可手工排序；resume picker 里可归档/恢复</div></div>
+      <div class="cell best"><div class="pname">opencode</div><div class="pdesc">父子会话原地导航仍是标杆：<kbd>&lt;leader&gt;↓</kbd> 进子会话 · <kbd>→</kbd>/<kbd>←</kbd> 循环 · <kbd>↑</kbd> 回父</div></div>
+    </div>
+  </div>
+
+  <div class="tpoint">
+    <h4>触点：会话之间要不要互相看得见</h4>
+    <div class="scenario">一个会话卡住了，想让另一个会话帮忙看一眼；或者本地断网了，想换台机器接着跑。</div>
+    <div class="conclusion"><b>TUI 正在与会话进程解耦</b>——跨会话通信与多客户端共享还在早期，但方向已经清楚：会话是持久实体，UI 只是接入它的一个窗口。</div>
+    <div class="cmpgrid">
+      <div class="cell"><div class="pname">Claude Code</div><div class="pdesc"><code>@</code> 点名另一个会话直接发消息；Remote Control / cloud session</div></div>
+      <div class="cell gap"><div class="pname">Grok Build</div><div class="pdesc">leader 模式：一个长活进程接多个客户端，UI 断开不杀会话 <span class="vb o">⚠️〔二手〕</span></div></div>
+    </div>
+  </div>
+
+  <div class="note d"><b>一个必须记住的失败案例 —— 会话身份认错项目：</b>超过 200 字符的长项目路径，曾在共享的「清洗后前缀」下解析到另一个项目的会话目录，导致列表 / 重命名 / fork / 删除 / resume 全部跨项目串台。DevKit 的路径只会更长（远程主机 + 交叉编译根 + worktree + 多目标架构）。<strong>会话身份必须用稳定 ID，绝不能用「路径清洗后的字符串」做主键。</strong></div>
 
   <div class="diag-compare" style="margin:var(--s4) 0">
     <div class="side bad"><h5>✕ 会话主键 = 路径清洗后的字符串</h5>
@@ -1465,104 +1577,104 @@ tui.theme = <span class="ok">"dracula"</span></pre>
 <section class="floor" id="f12">
   <div class="fnum">FLOOR 12 · 交互域 10–12</div>
   <h2>需求没点名、但同样是 TUI 一等场景的 8 件事</h2>
-  <p class="lead">下面这八件事在 GUI 里要么不存在，要么是浏览器/系统替你做完的。<strong>在 TUI 里它们全都要产品自己做，而且做不好会直接毁掉可用性。</strong>本窗口每一件都有可引用的新证据。</p>
+  <p class="lead">这八件事在 GUI 里要么不存在，要么是浏览器/系统替你做完的——在 TUI 里全都要产品自己做。</p>
 
-  <div class="sub">① 中断与排队 —— Esc 是本产品最重要的一个键</div>
-  <p>第一部分已判定「Esc 必须始终可达」。本窗口补的是它的<strong>状态机</strong>：<span class="vb">CC 2.1.234 · 8/17</span> 修「选中排队消息时按 Esc 会误中断本轮」；<span class="vb">2.1.236 · 8/19</span> 改为<strong>全屏下 Esc 不再清除鼠标选区，但仍然中断/关闭对话框</strong>；<span class="vb">2.1.216 · 7/20</span> 修「长会话且有后台任务时，空闲提示符下连按两次 Esc 打不开 rewind 选择器」。
-  <span class="vb">2.1.218 · 7/22</span> 还修了一个更凶的：<strong>按左箭头会在无撤销的情况下丢弃整个对话</strong>——修法是改成先弹确认。</p>
-  <div class="rule"><b>规则：</b>Esc 的行为是 <code>(当前焦点, 是否有选区, 是否有队列, 是否在跑)</code> 的函数，必须在规范里画成完整状态表；<strong>任何「一个键即不可逆丢失」的路径都要加确认</strong>。</div>
-
-  <div class="diag-cap">图 12.1 · Esc 的判定顺序（简化版状态树）</div>
-  <div class="diag-tree">
-    <div class="tnode"><span class="tbullet a"></span> <b>Esc 按下</b></div>
-    <div class="tindent">
-      <div class="tnode"><span class="tbullet a"></span> <span class="tpath">对话框 / 面板打开中 → 关闭它</span></div>
-      <div class="mut" style="padding-left:26px;font-size:11px;margin:-2px 0 4px">选区状态不受影响（2.1.236 · 8/19）</div>
-      <div class="tnode"><span class="tbullet a"></span> <span class="tpath">Agent 正在跑 → 中断本轮</span></div>
-      <div class="tnode"><span class="tbullet q"></span> <span class="tpath alt">排队消息正被选中 → 不中断</span></div>
-      <div class="mut" style="padding-left:26px;font-size:11px;margin:-2px 0 4px">2.1.234 修复前这里会误中断——反面教训</div>
-      <div class="tnode"><span class="tbullet e"></span> <span class="tpath last">空闲 + 无选区 + 无对话框，连按两次 → 打开 rewind 选择器</span></div>
+  <div class="tpoint">
+    <h4>触点：① Esc 打断了什么，取决于当前在哪个状态</h4>
+    <div class="scenario">用户按 Esc 想中断 Agent、关掉一个面板，或者干脆想撤销刚才的操作——但同一个键在不同状态下该做的事完全不一样。</div>
+    <div class="conclusion">Esc 的行为是<b>(焦点、选区、队列、运行态)</b> 的函数，必须画成完整状态表；<b>任何「一个键即不可逆丢失」的路径都要加确认</b>（曾有版本按左箭头会无撤销丢弃整个对话）。</div>
+    <div class="diag-cap">图 12.1 · Esc 的判定顺序（简化版状态树）</div>
+    <div class="diag-tree">
+      <div class="tnode"><span class="tbullet a"></span> <b>Esc 按下</b></div>
+      <div class="tindent">
+        <div class="tnode"><span class="tbullet a"></span> <span class="tpath">对话框 / 面板打开中 → 关闭它，选区不受影响</span></div>
+        <div class="tnode"><span class="tbullet a"></span> <span class="tpath">Agent 正在跑 → 中断本轮</span></div>
+        <div class="tnode"><span class="tbullet q"></span> <span class="tpath alt">排队消息正被选中 → 不中断</span></div>
+        <div class="mut" style="padding-left:26px;font-size:11px;margin:-2px 0 4px">修复前这里会误中断——反面教训</div>
+        <div class="tnode"><span class="tbullet e"></span> <span class="tpath last">空闲 + 无选区 + 无对话框，连按两次 → 打开 rewind 选择器</span></div>
+      </div>
     </div>
   </div>
 
-  <div class="sub">② 鼠标捕获 vs 终端原生选择 —— 一个必须给逃生舱的取舍</div>
-  <p>这是第一部分 F1「全屏接管破坏终端原生复制」的正面解法，而且被做到了很完整的程度。Claude Code 全屏模式提供<strong>三档</strong>：</p>
-
-  <div class="diag-fallback">
-    <div class="fnode best">全捕获（默认）<br><span style="font-size:10px;opacity:.75">点击 / 拖选 / 滚轮全保留</span></div>
-    <span class="farr">→</span>
-    <div class="fnode">只保留滚轮<br><span style="font-size:10px;opacity:.75"><code>..._DISABLE_MOUSE_CLICKS</code></span></div>
-    <span class="farr">→</span>
-    <div class="fnode last">完全放弃鼠标<br><span style="font-size:10px;opacity:.75"><code>..._DISABLE_MOUSE</code></span></div>
+  <div class="tpoint">
+    <h4>触点：② 全屏接管了鼠标，怎么留一条逃生舱</h4>
+    <div class="scenario">用户想像平时一样拖选一段文字复制出去，但鼠标已经被 TUI 捕获用来做点击定位、展开卡片这些交互。</div>
+    <div class="conclusion">这是第一部分「全屏接管破坏终端原生复制」的正面解法：<b>捕获程度分档，且逃生舱要显式可见</b>——按什么键能拿回原生选择，因终端而异，产品要把正确的键提示出来。</div>
+    <div class="diag-fallback">
+      <div class="fnode best">全捕获（默认）<br><span style="font-size:10px;opacity:.75">点击/拖选/滚轮全保留</span></div>
+      <span class="farr">→</span>
+      <div class="fnode">只保留滚轮</div>
+      <span class="farr">→</span>
+      <div class="fnode last">完全放弃鼠标<br><span style="font-size:10px;opacity:.75">键盘滚动仍可用</span></div>
+    </div>
+    <div class="note w"><b>DevKit 直接适用：</b>主场景是 <code>ssh</code> 到鲲鹏服务器，很可能还套 tmux。<strong>复制走了哪条路要弹提示、探测不到终端时列出候选键</strong>——本地走系统剪贴板，tmux 里额外写 tmux buffer，SSH 下退回 OSC 52（部分终端默认禁用，iTerm2 要手工开）。</div>
   </div>
 
-  <div class="tw"><table class="tight">
-    <tr><th>档位</th><th>开关</th><th>保留</th><th>失去</th></tr>
-    <tr><td>全捕获（默认）</td><td>—</td><td>点击定位光标 · 点击展开工具结果 · 点击选项 · 拖选（松手自动复制）· 双击选词（按 iTerm2 词边界，路径算一个整体）· 三击选行 · <kbd>Shift+方向键</kbd> 键盘扩展选区 · 滚轮</td><td>终端原生 copy-on-select</td></tr>
-    <tr><td>只保留滚轮</td><td><code>CLAUDE_CODE_DISABLE_MOUSE_CLICKS=1</code></td><td>滚轮 / 触控板滚动</td><td>左键点击类交互</td></tr>
-    <tr><td>完全放弃鼠标</td><td><code>CLAUDE_CODE_DISABLE_MOUSE=1</code></td><td>无闪烁渲染 + 内存恒定 + 键盘滚动</td><td>点击定位 / 展开 / 链接 / 滚轮</td></tr>
-  </table></div>
-  <p>更值得抄的是<strong>「一次性原生选择」的按键因终端而异</strong>：Terminal.app 用 <kbd>Fn</kbd>、iTerm2 用 <kbd>Option</kbd>、VS Code 系用 <kbd>Shift</kbd>、其余多数 <kbd>Shift</kbd>；<strong>产品会在屏幕提示里显示正确的那个键</strong>，而在 SSH / tmux 下探测不到时<strong>就把候选键都列出来</strong>。剪贴板通路也分场景：本地走 <code>pbcopy</code>/<code>wl-copy</code>/<code>xclip</code>/<code>Set-Clipboard</code>，tmux 里额外写 tmux buffer，SSH 下退回 <strong>OSC 52</strong>，并且<strong>每次复制后弹一条提示告诉你走的是哪条路</strong>。</p>
-  <div class="note w"><b>DevKit 直接适用：</b>我们的主场景就是 <code>ssh</code> 到鲲鹏服务器，很可能还套着 tmux。<strong>「复制走了哪条路」的提示、以及探测不到终端时列出候选键，这两条必须抄。</strong>OSC 52 还有一层坑：部分终端默认禁用（iTerm2 要手工打开剪贴板访问）。</div>
-
-  <div class="sub">③ 滚动与自动跟随 —— 长任务的核心体验</div>
-  <p>Agent 会连续输出几分钟，滚动就成了主要交互。Claude Code 的做法完整到可以直接当规范抄：</p>
-  <div class="ct">
-    <div class="it"><span><b>向上滚动即暂停自动跟随</b>，新输出不再把你拽回底部；一个浮动的 <code>Jump to bottom</code> 按钮出现，并显示 <code>3 new messages</code> 这样的计数。</span></div>
-    <div class="it"><span><b>按钮的键盘提示随「你的键盘能送出什么」而变</b>：MacBook 键盘发不出 <kbd>Ctrl+Fn+→</kbd>，所以提示改成「点击」或 <kbd>Fn+↓</kbd>；重绑 <code>scroll:bottom</code> 后按钮显示你的组合键。<b>终端太窄时按钮缩短文案，而不是折行压到下面那行内容上。</b></span></div>
-    <div class="it"><span><b>滚动速度是可调的一等设置</b>：<code>CLAUDE_CODE_SCROLL_SPEED</code>（0.25–20），<code>/scroll-speed</code> 打开一个<strong>带尺子、可以边滚边感受</strong>的对话框，<kbd>←</kbd>/<kbd>→</kbd> 调、<kbd>r</kbd> 恢复自动探测值。另有 <code>wheelScrollAccelerationEnabled</code> 关掉快速滚动加速。</span></div>
-    <div class="it"><span><b>宿主差异要单独处理</b>：JetBrains 终端事件速率高得多，直接忽略全局倍率并自适应；2025.2 版本已知的滚轮 bug（产生虚假方向键、方向反了）由产品在运行时探测并绕开，还会在你第一次滚动时给一次提示。</span></div>
-  </div>
-  <div class="rule"><b>规则：</b>滚动不是「终端的事」——一旦进了 alt-screen，<strong>滚动的手感、速度、加速曲线、跟随策略全部变成产品责任</strong>，且必须按宿主差异分别校准。</div>
-
-  <div class="sub">④ 注意力与通知 —— Agent 会等你，你不会一直盯着</div>
-  <div class="tw"><table class="tight">
-    <tr><th>产品</th><th>做法</th></tr>
-    <tr><td>opencode</td><td>专门的 <code>attention</code> 配置：<strong>提问 / 权限请求 / 会话事件</strong>三类触发桌面通知与提示音，<strong>音量可调、支持自定义音效包</strong></td></tr>
-    <tr><td>Codex</td><td><code>tui.notifications</code>（布尔或数组，可按类型筛）；<code>tui.terminal_title</code> 可放 <code>spinner</code>，用终端标题栏当状态指示</td></tr>
-    <tr><td>Claude Code</td><td>后台 agent 等待输入时，agent view 页脚提示<strong>在计数变化时用颜色强调</strong>（<span class="vb">2.1.216 · 7/20</span>）；<code>/goal</code> 空闲会话 <span class="vb">2.1.234 · 8/17</span> 起<strong>按 30 分钟 → 1 小时 → 2 小时的退避自动来汇报</strong>，不再无限期挂着</td></tr>
-    <tr><td colspan="2"><b>反面细节：</b><span class="vb">CC 2.1.236 · 8/19</span> 修了「tmux + iTerm 集成下终端标签标题不停跳动」——原因是<strong>每 960ms 就写一次标题做动画</strong>，改为<strong>只在文本真正变化时才写</strong>。<span class="vb">2.1.212</span> 也更新过终端标题的忙碌 spinner 字形以减少标签栏抖动。<b>把终端标题当动画区是错的，它是别人的 UI。</b></td></tr>
-  </table></div>
-
-  <div class="sub">⑤ 无障碍 —— 本窗口新出现的一整条产品线</div>
-  <p>Claude Code <span class="vb">2.1.208 · 7/14</span> 引入屏幕阅读器模式（<code>claude --ax-screen-reader</code> / <code>CLAUDE_AX_SCREEN_READER=1</code> / <code>"axScreenReader": true</code>），随后持续打磨：</p>
-  <div class="ct">
-    <div class="it"><span>修「每次退格都重读整行输入」——改为行尾删除时<strong>只回显被删掉的字符</strong>（<span class="vb">2.1.208</span>）。</span></div>
-    <div class="it"><span><span class="vb">2.1.217 · 7/21</span> 为按词/按行删除（<kbd>Option+Delete</kbd> <kbd>Ctrl+W</kbd> <kbd>Cmd+Backspace</kbd> <kbd>Ctrl+U</kbd> <kbd>Ctrl+K</kbd>）<strong>播报被删除的文本</strong>。</span></div>
-    <div class="it"><span><span class="vb">2.1.229 · 8/12</span> 屏幕阅读器模式下 <code>/effort</code> 选择器<strong>改渲染成带编号的列表 + 输入数字</strong>，而不是靠方向键在高亮之间移动。</span></div>
-    <div class="it"><span><b>最关键的一条架构决定：</b>屏幕阅读器模式下<strong>强制使用经典渲染器</strong>（alt-screen 全屏对屏幕阅读器不友好），只有 attach 上去的后台会话例外；此时执行 <code>/tui fullscreen</code> 会<strong>打印解释而不切换，也不改动已保存设置</strong>。</span></div>
-  </div>
-  <div class="rule"><b>规则：</b>无障碍不是「加 ARIA 标签」，在 TUI 里它是<strong>一条平行的渲染路径 + 一套平行的控件形态</strong>（列表用编号、选择用输入数字、删除要播报）。这条与我们 <code>UI-SPEC.md</code> 里的「纯键盘降级」要合并考虑。</div>
-
-  <div class="sub">⑥ 终端能力协商与降级 —— 我们与宿主的谈判协议</div>
-
-  <div class="diag-cap">图 12.2 · 图形协议降级链示例（能力探测一次，全组件复用同一个结果）</div>
-  <div class="diag-fallback">
-    <div class="fnode best">Kitty graphics<br><span style="font-size:10px;opacity:.75">真实 raster pixels</span></div>
-    <span class="farr">→</span>
-    <div class="fnode">iTerm2 inline<br><span style="font-size:10px;opacity:.75">alt-screen 下强制跳过</span></div>
-    <span class="farr">→</span>
-    <div class="fnode last">文字占位<br><span style="font-size:10px;opacity:.75">永远可用的底线</span></div>
+  <div class="tpoint">
+    <h4>触点：③ Agent 连续输出时，滚动怎么跟</h4>
+    <div class="scenario">Agent 连续吐几分钟输出，用户往上滚看历史，不想被新内容拽回底部；但也想知道有没有新东西到了。</div>
+    <div class="conclusion">滚动不是「终端的事」——一旦进了 alt-screen，<b>手感、速度、跟随策略全部变成产品责任</b>，且要按宿主（JetBrains/VS Code 等）差异单独校准。</div>
+    <div class="cmpgrid">
+      <div class="cell best"><div class="pname">向上滚动</div><div class="pdesc">暂停自动跟随；浮动 <code>Jump to bottom</code> 按钮 + 新消息计数</div></div>
+      <div class="cell best"><div class="pname">滚动速度</div><div class="pdesc">一等可调设置，带尺子的调节对话框，边滚边感受</div></div>
+      <div class="cell"><div class="pname">宿主差异</div><div class="pdesc">JetBrains 终端事件速率不同，需运行时探测并自适应</div></div>
+    </div>
   </div>
 
-  <div class="tw"><table class="tight">
-    <tr><th>能力</th><th>怎么协商</th><th>协商失败怎么办</th></tr>
-    <tr><td>同步输出 <code>CSI ?2026</code></td><td>启动时探测；pi-tui <strong>把每一次更新都包在 <code>\x1b[?2026h ... l</code> 里</strong>，主屏与 alt-screen 都包</td><td><strong>tmux 3.6 及以前不实现同步输出</strong> → 会看到更多闪烁；产品的建议是升级 tmux 或不要在 tmux 里跑</td></tr>
-    <tr><td>Kitty 键盘协议</td><td>pi-tui 启动时协商，用于区分 Esc / Alt 与拿 key-release</td><td>回退到普通键序解析，部分组合键不可用 → <strong>提示文案要跟着变</strong></td></tr>
-    <tr><td>图形协议</td><td>Kitty graphics / iTerm2 inline images</td><td>降级为<strong>文字占位</strong>；<b>alt-screen 下 iTerm2 协议一律占位</b>——该协议缺少删除与裁剪，重绘视口会出错</td></tr>
-    <tr><td>增量重绘</td><td>只发生变化的 cell</td><td><strong>ConPTY 系（Windows Terminal 等）会把定位写入合并错，留下上一帧残影</strong> → <code>CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT=1</code> 改为每帧全量重绘；Windows 上后台会话与 agent view 已默认开启</td></tr>
-    <tr><td>鼠标上报</td><td>终端需转发鼠标事件</td><td>iTerm2 是 per-profile 开关（关着时滚轮无效但 PgUp/PgDn 有效）；tmux 需 <code>set -g mouse on</code>，<strong>产品检测到 tmux 未开鼠标会在启动时给一次性提示</strong></td></tr>
-    <tr><td>整体兜底</td><td>—</td><td><span class="vb">CC 2.1.237 · 8/20</span>：<strong>全屏渲染器启动失败一次后不再永久失败，而是回落到经典渲染器</strong></td></tr>
-  </table></div>
-  <div class="note w"><b>已知不兼容也要写进规范：</b>全屏渲染与 <strong>iTerm2 的 tmux 集成模式（<code>tmux -CC</code>）不兼容</strong>——该模式下 iTerm2 把每个 tmux pane 渲染成原生分屏，alt-screen 与鼠标跟踪都不正确（滚轮无效，双击可能损坏终端状态）。<strong>「已知不可用的宿主组合」应当在文档里点名，而不是让用户自己撞。</strong></div>
+  <div class="tpoint">
+    <h4>触点：④ Agent 在等你，你不在屏幕前怎么办</h4>
+    <div class="scenario">Agent 卡在一个权限确认或问题上，用户去干别的了——需要一种方式在恰当时机拽回注意力，但不能吵。</div>
+    <div class="conclusion">桌面通知 + 终端标题是共识通道，但<b>终端标题不是动画区</b>——曾有版本每 960ms 重写一次标题做动画，导致 tmux 标签栏抖动，改成只在文本真正变化时才写。</div>
+    <div class="cmpgrid">
+      <div class="cell best"><div class="pname">opencode</div><div class="pdesc">按提问/权限请求/会话事件三类触发通知与提示音，音量可调</div></div>
+      <div class="cell"><div class="pname">Claude Code</div><div class="pdesc"><code>/goal</code> 空闲会话按 30min→1h→2h 退避自动汇报，不再无限期挂着</div></div>
+    </div>
+  </div>
 
-  <div class="sub">⑦ 计费与用量 —— 状态栏里的第三种数字</div>
-  <p>Codex <span class="vb">0.148.0 · 8/18</span> 把<strong>预估 thread credits / 成本</strong>同时放进 <code>/status</code>、状态行和<strong>终端标题</strong>。Claude Code 这边是配额侧：<span class="vb">2.1.211 · 7/15</span> 修 <code>/clear</code> 不重置会话成本计数（状态行成本现在从 $0 开始）；<span class="vb">8/7–8/8</span> 加入网关消费上限支持，<strong>触顶提示会写明上限值、重置时间和运营方留言</strong>；<span class="vb">2.1.234 · 8/17</span> <code>/config</code> 新增「用量触顶后自动继续」开关。</p>
-  <div class="rule"><b>规则：</b>成本是<strong>会话级状态</strong>，不是消息级装饰（第一部分已判定「费用角标常驻、不出现在每条输出中」）。本窗口补两条：<strong>清空会话必须重置计数</strong>；<strong>触顶提示必须给出上限值与恢复时间，而不是只说「超了」</strong>。</div>
+  <div class="tpoint">
+    <h4>触点：⑤ 屏幕阅读器用户怎么用这套界面</h4>
+    <div class="scenario">全屏 alt-screen 渲染对屏幕阅读器不友好，但无障碍需求不会因为产品是 TUI 就消失。</div>
+    <div class="conclusion"><b>最关键的架构决定</b>：屏幕阅读器模式下强制使用经典渲染器（非 alt-screen），列表选择改成编号+输入数字，删除要播报——这是<b>一条平行渲染路径</b>，不是加几个 ARIA 标签。</div>
+  </div>
 
-  <div class="sub">⑧ 多端与远程 —— TUI 正在与会话解耦</div>
-  <p>三条独立证据指向同一个方向：Grok Build 的 <strong>leader 模式</strong>（一个 agent 进程多个客户端，UI 断开会话不死）；Claude Code 的 <strong>Remote Control / cloud session</strong>（<code>ListAgents</code> 把断开的标为 <code>offline</code>、云会话标为 <code>cloud</code>；<code>/teleport</code> 提示怎么在本地接着干）；Amp 重构 CLI 的目标之一就是<strong>可远程控制</strong>。</p>
-  <div class="note s"><b>对 DevKit 是刚需，不是加分项。</b>我们的会话跑在鲲鹏服务器上，一次迁移编译可能几十分钟。<strong>「关掉本地终端 → 会话继续 → 明天换台机器接回来」是基本诉求。</strong>这要求会话状态从第一版起就<strong>不绑定在 TUI 进程里</strong>——这是架构决定，不是后续可以补的功能。</div>
+  <div class="tpoint">
+    <h4>触点：⑥ 终端支持什么能力，怎么协商</h4>
+    <div class="scenario">同步输出、Kitty 键盘协议、图形协议、鼠标上报——每一项终端可能支持也可能不支持，产品需要知道并优雅降级。</div>
+    <div class="conclusion">能力探测<b>一次性做，全组件复用结果</b>；已知不兼容的宿主组合（如 iTerm2 的 <code>tmux -CC</code> 模式）应在文档里点名，而不是让用户自己撞。</div>
+    <div class="diag-cap">图 12.2 · 图形协议降级链（能力探测一次，全组件复用同一个结果）</div>
+    <div class="diag-fallback">
+      <div class="fnode best">Kitty graphics<br><span style="font-size:10px;opacity:.75">真实 raster pixels</span></div>
+      <span class="farr">→</span>
+      <div class="fnode">iTerm2 inline<br><span style="font-size:10px;opacity:.75">alt-screen 下强制跳过</span></div>
+      <span class="farr">→</span>
+      <div class="fnode last">文字占位<br><span style="font-size:10px;opacity:.75">永远可用的底线</span></div>
+    </div>
+    <p class="src">同理还有三条：同步输出在旧版 tmux 里不生效（建议升级而非硬扛）；增量重绘在 ConPTY 上会留残影（需要全量重绘兜底）；渲染器整体启动失败要自动回落经典渲染器，不能永久失败。</p>
+  </div>
+
+  <div class="tpoint">
+    <h4>触点：⑦ 花了多少钱，用户想在哪看到</h4>
+    <div class="scenario">Agent 每次调用模型都在花钱，用户想知道这次会话花了多少、还能花多少。</div>
+    <div class="conclusion">成本是<b>会话级状态</b>，不是消息级装饰；<b>清空会话必须重置计数</b>，触顶提示必须给出上限值与恢复时间，而不是只说"超了"。</div>
+  </div>
+
+  <div class="tpoint">
+    <h4>触点：⑧ 关掉本地终端，会话是不是就没了</h4>
+    <div class="scenario">一次迁移编译可能几十分钟，用户想关掉本地终端，第二天换台机器接着看。</div>
+    <div class="conclusion">三条独立证据指向同一个方向：<b>TUI 正在与会话进程解耦</b>——对 DevKit 是刚需不是加分项，要求会话状态从第一版起就不绑定在 TUI 进程里，这是架构决定，后续补不上。</div>
+  </div>
+
+  <div class="actionbox">
+    <div class="ab-h">交互设计动作项 · 8 个补充场景 → 组件契约</div>
+    <div class="tw">
+    <table class="tight">
+      <tr><td>Esc 状态机</td><td>把图 12.1 的判定树直接实现为一个显式状态机（不是散落的 if 判断）：<code>hasDialog → hasSelection → isRunning → hasQueuedSelected → idle</code> 五态优先级固定，任何新交互接入 Esc 前必须声明自己插在哪一档</td></tr>
+      <tr><td>鼠标捕获三档</td><td>三档不是三个互斥模式，是同一套事件处理器的<strong>能力子集开关</strong>——实现上应该是一个事件处理器按开关位跳过某些分支，而不是三份平行代码，否则三档会逐渐行为漂移</td></tr>
+      <tr><td>能力探测时机</td><td>同步输出 / Kitty 协议 / 图形协议 / 鼠标上报四类探测<strong>必须在启动时一次性完成</strong>，结果写入一个只读的 <code>TerminalCapabilities</code> 对象供全组件读取；任何组件运行时自行探测都是重复劳动且可能与全局结果不一致</td></tr>
+      <tr><td>降级不是错误态</td><td>图形协议降级到文字占位、鼠标降级到纯键盘，UI 上不应出现"错误"或"警告"视觉——这是<strong>正常路径</strong>，只在⑥那类"已知不兼容宿主"上才升级为警告</td></tr>
+    </table>
+    </div>
+  </div>
 
   <div class="actionbox">
     <div class="ab-h">交互设计动作项 · 8 个补充场景 → 组件契约</div>
