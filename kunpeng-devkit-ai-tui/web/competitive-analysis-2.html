@@ -463,6 +463,104 @@ table.tight td,table.tight th{padding:6px var(--s3);font-size:12px}
 .tocbar a{font-family:var(--mono);font-size:11px;background:var(--surface-2);border-radius:var(--r-pill);
   padding:4px 11px;color:var(--fg3);transition:all var(--fast) var(--ease)}
 .tocbar a:hover{background:var(--surface-3);color:var(--primary-h)}
+
+/* ══ 图示层：终端 mockup / 引线标注 / 故障标记（本次新增） ══ */
+.src-link{color:var(--fg4);text-decoration:none;border-bottom:1px dashed var(--bd3)}
+.src-link:hover{color:var(--primary-h);border-bottom-color:var(--primary-h)}
+a.vb{text-decoration:none;transition:all var(--fast) var(--ease)}
+a.vb:hover{background:rgba(4,215,147,.2);color:var(--ok)}
+a.vb.o:hover{background:rgba(255,170,59,.2);color:var(--warn)}
+a.vb.d:hover{background:rgba(255,75,123,.2);color:var(--danger)}
+
+.term{background:#0b0e14;border-radius:var(--r-lg);overflow:hidden;font-family:var(--mono);
+  font-size:11.5px;line-height:1.75;box-shadow:0 0 0 1px var(--bd1)}
+.term-bar{display:flex;align-items:center;gap:6px;padding:7px 10px;background:#12161f;
+  border-bottom:1px solid rgba(255,255,255,.06)}
+.term-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.term-dot.r{background:#ff5f57}.term-dot.y{background:#febc2e}.term-dot.g{background:#28c840}
+.term-title{font-size:10px;color:#5a6070;margin-left:4px;letter-spacing:.02em}
+.term-body{padding:11px 13px;color:#d6dae3;position:relative}
+.term .prompt{color:#5b9dff}
+.term .mut{color:#5a6070}
+.mut{color:var(--fg4)}
+.term .ph{color:#4a5060;font-style:normal}
+.term .ok2{color:#3ddc97}
+.term .warn2{color:#ffb454}
+.term .err2{color:#ff6b8b}
+.term .chip{display:inline-block;font-size:9.5px;padding:1px 6px;border-radius:3px;
+  background:rgba(91,157,255,.14);color:#7db4ff;margin:0 2px;vertical-align:middle}
+.term .chip.g{background:rgba(61,220,151,.14);color:#3ddc97}
+.term .chip.o{background:rgba(255,180,84,.14);color:#ffb454}
+.term .cur{display:inline-block;width:2px;height:12px;background:#5b9dff;vertical-align:middle;
+  animation:tcur 1s step-end infinite}
+@keyframes tcur{50%{opacity:0}}
+.termrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:var(--s3);margin:var(--s4) 0}
+.termcap{font-size:11.5px;color:var(--fg3);margin-top:8px;line-height:1.55}
+.termcap b{color:var(--fg)}
+
+/* 故障标记：编号圆点钉在 mockup 上 + 图例逐条对照 */
+.defect{position:absolute;width:17px;height:17px;border-radius:50%;background:var(--danger);
+  color:#1a0208;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 3px rgba(255,75,123,.22);z-index:3;font-family:var(--mono)}
+.defect-legend{display:flex;flex-direction:column;gap:8px;margin-top:var(--s3)}
+.defect-legend .dli{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--fg2);line-height:1.55}
+.defect-legend .dnum{width:17px;height:17px;border-radius:50%;background:var(--danger);color:#1a0208;
+  font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  margin-top:1px;font-family:var(--mono)}
+.defect-legend .dli b{color:var(--fg)}
+
+/* 引线标注：左侧固定画布 mockup + 右侧编号图例，ticks 指回画布 */
+.leaderwrap{min-width:860px}
+.leaderbox{display:grid;grid-template-columns:380px 1fr;gap:0;background:var(--surface-1);
+  border-radius:var(--r-lg);overflow:hidden}
+.leaderbox .lmock{padding:var(--s4);position:relative;border-right:1px solid var(--bd1)}
+.leaderbox .llegend{display:flex;flex-direction:column}
+.leaderbox .lrow{display:flex;align-items:center;gap:0;flex:1;position:relative;
+  border-bottom:1px solid var(--bd1)}
+.leaderbox .lrow:last-child{border-bottom:none}
+.leaderbox .lrow::before{content:'';width:22px;height:1px;background:var(--bd3);flex-shrink:0;
+  margin-left:-1px}
+.leaderbox .lrow .lnum{width:22px;height:22px;border-radius:50%;background:var(--primary-h);
+  color:#04070d;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-family:var(--mono)}
+.leaderbox .lrow.risk .lnum{background:var(--danger);color:#1a0208}
+.leaderbox .lrow.gap .lnum{background:var(--warn);color:#1a0208}
+.leaderbox .lrow .lbody{padding:9px var(--s3);min-width:0}
+.leaderbox .lrow .lnm{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--fg);margin-bottom:2px}
+.leaderbox .lrow.risk .lnm{color:var(--danger)}
+.leaderbox .lrow.gap .lnm{color:var(--warn)}
+.leaderbox .lrow .lds{font-size:12px;color:var(--fg3);line-height:1.5}
+.lpin{position:absolute;width:18px;height:18px;border-radius:50%;background:var(--primary-h);
+  color:#04070d;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;
+  z-index:3;font-family:var(--mono);box-shadow:0 0 0 3px rgba(0,119,255,.18)}
+.lpin.risk{background:var(--danger);color:#1a0208;box-shadow:0 0 0 3px rgba(255,75,123,.18)}
+.lpin.gap{background:var(--warn);color:#1a0208;box-shadow:0 0 0 3px rgba(255,170,59,.18)}
+
+/* 交互设计动作项：从研究结论直接落到组件契约 */
+.actionbox{background:rgba(0,119,255,.06);border:1px solid rgba(0,119,255,.18);border-radius:var(--r-lg);
+  padding:var(--s4);margin:var(--s4) 0}
+.actionbox .ab-h{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--primary-h);margin-bottom:var(--s3);display:flex;align-items:center;gap:var(--s2)}
+.actionbox .ab-h::before{content:'◆'}
+.actionbox table{margin:0}
+.actionbox td:first-child{white-space:nowrap;color:var(--primary-h);font-family:var(--mono);font-size:11px}
+
+/* 两轨对照（用于压缩前后 / 分叉前后等时间线型对比） */
+.dualtrack{background:var(--surface-1);border-radius:var(--r-lg);padding:var(--s4);margin:var(--s4) 0}
+.dualtrack .dt-row{display:grid;grid-template-columns:90px 1fr;gap:var(--s3);align-items:stretch;margin:var(--s2) 0}
+.dualtrack .dt-label{display:flex;align-items:center;font-family:var(--mono);font-size:11px;
+  color:var(--fg3);letter-spacing:.04em}
+.dualtrack .dt-track{display:flex;align-items:stretch;gap:2px;border-radius:var(--r-sm);overflow:hidden;min-height:44px}
+.dualtrack .dt-seg{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:6px 8px;font-size:10.5px;text-align:center;line-height:1.35}
+.dualtrack .dt-seg.hist{background:var(--surface-3);color:var(--fg3)}
+.dualtrack .dt-seg.sum{background:rgba(255,170,59,.12);color:var(--warn);font-weight:600}
+.dualtrack .dt-seg.kept{background:rgba(4,215,147,.1);color:var(--ok)}
+.dualtrack .dt-seg.new{background:rgba(0,119,255,.12);color:var(--primary-h)}
+.dualtrack .dt-split{width:2px;background:var(--danger);position:relative;flex-shrink:0}
+.dualtrack .dt-split::after{content:'压缩';position:absolute;top:-18px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:9.5px;color:var(--danger);white-space:nowrap}
+.dualtrack .dt-note{font-size:11.5px;color:var(--fg3);margin-top:var(--s2)}
 </style>
 </head>
 <body>
@@ -550,6 +648,18 @@ table.tight td,table.tight th{padding:6px var(--s3);font-size:12px}
 
   <div class="note w"><b>一处口径澄清：</b>需求里的「harness」在 2026 年有两个所指——① 泛指<strong>Agent 脚手架层</strong>（组装上下文 → 调模型 → 解析回复 → 派发工具）；② 特指以此自我标榜的一类产品，代表是 <strong>Grok Build</strong>（SpaceXAI，2026-07 开源，自称 "coding agent harness and TUI"）与 <strong>Pi</strong>。本报告<strong>两个都收</strong>：把 harness 作为一条产品线（F2 收 Grok Build 与 Pi），同时把「harness 化」当作一种架构趋势来分析（F11 leader 模式、F7 ACP）。</div>
 
+  <div class="sub">图示语言：借用了哪里，又刻意没抄什么</div>
+  <p>全篇的终端 mockup（描边窗口 + 红黄绿灯 + 等宽内容）、编号图例配色卡片、以及"我们的方向"式的动作项排布，视觉手法参考了 <a class="src-link" href="https://schihhsin.github.io/CLI/index.html" target="_blank" rel="noopener">SchihHsin/CLI</a>（尤其是 <a class="src-link" href="https://schihhsin.github.io/CLI/tp-startup.html" target="_blank" rel="noopener">tp-startup.html</a> 的启动阶段对比）——这是一套面向 <strong>CLI</strong> 场景的设计报告，值得借鉴表达方式，但<strong>场景不同，不能直接照搬结论</strong>：</p>
+  <div class="tw">
+  <table class="tight">
+    <tr><th>维度</th><th>该参考里的 CLI 场景</th><th>本报告的 TUI 场景</th><th>处理方式</th></tr>
+    <tr><td>进程生命周期</td><td>一次性调用，执行完退出（Aider / 早期 Codex 模式）</td><td>全屏常驻，alt-screen 接管终端直到用户退出</td><td><strong>不借</strong>「Banner 滚走后消失」类结论——alt-screen 下没有「滚走」这回事，第一部分已把这条差异定为 T0 前提</td></tr>
+    <tr><td>Banner 的角色</td><td>启动时一次性信息展示，是否精简是核心张力</td><td>常驻状态栏 / Chips，可随时查阅，不是一次性的</td><td><strong>部分借</strong>「只保留最关键两项、其余按需查阅」的分层思路，用在 F4 状态栏设计上，但不借"消失后不可查看"这个 CLI 特有的痛点</td></tr>
+    <tr><td>对比呈现手法</td><td>终端窗口 mockup + 逐维度表格 + 优劣势 pill</td><td>同上，另加故障编号标注（图 2.1 / 10.1）与 SVG 引线（图 3.1）</td><td><strong>全借</strong>并扩展——TUI 场景的证据更多是"版本修复记录"而非"产品定位差异"，所以额外发展出故障标注这一套本参考没有的图示</td></tr>
+    <tr><td>结论落点</td><td>"我们的方向"给出一版完整重设计 mockup</td><td>按域给"交互设计动作项"（组件契约、状态归属、验收顺序）</td><td><strong>换一种落点</strong>：CLI 报告面向"设计一屏"，本报告面向"给一整套组件定行为契约"——TUI 的复杂度在状态机而非单屏布局</td></tr>
+  </table>
+  </div>
+
   <div class="sub">12 个交互域</div>
   <div class="dim">
     <a href="#f3"><b>输入方式</b><span>11 触点</span></a>
@@ -587,29 +697,67 @@ table.tight td,table.tight th{padding:6px var(--s3);font-size:12px}
       <div class="plane">Fullscreen Renderer · Alt-Screen</div>
       <p><b>本窗口最激进的一个。</b>全屏渲染器（alt-screen + 鼠标捕获 + 只渲染可见消息、内存恒定）已对 <span class="vb">2026-05-06 之后的新用户默认开启</span>，老用户用 <code>/tui fullscreen</code> 切，<code>/tui default</code> 切回。</p>
       <p>窗口内的变更密度极高：输入高亮偏移、多行清空后残留空带、resize 后 pane 不重绘、对话框超出右边界、markdown 三级列表错位、emoji 截断乱码——<strong>几乎全是全屏渲染器带来的新 bug 面</strong>。</p>
-      <p class="src">一手：官方 changelog + fullscreen 文档</p>
+      <p class="src">一手：<a class="src-link" href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">官方 changelog</a> + <a class="src-link" href="https://code.claude.com/docs/en/fullscreen" target="_blank" rel="noopener">fullscreen 文档</a></p>
     </div>
     <div class="card pcard" style="--tint:#04d793">
       <div class="pname"><b>Codex CLI</b><span class="ver">v0.147.0 · 8/7 &nbsp;/&nbsp; v0.148.0 · 8/18</span></div>
       <div class="plane">TOML 可配置 TUI · Sections</div>
       <p><b>本窗口配置能力最强的一个。</b><code>[tui]</code> 命名空间自 v0.128.0 起成体系：7 个 keymap context、32 套内置主题 + <code>.tmTheme</code>、<code>status_line</code> 与 <code>terminal_title</code> 都是可排序数组。</p>
       <p>窗口内两件大事：<span class="vb">0.147.0</span> 上了<strong>会话分区（sections，可手工排序、可持久）</strong>与增量浏览长 transcript；<span class="vb">0.148.0</span> 上了 <code>/export</code> 导出 Markdown、<code>codex exec fork</code>、resume picker 里归档/恢复，以及「TUI 初始化时就能先起草 prompt」。</p>
-      <p class="src">一手：官方 changelog；<span class="src">〔二手〕</span>[tui] 键位细节</p>
+      <p class="src">一手：<a class="src-link" href="https://developers.openai.com/codex/changelog" target="_blank" rel="noopener">官方 changelog</a>；<span class="src">〔二手〕</span>[tui] 键位细节</p>
     </div>
     <div class="card pcard" style="--tint:#FA8838">
       <div class="pname"><b>Gemini CLI</b><span class="ver">v0.46 → v0.56 · 6/9–8/13</span></div>
       <div class="plane">PTY 内嵌 · 交互式 Shell</div>
       <p>形态上最特殊：<strong>把真正的 PTY 装进了 Agent 会话</strong>——vim / htop / 交互式 git 直接在会话内跑。本窗口的变更集中在<strong>加固而非扩张</strong>：<span class="vb">v0.46 · 6/9</span> 加固 PTY resize 防原生崩溃、<span class="vb">v0.53 · 7/28</span> 收紧 workspace trust 防 RCE、<span class="vb">v0.54 · 8/6</span> 修 <code>/compress</code> 后会话重载丢工具响应。</p>
-      <p class="src">〔二手〕releasebot 聚合的版本条目</p>
+      <p class="src">〔二手〕<a class="src-link" href="https://releasebot.io/updates/google/gemini-cli" target="_blank" rel="noopener">releasebot 聚合的版本条目</a></p>
     </div>
     <div class="card pcard" style="--tint:#9B3CF6">
       <div class="pname"><b>Grok Build</b><span class="ver">开源 2026-07-15 · Apache-2.0</span></div>
       <div class="plane">Harness-First · ratatui + crossterm</div>
       <p><b>本窗口最重要的一次架构公开。</b>SpaceXAI 把整套 harness + TUI + 工具层开源（约 84 万行 Rust）。关键不是它开源，而是它<strong>把 ACP 当成内部产品 API</strong>：TUI 只是「公共协议线上的一个客户端」，headless / leader / WebSocket / stdio 共享同一套会话架构。</p>
       <p>由此派生出 <strong>leader 模式</strong>：一个长活 agent 进程带多个客户端，UI 断开不影响会话。</p>
-      <p class="src">仓库 README 为一手；架构细节〔二手〕，标 ⚠️ 待核查</p>
+      <p class="src"><a class="src-link" href="https://github.com/xai-org/grok-build" target="_blank" rel="noopener">仓库 README</a> 为一手；架构细节〔二手〕，标 ⚠️ 待核查</p>
     </div>
   </div>
+
+  <div class="diag-cap">图 2.1 · 全屏渲染器新增的 bug 面 —— 同一块界面上，六个真实缺陷落在哪</div>
+  <div class="tw">
+  <div class="term" style="max-width:760px;position:relative">
+    <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-title">claude code — alt-screen（示意，非真实截图）</span></div>
+    <div class="term-body" style="padding:14px 16px 16px">
+      <div style="position:relative;padding-left:2px">
+        <div><span class="prompt">❯</span> 帮我看下 <span class="chip">@crypto.c</span><span style="margin-left:2px"> 里的 AES-NI 迁移<span class="defect" style="position:static;display:inline-flex;margin-left:2px;transform:translateY(-5px)">1</span></span></div>
+        <div style="height:16px"></div>
+      </div>
+      <div style="position:relative">
+        <div class="mut" style="font-size:10px">✔ Read src/crypto.c</div>
+        <div class="mut" style="font-size:10px">✔ Edit src/crypto.c<span class="defect" style="position:static;display:inline-flex;margin-left:6px;transform:translateY(-2px)">2</span></div>
+      </div>
+      <div style="height:14px"></div>
+      <div style="position:relative;border:1px solid rgba(91,157,255,.35);border-radius:7px;padding:8px 46px 8px 10px">
+        继续处理 NEON 那部分<span class="cur"></span>
+        <div class="defect" style="top:6px;right:6px">3</div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="mut" style="font-size:9.5px;position:relative">3 级列表 · 迁移清单<span class="defect" style="position:static;display:inline-flex;margin-left:6px;transform:translateY(-2px)">4</span>
+        <div style="padding-left:14px">1. AES-NI<div style="padding-left:14px">a. crypto.c<div style="padding-left:14px">i. 第 120 行</div></div></div>
+      </div>
+      <div style="height:8px"></div>
+      <div class="mut" style="font-size:9.5px;position:relative">审查改动量较大，建议 review 📋<span class="defect" style="position:static;display:inline-flex;margin-left:6px;transform:translateY(-2px)">5</span></div>
+    </div>
+    <div class="defect" style="top:8px;right:8px">6</div>
+  </div>
+  </div>
+  <div class="defect-legend">
+    <div class="dli"><div class="dnum">1</div><div>多行输入里 <b>@ 文件引用高亮整体偏移 ≥1 字符</b>，<span class="vb">2.1.235 · 8/18</span> 才修</div></div>
+    <div class="dli"><div class="dnum">2</div><div><b>多行清空后残留一条空带</b>悬在输入区上方，<span class="vb">2.1.236 · 8/19</span> 修</div></div>
+    <div class="dli"><div class="dnum">3</div><div><b>对话框 / 输入框超出终端右边界</b>，<span class="vb">2.1.232 · 8/13</span> 修；同窗口 <code>/model</code> 选择器也曾画得比终端还高</div></div>
+    <div class="dli"><div class="dnum">4</div><div><b>三级以上嵌套 markdown 列表错位</b>，折行项缺悬挂缩进，<span class="vb">2.1.235 · 8/18</span> 修</div></div>
+    <div class="dli"><div class="dnum">5</div><div><b>长预览在 emoji 中间被截断产生乱码字符</b>，<span class="vb">2.1.233 · 8/14</span> 修</div></div>
+    <div class="dli"><div class="dnum">6</div><div><b>terminal resize 后 pane 不重绘</b>；resize 走开再走回同样不重绘，<span class="vb">2.1.236 · 8/19</span> 修</div></div>
+  </div>
+  <p class="src">全部为已修复项，据 <a class="src-link" href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">官方 changelog</a> 与 <a class="src-link" href="https://code.claude.com/docs/en/fullscreen" target="_blank" rel="noopener">fullscreen 文档</a> 复原示意，非真实截图；版本号即上线修复的版本</p>
 
   <div class="sub">线 B · 开源 Agent TUI</div>
   <div class="grid g2">
@@ -618,21 +766,21 @@ table.tight td,table.tight th{padding:6px var(--s3);font-size:12px}
       <div class="plane">Leader 键 · tui.json</div>
       <p>键位体系仍是标杆：leader <kbd>ctrl+x</kbd> + <code>leader_timeout 2000ms</code>，全部可在 <code>tui.json</code> 重绑或设 <code>"none"</code> 禁用。父子会话原地导航（<kbd>&lt;leader&gt;↓</kbd> 进子、<kbd>←</kbd>/<kbd>→</kbd> 循环、<kbd>↑</kbd> 回父）到现在仍没有对手。</p>
       <p>本窗口的信号是<strong>产品线分叉</strong>：release notes 已按 <b>Core / TUI / Desktop</b> 三段发布，TUI 侧主要做延迟与 markdown 渲染（解析移出主线程）。<span class="vb o">⚠️ 仓库归属由 sst 变为 anomalyco，待核查</span></p>
-      <p class="src">官方 docs（keybinds / tui）为一手</p>
+      <p class="src">官方 docs（<a class="src-link" href="https://opencode.ai/docs/keybinds/" target="_blank" rel="noopener">keybinds</a> / <a class="src-link" href="https://opencode.ai/docs/tui/" target="_blank" rel="noopener">tui</a>）为一手</p>
     </div>
     <div class="card pcard" style="--tint:#F4CB22">
       <div class="pname"><b>Crush</b><span class="ver">v0.86 → v0.90 · 7/20–8/19</span></div>
       <div class="plane">Charm 系 · 侧栏可聚焦</div>
       <p>本窗口在<strong>侧栏与代码联动</strong>上推进最明确：<span class="vb">v0.86 · 7/20</span> 侧栏变成可滚动、可聚焦（<kbd>j</kbd>/<kbd>k</kbd>/<kbd>g</kbd>/<kbd>G</kbd>），同版加了 <code>lsp_rename</code> / <code>lsp_replace_symbol</code> 两个 LSP 工具并配 fancy diff 预览。</p>
       <p>细节做得很「桌面」：附件 chip 上有可点的 <b>✕</b>、退出时给一张带「怎么快速接上刚才那个会话」提示的 splash、认证对话框加 <kbd>u</kbd> 复制 URL（专为 SSH 场景）。</p>
-      <p class="src">〔二手〕releases 聚合</p>
+      <p class="src">〔二手〕<a class="src-link" href="https://github.com/charmbracelet/crush/releases" target="_blank" rel="noopener">releases 聚合</a></p>
     </div>
     <div class="card pcard" style="--tint:#7c8db8">
       <div class="pname"><b>Pi / pi-tui</b><span class="ver">文档态 · 2026</span></div>
       <div class="plane">最小 harness · 渲染引擎可读</div>
       <p>选它<strong>不是因为产品，是因为它的 TUI 层是公开可读的工程答案</strong>：差分渲染三策略、全部更新包在 <code>CSI ?2026h/l</code> 同步输出里、启动时协商 Kitty 键盘协议（为了分清 Esc 与 Alt、拿到 key-release）、组件接口只有 <code>render(width)</code> / <code>handleInput(data)</code> / <code>invalidate()</code>。</p>
       <p>图片走 Kitty / iTerm2 协议，不支持则降级为文字占位；<strong>alt-screen 下 iTerm2 协议一律降级为占位</strong>——因为该协议缺少删除与裁剪操作，重绘视口时会出错。这条是我们做 Hybrid 渲染时必须抄的约束。</p>
-      <p class="src">仓库 README 为一手</p>
+      <p class="src"><a class="src-link" href="https://github.com/earendil-works/pi/blob/main/packages/tui/README.md" target="_blank" rel="noopener">仓库 README</a> 为一手</p>
     </div>
     <div class="card pcard" style="--tint:#ff4b7b">
       <div class="pname"><b>Amp</b><span class="ver">CLI 重构「Neo」· 2026</span></div>
@@ -645,9 +793,9 @@ table.tight td,table.tight th{padding:6px var(--s3);font-size:12px}
   <div class="sub">线 C · 通用 TUI 参照（只取本窗口的新证据）</div>
   <div class="tw"><table class="tight">
     <tr><th>产品</th><th>版本 · 日期</th><th>本窗口贡献给我们的东西</th></tr>
-    <tr><td><b>Yazi</b></td><td><span class="vb">v26.8.15 · 8/15</span></td><td><strong>图标进对话框</strong>（trash / delete / overwrite 确认框里带文件图标）· <strong>输入框上下文图标</strong> · 自动明暗主题切换 · <code>which</code> 组件边框可配 · Zellij 下经 Kitty 协议出图 · 动态 keymap Lua API · <kbd>&lt;BackTab&gt;</kbd> 更名 <kbd>&lt;S-Tab&gt;</kbd></td></tr>
-    <tr><td><b>superfile</b></td><td><span class="vb">v1.6.0 · 6/7</span></td><td><strong>侧栏分区可隐藏、可重排（写在配置文件里）</strong>——AI 派至今没人做到这一步；预览可靠性靠升级到 Bubble Tea v2 解决</td></tr>
-    <tr><td><b>lazygit</b></td><td><span class="vb">v0.63.1 · 7/15</span></td><td><kbd>w</kbd> 在分支 / 提交 / stash 面板上<strong>直接从选中项建 worktree</strong>，不再弹确认菜单——「选中即操作」的又一例；提交图换成兼容性更好的 Unicode 符号</td></tr>
+    <tr><td><b>Yazi</b></td><td><a class="vb" href="https://github.com/sxyazi/yazi/releases" target="_blank" rel="noopener">v26.8.15 · 8/15</a></td><td><strong>图标进对话框</strong>（trash / delete / overwrite 确认框里带文件图标）· <strong>输入框上下文图标</strong> · 自动明暗主题切换 · <code>which</code> 组件边框可配 · Zellij 下经 Kitty 协议出图 · 动态 keymap Lua API · <kbd>&lt;BackTab&gt;</kbd> 更名 <kbd>&lt;S-Tab&gt;</kbd></td></tr>
+    <tr><td><b>superfile</b></td><td><a class="vb" href="https://github.com/yinm/superfile/releases" target="_blank" rel="noopener">v1.6.0 · 6/7</a></td><td><strong>侧栏分区可隐藏、可重排（写在配置文件里）</strong>——AI 派至今没人做到这一步；预览可靠性靠升级到 Bubble Tea v2 解决</td></tr>
+    <tr><td><b>lazygit</b></td><td><a class="vb" href="https://github.com/jesseduffield/lazygit/releases" target="_blank" rel="noopener">v0.63.1 · 7/15</a></td><td><kbd>w</kbd> 在分支 / 提交 / stash 面板上<strong>直接从选中项建 worktree</strong>，不再弹确认菜单——「选中即操作」的又一例；提交图换成兼容性更好的 Unicode 符号</td></tr>
   </table></div>
 
   <div class="note"><b>看完全景先给一句判断：</b>这三个月里，AI Agent TUI 的竞争焦点已经从「能不能做」转到了<strong>「在 Cell 网格上做得够不够准」</strong>——高亮偏移一格、截断切到 emoji 中间、对话框比终端高一行，这些第一部分不会讨论的问题，现在是各家 changelog 的主体。这正是我们做规范时必须提前吃掉的成本。</div>
@@ -659,23 +807,70 @@ table.tight td,table.tight th{padding:6px var(--s3);font-size:12px}
   <h2>输入方式 · 一个输入框有七层</h2>
   <p class="lead">「输入框」在 AI TUI 里不是一个控件，是<strong>七层栈</strong>。绝大多数难缠的 bug 不在最上面那层，而在下面两层——键盘协议和粘贴通道。先把栈画清楚，再逐层比。</p>
 
-  <div class="stack">
-    <div class="lyr"><div class="no">L7</div><div class="nm">语义层</div><div class="ds">意图 · 计划 · 引用哪些文件 · 用哪个 agent —— 唯一一层用户真正想操心的</div></div>
-    <div class="lyr"><div class="no">L6</div><div class="nm">补全与提示层</div><div class="ds"><code>/</code> 命令 · <code>@</code> 文件 · <code>@</code> 会话 · <code>:emoji:</code> · 模糊匹配与错字处理 · ghost text</div></div>
-    <div class="lyr"><div class="no">L5</div><div class="nm">模式层</div><div class="ds"><code>!</code> 转 shell · <code>#</code> 记忆 · Vim NORMAL/INSERT · 队列态 · 草稿态</div></div>
-    <div class="lyr"><div class="no">L4</div><div class="nm">编辑层</div><div class="ds">多行 · 光标自由移动 · Readline/Emacs 键 · 历史 · 外部编辑器 · 拼写检查</div></div>
-    <div class="lyr risk"><div class="no">L3</div><div class="nm">粘贴通道</div><div class="ds">bracketed paste · CRLF · 多行折叠 · 图片粘贴 · 启动期缓冲输入 —— <b>第一大 bug 源</b></div></div>
-    <div class="lyr risk"><div class="no">L2</div><div class="nm">键盘协议层</div><div class="ds">Kitty keyboard protocol · extended key reporting · <kbd>Ctrl+J</kbd> 与换行的冲突 —— <b>第二大 bug 源</b></div></div>
-    <div class="lyr"><div class="no">L1</div><div class="nm">字符与宽度层</div><div class="ds">CJK 双宽 · emoji · Nerd Font 字形 · 截断与 ANSI 保留 · display width ≠ 字节数</div></div>
+  <div class="diag-cap">图 3.1 · 输入框七层栈 — 一个真实输入框长这样，每一层都在同一块 Cell 网格上叠着</div>
+  <div class="tw">
+  <div class="leaderwrap">
+  <div class="leaderbox">
+    <div class="lmock">
+      <div class="term">
+        <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-title">devkit — input stack</span></div>
+        <div class="term-body">
+          <div class="mut sr" data-row="7" style="font-size:10px;padding-left:22px">意图：把 crypto.c 里的 AES-NI 换成 NEON intrinsic</div>
+          <div style="height:6px"></div>
+          <div class="sr" data-row="6" style="padding-left:22px"><span class="chip">@src/crypto.c</span><span class="chip g">@session:build-fix</span><div class="mut" style="font-size:10px;margin-top:3px">▸ /plan &nbsp;<span class="ph">先出计划再动手</span></div></div>
+          <div style="height:7px"></div>
+          <div class="mut sr" data-row="5" style="font-size:10px;padding-left:22px">-- INSERT -- · <span class="ph">jj → Esc</span></div>
+          <div style="height:7px"></div>
+          <div class="sr" data-row="4" style="border-left:2px solid #5b9dff;padding-left:20px;margin-left:2px">
+            <div>请把 <span class="chip">crypto.c</span> 里 AES-NI 的部分</div>
+            <div>换成等价的 NEON intrinsic<span class="cur"></span></div>
+          </div>
+          <div style="height:7px"></div>
+          <div class="warn2 sr" data-row="3" style="font-size:10px;padding-left:22px">⎘ 正在粘贴 · 214 行…</div>
+          <div class="mut sr" data-row="2" style="font-size:10px;padding-left:22px">kitty keyboard protocol: <span class="ok2">negotiating…</span></div>
+          <div style="height:8px"></div>
+          <div class="mut sr" data-row="1" style="font-size:9.5px;letter-spacing:1px;padding-left:22px">│A│B│加│密│❤│_│<br>← cell 宽度：ASCII 1 · CJK 2 · emoji 不定宽</div>
+        </div>
+        <div class="lpin" data-pin="7" style="top:59px;left:20px">7</div>
+        <div class="lpin" data-pin="6" style="top:94px;left:20px">6</div>
+        <div class="lpin" data-pin="5" style="top:130px;left:20px">5</div>
+        <div class="lpin" data-pin="4" style="top:166px;left:20px">4</div>
+        <div class="lpin risk" data-pin="3" style="top:202px;left:20px">3</div>
+        <div class="lpin risk" data-pin="2" style="top:220px;left:20px">2</div>
+        <div class="lpin" data-pin="1" style="top:253px;left:20px">1</div>
+      </div>
+    </div>
+    <div class="llegend">
+      <div class="lrow"><div class="lnum">7</div><div class="lbody"><div class="lnm">L7 · 语义层</div><div class="lds">意图 · 计划 · 引用哪些文件 · 用哪个 agent —— 唯一一层用户真正想操心的</div></div></div>
+      <div class="lrow"><div class="lnum">6</div><div class="lbody"><div class="lnm">L6 · 补全与提示层</div><div class="lds"><code>/</code> 命令 · <code>@</code> 文件 · <code>@</code> 会话 · <code>:emoji:</code> · 模糊匹配与错字处理 · ghost text</div></div></div>
+      <div class="lrow"><div class="lnum">5</div><div class="lbody"><div class="lnm">L5 · 模式层</div><div class="lds"><code>!</code> 转 shell · <code>#</code> 记忆 · Vim NORMAL/INSERT · 队列态 · 草稿态</div></div></div>
+      <div class="lrow"><div class="lnum">4</div><div class="lbody"><div class="lnm">L4 · 编辑层</div><div class="lds">多行 · 光标自由移动 · Readline/Emacs 键 · 历史 · 外部编辑器 · 拼写检查</div></div></div>
+      <div class="lrow risk"><div class="lnum">3</div><div class="lbody"><div class="lnm">L3 · 粘贴通道</div><div class="lds">bracketed paste · CRLF · 多行折叠 · 图片粘贴 · 启动期缓冲输入 —— <b>第一大 bug 源</b></div></div></div>
+      <div class="lrow risk"><div class="lnum">2</div><div class="lbody"><div class="lnm">L2 · 键盘协议层</div><div class="lds">Kitty keyboard protocol · extended key reporting · <kbd>Ctrl+J</kbd> 与换行的冲突 —— <b>第二大 bug 源</b></div></div></div>
+      <div class="lrow"><div class="lnum">1</div><div class="lbody"><div class="lnm">L1 · 字符与宽度层</div><div class="lds">CJK 双宽 · emoji · Nerd Font 字形 · 截断与 ANSI 保留 · display width ≠ 字节数</div></div></div>
+    </div>
+  </div>
+  </div>
   </div>
 
-  <div class="note w"><b>为什么这么排：</b>本窗口 Claude Code 的输入相关修复里，落在 L1–L3 的数量<strong>超过落在 L4–L7 的总和</strong>。「输入框做得好」在 TUI 里的实际含义是<strong>「协议层与宽度层没有漏」</strong>，而不是「功能多」。</div>
+  <div class="note w"><b>为什么这么排：</b>本窗口 <a class="src-link" href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code 的输入相关修复</a>里，落在 L1–L3 的数量<strong>超过落在 L4–L7 的总和</strong>。「输入框做得好」在 TUI 里的实际含义是<strong>「协议层与宽度层没有漏」</strong>，而不是「功能多」——这也是为什么上图把 L1–L3 单独标红：它们不是"次要细节"，是<strong>整个输入框最容易塌方的地基</strong>。</div>
+
+  <div class="actionbox">
+    <div class="ab-h">交互设计动作项 · 七层栈 → 组件契约</div>
+    <div class="tw">
+    <table class="tight">
+      <tr><td>组件边界</td><td>输入框实现必须<strong>按层拆分模块</strong>：paste-decoder / key-decoder / width-measurer 三个必须是独立、可单测的纯函数，禁止合并进「输入框组件」内部私有逻辑——F8 的 measure≠render 事故正是合并的后果</td></tr>
+      <tr><td>状态归属</td><td>L5 模式态（vim NORMAL/INSERT、队列、草稿）与 L4 编辑态分属两个状态机，不能用同一个 <code>isEditing</code> 布尔位表达——影响 Esc 的行为分支（见 F12①）</td></tr>
+      <tr><td>验收顺序</td><td>验收输入框时<strong>从 L1 往上验</strong>：先证明宽度测量与截断在 CJK/emoji/Nerd Font 混排下不漏，再验协议协商，再验粘贴通道，最后才验补全与语义——顺序反过来会把地基问题误判为「个别 case」</td></tr>
+    </table>
+    </div>
+  </div>
 
   <div class="sub">L2 键盘协议层 · 三条硬事实</div>
   <div class="grid g3">
     <div class="card"><h4>协议要主动协商</h4>
       <p>pi-tui <strong>启动时就去协商 Kitty 键盘协议</strong>，目的很具体：分清 <kbd>Esc</kbd> 与 <kbd>Alt+x</kbd> 序列，并拿到 key-release 事件（复杂组合键必需）。</p>
-      <p class="src">来源：pi-tui README</p>
+      <p class="src">来源：<a class="src-link" href="https://github.com/earendil-works/pi/blob/main/packages/tui/README.md" target="_blank" rel="noopener">pi-tui README</a></p>
     </div>
     <div class="card"><h4>Ctrl+J 是个雷</h4>
       <p>开了 extended key reporting 的终端上，<kbd>Ctrl+J</kbd> 在 agent view 的输入里插不进换行——Claude Code <span class="vb">2.1.212 · 7/17</span> 修了一次，<span class="vb">2.1.229 · 8/12</span> 又修一次，第二次顺手把换行快捷键<strong>补进了 <kbd>?</kbd> 帮助面板</strong>。</p>
@@ -688,6 +883,49 @@ table.tight td,table.tight th{padding:6px var(--s3);font-size:12px}
   </div>
 
   <div class="sub">L3 粘贴通道 · 本窗口的四个真实故障</div>
+
+  <div class="diag">
+    <div class="diag-cap">图 3.2 · 粘贴通道的正确解码顺序 —— 四个真实故障，踩的都是这条链上的某一步</div>
+    <div class="diag-pipeline" style="grid-template-columns:1fr">
+      <div class="pipe">
+        <div class="pipe-steps">
+          <div class="step" style="position:relative">终端捕获<br><span style="opacity:.6">bracketed paste</span><span class="defect" style="top:-9px;right:-9px">4</span></div>
+          <span class="arr">→</span>
+          <div class="step hi" style="position:relative">与按键解码<br>分离处理<span class="defect" style="top:-9px;right:-9px">1</span></div>
+          <span class="arr">→</span>
+          <div class="step hi" style="position:relative">CRLF → LF<br>行尾归一化<span class="defect" style="top:-9px;right:-9px">2</span></div>
+          <span class="arr">→</span>
+          <div class="step hi" style="position:relative">保留多行边界<br>不折叠为单行<span class="defect" style="top:-9px;right:-9px">1</span></div>
+          <span class="arr">→</span>
+          <div class="step" style="position:relative">写入编辑缓冲<br><span style="opacity:.6">/ 提案内容</span><span class="defect" style="top:-9px;right:-9px">3</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="defect-legend">
+      <div class="dli"><div class="dnum">1</div><div><b>Claude Code 2.1.221 · 8/4</b> —— 多行粘贴被压成一行：终端把换行编码成 <kbd>Ctrl+J</kbd> 时，「分离处理」与「保留多行边界」两步都被按键解码路径吞掉，换行位置变成字面量 <code>j</code></div></div>
+      <div class="dli"><div class="dnum">2</div><div><b>Gemini CLI v0.55.1 · 8/11</b> —— CRLF 未在入口归一，一路带着 CRLF 进入提案内容，要在 diff 阶段才发现</div></div>
+      <div class="dli"><div class="dnum">3</div><div><b>Codex 0.148.0 · 8/18</b> —— composer 与 transcript 此前未正确处理 CRLF 粘贴、行尾空白与超长 URL 折行，直到写入缓冲这一步才暴露</div></div>
+      <div class="dli"><div class="dnum">4</div><div><b>Codex 0.148.0 · 8/18</b> —— 链路最前端失守：TUI 启动过程中终端缓冲里的输入会「意外激活提示」，说明捕获阶段没有做启动期隔离</div></div>
+    </div>
+  </div>
+
+  <div class="diag-compare" style="margin:var(--s4) 0">
+    <div class="side bad"><h5>✕ 粘贴解码与按键解码共用一张键表</h5>
+      <div class="term" style="font-size:11px"><div class="term-body" style="padding:9px 10px">
+        <div class="mut" style="font-size:9.5px">粘贴 3 行 diff 片段后 →</div>
+        <div>+ line onej+ line twoj+ line three<span class="cur"></span></div>
+        <div class="err2" style="font-size:9.5px;margin-top:4px">换行 → 字面量 "j"，三行糊成一行</div>
+      </div></div>
+    </div>
+    <div class="side good"><h5>✓ 粘贴通道独立解码</h5>
+      <div class="term" style="font-size:11px"><div class="term-body" style="padding:9px 10px">
+        <div class="mut" style="font-size:9.5px">粘贴 3 行 diff 片段后 →</div>
+        <div>+ line one</div><div>+ line two</div><div>+ line three<span class="cur"></span></div>
+        <div class="ok2" style="font-size:9.5px;margin-top:4px">三行保持独立，可逐行编辑</div>
+      </div></div>
+    </div>
+  </div>
+
   <div class="tw"><table class="tight">
     <tr><th>故障</th><th>产品 · 版本</th><th>现象</th><th>抽象出的规则</th></tr>
     <tr><td>多行粘贴被压成一行</td><td>Claude Code <span class="vb">2.1.221 · 8/4</span></td><td>终端把粘贴的换行编码成 <kbd>Ctrl+J</kbd> 时，多行内容折叠成一行，换行位置变成字面量 <code>j</code></td><td>粘贴解码必须<strong>与按键解码分离</strong>，不能共用一张键表</td></tr>
@@ -713,6 +951,47 @@ table.tight td,table.tight th{padding:6px var(--s3);font-size:12px}
     <tr><td>拼写检查</td><td><span class="vb">2.1.235 · 8/18</span> 新增 <code>spellcheck</code> 设置，接 <code>aspell</code>/<code>hunspell</code>/<code>ispell</code> 给错词加下划线</td><td class="yn n">—</td><td class="yn n">—</td><td class="yn n">—</td><td><strong>独一份</strong>。思路值得注意：<strong>不自己实现，挂系统已有的</strong></td></tr>
     <tr><td>emoji 输入</td><td><span class="vb">2.1.221 · 8/4</span> <code>:heart:</code> 短码补全，<code>emojiCompletionEnabled</code> 可关</td><td class="yn n">—</td><td class="yn n">—</td><td class="yn n">—</td><td>对 DevKit 价值低，但<strong>它暴露了 L1 层的宽度问题</strong>（见 F8）</td></tr>
   </table></div>
+
+  <div class="diag-cap">图 3.3 · 三种输入框视觉形态 —— 同样的七层栈，表面长得完全不一样</div>
+  <div class="termrow">
+    <div class="tcard">
+      <div class="term">
+        <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-title">claude code — fullscreen</span></div>
+        <div class="term-body">
+          <div style="border:1px solid rgba(91,157,255,.4);border-radius:7px;padding:7px 10px">
+            <div><span class="prompt">❯</span> 把 <span class="chip">@crypto.c</span> 迁移到 NEON<span class="cur"></span></div>
+          </div>
+          <div class="mut" style="font-size:9.5px;margin-top:5px">Sonnet 4.5 · Normal · 固定底部，不随输出移动</div>
+        </div>
+      </div>
+      <div class="termcap"><b>Claude Code</b> — 输入框独立描边，与消息流分离；全屏下永远钉在底部</div>
+    </div>
+    <div class="tcard">
+      <div class="term">
+        <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-title">codex cli — composer</span></div>
+        <div class="term-body">
+          <div>迁移 <span class="chip">crypto.c</span> 到 NEON<span class="cur"></span></div>
+          <div style="height:6px"></div>
+          <div class="mut" style="font-size:9.5px;border-top:1px solid rgba(255,255,255,.08);padding-top:5px">
+            <span class="chip o">gpt-5.1-codex</span><span class="chip">on-request</span><span class="chip g">ctx 34%</span>
+          </div>
+        </div>
+      </div>
+      <div class="termcap"><b>Codex CLI</b> — <code>tui.status_line</code> 把 model/approval/context_usage 排成状态行，用户可配数组顺序</div>
+    </div>
+    <div class="tcard">
+      <div class="term">
+        <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-title">opencode — leader key</span></div>
+        <div class="term-body">
+          <div>迁移 crypto.c 到 NEON</div>
+          <div>intrinsic 等价替换<span class="cur"></span></div>
+          <div class="mut" style="font-size:9.5px;margin-top:5px">^X 触发 leader · 2000ms 窗口 · shift/ctrl/alt+↵ 换行</div>
+        </div>
+      </div>
+      <div class="termcap"><b>opencode</b> — 无独立描边，靠 leader 键提示条自证；4 个换行绑定并存</div>
+    </div>
+  </div>
+  <div class="note"><b>三种形态背后是同一张 L1–L7 表：</b>描边独立 vs 融入消息流是 L4 编辑层的视觉选择；状态信息放状态行 vs 放输入框内是 L6/配置层的选择（呼应 F4）；leader 键提示条本质是 L5 模式层的可发现性方案。<strong>视觉差异越大，越说明这一层还没形成范式——对 DevKit 是可以自主决策的空间，而不是"抄哪个"的问题。</strong></div>
 
   <div class="sub">给 DevKit 的输入结论</div>
   <div class="ct">
@@ -749,7 +1028,7 @@ tui.status_line = [<span class="ok">"model"</span>, <span class="ok">"approval"<
 tui.terminal_title = [<span class="ok">"spinner"</span>, <span class="ok">"project"</span>]
 tui.theme = <span class="ok">"dracula"</span></pre>
       <p><b>三个设计决定值得抄：</b>① keymap 按 context 分层（global / chat / composer / editor / pager / list / approval），具体覆盖全局；② 解绑用空数组，不用魔法值；③ <strong>状态栏与终端标题都是「有序数组」</strong>——用户决定显示什么、按什么顺序。</p>
-      <p class="src">〔二手〕[tui] 细节；命名空间自 v0.128.0 起</p>
+      <p class="src">〔二手〕<a class="src-link" href="https://codex.danielvaughan.com/2026/05/05/codex-cli-tui-customisation-keymaps-themes-status-lines/" target="_blank" rel="noopener">[tui] 细节</a>；命名空间自 v0.128.0 起</p>
     </div>
     <div class="card pcard" style="--tint:#B3F141">
       <div class="pname"><b>② Schema 化分家</b><span class="ver">opencode</span></div>
@@ -832,6 +1111,49 @@ tui.theme = <span class="ok">"dracula"</span></pre>
     <tr><td><b>远端压缩</b></td><td>Codex <span class="vb">0.147.0 · 8/7</span></td><td>为 Amazon Bedrock 启用<strong>远程会话压缩</strong>与缓存化 web search</td><td>压缩本身成为一项<strong>可被后端接管</strong>的能力——意味着它有延迟、有失败态，必须有 UI</td></tr>
     <tr><td><b>压缩即重载</b></td><td>Gemini CLI <span class="vb">v0.54 · 8/6</span></td><td>修 <code>/compress</code> 引起的会话重载与 quota-fallback 工具响应丢失</td><td><strong>反面证据</strong>：压缩若实现为「重建会话」，就会丢在途的工具响应</td></tr>
   </table></div>
+
+  <div class="diag-cap">图 6.1 · 压缩事件前后：模型的上下文与人的可见历史，从这一刻起走两条轨</div>
+  <div class="tw">
+  <div class="dualtrack" style="min-width:640px">
+    <div class="dt-row">
+      <div class="dt-label">模型<br>上下文</div>
+      <div class="dt-track">
+        <div class="dt-seg hist">msg 1–40<br>原文</div>
+        <div class="dt-split"></div>
+        <div class="dt-seg sum">摘要<br>九段式 brief</div>
+        <div class="dt-seg new">msg 41+<br>新对话</div>
+      </div>
+    </div>
+    <div class="dt-row">
+      <div class="dt-label">人的<br>scrollback</div>
+      <div class="dt-track">
+        <div class="dt-seg kept">msg 1–40<br>原文，可滚回</div>
+        <div class="dt-split"></div>
+        <div class="dt-seg kept">msg 1–40<br>仍在，未被砍</div>
+        <div class="dt-seg new">msg 41+<br>新对话</div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <div class="wfleg">
+    <span><i style="background:var(--surface-3)"></i>原始消息（压缩前）</span>
+    <span><i style="background:rgba(255,170,59,.35)"></i>压缩摘要（模型的新起点）</span>
+    <span><i style="background:rgba(4,215,147,.3)"></i>原始消息（压缩后仍保留给人看）</span>
+    <span><i style="background:rgba(0,119,255,.35)"></i>压缩后的新对话</span>
+  </div>
+  <div class="note s"><b>读这张图：</b>压缩发生的一瞬间，<b>模型轨</b>把 msg 1–40 折叠成一份摘要，从摘要继续推理；<b>人轨</b>什么都没丢——msg 1–40 原文仍在 scrollback 里，可以滚回去重读。两轨从压缩点开始各自独立累积，直到下一次压缩再次分岔。<strong>行业里只有 Claude Code 做到了两轨分离</strong>；Grok Build 的结构化摘要解决的是模型轨自己的失真问题（迭代压缩不漂移），不解决人轨的可见性问题——两者是正交的，DevKit 应该<strong>两个都要</strong>。</div>
+
+  <div class="actionbox">
+    <div class="ab-h">交互设计动作项 · 压缩 → 组件契约</div>
+    <div class="tw">
+    <table class="tight">
+      <tr><td>数据模型</td><td>会话对象必须同时持有 <code>modelContext</code>（随压缩收缩）与 <code>displayHistory</code>（只增不减，除非用户主动 <code>/clear</code>）两个独立字段，禁止用一份数组同时服务两个用途</td></tr>
+      <tr><td>触发可见性</td><td>压缩事件本身要在 <code>displayHistory</code> 里留下一条系统消息（时间戳 + 折叠了多少条 + 摘要可展开），而不是无痕发生——用户需要知道"这里发生过一次压缩"</td></tr>
+      <tr><td>失败态</td><td>压缩失败时 <code>modelContext</code> 保持压缩前状态并显式报错（见下方契约①），<strong>不能部分砍一半就中止</strong></td></tr>
+      <tr><td>级联失效清单</td><td>压缩事件要驱动的下游动作显式列清单：LSP 上下文重建、沙箱网络复检结果作废、prompt cache 失效、成本计数是否清零——每条都要有对应的处理器，不能遗漏</td></tr>
+    </table>
+    </div>
+  </div>
 
   <div class="sub">压缩的 UI 契约 · 5 条（全部有本窗口证据支撑）</div>
   <div class="ct">
@@ -920,6 +1242,25 @@ tui.theme = <span class="ok">"dracula"</span></pre>
     </div>
   </div>
 
+  <div class="diag">
+    <div class="diag-cap">图 8.1 · measure() 与 render() 用不同口径，第一个宽字符之后全部错位</div>
+    <div class="diag-grid">
+      <div class="grow">
+        <div class="gcell hi">A</div><div class="gcell hi">B</div><div class="gcell half">❤</div><div class="gcell">C</div><div class="gcell">D</div><div class="gcell">E</div>
+      </div>
+      <div class="grow">
+        <div class="gcol-label hi">1</div><div class="gcol-label hi">1</div><div class="gcol-label warn">1？</div><div class="gcol-label">1</div><div class="gcol-label">1</div><div class="gcol-label">1</div>
+      </div>
+      <div class="grow" style="margin-top:10px">
+        <div class="gcell hi">A</div><div class="gcell hi">B</div><div class="gcell half" style="grid-column:span 2">❤</div><div class="gcell edge">C</div><div class="gcell edge">D̶</div>
+      </div>
+      <div class="grow">
+        <div class="gcol-label hi">1</div><div class="gcol-label hi">1</div><div class="gcol-label warn">2（实际）</div><div class="gcol-label edge">被挤</div><div class="gcol-label edge">截断</div>
+      </div>
+    </div>
+    <div class="wfcap" style="margin-top:var(--s3)">上排 = <b>measure() 的返回值</b>（把 emoji 算成 1 cell）；下排 = <b>render() 的实际占用</b>（该 emoji 真实渲染成 2 cell）。两个函数口径一旦不一致，从这个字符往后的每一列都会累积偏移——这正是 <span class="vb">CC 2.1.233 · 8/14</span> 那两条 bug 的共同根源。</div>
+  </div>
+
   <div class="note w"><b>给 DevKit 的图标决策：</b>DevKit 跑在鲲鹏 Linux 服务器上、经常是 <code>ssh</code> 进去的裸终端，<strong>不能假设有 Nerd Font</strong>。建议：① 图标定义为<strong>三档 token</strong>（nerdfont / emoji / ascii），与第一部分的渲染分档（braille / block / tty）同构、同一个 capability 探测结果驱动；② 默认档位<strong>按探测结果自动选择</strong>，并允许在 <code>tui.json</code> 里锁死；③ <strong>任何图标都不得承载唯一语义</strong>——去掉图标后信息必须完整（这条同时满足 <code>NO_COLOR</code> 与屏幕阅读器场景）。</div>
 </section>
 
@@ -985,6 +1326,57 @@ tui.theme = <span class="ok">"dracula"</span></pre>
   </table></div>
 
   <div class="sub">B · 对话框 · 本窗口密度最高的一组教训</div>
+
+  <div class="diag-cap">图 10.1 · 一个权限确认框，六个真实缺陷（示意，非真实截图）</div>
+  <div class="tw">
+  <div class="term" style="max-width:640px;overflow:visible;position:relative">
+    <div class="term-bar"><div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div><span class="term-title">permission — bash</span></div>
+    <div class="term-body" style="padding:14px 16px">
+      <div style="position:relative">
+        <div style="color:#ffb454;font-weight:700;font-size:11px">⚠ Claude 想要执行一条命令<span class="defect" style="position:static;display:inline-flex;margin-left:6px;transform:translateY(-2px)">1</span></div>
+      </div>
+      <div style="height:8px"></div>
+      <div style="position:relative">
+        <div style="background:#12161f;border-radius:5px;padding:7px 9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px">
+          rm -rf build/cache/&lt;隐藏字符&gt;&nbsp;<span class="mut">…</span>
+        </div>
+        <div class="defect" style="top:-7px;right:-9px">3</div>
+      </div>
+      <div style="height:10px"></div>
+      <div style="position:relative">
+        <div class="mut" style="font-size:10px">仅描述"清理构建缓存"，实际命令范围更大</div>
+      </div>
+      <div style="height:10px"></div>
+      <div style="position:relative">
+        <div style="padding:3px 0"><span class="prompt">›</span> 仅此一次</div>
+        <div style="padding:3px 0;background:rgba(91,157,255,.12);border-radius:4px">
+          <span class="prompt">›</span> 不再询问（本目录）<span class="defect" style="position:static;display:inline-flex;margin-left:6px;transform:translateY(-2px)">2</span>
+        </div>
+        <div style="padding:3px 0"><span class="prompt">›</span> 修改后执行</div>
+        <div class="defect" style="top:2px;right:-24px">4</div>
+      </div>
+      <div style="height:10px"></div>
+      <div style="position:relative;border-top:1px solid rgba(255,255,255,.08);padding-top:8px">
+        <div class="mut" style="font-size:9.5px">备注（可选）</div>
+        <div style="border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:5px 8px;margin-top:4px;font-size:10px">
+          先确认一下影响范围<span class="cur"></span>
+        </div>
+        <div class="defect" style="bottom:-8px;right:8px">5</div>
+      </div>
+    </div>
+    <div style="position:absolute;top:0;bottom:0;right:-2px;width:2px;background:repeating-linear-gradient(180deg,var(--danger) 0 4px,transparent 4px 8px)"></div>
+    <div class="defect" style="top:50%;right:-9px;transform:translateY(-50%)">6</div>
+  </div>
+  </div>
+  <div class="defect-legend">
+    <div class="dli"><div class="dnum">1</div><div><b>文案与实际授权范围不一致</b> —— 标题说"执行一条命令"，描述说"清理构建缓存"，但命令本身范围明显更大；<span class="vb">2.1.229 · 8/12</span> 与 <span class="vb">2.1.235 · 8/18</span> 连续两版收紧这条</div></div>
+    <div class="dli"><div class="dnum">2</div><div><b>命令显示不全，却仍提供"不再询问"</b> —— 正确做法是内容截断时直接<strong>不出现</strong>这个选项，而不是出现后靠用户自觉不选</div></div>
+    <div class="dli"><div class="dnum">3</div><div><b>隐藏字符把内容藏出可视区域</b> —— 制表符 / 零宽字符 / 双向覆写字符可以让命令"看起来"人畜无害，<span class="vb">2.1.223 · 8/6</span> 与 <span class="vb">2.1.221 · 8/4</span> 修</div></div>
+    <div class="dli"><div class="dnum">4</div><div><b>方向键 + Enter 连按会选中上一个高亮项</b> —— 纯竞态 bug，后果是<strong>误批准</strong>，<span class="vb">2.1.235 · 8/18</span> 修</div></div>
+    <div class="dli"><div class="dnum">5</div><div><b>备注输入框里的 <kbd>Shift+Tab</kbd> 直接批准了整次编辑</b>，而不是关闭该输入框 —— 子控件键位溢出成了主操作，<span class="vb">2.1.235 · 8/18</span> 修</div></div>
+    <div class="dli"><div class="dnum">6</div><div><b>对话框伸出终端右边缘</b> —— 全屏模式下曾发生，同窗口 <code>/model</code> 选择器也曾画得比终端还高，<span class="vb">2.1.232 · 8/13</span> 与 <span class="vb">2.1.234 · 8/17</span> 修</div></div>
+  </div>
+
   <div class="ct">
     <div class="it"><span><b>对话框文案必须与它实际授予的权限完全一致。</b><span class="vb">CC 2.1.229 · 8/12</span> 与 <span class="vb">2.1.235 · 8/18</span> 连续两版改进：权限对话框的显示文本与「不再询问」选项<strong>必须与授权范围匹配</strong>；<strong>当内容无法完整显示时，直接不给「不再询问」这个选项</strong>。</span></div>
     <div class="it"><span><b>看不全就不许永久授权。</b>上一条的后半句值得单独立为一条规则。它比任何「请仔细阅读」都有效。</span></div>
@@ -998,6 +1390,19 @@ tui.theme = <span class="ok">"dracula"</span></pre>
   </div>
 
   <div class="note d"><b>把这九条压成一句写进规范：</b>在 TUI 里，<strong>对话框是唯一一个「用户按一个键就产生不可逆后果」的组件</strong>。所以它的验收条件应该比任何其他组件都严：文案与授权范围一致 · 显示不全就降级为一次性授权 · 输入内容做双向覆写与零宽字符中和 · 导航与确认之间有竞态保护 · 子控件键位不溢出 · 永不越界且键位提示永不被裁 · 明确声明作用域 · 可在工作中打开 · 启动窗口期不接受确认键。</div>
+
+  <div class="actionbox">
+    <div class="ab-h">交互设计动作项 · 权限对话框 → 组件契约</div>
+    <div class="tw">
+    <table class="tight">
+      <tr><td>渲染前置条件</td><td>对话框内容必须先跑一遍<strong>宽度探测</strong>：命令 / 描述是否能在当前终端宽度内完整展示。展示不全 → 选项集合直接<strong>降级</strong>（去掉"不再询问"），不是展示后靠用户自觉</td></tr>
+      <tr><td>文本消毒</td><td>所有进入确认界面的文本，渲染前统一跑一遍<strong>消毒管线</strong>：制表符转可见占位、零宽字符高亮、双向覆写字符强制左至右渲染——这是一个可复用的纯函数，不是权限对话框的私有逻辑</td></tr>
+      <tr><td>提交时刻语义</td><td>"确认"动作绑定的是<strong>提交时刻</strong>的选中索引状态，而不是"最后一次渲染"的高亮状态——需要把导航（连续按键）与提交（Enter/点击）分成两个事件源，中间加一帧防抖</td></tr>
+      <tr><td>子控件焦点隔离</td><td>备注输入框获得焦点后，父级对话框的全部键位（含 <kbd>Shift+Tab</kbd> 这类修饰键）必须先经过输入框自身的事件处理器，<strong>不允许冒泡触达"批准"这一操作</strong>，除非输入框显式让出焦点</td></tr>
+      <tr><td>越界策略</td><td>浮层尺寸计算顺序：① 按内容算理想尺寸 → ② 与终端可用尺寸取 min → ③ 超出部分转为内部滚动，<strong>键位提示行永远排除在滚动区域之外</strong></td></tr>
+    </table>
+    </div>
+  </div>
 </section>
 
 <!-- ══════ F11 会话 ══════ -->
@@ -1005,6 +1410,21 @@ tui.theme = <span class="ok">"dracula"</span></pre>
   <div class="fnum">FLOOR 11 · 交互域 09</div>
   <h2>项目与会话管理 · 从「一次对话」到「一批可归档的工作」</h2>
   <p class="lead">这是本窗口<strong>新增能力最多</strong>的一域。三个月内，AI TUI 的会话模型从「新建 / 恢复 / 清空」扩张到了<strong>分叉 · 分区 · 归档 · 后台 · 跨会话通信 · 多客户端共享</strong>。</p>
+
+  <div class="diag-cap">图 11.1 · 一个会话现在会长出的形状</div>
+  <div class="diag-tree">
+    <div class="tnode"><span class="tbullet a"></span> <b class="tpath">会话：把 crypto.c 迁移到 NEON</b></div>
+    <div class="tindent">
+      <div class="tnode"><span class="tbullet a"></span> <span class="tpath">fork → 后台会话：先验证一版 build</span></div>
+      <div class="mut" style="padding-left:26px;font-size:11px;margin:-2px 0 4px">不打断主线 · Claude Code <code>/fork</code> · Codex <code>exec fork</code></div>
+      <div class="tnode"><span class="tbullet a"></span> <span class="tpath">subtask → 子 agent：跑一遍测试</span></div>
+      <div class="mut" style="padding-left:26px;font-size:11px;margin:-2px 0 4px">原地导航，非黑盒 · opencode <kbd>&lt;leader&gt;↓</kbd> / <kbd>↑</kbd> 仍是标杆</div>
+      <div class="tnode"><span class="tbullet q"></span> <span class="tpath alt">sections → 分析 / 改代码 / 出报告</span></div>
+      <div class="mut" style="padding-left:26px;font-size:11px;margin:-2px 0 4px">可持久、可手工排序 · Codex 0.147.0</div>
+    </div>
+    <div class="tnode"><span class="tbullet e"></span> <span class="tpath last">归档</span></div>
+    <div class="mut" style="padding-left:26px;font-size:11px;margin:-2px 0 0">超过阈值未访问自动收起 · DevKit 第一版必须有，见下方建议</div>
+  </div>
 
   <div class="tw"><table>
     <tr><th>能力</th><th>Claude Code</th><th>Codex</th><th>opencode</th><th>Crush / 其他</th></tr>
@@ -1018,6 +1438,25 @@ tui.theme = <span class="ok">"dracula"</span></pre>
   </table></div>
 
   <div class="note d"><b>一个必须记住的失败案例 —— 会话身份认错项目：</b>Claude Code <span class="vb">2.1.224 · 8/7</span> 修复：<strong>超过 200 字符的长项目路径，会在共享的「清洗后前缀」下解析到另一个项目的会话目录</strong>；同版一并修正了会话列表、重命名、fork、删除、<code>/resume</code> <strong>跨项目串台</strong>的问题。<br><br>DevKit 的路径只会更长（远程主机 + 交叉编译根 + worktree + 多目标架构）。<strong>会话身份必须用稳定 ID，绝不能用「路径清洗后的字符串」做主键。</strong></div>
+
+  <div class="diag-compare" style="margin:var(--s4) 0">
+    <div class="side bad"><h5>✕ 会话主键 = 路径清洗后的字符串</h5>
+      <div class="term" style="font-size:10.5px"><div class="term-body" style="padding:9px 10px">
+        <div class="mut" style="font-size:9.5px">/root/migrate/kunpeng-arm64</div>
+        <div class="mut" style="font-size:9.5px">-crossbuild-2026-08-worktree-3/…</div>
+        <div class="err2" style="margin-top:4px">→ 清洗后前缀与另一项目相同</div>
+        <div class="err2">→ 列表 / 重命名 / fork 全部串台</div>
+      </div></div>
+    </div>
+    <div class="side good"><h5>✓ 会话主键 = 稳定 ID，路径只作展示</h5>
+      <div class="term" style="font-size:10.5px"><div class="term-body" style="padding:9px 10px">
+        <div class="mut" style="font-size:9.5px">session-id: sxk3f9a2c1</div>
+        <div class="mut" style="font-size:9.5px">path（仅展示）: …/worktree-3</div>
+        <div class="ok2" style="margin-top:4px">→ 查找 / 归属都走 ID</div>
+        <div class="ok2">→ 长路径、同前缀路径不会串台</div>
+      </div></div>
+    </div>
+  </div>
 
   <div class="note s"><b>给 DevKit 的会话模型建议：</b>把「一次迁移任务」当作<strong>项目</strong>，而不是把「一次对话」当作项目。一个迁移项目下天然有多条并行线（分析 / 改代码 / 编译 / 调优 / 出报告），对应 Codex 的 <strong>sections</strong>（可持久可排序的分区）+ Claude Code 的 <strong>fork 到后台</strong>（不打断当前工作）+ opencode 的<strong>父子原地导航</strong>。<strong>归档能力必须第一版就有</strong>——迁移项目周期以周计，会话列表三天就会塞满。</div>
 </section>
@@ -1033,8 +1472,30 @@ tui.theme = <span class="ok">"dracula"</span></pre>
   <span class="vb">2.1.218 · 7/22</span> 还修了一个更凶的：<strong>按左箭头会在无撤销的情况下丢弃整个对话</strong>——修法是改成先弹确认。</p>
   <div class="rule"><b>规则：</b>Esc 的行为是 <code>(当前焦点, 是否有选区, 是否有队列, 是否在跑)</code> 的函数，必须在规范里画成完整状态表；<strong>任何「一个键即不可逆丢失」的路径都要加确认</strong>。</div>
 
+  <div class="diag-cap">图 12.1 · Esc 的判定顺序（简化版状态树）</div>
+  <div class="diag-tree">
+    <div class="tnode"><span class="tbullet a"></span> <b>Esc 按下</b></div>
+    <div class="tindent">
+      <div class="tnode"><span class="tbullet a"></span> <span class="tpath">对话框 / 面板打开中 → 关闭它</span></div>
+      <div class="mut" style="padding-left:26px;font-size:11px;margin:-2px 0 4px">选区状态不受影响（2.1.236 · 8/19）</div>
+      <div class="tnode"><span class="tbullet a"></span> <span class="tpath">Agent 正在跑 → 中断本轮</span></div>
+      <div class="tnode"><span class="tbullet q"></span> <span class="tpath alt">排队消息正被选中 → 不中断</span></div>
+      <div class="mut" style="padding-left:26px;font-size:11px;margin:-2px 0 4px">2.1.234 修复前这里会误中断——反面教训</div>
+      <div class="tnode"><span class="tbullet e"></span> <span class="tpath last">空闲 + 无选区 + 无对话框，连按两次 → 打开 rewind 选择器</span></div>
+    </div>
+  </div>
+
   <div class="sub">② 鼠标捕获 vs 终端原生选择 —— 一个必须给逃生舱的取舍</div>
   <p>这是第一部分 F1「全屏接管破坏终端原生复制」的正面解法，而且被做到了很完整的程度。Claude Code 全屏模式提供<strong>三档</strong>：</p>
+
+  <div class="diag-fallback">
+    <div class="fnode best">全捕获（默认）<br><span style="font-size:10px;opacity:.75">点击 / 拖选 / 滚轮全保留</span></div>
+    <span class="farr">→</span>
+    <div class="fnode">只保留滚轮<br><span style="font-size:10px;opacity:.75"><code>..._DISABLE_MOUSE_CLICKS</code></span></div>
+    <span class="farr">→</span>
+    <div class="fnode last">完全放弃鼠标<br><span style="font-size:10px;opacity:.75"><code>..._DISABLE_MOUSE</code></span></div>
+  </div>
+
   <div class="tw"><table class="tight">
     <tr><th>档位</th><th>开关</th><th>保留</th><th>失去</th></tr>
     <tr><td>全捕获（默认）</td><td>—</td><td>点击定位光标 · 点击展开工具结果 · 点击选项 · 拖选（松手自动复制）· 双击选词（按 iTerm2 词边界，路径算一个整体）· 三击选行 · <kbd>Shift+方向键</kbd> 键盘扩展选区 · 滚轮</td><td>终端原生 copy-on-select</td></tr>
@@ -1074,6 +1535,16 @@ tui.theme = <span class="ok">"dracula"</span></pre>
   <div class="rule"><b>规则：</b>无障碍不是「加 ARIA 标签」，在 TUI 里它是<strong>一条平行的渲染路径 + 一套平行的控件形态</strong>（列表用编号、选择用输入数字、删除要播报）。这条与我们 <code>UI-SPEC.md</code> 里的「纯键盘降级」要合并考虑。</div>
 
   <div class="sub">⑥ 终端能力协商与降级 —— 我们与宿主的谈判协议</div>
+
+  <div class="diag-cap">图 12.2 · 图形协议降级链示例（能力探测一次，全组件复用同一个结果）</div>
+  <div class="diag-fallback">
+    <div class="fnode best">Kitty graphics<br><span style="font-size:10px;opacity:.75">真实 raster pixels</span></div>
+    <span class="farr">→</span>
+    <div class="fnode">iTerm2 inline<br><span style="font-size:10px;opacity:.75">alt-screen 下强制跳过</span></div>
+    <span class="farr">→</span>
+    <div class="fnode last">文字占位<br><span style="font-size:10px;opacity:.75">永远可用的底线</span></div>
+  </div>
+
   <div class="tw"><table class="tight">
     <tr><th>能力</th><th>怎么协商</th><th>协商失败怎么办</th></tr>
     <tr><td>同步输出 <code>CSI ?2026</code></td><td>启动时探测；pi-tui <strong>把每一次更新都包在 <code>\x1b[?2026h ... l</code> 里</strong>，主屏与 alt-screen 都包</td><td><strong>tmux 3.6 及以前不实现同步输出</strong> → 会看到更多闪烁；产品的建议是升级 tmux 或不要在 tmux 里跑</td></tr>
@@ -1092,6 +1563,18 @@ tui.theme = <span class="ok">"dracula"</span></pre>
   <div class="sub">⑧ 多端与远程 —— TUI 正在与会话解耦</div>
   <p>三条独立证据指向同一个方向：Grok Build 的 <strong>leader 模式</strong>（一个 agent 进程多个客户端，UI 断开会话不死）；Claude Code 的 <strong>Remote Control / cloud session</strong>（<code>ListAgents</code> 把断开的标为 <code>offline</code>、云会话标为 <code>cloud</code>；<code>/teleport</code> 提示怎么在本地接着干）；Amp 重构 CLI 的目标之一就是<strong>可远程控制</strong>。</p>
   <div class="note s"><b>对 DevKit 是刚需，不是加分项。</b>我们的会话跑在鲲鹏服务器上，一次迁移编译可能几十分钟。<strong>「关掉本地终端 → 会话继续 → 明天换台机器接回来」是基本诉求。</strong>这要求会话状态从第一版起就<strong>不绑定在 TUI 进程里</strong>——这是架构决定，不是后续可以补的功能。</div>
+
+  <div class="actionbox">
+    <div class="ab-h">交互设计动作项 · 8 个补充场景 → 组件契约</div>
+    <div class="tw">
+    <table class="tight">
+      <tr><td>Esc 状态机</td><td>把图 12.1 的判定树直接实现为一个显式状态机（不是散落的 if 判断）：<code>hasDialog → hasSelection → isRunning → hasQueuedSelected → idle</code> 五态优先级固定，任何新交互接入 Esc 前必须声明自己插在哪一档</td></tr>
+      <tr><td>鼠标捕获三档</td><td>三档不是三个互斥模式，是同一套事件处理器的<strong>能力子集开关</strong>——实现上应该是一个事件处理器按开关位跳过某些分支，而不是三份平行代码，否则三档会逐渐行为漂移</td></tr>
+      <tr><td>能力探测时机</td><td>同步输出 / Kitty 协议 / 图形协议 / 鼠标上报四类探测<strong>必须在启动时一次性完成</strong>，结果写入一个只读的 <code>TerminalCapabilities</code> 对象供全组件读取；任何组件运行时自行探测都是重复劳动且可能与全局结果不一致</td></tr>
+      <tr><td>降级不是错误态</td><td>图形协议降级到文字占位、鼠标降级到纯键盘，UI 上不应出现"错误"或"警告"视觉——这是<strong>正常路径</strong>，只在 F12⑥ 那类"已知不兼容宿主"上才升级为警告</td></tr>
+    </table>
+    </div>
+  </div>
 </section>
 
 <!-- ══════ F13 模式 ══════ -->
