@@ -125,6 +125,7 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface-2);
 .grid{display:grid;gap:var(--s3);margin:var(--s4) 0}
 .g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+#f3 .grid.g2{grid-template-columns:repeat(auto-fit,minmax(460px,1fr))}
 .card{background:var(--surface-1);border-radius:var(--r-lg);padding:var(--s4);
   transition:all var(--fast) var(--ease)}
 .card:hover{background:var(--surface-2)}
@@ -140,8 +141,8 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface-2);
 
 /* ══ 布局线框简图 ══ */
 .wf{background:var(--surface-1);border-radius:8px;overflow:hidden;
-  display:flex;flex-direction:column;height:150px;margin:0 0 var(--s3);
-  font-family:var(--mono);font-size:10.5px;line-height:1.3;user-select:none}
+  display:flex;flex-direction:column;height:225px;margin:0 0 var(--s3);
+  font-family:var(--mono);font-size:12.5px;line-height:1.35;user-select:none}
 .wf .row{display:flex;flex:1;min-height:0}
 .wf .col{display:flex;flex-direction:column;min-width:0}
 .wf .z{margin:1px;display:flex;flex-direction:column;
@@ -168,6 +169,9 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface-2);
 .b.s{color:var(--ok)}
 .b.w{color:var(--warn)}
 .b.d{color:var(--danger)}
+a.b{text-decoration:none;cursor:pointer;box-shadow:inset 0 0 0 1px transparent;transition:box-shadow var(--fast) var(--ease)}
+a.b.s:hover{box-shadow:inset 0 0 0 1px rgba(4,215,147,.4);background:rgba(4,215,147,.08)}
+table tr:target{background:rgba(0,119,255,.09)}
 
 /* ══ tables ══ */
 table{width:100%;border-collapse:collapse;margin:var(--s3) 0;font-size:12.5px}
@@ -373,6 +377,20 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
   color:var(--ok);margin-left:var(--s5)}
 .diag-layout-tree .lt .conn{color:var(--fg4);padding-left:var(--s3)}
 
+/* 边框实际落点对比 */
+.diag-edge .rule-row{position:relative;height:92px;margin-bottom:var(--s4);
+  background-image:linear-gradient(to right,var(--bd2) 1px,transparent 1px);
+  background-size:calc(100%/16) 100%;border-radius:var(--r-sm)}
+.diag-edge .rule-row:last-child{margin-bottom:0}
+.diag-edge .row-label{position:absolute;top:6px;left:8px;font-family:var(--mono);
+  font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--fg4)}
+.diag-edge .panel{position:absolute;top:30px;height:46px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);
+  font-size:10.5px;padding:0 4px;text-align:center;line-height:1.35}
+.diag-edge .panel.tui{background:rgba(0,119,255,.14);border:2px solid var(--primary-h);color:var(--primary-h)}
+.diag-edge .panel.gui{background:rgba(4,215,147,.12);border:2px dashed var(--ok);color:var(--ok)}
+.diag-edge .tick-lbl{position:absolute;bottom:2px;font-family:var(--mono);font-size:9.5px;transform:translateX(-50%)}
+
 /* 箭头标注 */
 .diag-annotate{position:relative}
 .diag-annotate .annot{display:flex;align-items:flex-start;gap:var(--s2);margin:var(--s2) 0;
@@ -406,6 +424,26 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 .diag-token-stack .tk .tk-desc{color:var(--fg2);font-size:11px}
 .diag-token-stack .tk .tk-val{color:var(--fg3);font-size:11px;margin-left:auto}
 .diag-token-stack .tk-arrow{text-align:center;color:var(--fg4);font-size:14px}
+
+/* 通用迷你终端框（F5/F6 多处对比复用） */
+.diag-frames{display:flex;gap:var(--s3);flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.diag-frames .mf-wrap{display:flex;flex-direction:column;align-items:center;width:150px}
+.diag-frames .mf{background:var(--surface-2);border-radius:var(--r-md);
+  width:150px;height:100px;position:relative;overflow:hidden;flex-shrink:0}
+.diag-frames .mf-label{position:absolute;top:5px;left:7px;font-family:var(--mono);
+  font-size:9.5px;font-weight:700;color:var(--fg3);z-index:2}
+.diag-frames .mf-cap{text-align:center;font-family:var(--mono);font-size:9.5px;
+  color:var(--fg4);margin-top:var(--s2);line-height:1.4}
+.diag-frames .hm{position:absolute;font-family:var(--mono);font-size:8.5px;
+  display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.25;border-radius:3px}
+
+/* 拖拽滑块 vs 预设循环 */
+.diag-slider{position:relative;height:6px;background:var(--bd2);border-radius:3px;margin:38px var(--s4) var(--s2)}
+.diag-slider .trail{position:absolute;top:0;left:0;height:100%;width:58%;border-radius:3px;
+  background:repeating-linear-gradient(to right,rgba(4,215,147,.35) 0 3px,transparent 3px 7px)}
+.diag-slider .handle{position:absolute;top:50%;left:58%;width:16px;height:16px;border-radius:50%;
+  background:var(--ok);border:2px solid var(--surface-2);transform:translate(-50%,-50%);
+  box-shadow:0 0 0 3px rgba(4,215,147,.18)}
 
 /* 能力决策树 */
 .diag-tree{font-family:var(--mono);font-size:11px;padding:var(--s2)}
@@ -628,6 +666,43 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">每个格子不是 1 bit 黑白像素，而是 <b style="color:var(--primary-h)">glyph + 颜色 + 样式</b> 的多维信息单元</p>
   </div>
 
+  <h3 style="margin-top:var(--s5)">深挖 · 这个格子里到底装了什么，谁在控制</h3>
+  <p>上图那五个标签——<code>glyph</code>、<code>fg</code>、<code>bg</code>、<code>bold</code>、<code>underline</code>——不是抽象概念，是终端里真实存在的一份 per-cell 数据结构（tcell 里叫 <code>Style</code>，ncurses 里叫 <code>attr_t</code>）。Lazygit 每写一个字符前，先发一段 <strong>ANSI/VT100 SGR 转义序列</strong>告诉终端"接下来这个字符用什么颜色、什么样式"，终端解析后把结果存进这个 cell，再据此 rasterize——这条转义序列，就是这五个标签的真正来源。</p>
+
+  <div class="diag">
+    <div class="diag-cap">色深分档 — 同一个 fg 属性，实际能表达的范围完全不同</div>
+    <table>
+      <tr><th>档位</th><th>SGR 转义序列</th><th>可表达颜色数</th><th>由谁决定能不能用</th></tr>
+      <tr><td style="color:var(--fg3)">mono（无色）</td><td class="mono">不发送颜色码</td><td>1（黑白）</td><td><code>TERM=dumb</code> / 非 tty 环境</td></tr>
+      <tr><td style="color:var(--hl-o)">16 色</td><td class="mono">\x1b[30–37m / 40–47m</td><td>16</td><td>最老的 ANSI 终端都支持</td></tr>
+      <tr><td style="color:var(--hl-b)">256 色</td><td class="mono">\x1b[38;5;{0-255}m</td><td>256</td><td><code>TERM=xterm-256color</code></td></tr>
+      <tr><td style="color:var(--hl-g)">truecolor</td><td class="mono">\x1b[38;2;{r};{g};{b}m</td><td>16,777,216</td><td><code>COLORTERM=truecolor</code>，终端与 TUI 库都得支持</td></tr>
+    </table>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3)">样式位（<code>bold 1m</code> · <code>dim 2m</code> · <code>italic 3m</code> · <code>underline 4m</code> · <code>blink 5m</code> · <code>reverse 7m</code> · <code>strikethrough 9m</code>）是独立的可叠加 bit flag，和颜色档位正交——理论最大值是 <b style="color:var(--primary-h)">truecolor fg + truecolor bg + 全部样式位同时置位</b>，这是当前 cell 模型的表达力天花板，再往上就得靠 btop 式 sub-cell 或 Yazi 式 pixel plane。</p>
+  </div>
+
+  <div class="note w"><b>不是 TUI 库单方面决定的，是"终端 × 库"两层协商的结果：</b>① 终端是否支持（通过 <code>$TERM</code>/<code>$COLORTERM</code> 探测）；② 底层 TUI 库（gocui）是否正确做了降级（truecolor → 256 → 16 → mono）。两层任一个拖后腿，色深就掉档。<strong>语言本身不影响色深</strong>，但会影响渲染效果——不少等宽 CJK 字体缺 bold/italic 字重的独立字形，同样发了 <code>\x1b[1m</code>，中文字符可能视觉上没有变粗。</div>
+
+  <h3 style="margin-top:var(--s5)">深挖 · 谁决定了 120×40 这个数字，开发者能改吗</h3>
+  <p>120×40 不是 Lazygit 自己设的，是一条自上而下的决定链——Lazygit 只是链条末端的读者，链条上每一环都不是它能控制的：</p>
+
+  <div class="diag">
+    <div class="diag-cap">决定链：从用户的显示器到 Lazygit 看到的 cols×rows</div>
+    <div class="diag-fallback">
+      <div class="fnode best">终端模拟器<br><span style="font-size:10.5px">iTerm2/Alacritty/kitty…</span></div><div class="farr">→</div>
+      <div class="fnode">字体与字号<br><span style="font-size:10.5px">决定单 cell 像素尺寸</span></div><div class="farr">→</div>
+      <div class="fnode">窗口物理像素<br><span style="font-size:10.5px">用户手动拖拽/分屏</span></div><div class="farr">→</div>
+      <div class="fnode">OS DPI 缩放</div><div class="farr">→</div>
+      <div class="fnode" style="color:var(--hl-o)">tmux/zellij pane<br><span style="font-size:10.5px">如果套了 multiplexer</span></div><div class="farr">→</div>
+      <div class="fnode last">上报 cols×rows<br><span style="font-size:10.5px">ioctl TIOCGWINSZ</span></div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s2);text-align:center">链条上<b style="color:var(--warn)">每一环都是用户本地环境</b>，Lazygit 作为应用程序完全插不进手</p>
+  </div>
+
+  <div class="note"><b>开发者只有三个真正的控制点：</b>① <strong>查询</strong>——启动时读一次 <code>TIOCGWINSZ</code>（<code>$COLUMNS</code>/<code>$LINES</code> 环境变量常是启动时的旧值，不可靠）；② <strong>响应</strong>——监听 <code>SIGWINCH</code> 信号，用户一改窗口/字号/pane 内核立刻通知，据此重新布局；③ <strong>设下限</strong>——管不了终端给多大分辨率，但可以自己定义"低于多少就降级"。Lazygit 的 <code>portraitMode</code>（≤84 列自动转竖排）、btop 的窄屏阻断页，本质都是开发者在第三个控制点上做的设计，而不是对分辨率数值本身的控制。理论上还有 <code>CSI 8;rows;cols t</code> 转义序列能反向请求终端调整尺寸，但主流终端出于安全/体验考虑大多默认禁用，实践中不算真正可用的手段。</div>
+
+  <div class="note w"><b>还有一个容易被忽略的变量——语言：</b>CJK 字符、emoji 按 Unicode East Asian Width 属性算"宽字符"，要占 <b>2 个 cell</b> 而不是 1 个。同样 120 列的终端，纯英文界面能排 120 字符宽的内容，中文界面实际可用文字宽度只剩 <b style="color:var(--warn)">~60 个字</b>——cell 分辨率数字没变，但内容承载量少了一半。TUI 框架必须调用 <code>wcwidth()</code> 才能正确算列宽，这也是中英文混排 TUI 最容易踩的坑之一。</div>
+
   <h3>Sub-cell TUI · btop</h3>
   <p>btop 使用 <strong>Unicode Braille 字符</strong>画 graph。一个 Braille glyph 内部可表达 <strong>2×4 = 8 个 dot</strong>。40×10 cells 的 graph 区域，普通 grid 只有 40×10，用 Braille 则视觉采样网格 ≈ <strong>80×40 dots</strong>——比纯字符精细很多。</p>
   <div class="note"><b>但仍不是 pixel graphics：</b>程序只发送 <code>U+28XX Braille glyph</code>，Terminal Emulator 再用字体 rasterize。管线是 data → dot pattern → Unicode char → cell → font raster → pixels，而非 data → drawPixel(x, y)。</div>
@@ -753,6 +828,41 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">这个模型比"Terminal = 字符屏幕"准确得多——<b style="color:var(--primary-h)">格子层管布局</b>，<b style="color:var(--ok)">像素层管内容表现力</b></p>
   </div>
 
+  <h4 style="margin-top:var(--s4);font-size:13px;color:var(--fg2);font-weight:600">深挖 · 两条渲染管线，各管一段</h4>
+  <p>"格子层管布局，像素层管内容表现力"这句话背后，是<strong>两条完全独立的渲染管线在同一个终端窗口里各跑各的</strong>：</p>
+
+  <div class="diag">
+    <div class="diag-cap">文字管线 vs 图形管线 — 同一窗口内的两套独立管线</div>
+    <div class="diag-pipeline">
+      <div class="pipe">
+        <h5 style="color:var(--primary-h)">文字管线 · 受字体渲染器限制</h5>
+        <div class="pipe-steps">
+          <span class="step">codepoint</span><span class="arr">→</span>
+          <span class="step">字体查字形</span><span class="arr">→</span>
+          <span class="step">hinting/抗锯齿</span><span class="arr">→</span>
+          <span class="step hi">glyph 位图</span><span class="arr">→</span>
+          <span class="step">贴进该 cell</span>
+        </div>
+        <p style="font-size:10.5px;color:var(--fg4);margin-top:var(--s2)">终点精度受限于字体渲染器</p>
+      </div>
+      <div class="pipe">
+        <h5 style="color:var(--ok)">图形管线 · 绕开字体渲染器</h5>
+        <div class="pipe-steps">
+          <span class="step hi">原始图片字节</span><span class="arr">→</span>
+          <span class="step">终端解码</span><span class="arr">→</span>
+          <span class="step hi">位图对象</span><span class="arr">→</span>
+          <span class="step">直接合成到像素区域</span>
+        </div>
+        <p style="font-size:10.5px;color:var(--fg4);margin-top:var(--s2)">完全不经过字体渲染，任意 RGB/抗锯齿/渐变</p>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">两条管线只共享一件事：<b style="color:var(--primary-h)">图片的摆放框依然要对齐 cell 网格</b>——Kitty/Sixel 协议下发图片时要指定"从第几行第几列开始、占几列几行"，框的四条边和文字面板一样只能落在整数 column/row 上；框内部怎么画，才是像素层的自由</p>
+  </div>
+
+  <div class="note w"><b>一个不直观的细节——滚动：</b>Kitty 协议里图片是"相对于放置时光标所在的 cell"锚定的，不是固定屏幕像素坐标。终端往上滚一行，文字和图片一起移动，协议要专门处理"图片滚进 scrollback 后要不要继续渲染、怎么裁切"——这是把一个像素对象强行绑定到离散、可滚动的行坐标系统里，是这套混合模型里最不好处理的一块。部分协议还支持给图片设 z-index，让文字渲染在图片之上或之下（比如给截图叠一层字幕）。</div>
+
+  <div class="note"><b>对 DevKit 的启示：</b>"要不要上 pixel 渲染"是个<strong>逐区域</strong>的决策，不是全局二选一。大部分 UI chrome（边框、列表、状态栏）天然该留在纯 cell 层；只有真正需要高保真表现力的区域（chart、架构图、带语法高亮的 diff）才值得承担 pixel plane 的复杂度（协议探测、降级链、滚动绑定）——两者在同一帧里并存不冲突，这也是 T0–T4 渲染分层设计的技术基础。</div>
+
   <h3>产品谱系：按空间表达能力排</h3>
   <div class="diag">
     <div class="diag-cap">三档能力谱系对比 — 从纯 Cell 到 Hybrid Raster</div>
@@ -826,6 +936,25 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <div class="note w" style="margin-top:var(--s3)"><b>关键结论：</b>pixel graphics 解决了 <strong>content rendering resolution</strong>，但没解决 <strong>UI layout model</strong>。Yazi 图片虽高清，sidebar 宽度仍是整数 column。这就是目前 TUI → GUI 真正还没跨过去的边界。</div>
   </div>
 
+  <div class="diag">
+    <div class="diag-cap">示意图：同一根参考线上，边框实际落在哪</div>
+    <div class="diag-edge">
+      <div class="rule-row">
+        <div class="row-label">TUI</div>
+        <div class="panel tui" style="left:18.75%;width:56.25%">column 3 → column 12<br>边框精确落在 tick 线上</div>
+        <span class="tick-lbl" style="left:18.75%;color:var(--fg4)">3</span>
+        <span class="tick-lbl" style="left:75%;color:var(--fg4)">12</span>
+      </div>
+      <div class="rule-row">
+        <div class="row-label">GUI</div>
+        <div class="panel gui" style="left:21.25%;width:58.125%">column 3.4 → column 12.7<br>边框停在 tick 之间</div>
+        <span class="tick-lbl" style="left:21.25%;color:var(--warn)">3.4</span>
+        <span class="tick-lbl" style="left:79.375%;color:var(--warn)">12.7</span>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">同一条参考线下，<b style="color:var(--primary-h)">TUI 面板边框只能停在竖线交点上</b>；<b style="color:var(--ok)">GUI 面板边框可以停在任意两条竖线之间</b>——这才是"离散 vs 连续"在屏幕上真正的样子，也是上面那棵树状图想表达的结构，落到像素层面的实际效果</p>
+  </div>
+
   <h3>三层 Resolution Token 模型</h3>
   <div class="diag">
     <div class="diag-cap">从 TUI Design System 视角：分辨率不是单一值，而是三套 Token</div>
@@ -895,16 +1024,16 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <div class="plane">终端工作台派</div>
       <div class="pname"><b>MobaXterm</b><span class="ver">v26.4 · Windows · 闭源</span></div>
       <div class="wf">
-  <div class="row fx" style="flex:none;height:12px"><div class="z sh">menu bar</div></div>
-  <div class="row fx" style="flex:none;height:24px"><div class="z warn">R I B B O N &nbsp;大工具栏<br><span style="font-size:10.5px">十几分组 · 上百图标 · 无搜索入口</span></div></div>
+  <div class="row fx" style="flex:none;height:18px"><div class="z sh">menu bar</div></div>
+  <div class="row fx" style="flex:none;height:36px"><div class="z warn">R I B B O N &nbsp;大工具栏<br><span style="font-size:11.5px">十几分组 · 上百图标 · 无搜索入口</span></div></div>
   <div class="row">
-    <div class="col" style="width:32%"><div class="z sh">会话树</div><div class="z hi">SFTP 面板<br>跟随终端目录</div></div>
+    <div class="col" style="width:32%"><div class="z sh">会话树</div><div class="z hi">SFTP 面板<br><span>跟随终端目录</span></div></div>
     <div class="col" style="flex:1">
-      <div class="row fx" style="flex:none;height:12px"><div class="z sh">Tab │ Tab │ +</div></div>
-      <div class="row"><div class="z">终端<br><span style="font-size:10.5px;color:var(--fg4)">分屏 3 档 · 最多 4 格</span></div></div>
+      <div class="row fx" style="flex:none;height:18px"><div class="z sh">Tab │ Tab │ +</div></div>
+      <div class="row"><div class="z">终端<br><span style="font-size:11.5px;color:var(--fg4)">分屏 3 档 · 最多 4 格</span></div></div>
     </div>
   </div>
-  <div class="row fx" style="flex:none;height:11px"><div class="z sh">status bar</div></div>
+  <div class="row fx" style="flex:none;height:17px"><div class="z sh">status bar</div></div>
 </div>
 <div class="wfcap">分屏仅 3 档最多 4 格 · <b>SFTP 跟随目录</b>是被 Tabby 追赶的高价值联动</div>
       <p><strong>可见性驱动的 GUI 停靠面板。</strong>Ribbon 工具栏 + 侧栏会话树 + SFTP 面板 + 状态栏，能力全摆在明面上。</p>
@@ -915,17 +1044,17 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <div class="plane">终端工作台派</div>
       <div class="pname"><b>Zellij</b><span class="ver">v0.44.3 · MIT · 34.5k★</span></div>
       <div class="wf">
-  <div class="row fx" style="flex:none;height:13px"><div class="z sh">tab bar</div></div>
+  <div class="row fx" style="flex:none;height:20px"><div class="z sh">tab bar</div></div>
   <div class="row">
     <div class="col" style="flex:1.1"><div class="z">pane</div></div>
     <div class="col" style="flex:1"><div class="z">pane</div><div class="z">pane</div><div class="row"><div class="z">pane</div><div class="z">pane</div></div></div>
   </div>
-  <div class="row fx" style="flex:none;height:20px"><div class="z hi">status bar · 模式提示条（常驻，约 5MB）</div></div>
+  <div class="row fx" style="flex:none;height:30px"><div class="z hi">status bar · 模式提示条（常驻，约 5MB）</div></div>
 </div>
 <div class="wfcap"><b>递归分割 + 浮动 + 堆叠</b>，布局用 KDL 描述 · 但独占 8 个 Ctrl 键</div>
       <p><strong>UI 本身是 WASM 插件。</strong>状态栏、标签栏、文件浏览器都可替换，布局用 KDL 文件描述，甚至能从 HTTP URL 加载。</p>
       <p class="rule">招牌：<strong>Swap Layouts</strong>——预定义"pane 数量变化时布局怎么重排"，开关 pane 自动触发。多路复用器里独一份。</p>
-      <p><span class="b s">递归分屏 + 浮动 + 堆叠</span><span class="b d">独占 8 个 Ctrl 键</span><span class="b d">鼠标不能拖拽调尺寸</span></p>
+      <p><a class="b s" href="#src-docs">递归分屏 + 浮动 + 堆叠</a><span class="b d">独占 8 个 Ctrl 键</span><span class="b d">鼠标不能拖拽调尺寸</span></p>
     </div>
     <div class="card pcard" style="--tint:var(--hl-v)">
       <div class="plane">AI Coding TUI 派</div>
@@ -934,20 +1063,20 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
   <div class="row">
     <div class="col" style="flex:1">
       <div class="z sh" style="flex:1.3">对话流（单栏）<br>工具结果默认折叠<br><span style="color:var(--fg4)">无侧栏 · 无分屏</span></div>
-      <div class="row fx" style="flex:none;height:30px">
+      <div class="row fx" style="flex:none;height:45px">
         <div class="z" style="flex:.5"></div>
         <div class="z dash" style="flex:2">overlay 覆盖层<br>/diff · palette · approval</div>
         <div class="z" style="flex:.5"></div>
       </div>
     </div>
   </div>
-  <div class="row fx" style="flex:none;height:14px"><div class="z">输入框（fullscreen 固定底部）</div></div>
-  <div class="row fx" style="flex:none;height:14px"><div class="z hi">statusline + 权限徽章 + PR 徽章</div></div>
+  <div class="row fx" style="flex:none;height:21px"><div class="z">输入框（fullscreen 固定底部）</div></div>
+  <div class="row fx" style="flex:none;height:21px"><div class="z hi">statusline + 权限徽章 + PR 徽章</div></div>
 </div>
 <div class="wfcap"><b>覆盖层驱动</b>：辅助视图全是浮层 · 并行走多会话 + worktree</div>
       <p><strong>覆盖层驱动，无侧栏无分屏。</strong>所有辅助视图都是 overlay；并行走"多会话 + 后台 supervisor + 自动 git worktree"而非多面板。</p>
       <p class="rule">招牌：<strong>auto mode 分类器</strong>——权限从静态规则升级为独立模型的语义判断，连"你在对话里说的口头约束"都当硬约束执行。</p>
-      <p><span class="b s">Plan 是一等公民</span><span class="b s">rewind 双向摘要</span><span class="b d">全屏破坏原生复制</span></p>
+      <p><a class="b s" href="#src-docs">Plan 是一等公民</a><a class="b s" href="#src-docs">rewind 双向摘要</a><span class="b d">全屏破坏原生复制</span></p>
     </div>
     <div class="card pcard" style="--tint:var(--hl-v)">
       <div class="plane">AI Coding TUI 派</div>
@@ -955,47 +1084,47 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <div class="wf">
   <div class="row">
     <div class="col" style="flex:1"><div class="z sh">消息区 · 工具调用<br><span style="color:var(--danger)">完整 diff 内联（无折叠）</span></div></div>
-    <div class="col" style="width:34%"><div class="z warn">sidebar<br>文件 / 工具<br><span style="font-size:10.5px">不能默认隐藏</span></div></div>
+    <div class="col" style="width:34%"><div class="z warn">sidebar<br>文件 / 工具<br><span style="font-size:11.5px">不能默认隐藏</span></div></div>
   </div>
-  <div class="row fx" style="flex:none;height:14px"><div class="z">输入区（多行 · readline 键位）</div></div>
-  <div class="row fx" style="flex:none;height:12px"><div class="z sh">status：session · model · agent · auto</div></div>
+  <div class="row fx" style="flex:none;height:21px"><div class="z">输入区（多行 · readline 键位）</div></div>
+  <div class="row fx" style="flex:none;height:18px"><div class="z sh">status：session · model · agent · auto</div></div>
 </div>
 <div class="wfcap">无分屏无标签（<b>not planned</b>，让位 tmux）· <b>ctrl+p 命令面板</b> + which-key 浮层</div>
       <p><strong>Zig 渲染核心 + Yoga flexbox + 客户端/服务器分离。</strong>同一后端可被 TUI / Web / IDE 多端接入，还能被外部反向驱动 TUI。</p>
       <p class="rule">招牌：<strong><code>doom_loop</code> 权限</strong>——同一工具连调 3 次自动触发询问，把"反空转"做成一等公民权限项。</p>
-      <p><span class="b s">ctrl+p 命令面板 + which-key</span><span class="b s">父子会话原地导航</span><span class="b d">diff 刷屏无折叠</span></p>
+      <p><a class="b s" href="#src-docs">ctrl+p 命令面板 + which-key</a><a class="b s" href="#src-docs">父子会话原地导航</a><span class="b d">diff 刷屏无折叠</span></p>
     </div>
     <div class="card pcard" style="--tint:var(--hl-o)">
       <div class="plane">工程观测派</div>
       <div class="pname"><b>btop</b><span class="ver">C++ · 多平台</span></div>
       <div class="wf">
-  <div class="row fx" style="flex:none;height:44px"><div class="z hi">cpu &nbsp;braille 曲线 + 多核网格<br><span style="font-size:10.5px">键位画在边框上 · 可点击</span></div></div>
+  <div class="row fx" style="flex:none;height:66px"><div class="z hi">cpu &nbsp;braille 曲线 + 多核网格<br><span style="font-size:11.5px">键位画在边框上 · 可点击</span></div></div>
   <div class="row">
     <div class="col" style="width:44%"><div class="z sh">mem + disks</div><div class="z sh">net</div></div>
-    <div class="col" style="flex:1"><div class="z">proc<br><span style="font-size:10.5px;color:var(--fg4)">可排序 · 可过滤 · 树视图</span></div></div>
+    <div class="col" style="flex:1"><div class="z">proc<br><span style="font-size:11.5px;color:var(--fg4)">可排序 · 可过滤 · 树视图</span></div></div>
   </div>
 </div>
 <div class="wfcap"><b>多盒同屏全常驻</b> · preset（p/P）打包「布局 + 渲染精度」9 套循环</div>
       <p><strong>多盒同屏，preset 一键换视角。</strong>三套图形符号（braille / block / tty）可按盒子分别设定。</p>
       <p class="rule">招牌两条：<strong>preset 把"布局 + 渲染精度"打包成一个可循环状态</strong>；<strong>窄屏阻断页可交互</strong>——装不下时在报错页上直接按 1-4 关盒子。</p>
-      <p><span class="b s">边框即工具栏（键位可点）</span><span class="b d">退出静默覆盖配置</span></p>
+      <p><a class="b s" href="#src-code">边框即工具栏（键位可点）</a><span class="b d">退出静默覆盖配置</span></p>
     </div>
     <div class="card pcard" style="--tint:var(--hl-o)">
       <div class="plane">工程观测派</div>
       <div class="pname"><b>k9s</b><span class="ver">Go · tview</span></div>
       <div class="wf">
-  <div class="row fx" style="flex:none;height:30px">
-    <div class="z sh">clusterInfo<br>ctx/user/CPU</div><div class="z hi">6 行键位网格<br><span style="font-size:10.5px">随导航栈变化</span></div><div class="z sh">logo</div>
+  <div class="row fx" style="flex:none;height:45px">
+    <div class="z sh">clusterInfo<br><span>ctx/user/CPU</span></div><div class="z hi">6 行键位网格<br><span style="font-size:11.5px">随导航栈变化</span></div><div class="z sh">logo</div>
   </div>
-  <div class="row fx" style="flex:none;height:15px"><div class="z dash">: 命令行（激活时插入 · 补全）</div></div>
-  <div class="row"><div class="z">content：表格 / 树 / 日志 / Pulses<br><span style="font-size:10.5px;color:var(--fg4)">单一主视图 · 栈式下钻</span></div></div>
-  <div class="row fx" style="flex:none;height:12px"><div class="z hi">crumbs 面包屑（同一个栈）</div></div>
-  <div class="row fx" style="flex:none;height:10px"><div class="z sh">flash</div></div>
+  <div class="row fx" style="flex:none;height:23px"><div class="z dash">: 命令行（激活时插入 · 补全）</div></div>
+  <div class="row"><div class="z">content：表格 / 树 / 日志 / Pulses<br><span style="font-size:11.5px;color:var(--fg4)">单一主视图 · 栈式下钻</span></div></div>
+  <div class="row fx" style="flex:none;height:18px"><div class="z hi">crumbs 面包屑（同一个栈）</div></div>
+  <div class="row fx" style="flex:none;height:15px"><div class="z sh">flash</div></div>
 </div>
 <div class="wfcap"><b>crumbs 说"我在哪" + 键位网格说"能干什么"</b>，二者由同一 stack 事件驱动</div>
       <p><strong><code>:</code> 命令行把整个资源空间变成可寻址的。</strong>别名 + ghost-text 补全，无需菜单树。</p>
       <p class="rule">招牌：<strong>导航栈驱动的双重反馈</strong>——crumbs 说"我在哪"，6 行键位网格说"我现在能干什么"，二者由同一个 stack 事件驱动。</p>
-      <p><span class="b s">Pulses 图表可下钻</span><span class="b d">窄屏无降级</span><span class="b d">大规模卡死</span></p>
+      <p><a class="b s" href="#src-code">Pulses 图表可下钻</a><span class="b d">窄屏无降级</span><span class="b d">大规模卡死</span></p>
     </div>
     <div class="card pcard" style="--tint:var(--hl-o)">
       <div class="plane">工程观测派</div>
@@ -1006,18 +1135,18 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <div class="z sh">1 Status</div><div class="z hi">2 Files</div><div class="z sh">3 Branches</div><div class="z sh">4 Commits</div><div class="z sh">5 Stash</div>
     </div>
     <div class="col" style="flex:1">
-      <div class="row" style="flex:1.5"><div class="z hi" style="flex:1.5">main<br><span style="font-size:10.5px">选中项的 diff</span></div><div class="z sh" style="flex:1">secondary<br><span style="font-size:10.5px">staged</span></div></div>
-      <div class="row fx" style="flex:none;height:22px"><div class="z hi">command log · 打出真实 git 命令</div></div>
+      <div class="row" style="flex:1.5"><div class="z hi" style="flex:1.5">main<br><span style="font-size:11.5px">选中项的 diff</span></div><div class="z sh" style="flex:1">secondary<br><span style="font-size:11.5px">staged</span></div></div>
+      <div class="row fx" style="flex:none;height:33px"><div class="z hi">command log · 打出真实 git 命令</div></div>
     </div>
   </div>
-  <div class="row fx" style="flex:none;height:15px">
+  <div class="row fx" style="flex:none;height:23px">
     <div class="z sh">appStatus</div><div class="z hi">options · 随 context 重绘</div><div class="z sh">info</div>
   </div>
 </div>
 <div class="wfcap"><b>左选什么，右画什么</b>——选中联动最彻底 · screenMode(+/_) 当缩放 · portrait 自动重排</div>
       <p><strong>选中联动做得最彻底。</strong>左侧任一列表的选中项决定右侧主区画什么，master-detail 范式的标杆。</p>
       <p class="rule">招牌三条：<strong>上下文相关键位</strong>（24 个 context，底部提示随之重绘）；<strong>screenMode 当缩放</strong>（<code>+</code>/<code>_</code> 循环）；<strong>portrait 自动重排</strong>（≤84 列侧栏转竖排）——TUI 里少见的真响应式断点。</p>
-      <p><span class="b s">command log 教学式透明</span><span class="b s">reflog undo/redo</span><span class="b d">鼠标挡住原生复制</span></p>
+      <p><a class="b s" href="#src-code">command log 教学式透明</a><a class="b s" href="#src-code">reflog undo/redo</a><span class="b d">鼠标挡住原生复制</span></p>
     </div>
     <div class="card">
       <div class="plane" style="color:var(--hl-g)">Hybrid TUI 派 🆕</div>
@@ -1035,29 +1164,29 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       </div>
     </div>
   </div>
-  <div class="row fx" style="flex:none;height:14px"><div class="z sh">input · status</div></div>
+  <div class="row fx" style="flex:none;height:21px"><div class="z sh">input · status</div></div>
 </div>
 <div class="wfcap"><b>双重分辨率共存：</b>左侧 Cell 布局 + 右侧 Pixel 渲染 · 协议降级链（Kitty → iTerm2 → Sixel → Chafa → text）</div>
       <p><strong>Hybrid TUI 的代表。</strong>图片 preview 通过 Kitty/iTerm2/Sixel 协议实现真实 raster 渲染，但文件树的 layout 仍是 cell-based。展示了现代 TUI 的能力边界。</p>
       <p class="rule">核心启示：<strong>位置用 cell 定位，内容用 pixel 渲染</strong>——chart / diff / 架构图区域可借鉴此模型按终端能力自适应升级渲染精度。</p>
-      <p><span class="b s">协议降级链</span><span class="b s">Cell + Pixel 共存</span></p>
+      <p><a class="b s" href="#src-code">协议降级链</a><a class="b s" href="#src-code">Cell + Pixel 共存</a></p>
     </div>
     <div class="card">
       <div class="plane" style="color:var(--fg3)">对照基线</div>
       <div class="pname"><b>Kunpeng DevKit AI</b><span class="ver">本产品 · 概念设计</span></div>
       <div class="wf">
-  <div class="row fx" style="flex:none;height:12px"><div class="z sh">Header · 目标架构 · 连接状态</div></div>
+  <div class="row fx" style="flex:none;height:18px"><div class="z sh">Header · 目标架构 · 连接状态</div></div>
   <div class="row">
     <div class="col fx" style="width:9px"><div class="z sh" style="padding:0">▮</div></div>
-    <div class="col" style="width:26%"><div class="z sh">TASKS</div><div class="z hi">PROJECT<br><span style="font-size:10.5px">⇄ 跟随 Agent</span></div><div class="z sh">TOOLS</div></div>
+    <div class="col" style="width:26%"><div class="z sh">TASKS</div><div class="z hi">PROJECT<br><span style="font-size:11.5px">⇄ 跟随 Agent</span></div><div class="z sh">TOOLS</div></div>
     <div class="col" style="flex:1">
-      <div class="row fx" style="flex:none;height:11px"><div class="z sh">Tab bar：多任务</div></div>
-      <div class="row" style="flex:1.4"><div class="z hi">Canvas A<br><span style="font-size:10.5px">结论</span></div><div class="z hi">Canvas B<br><span style="font-size:10.5px">证据</span></div></div>
-      <div class="row fx" style="flex:none;height:20px"><div class="z sh">Agent Console</div></div>
+      <div class="row fx" style="flex:none;height:17px"><div class="z sh">Tab bar：多任务</div></div>
+      <div class="row" style="flex:1.4"><div class="z hi">Canvas A<br><span style="font-size:11.5px">结论</span></div><div class="z hi">Canvas B<br><span style="font-size:11.5px">证据</span></div></div>
+      <div class="row fx" style="flex:none;height:30px"><div class="z sh">Agent Console</div></div>
     </div>
   </div>
-  <div class="row fx" style="flex:none;height:11px"><div class="z">input：自然语言 + /命令</div></div>
-  <div class="row fx" style="flex:none;height:11px"><div class="z sh">status：Workspace · mode · model · ctx</div></div>
+  <div class="row fx" style="flex:none;height:17px"><div class="z">input：自然语言 + /命令</div></div>
+  <div class="row fx" style="flex:none;height:17px"><div class="z sh">status：Workspace · mode · model · ctx</div></div>
 </div>
 <div class="wfcap">工作台派的 Dock 与分屏 + AI 派的 Agent 流 + 观测派的数据密度，<b>三派合一</b></div>
       <p>四条主线（迁移 / 开发 / 诊断 / 调优）+ 两个横向能力，跑在鲲鹏本地或服务器上。</p>
@@ -1168,6 +1297,46 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>命令入口形态<div class="tp">tp-02-e</div></td><td><strong>k9s</strong> <code>:</code> 资源命令行 + 别名 + ghost-text 补全 · <strong>OpenCode</strong> <code>ctrl+p</code> 独立命令面板（分 section）· <strong>Claude</strong> <code>/</code> 菜单即面板（命令+skill+plugin+MCP 统一）· <strong>MobaXterm</strong> 只有 Ribbon 按钮，<strong>无搜索式入口</strong></td><td><span class="b s">模糊搜索 &gt; 视觉罗列</span></td></tr>
   </table>
 
+  <div class="diag">
+    <div class="diag-cap">示意图：帮助提示画在屏幕的哪个位置（tp-02-a）</div>
+    <div class="diag-frames">
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="mf-label">Zellij</div>
+          <div class="hm" style="left:0;right:0;bottom:0;height:24px;background:rgba(0,119,255,.16);color:var(--primary-h)">常驻提示条<br>约 5MB</div>
+        </div>
+        <div class="mf-cap">占满底部一整条<br>常驻</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="mf-label">k9s</div>
+          <div class="hm" style="left:0;right:0;top:20px;height:34px;background:rgba(0,119,255,.16);color:var(--primary-h)">6 行键位网格</div>
+        </div>
+        <div class="mf-cap">画在顶部 header<br>随导航栈变化</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="mf-label">lazygit</div>
+          <div class="hm" style="left:0;right:0;bottom:0;height:20px;background:rgba(0,119,255,.16);color:var(--primary-h)">options 行</div>
+        </div>
+        <div class="mf-cap">底部一行<br>随 context 重绘</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="left:10px;right:10px;top:38px;height:16px;border-top:2px solid var(--ok);color:var(--ok);justify-content:flex-start;padding-left:4px">e/Enter toggle</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--ok)">btop</b>：画在它作用的<br>那个盒子边框上</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="left:22%;right:22%;top:32%;bottom:32%;border:1.5px dashed var(--fg4);color:var(--fg4);border-radius:4px">? / which-key<br>浮层</div>
+        </div>
+        <div class="mf-cap"><b>Claude / OpenCode</b><br>按需弹出，不常驻</div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">五种做法本质是同一个问题的五种答案：<b style="color:var(--primary-h)">提示常驻在哪、还是要用户主动召唤</b>——<b style="color:var(--ok)">btop 把答案画在最贴近操作对象的地方，是空间效率最高的一种</b></p>
+  </div>
+
   <div class="sub">③ 表达意图</div>
   <table>
     <tr><th>触点</th><th>做法对比</th><th>判断</th></tr>
@@ -1199,6 +1368,32 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>选中联动<div class="tp">tp-05-e</div></td><td><strong>lazygit</strong> 最彻底：左选文件→右画该文件 diff（暂存/未暂存拆 main+secondary）、选 commit→该 commit diff · <strong>k9s</strong> Pulses 图表 <code>Enter</code> 直接跳到该资源列表 · <strong>btop</strong> 弱（仅选中→详情浮层）· <strong>AI 派</strong> 无（无多面板）</td><td><span class="b s">★ lazygit 是标杆</span></td></tr>
   </table>
 
+  <div class="diag">
+    <div class="diag-cap">示意图：diff 审查粒度缺口（tp-05-a）</div>
+    <div style="display:flex;flex-direction:column;gap:var(--s3)">
+      <div style="background:var(--surface-2);border-radius:var(--r-md);padding:var(--s3)">
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--fg3);margin-bottom:var(--s2)">现状：Claude / OpenCode 都是这样——</div>
+        <div style="border:2px solid var(--primary-h);border-radius:var(--r-sm);padding:var(--s3);background:rgba(0,119,255,.05)">
+          <div style="font-family:var(--mono);font-size:10px;line-height:1.7;color:var(--fg2)">
+            <div>@@ hunk 1 @@</div><div style="color:var(--danger)">- old line</div><div style="color:var(--ok)">+ new line</div>
+            <div style="margin-top:5px">@@ hunk 2 @@</div><div style="color:var(--danger)">- old line</div><div style="color:var(--ok)">+ new line</div>
+            <div style="margin-top:5px">@@ hunk 3 @@</div><div style="color:var(--danger)">- old line</div><div style="color:var(--ok)">+ new line</div>
+          </div>
+          <div style="text-align:center;margin-top:var(--s3);font-family:var(--mono);font-size:10.5px;color:var(--primary-h);font-weight:700">一个 ✓ / ✗ 批准整个工具调用</div>
+        </div>
+      </div>
+      <div style="background:var(--surface-2);border-radius:var(--r-md);padding:var(--s3);opacity:.55">
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--fg4);margin-bottom:var(--s2)">理想中的样子（全行业都没做到）——</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:var(--s2);border:1.5px dashed var(--fg4);border-radius:var(--r-sm);padding:5px 9px"><span style="font-family:var(--mono);font-size:10px;color:var(--fg3);flex:1">@@ hunk 1 @@</span><span style="font-family:var(--mono);font-size:10px;color:var(--fg4)">✓ / ✗</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2);border:1.5px dashed var(--fg4);border-radius:var(--r-sm);padding:5px 9px"><span style="font-family:var(--mono);font-size:10px;color:var(--fg3);flex:1">@@ hunk 2 @@</span><span style="font-family:var(--mono);font-size:10px;color:var(--fg4)">✓ / ✗</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2);border:1.5px dashed var(--fg4);border-radius:var(--r-sm);padding:5px 9px"><span style="font-family:var(--mono);font-size:10px;color:var(--fg3);flex:1">@@ hunk 3 @@</span><span style="font-family:var(--mono);font-size:10px;color:var(--fg4)">✓ / ✗</span></div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">批准粒度停在"整个工具调用"这一级——<b style="color:var(--danger)">想留 hunk 1、拒 hunk 2，现在只能全盘接受再手动改回去</b></p>
+  </div>
+
   <div class="sub">⑥ 收尾与复用</div>
   <table>
     <tr><th>触点</th><th>做法对比</th><th>判断</th></tr>
@@ -1207,6 +1402,34 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>窄屏降级<div class="tp">tp-06-c</div></td><td><strong>lazygit</strong> portraitMode auto（≤84 列且 ≥46 行→侧栏转竖排），真响应式断点 · <strong>btop</strong> 硬阻断页但<strong>可在报错页现场关盒子</strong> · <strong>k9s</strong> <strong>未找到自动降级</strong>，列被挤压截断</td><td><span class="b s">★ lazygit 最优 / k9s 反面</span></td></tr>
     <tr><td>原生能力保全<div class="tp">tp-06-d</div></td><td><strong>Claude</strong> 全屏捕获鼠标破坏原生复制/搜索（多个 issue、CJK 复制乱码），逃生舱是 <code>[</code> 把对话吐回 scrollback · <strong>lazygit</strong> 官方注释自陈 mouseEvents "makes text selection harder" · <strong>Zellij</strong> pane 边框漂亮但<strong>要复制代码得先关掉边框</strong></td><td><span class="b d">★ 三派全中的行业级失败</span></td></tr>
   </table>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：终端被拉窄之后，三个产品分别怎么办（tp-06-c）</div>
+    <div class="diag-frames">
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="left:6px;right:6px;top:8px;height:22px;background:rgba(4,215,147,.14);color:var(--ok)">会话树</div>
+          <div class="hm" style="left:6px;right:6px;top:34px;bottom:8px;background:rgba(4,215,147,.08);color:var(--ok)">主区（下移，非并排）</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--ok)">lazygit</b>：≤84 列自动转竖排<br>侧栏与主区上下叠</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="inset:8px;background:rgba(255,170,59,.12);color:var(--warn);flex-direction:column">⚠ 装不下<br><span style="font-size:8px;margin-top:3px">按 1 2 3 4 现场关盒子</span></div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--warn)">btop</b>：硬阻断页<br>但阻断页本身可操作</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="left:6px;right:6px;top:10px;height:16px;background:rgba(255,75,123,.12);color:var(--danger);justify-content:flex-start;padding-left:4px">:lusterInf…</div>
+          <div class="hm" style="left:6px;right:6px;top:32px;height:16px;background:rgba(255,75,123,.12);color:var(--danger);justify-content:flex-start;padding-left:4px">导航栈…</div>
+          <div class="hm" style="left:6px;right:6px;top:54px;height:16px;background:rgba(255,75,123,.12);color:var(--danger);justify-content:flex-start;padding-left:4px">Pulses…</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--danger)">k9s</b>：无自动降级<br>列被逐个截断挤压</div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">同样是"装不下"，<b style="color:var(--ok)">lazygit 重排</b>、<b style="color:var(--warn)">btop 挡住但给操作路径</b>、<b style="color:var(--danger)">k9s 什么都不做，任由内容被截断</b>——三种答案里只有第三种是纯粹的负面案例</p>
+  </div>
 </section>
 
 <!-- ══════ F6 模式 ══════ -->
@@ -1244,6 +1467,72 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <p class="rule">代价：产品需维护 capability detection + fallback 逻辑，且不同终端的渲染效果会有差异——这是 TUI Design System 的 capability adaptation 问题。</p></div>
   </div>
 
+  <div class="diag">
+    <div class="diag-cap">示意图：M2 · 预设循环 vs 拖拽调整</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)">
+      <div style="background:var(--surface-2);border-radius:var(--r-md);padding:var(--s3)">
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--danger);margin-bottom:var(--s2);text-align:center">GUI 式：拖拽调整</div>
+        <div class="diag-slider"><div class="trail"></div><div class="handle"></div></div>
+        <p style="font-size:10px;color:var(--fg4);text-align:center;font-family:var(--mono);margin-top:var(--s2)">鼠标拖到任意位置<br>终端里成本高、精度差</p>
+      </div>
+      <div style="background:var(--surface-2);border-radius:var(--r-md);padding:var(--s3)">
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--ok);margin-bottom:var(--s2);text-align:center">TUI 式：预设循环</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:0;margin:var(--s3) 0;font-family:var(--mono)">
+          <div style="padding:8px 10px;border-radius:var(--r-sm);background:rgba(4,215,147,.16);color:var(--ok);font-size:10.5px;font-weight:700">preset 1</div>
+          <span style="padding:0 5px;color:var(--fg4)">→</span>
+          <div style="padding:8px 10px;border-radius:var(--r-sm);background:var(--surface-3);color:var(--fg3);font-size:10.5px">preset 2</div>
+          <span style="padding:0 5px;color:var(--fg4)">→</span>
+          <div style="padding:8px 10px;border-radius:var(--r-sm);background:var(--surface-3);color:var(--fg3);font-size:10.5px">preset 3</div>
+          <span style="padding:0 5px;color:var(--fg4)">↺</span>
+        </div>
+        <p style="font-size:10px;color:var(--fg4);text-align:center;font-family:var(--mono)">按 <code>p</code>/<code>P</code> 跳到下一个够用的布局<br>一步到位，无需微调</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：M4 · 折叠低信号输出</div>
+    <div class="diag-frames">
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="left:8px;right:8px;top:14px;height:18px;background:rgba(4,215,147,.14);color:var(--ok);justify-content:flex-start;padding-left:6px">▸ Read file.ts（120 行）</div>
+          <div class="hm" style="left:8px;right:8px;top:38px;height:18px;background:rgba(4,215,147,.14);color:var(--ok);justify-content:flex-start;padding-left:6px">▸ Edit config.json</div>
+          <div class="hm" style="left:8px;right:8px;top:62px;height:18px;background:rgba(0,119,255,.16);color:var(--primary-h);justify-content:flex-start;padding-left:6px">写操作，展开可见</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--ok)">Claude</b>：低信号折成一行<br>写操作留在视野里</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf" style="border:1.5px solid var(--danger)">
+          <div class="hm" style="left:6px;right:6px;top:6px;bottom:6px;background:repeating-linear-gradient(to bottom,rgba(255,75,123,.08) 0 8px,rgba(255,75,123,.16) 8px 16px);color:var(--danger);align-items:flex-start;justify-content:flex-start;padding:5px;font-size:8px;text-align:left">+++ 500 行 diff<br>全部内联展开<br>一直刷到底……</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--danger)">OpenCode</b>：无折叠<br>500+ 行糊一屏</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：M7 · 同一屏幕，四个面板各自选自己的精度</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface-2);border-radius:var(--r-md);padding:var(--s3)">
+      <div style="background:var(--surface-3);border-radius:var(--r-sm);padding:var(--s3);text-align:center">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--fg3);margin-bottom:6px">CPU 图表</div>
+        <span class="b s">truecolor raster</span>
+      </div>
+      <div style="background:var(--surface-3);border-radius:var(--r-sm);padding:var(--s3);text-align:center">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--fg3);margin-bottom:6px">网络吞吐</div>
+        <span class="b p">braille sub-cell</span>
+      </div>
+      <div style="background:var(--surface-3);border-radius:var(--r-sm);padding:var(--s3);text-align:center">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--fg3);margin-bottom:6px">进程列表</div>
+        <span class="b w">block sparkline</span>
+      </div>
+      <div style="background:var(--surface-3);border-radius:var(--r-sm);padding:var(--s3);text-align:center">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--fg3);margin-bottom:6px">日志流</div>
+        <span class="b">tty 纯文本</span>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">这不是"整个应用降级到最低公约数"，而是<b style="color:var(--primary-h)">每个面板独立判断"这里值不值得上更高精度"</b>——和 F2 里 Yazi 的协议降级链是同一原则的两种形态：<b>一个管单区域随终端能力 fallback，一个管多区域各自选档</b></p>
+  </div>
+
   <div class="sub">独特设计 · 值得单独记住</div>
   <table>
     <tr><th>产品</th><th>设计</th><th>推测原因</th><th>可借鉴度</th></tr>
@@ -1275,6 +1564,26 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td class="mono">F6</td><td><strong>撤销只覆盖一部分 = 假安全感</strong></td><td>Claude checkpoint 官方自陈不追踪 bash 与 subagent 编辑</td><td>要么全覆盖，要么<strong>显式告知覆盖边界</strong></td></tr>
     <tr><td class="mono">F7</td><td><strong>静默覆盖用户配置</strong></td><td>btop 退出时覆盖 config，用户要求"文档里明确写出来"</td><td>配置写入需可预期、可版本化</td></tr>
   </table>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：坑 #1 · 全屏接管吞掉原生 scrollback（三派全中）</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:var(--s4);flex-wrap:wrap">
+      <div class="mf-wrap">
+        <div class="mf" style="background:var(--surface-3)">
+          <div class="hm" style="inset:0;background:rgba(255,75,123,.1);color:var(--danger);flex-direction:column">Alt-screen App UI<br><span style="font-size:8px;margin-top:4px">完全遮盖</span></div>
+        </div>
+        <div class="mf-cap">Cmd+F 搜索 <b style="color:var(--danger)">✕</b> · 系统级复制 <b style="color:var(--danger)">✕</b></div>
+      </div>
+      <div style="font-family:var(--mono);font-size:10.5px;color:var(--fg3);text-align:center;line-height:1.5">按 <code>[</code><br>吐回<br>→</div>
+      <div class="mf-wrap">
+        <div class="mf" style="background:var(--surface-3)">
+          <div class="hm" style="inset:0;background:rgba(4,215,147,.1);color:var(--ok);flex-direction:column">原生 Scrollback<br><span style="font-size:8px;margin-top:4px">对话历史原样躺在这里</span></div>
+        </div>
+        <div class="mf-cap">Cmd+F 搜索 <b style="color:var(--ok)">✓</b> · 系统级复制 <b style="color:var(--ok)">✓</b></div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">Claude Code / lazygit / Zellij <b style="color:var(--danger)">三派全中</b>的行业级失败——只有 Claude 给了 <code>[</code> 这一个逃生舱，多数产品连"吐回去"这一步都没做</p>
+  </div>
 </section>
 
 <!-- ══════ F7 SWOT ══════ -->
@@ -1340,6 +1649,31 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>双重分辨率 🆕</td><td class="fric">✕ 未规划</td><td class="fric">✕</td><td class="fric">✕</td><td class="fric">✕</td><td class="fric">✕</td><td class="oppo">✓ Cell+Pixel</td><td>Hybrid TUI 能力边界</td></tr>
   </table>
 
+  <div class="diag">
+    <div class="diag-cap">示意图：把能力矩阵拆成两桶——护城河 vs 待抢占机会</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)">
+      <div style="background:rgba(4,215,147,.06);border:1px solid rgba(4,215,147,.2);border-radius:var(--r-md);padding:var(--s3)">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--ok);font-weight:700;margin-bottom:var(--s3)">已经在做 · AI 竞品都还没有</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b s">✓ DevKit</span><span style="font-size:11px;color:var(--fg2)">分屏 + 布局预设</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b s">✓ DevKit</span><span style="font-size:11px;color:var(--fg2)">选中联动</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b s">✓ DevKit</span><span style="font-size:11px;color:var(--fg2)">数据可视化图元</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b s">✓ DevKit</span><span style="font-size:11px;color:var(--fg2)">配置补齐流程</span></div>
+        </div>
+        <p style="font-size:10px;color:var(--fg4);font-family:var(--mono);margin-top:var(--s3)">Claude / OpenCode 在这四项上全是 ✕ 或 △——只要我们按规范做完，天然就是差异化</p>
+      </div>
+      <div style="background:rgba(255,170,59,.06);border:1px solid rgba(255,170,59,.2);border-radius:var(--r-md);padding:var(--s3)">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--warn);font-weight:700;margin-bottom:var(--s3)">我们也还没规划 · 但已有产品验证可行</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b d">✕ DevKit</span><span style="font-size:11px;color:var(--fg2)">hunk 级审查</span><span style="font-size:10px;color:var(--fg4);margin-left:auto">lazygit 已验证</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b d">✕ DevKit</span><span style="font-size:11px;color:var(--fg2)">渲染精度分档</span><span style="font-size:10px;color:var(--fg4);margin-left:auto">btop/Yazi 已验证</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b d">✕ DevKit</span><span style="font-size:11px;color:var(--fg2)">双重分辨率</span><span style="font-size:10px;color:var(--fg4);margin-left:auto">Yazi 已验证</span></div>
+        </div>
+        <p style="font-size:10px;color:var(--fg4);font-family:var(--mono);margin-top:var(--s3)">不是行业空白，是"我们还没跟上"——落地路径已经有先例可抄，风险比左边那桶低</p>
+      </div>
+    </div>
+  </div>
+
   <div class="sub">体验矩阵</div>
   <table>
     <tr><th>体验维度</th><th>最优解</th><th>最差解</th><th>行业中位</th><th>我们的目标</th></tr>
@@ -1350,6 +1684,33 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>把结果复制出去</td><td>Claude：<code>[</code> 吐回 scrollback</td><td class="fric">Zellij：得先关边框</td><td>破坏原生复制</td><td>逃生舱 + 一键关装饰 + 键盘选择</td></tr>
     <tr><td>长任务不占住界面</td><td>Claude：后台 + worktree 隔离</td><td class="fric">k9s：大数据量冻结终端</td><td>阻塞</td><td>P29 后台 + 非打断式通知</td></tr>
   </table>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：并置对比两个对象——现状 vs 我们的目标</div>
+    <div class="diag-frames">
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="left:6px;width:38%;top:8px;bottom:8px;background:rgba(4,215,147,.14);color:var(--ok)">选中</div>
+          <div class="hm" style="right:6px;width:48%;top:8px;bottom:8px;background:rgba(0,119,255,.16);color:var(--primary-h)">该对象 diff</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--ok)">lazygit</b>：左选右画<br>联动最彻底</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf" style="border:1.5px solid var(--danger)">
+          <div class="hm" style="inset:8px;background:rgba(255,75,123,.1);color:var(--danger);flex-direction:column">单一视图<br><span style="font-size:8px;margin-top:4px">要看另一个得先切走这个</span></div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--danger)">AI 派</b>：无分屏<br>只能来回切</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf" style="border:1.5px solid var(--primary-h)">
+          <div class="hm" style="left:6px;width:44%;top:8px;bottom:8px;background:rgba(0,119,255,.16);color:var(--primary-h)">Canvas A</div>
+          <div class="hm" style="right:6px;width:44%;top:8px;bottom:8px;background:rgba(0,119,255,.16);color:var(--primary-h)">Canvas B</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--primary-h)">我们的目标</b>：A/B 分屏<br>+ P22 选中联动</div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">lazygit 证明了"分区 + 联动"的价值，但它是<b>一主一详情</b>；我们要做的是<b style="color:var(--primary-h)">两个平权 Canvas 之间的联动</b>——形态不同，原理相通</p>
+  </div>
 </section>
 
 <!-- ══════ F9 分歧 ══════ -->
@@ -1509,8 +1870,8 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
   <table>
     <tr><th>类型</th><th>来源</th><th>用途</th><th>备注</th></tr>
     <tr><td>样本库</td><td><a href="https://awesometui.com/system">awesometui.com</a></td><td><strong>开源 TUI 应用目录</strong>，20+ 分类（AI / 开发 / Git / 编辑器 / 系统…），可按 star、更新时间、发布版本排序</td><td><span class="b w">注意</span>它<strong>不是</strong>设计系统文档，是应用目录——价值在于<strong>快速找到同类可研究的产品</strong>。<strong>但它自己的站点视觉值得单独借鉴</strong>：抖动像素排版 · 单一荧光强调色 · 点阵尘埃图形 · 角部裁切标记 · 反色分段标签 · 点阵分隔线（手法见 VISUAL.md，色板不借）</td></tr>
-    <tr><td>深度来源</td><td>各产品 GitHub 源码</td><td>btop 的 <code>btop_draw.cpp</code>（三套符号矩阵）· lazygit 的 <code>window_arrangement_helper.go</code>（portrait 断点）· k9s 的 <code>internal/view/app.go</code>（区域结构）</td><td>本次分析中<strong>二手文档多处有误</strong>（terminal.guide 的 btop 键位表就是错的），关键结论均以源码为准</td></tr>
-    <tr><td>深度来源</td><td>官方文档</td><td><a href="https://code.claude.com/docs/en/interactive-mode">Claude Code</a> · <a href="https://opencode.ai/docs/keybinds">OpenCode</a> · <a href="https://k9scli.io/topics/commands/">k9s</a> · <a href="https://zellij.dev/documentation/">Zellij</a></td><td>权限模型、键位体系、布局配置以官方文档为准</td></tr>
+    <tr id="src-code"><td>深度来源</td><td>各产品 GitHub 源码</td><td>btop 的 <code>btop_draw.cpp</code>（三套符号矩阵）· lazygit 的 <code>window_arrangement_helper.go</code>（portrait 断点）· k9s 的 <code>internal/view/app.go</code>（区域结构）· Yazi（<a href="https://github.com/sxyazi/yazi">sxyazi/yazi</a>）的 image preview 与协议降级实现</td><td>本次分析中<strong>二手文档多处有误</strong>（terminal.guide 的 btop 键位表就是错的），关键结论均以源码为准；Yazi 一项为仓库级参考，未逐文件核对</td></tr>
+    <tr id="src-docs"><td>深度来源</td><td>官方文档</td><td><a href="https://code.claude.com/docs/en/interactive-mode">Claude Code</a> · <a href="https://opencode.ai/docs/keybinds">OpenCode</a> · <a href="https://k9scli.io/topics/commands/">k9s</a> · <a href="https://zellij.dev/documentation/">Zellij</a></td><td>权限模型、键位体系、布局配置以官方文档为准</td></tr>
     <tr><td>痛点来源</td><td>GitHub issue + HN 讨论</td><td>用户原话优于评测结论——"EXPLICITLY STATE IN THE DOCUMENTATION THAT CLOSING BTOP OVERWRITES YOUR CONFIGURATION"这种句子比任何"配置管理体验欠佳"都有信息量</td><td>七条反面教训全部有 issue 链接</td></tr>
     <tr><td>设计参考</td><td>PTO Design System 4.1</td><td>本产品视觉体系的直接来源（529 tokens · Dark-first）</td><td>web→terminal 翻译见 VISUAL.md</td></tr>
     <tr><td>设计参考</td><td>CodeArts CLI/TUI 研究库</td><td>AI CLI 六阶段生命周期 · /model /codebase /runmode /btw /lsp-toggle 五个已验证方案</td><td>已移植为 P13–P20</td></tr>
