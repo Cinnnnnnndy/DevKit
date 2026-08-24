@@ -628,6 +628,43 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">每个格子不是 1 bit 黑白像素，而是 <b style="color:var(--primary-h)">glyph + 颜色 + 样式</b> 的多维信息单元</p>
   </div>
 
+  <h3 style="margin-top:var(--s5)">深挖 · 这个格子里到底装了什么，谁在控制</h3>
+  <p>上图那五个标签——<code>glyph</code>、<code>fg</code>、<code>bg</code>、<code>bold</code>、<code>underline</code>——不是抽象概念，是终端里真实存在的一份 per-cell 数据结构（tcell 里叫 <code>Style</code>，ncurses 里叫 <code>attr_t</code>）。Lazygit 每写一个字符前，先发一段 <strong>ANSI/VT100 SGR 转义序列</strong>告诉终端"接下来这个字符用什么颜色、什么样式"，终端解析后把结果存进这个 cell，再据此 rasterize——这条转义序列，就是这五个标签的真正来源。</p>
+
+  <div class="diag">
+    <div class="diag-cap">色深分档 — 同一个 fg 属性，实际能表达的范围完全不同</div>
+    <table>
+      <tr><th>档位</th><th>SGR 转义序列</th><th>可表达颜色数</th><th>由谁决定能不能用</th></tr>
+      <tr><td style="color:var(--fg3)">mono（无色）</td><td class="mono">不发送颜色码</td><td>1（黑白）</td><td><code>TERM=dumb</code> / 非 tty 环境</td></tr>
+      <tr><td style="color:var(--hl-o)">16 色</td><td class="mono">\x1b[30–37m / 40–47m</td><td>16</td><td>最老的 ANSI 终端都支持</td></tr>
+      <tr><td style="color:var(--hl-b)">256 色</td><td class="mono">\x1b[38;5;{0-255}m</td><td>256</td><td><code>TERM=xterm-256color</code></td></tr>
+      <tr><td style="color:var(--hl-g)">truecolor</td><td class="mono">\x1b[38;2;{r};{g};{b}m</td><td>16,777,216</td><td><code>COLORTERM=truecolor</code>，终端与 TUI 库都得支持</td></tr>
+    </table>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3)">样式位（<code>bold 1m</code> · <code>dim 2m</code> · <code>italic 3m</code> · <code>underline 4m</code> · <code>blink 5m</code> · <code>reverse 7m</code> · <code>strikethrough 9m</code>）是独立的可叠加 bit flag，和颜色档位正交——理论最大值是 <b style="color:var(--primary-h)">truecolor fg + truecolor bg + 全部样式位同时置位</b>，这是当前 cell 模型的表达力天花板，再往上就得靠 btop 式 sub-cell 或 Yazi 式 pixel plane。</p>
+  </div>
+
+  <div class="note w"><b>不是 TUI 库单方面决定的，是"终端 × 库"两层协商的结果：</b>① 终端是否支持（通过 <code>$TERM</code>/<code>$COLORTERM</code> 探测）；② 底层 TUI 库（gocui）是否正确做了降级（truecolor → 256 → 16 → mono）。两层任一个拖后腿，色深就掉档。<strong>语言本身不影响色深</strong>，但会影响渲染效果——不少等宽 CJK 字体缺 bold/italic 字重的独立字形，同样发了 <code>\x1b[1m</code>，中文字符可能视觉上没有变粗。</div>
+
+  <h3 style="margin-top:var(--s5)">深挖 · 谁决定了 120×40 这个数字，开发者能改吗</h3>
+  <p>120×40 不是 Lazygit 自己设的，是一条自上而下的决定链——Lazygit 只是链条末端的读者，链条上每一环都不是它能控制的：</p>
+
+  <div class="diag">
+    <div class="diag-cap">决定链：从用户的显示器到 Lazygit 看到的 cols×rows</div>
+    <div class="diag-fallback">
+      <div class="fnode best">终端模拟器<br><span style="font-size:10.5px">iTerm2/Alacritty/kitty…</span></div><div class="farr">→</div>
+      <div class="fnode">字体与字号<br><span style="font-size:10.5px">决定单 cell 像素尺寸</span></div><div class="farr">→</div>
+      <div class="fnode">窗口物理像素<br><span style="font-size:10.5px">用户手动拖拽/分屏</span></div><div class="farr">→</div>
+      <div class="fnode">OS DPI 缩放</div><div class="farr">→</div>
+      <div class="fnode" style="color:var(--hl-o)">tmux/zellij pane<br><span style="font-size:10.5px">如果套了 multiplexer</span></div><div class="farr">→</div>
+      <div class="fnode last">上报 cols×rows<br><span style="font-size:10.5px">ioctl TIOCGWINSZ</span></div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s2);text-align:center">链条上<b style="color:var(--warn)">每一环都是用户本地环境</b>，Lazygit 作为应用程序完全插不进手</p>
+  </div>
+
+  <div class="note"><b>开发者只有三个真正的控制点：</b>① <strong>查询</strong>——启动时读一次 <code>TIOCGWINSZ</code>（<code>$COLUMNS</code>/<code>$LINES</code> 环境变量常是启动时的旧值，不可靠）；② <strong>响应</strong>——监听 <code>SIGWINCH</code> 信号，用户一改窗口/字号/pane 内核立刻通知，据此重新布局；③ <strong>设下限</strong>——管不了终端给多大分辨率，但可以自己定义"低于多少就降级"。Lazygit 的 <code>portraitMode</code>（≤84 列自动转竖排）、btop 的窄屏阻断页，本质都是开发者在第三个控制点上做的设计，而不是对分辨率数值本身的控制。理论上还有 <code>CSI 8;rows;cols t</code> 转义序列能反向请求终端调整尺寸，但主流终端出于安全/体验考虑大多默认禁用，实践中不算真正可用的手段。</div>
+
+  <div class="note w"><b>还有一个容易被忽略的变量——语言：</b>CJK 字符、emoji 按 Unicode East Asian Width 属性算"宽字符"，要占 <b>2 个 cell</b> 而不是 1 个。同样 120 列的终端，纯英文界面能排 120 字符宽的内容，中文界面实际可用文字宽度只剩 <b style="color:var(--warn)">~60 个字</b>——cell 分辨率数字没变，但内容承载量少了一半。TUI 框架必须调用 <code>wcwidth()</code> 才能正确算列宽，这也是中英文混排 TUI 最容易踩的坑之一。</div>
+
   <h3>Sub-cell TUI · btop</h3>
   <p>btop 使用 <strong>Unicode Braille 字符</strong>画 graph。一个 Braille glyph 内部可表达 <strong>2×4 = 8 个 dot</strong>。40×10 cells 的 graph 区域，普通 grid 只有 40×10，用 Braille 则视觉采样网格 ≈ <strong>80×40 dots</strong>——比纯字符精细很多。</p>
   <div class="note"><b>但仍不是 pixel graphics：</b>程序只发送 <code>U+28XX Braille glyph</code>，Terminal Emulator 再用字体 rasterize。管线是 data → dot pattern → Unicode char → cell → font raster → pixels，而非 data → drawPixel(x, y)。</div>
@@ -752,6 +789,41 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     </div>
     <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">这个模型比"Terminal = 字符屏幕"准确得多——<b style="color:var(--primary-h)">格子层管布局</b>，<b style="color:var(--ok)">像素层管内容表现力</b></p>
   </div>
+
+  <h4 style="margin-top:var(--s4);font-size:13px;color:var(--fg2);font-weight:600">深挖 · 两条渲染管线，各管一段</h4>
+  <p>"格子层管布局，像素层管内容表现力"这句话背后，是<strong>两条完全独立的渲染管线在同一个终端窗口里各跑各的</strong>：</p>
+
+  <div class="diag">
+    <div class="diag-cap">文字管线 vs 图形管线 — 同一窗口内的两套独立管线</div>
+    <div class="diag-pipeline">
+      <div class="pipe">
+        <h5 style="color:var(--primary-h)">文字管线 · 受字体渲染器限制</h5>
+        <div class="pipe-steps">
+          <span class="step">codepoint</span><span class="arr">→</span>
+          <span class="step">字体查字形</span><span class="arr">→</span>
+          <span class="step">hinting/抗锯齿</span><span class="arr">→</span>
+          <span class="step hi">glyph 位图</span><span class="arr">→</span>
+          <span class="step">贴进该 cell</span>
+        </div>
+        <p style="font-size:10.5px;color:var(--fg4);margin-top:var(--s2)">终点精度受限于字体渲染器</p>
+      </div>
+      <div class="pipe">
+        <h5 style="color:var(--ok)">图形管线 · 绕开字体渲染器</h5>
+        <div class="pipe-steps">
+          <span class="step hi">原始图片字节</span><span class="arr">→</span>
+          <span class="step">终端解码</span><span class="arr">→</span>
+          <span class="step hi">位图对象</span><span class="arr">→</span>
+          <span class="step">直接合成到像素区域</span>
+        </div>
+        <p style="font-size:10.5px;color:var(--fg4);margin-top:var(--s2)">完全不经过字体渲染，任意 RGB/抗锯齿/渐变</p>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">两条管线只共享一件事：<b style="color:var(--primary-h)">图片的摆放框依然要对齐 cell 网格</b>——Kitty/Sixel 协议下发图片时要指定"从第几行第几列开始、占几列几行"，框的四条边和文字面板一样只能落在整数 column/row 上；框内部怎么画，才是像素层的自由</p>
+  </div>
+
+  <div class="note w"><b>一个不直观的细节——滚动：</b>Kitty 协议里图片是"相对于放置时光标所在的 cell"锚定的，不是固定屏幕像素坐标。终端往上滚一行，文字和图片一起移动，协议要专门处理"图片滚进 scrollback 后要不要继续渲染、怎么裁切"——这是把一个像素对象强行绑定到离散、可滚动的行坐标系统里，是这套混合模型里最不好处理的一块。部分协议还支持给图片设 z-index，让文字渲染在图片之上或之下（比如给截图叠一层字幕）。</div>
+
+  <div class="note"><b>对 DevKit 的启示：</b>"要不要上 pixel 渲染"是个<strong>逐区域</strong>的决策，不是全局二选一。大部分 UI chrome（边框、列表、状态栏）天然该留在纯 cell 层；只有真正需要高保真表现力的区域（chart、架构图、带语法高亮的 diff）才值得承担 pixel plane 的复杂度（协议探测、降级链、滚动绑定）——两者在同一帧里并存不冲突，这也是 T0–T4 渲染分层设计的技术基础。</div>
 
   <h3>产品谱系：按空间表达能力排</h3>
   <div class="diag">
