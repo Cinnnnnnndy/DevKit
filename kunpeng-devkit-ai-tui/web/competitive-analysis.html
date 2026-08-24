@@ -377,6 +377,20 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
   color:var(--ok);margin-left:var(--s5)}
 .diag-layout-tree .lt .conn{color:var(--fg4);padding-left:var(--s3)}
 
+/* 边框实际落点对比 */
+.diag-edge .rule-row{position:relative;height:92px;margin-bottom:var(--s4);
+  background-image:linear-gradient(to right,var(--bd2) 1px,transparent 1px);
+  background-size:calc(100%/16) 100%;border-radius:var(--r-sm)}
+.diag-edge .rule-row:last-child{margin-bottom:0}
+.diag-edge .row-label{position:absolute;top:6px;left:8px;font-family:var(--mono);
+  font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--fg4)}
+.diag-edge .panel{position:absolute;top:30px;height:46px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);
+  font-size:10.5px;padding:0 4px;text-align:center;line-height:1.35}
+.diag-edge .panel.tui{background:rgba(0,119,255,.14);border:2px solid var(--primary-h);color:var(--primary-h)}
+.diag-edge .panel.gui{background:rgba(4,215,147,.12);border:2px dashed var(--ok);color:var(--ok)}
+.diag-edge .tick-lbl{position:absolute;bottom:2px;font-family:var(--mono);font-size:9.5px;transform:translateX(-50%)}
+
 /* 箭头标注 */
 .diag-annotate{position:relative}
 .diag-annotate .annot{display:flex;align-items:flex-start;gap:var(--s2);margin:var(--s2) 0;
@@ -900,6 +914,25 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       </div>
     </div>
     <div class="note w" style="margin-top:var(--s3)"><b>关键结论：</b>pixel graphics 解决了 <strong>content rendering resolution</strong>，但没解决 <strong>UI layout model</strong>。Yazi 图片虽高清，sidebar 宽度仍是整数 column。这就是目前 TUI → GUI 真正还没跨过去的边界。</div>
+  </div>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：同一根参考线上，边框实际落在哪</div>
+    <div class="diag-edge">
+      <div class="rule-row">
+        <div class="row-label">TUI</div>
+        <div class="panel tui" style="left:18.75%;width:56.25%">column 3 → column 12<br>边框精确落在 tick 线上</div>
+        <span class="tick-lbl" style="left:18.75%;color:var(--fg4)">3</span>
+        <span class="tick-lbl" style="left:75%;color:var(--fg4)">12</span>
+      </div>
+      <div class="rule-row">
+        <div class="row-label">GUI</div>
+        <div class="panel gui" style="left:21.25%;width:58.125%">column 3.4 → column 12.7<br>边框停在 tick 之间</div>
+        <span class="tick-lbl" style="left:21.25%;color:var(--warn)">3.4</span>
+        <span class="tick-lbl" style="left:79.375%;color:var(--warn)">12.7</span>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">同一条参考线下，<b style="color:var(--primary-h)">TUI 面板边框只能停在竖线交点上</b>；<b style="color:var(--ok)">GUI 面板边框可以停在任意两条竖线之间</b>——这才是"离散 vs 连续"在屏幕上真正的样子，也是上面那棵树状图想表达的结构，落到像素层面的实际效果</p>
   </div>
 
   <h3>三层 Resolution Token 模型</h3>
