@@ -1649,6 +1649,31 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>双重分辨率 🆕</td><td class="fric">✕ 未规划</td><td class="fric">✕</td><td class="fric">✕</td><td class="fric">✕</td><td class="fric">✕</td><td class="oppo">✓ Cell+Pixel</td><td>Hybrid TUI 能力边界</td></tr>
   </table>
 
+  <div class="diag">
+    <div class="diag-cap">示意图：把能力矩阵拆成两桶——护城河 vs 待抢占机会</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)">
+      <div style="background:rgba(4,215,147,.06);border:1px solid rgba(4,215,147,.2);border-radius:var(--r-md);padding:var(--s3)">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--ok);font-weight:700;margin-bottom:var(--s3)">已经在做 · AI 竞品都还没有</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b s">✓ DevKit</span><span style="font-size:11px;color:var(--fg2)">分屏 + 布局预设</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b s">✓ DevKit</span><span style="font-size:11px;color:var(--fg2)">选中联动</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b s">✓ DevKit</span><span style="font-size:11px;color:var(--fg2)">数据可视化图元</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b s">✓ DevKit</span><span style="font-size:11px;color:var(--fg2)">配置补齐流程</span></div>
+        </div>
+        <p style="font-size:10px;color:var(--fg4);font-family:var(--mono);margin-top:var(--s3)">Claude / OpenCode 在这四项上全是 ✕ 或 △——只要我们按规范做完，天然就是差异化</p>
+      </div>
+      <div style="background:rgba(255,170,59,.06);border:1px solid rgba(255,170,59,.2);border-radius:var(--r-md);padding:var(--s3)">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--warn);font-weight:700;margin-bottom:var(--s3)">我们也还没规划 · 但已有产品验证可行</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b d">✕ DevKit</span><span style="font-size:11px;color:var(--fg2)">hunk 级审查</span><span style="font-size:10px;color:var(--fg4);margin-left:auto">lazygit 已验证</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b d">✕ DevKit</span><span style="font-size:11px;color:var(--fg2)">渲染精度分档</span><span style="font-size:10px;color:var(--fg4);margin-left:auto">btop/Yazi 已验证</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2)"><span class="b d">✕ DevKit</span><span style="font-size:11px;color:var(--fg2)">双重分辨率</span><span style="font-size:10px;color:var(--fg4);margin-left:auto">Yazi 已验证</span></div>
+        </div>
+        <p style="font-size:10px;color:var(--fg4);font-family:var(--mono);margin-top:var(--s3)">不是行业空白，是"我们还没跟上"——落地路径已经有先例可抄，风险比左边那桶低</p>
+      </div>
+    </div>
+  </div>
+
   <div class="sub">体验矩阵</div>
   <table>
     <tr><th>体验维度</th><th>最优解</th><th>最差解</th><th>行业中位</th><th>我们的目标</th></tr>
@@ -1659,6 +1684,33 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>把结果复制出去</td><td>Claude：<code>[</code> 吐回 scrollback</td><td class="fric">Zellij：得先关边框</td><td>破坏原生复制</td><td>逃生舱 + 一键关装饰 + 键盘选择</td></tr>
     <tr><td>长任务不占住界面</td><td>Claude：后台 + worktree 隔离</td><td class="fric">k9s：大数据量冻结终端</td><td>阻塞</td><td>P29 后台 + 非打断式通知</td></tr>
   </table>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：并置对比两个对象——现状 vs 我们的目标</div>
+    <div class="diag-frames">
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="left:6px;width:38%;top:8px;bottom:8px;background:rgba(4,215,147,.14);color:var(--ok)">选中</div>
+          <div class="hm" style="right:6px;width:48%;top:8px;bottom:8px;background:rgba(0,119,255,.16);color:var(--primary-h)">该对象 diff</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--ok)">lazygit</b>：左选右画<br>联动最彻底</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf" style="border:1.5px solid var(--danger)">
+          <div class="hm" style="inset:8px;background:rgba(255,75,123,.1);color:var(--danger);flex-direction:column">单一视图<br><span style="font-size:8px;margin-top:4px">要看另一个得先切走这个</span></div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--danger)">AI 派</b>：无分屏<br>只能来回切</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf" style="border:1.5px solid var(--primary-h)">
+          <div class="hm" style="left:6px;width:44%;top:8px;bottom:8px;background:rgba(0,119,255,.16);color:var(--primary-h)">Canvas A</div>
+          <div class="hm" style="right:6px;width:44%;top:8px;bottom:8px;background:rgba(0,119,255,.16);color:var(--primary-h)">Canvas B</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--primary-h)">我们的目标</b>：A/B 分屏<br>+ P22 选中联动</div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">lazygit 证明了"分区 + 联动"的价值，但它是<b>一主一详情</b>；我们要做的是<b style="color:var(--primary-h)">两个平权 Canvas 之间的联动</b>——形态不同，原理相通</p>
+  </div>
 </section>
 
 <!-- ══════ F9 分歧 ══════ -->
