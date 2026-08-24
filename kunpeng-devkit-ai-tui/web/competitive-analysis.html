@@ -425,6 +425,26 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 .diag-token-stack .tk .tk-val{color:var(--fg3);font-size:11px;margin-left:auto}
 .diag-token-stack .tk-arrow{text-align:center;color:var(--fg4);font-size:14px}
 
+/* 通用迷你终端框（F5/F6 多处对比复用） */
+.diag-frames{display:flex;gap:var(--s3);flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.diag-frames .mf-wrap{display:flex;flex-direction:column;align-items:center;width:150px}
+.diag-frames .mf{background:var(--surface-2);border-radius:var(--r-md);
+  width:150px;height:100px;position:relative;overflow:hidden;flex-shrink:0}
+.diag-frames .mf-label{position:absolute;top:5px;left:7px;font-family:var(--mono);
+  font-size:9.5px;font-weight:700;color:var(--fg3);z-index:2}
+.diag-frames .mf-cap{text-align:center;font-family:var(--mono);font-size:9.5px;
+  color:var(--fg4);margin-top:var(--s2);line-height:1.4}
+.diag-frames .hm{position:absolute;font-family:var(--mono);font-size:8.5px;
+  display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.25;border-radius:3px}
+
+/* 拖拽滑块 vs 预设循环 */
+.diag-slider{position:relative;height:6px;background:var(--bd2);border-radius:3px;margin:38px var(--s4) var(--s2)}
+.diag-slider .trail{position:absolute;top:0;left:0;height:100%;width:58%;border-radius:3px;
+  background:repeating-linear-gradient(to right,rgba(4,215,147,.35) 0 3px,transparent 3px 7px)}
+.diag-slider .handle{position:absolute;top:50%;left:58%;width:16px;height:16px;border-radius:50%;
+  background:var(--ok);border:2px solid var(--surface-2);transform:translate(-50%,-50%);
+  box-shadow:0 0 0 3px rgba(4,215,147,.18)}
+
 /* 能力决策树 */
 .diag-tree{font-family:var(--mono);font-size:11px;padding:var(--s2)}
 .diag-tree .tnode{display:flex;align-items:center;gap:var(--s2);padding:var(--s1) 0}
@@ -1277,6 +1297,46 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>命令入口形态<div class="tp">tp-02-e</div></td><td><strong>k9s</strong> <code>:</code> 资源命令行 + 别名 + ghost-text 补全 · <strong>OpenCode</strong> <code>ctrl+p</code> 独立命令面板（分 section）· <strong>Claude</strong> <code>/</code> 菜单即面板（命令+skill+plugin+MCP 统一）· <strong>MobaXterm</strong> 只有 Ribbon 按钮，<strong>无搜索式入口</strong></td><td><span class="b s">模糊搜索 &gt; 视觉罗列</span></td></tr>
   </table>
 
+  <div class="diag">
+    <div class="diag-cap">示意图：帮助提示画在屏幕的哪个位置（tp-02-a）</div>
+    <div class="diag-frames">
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="mf-label">Zellij</div>
+          <div class="hm" style="left:0;right:0;bottom:0;height:24px;background:rgba(0,119,255,.16);color:var(--primary-h)">常驻提示条<br>约 5MB</div>
+        </div>
+        <div class="mf-cap">占满底部一整条<br>常驻</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="mf-label">k9s</div>
+          <div class="hm" style="left:0;right:0;top:20px;height:34px;background:rgba(0,119,255,.16);color:var(--primary-h)">6 行键位网格</div>
+        </div>
+        <div class="mf-cap">画在顶部 header<br>随导航栈变化</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="mf-label">lazygit</div>
+          <div class="hm" style="left:0;right:0;bottom:0;height:20px;background:rgba(0,119,255,.16);color:var(--primary-h)">options 行</div>
+        </div>
+        <div class="mf-cap">底部一行<br>随 context 重绘</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="left:10px;right:10px;top:38px;height:16px;border-top:2px solid var(--ok);color:var(--ok);justify-content:flex-start;padding-left:4px">e/Enter toggle</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--ok)">btop</b>：画在它作用的<br>那个盒子边框上</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="left:22%;right:22%;top:32%;bottom:32%;border:1.5px dashed var(--fg4);color:var(--fg4);border-radius:4px">? / which-key<br>浮层</div>
+        </div>
+        <div class="mf-cap"><b>Claude / OpenCode</b><br>按需弹出，不常驻</div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">五种做法本质是同一个问题的五种答案：<b style="color:var(--primary-h)">提示常驻在哪、还是要用户主动召唤</b>——<b style="color:var(--ok)">btop 把答案画在最贴近操作对象的地方，是空间效率最高的一种</b></p>
+  </div>
+
   <div class="sub">③ 表达意图</div>
   <table>
     <tr><th>触点</th><th>做法对比</th><th>判断</th></tr>
@@ -1308,6 +1368,32 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>选中联动<div class="tp">tp-05-e</div></td><td><strong>lazygit</strong> 最彻底：左选文件→右画该文件 diff（暂存/未暂存拆 main+secondary）、选 commit→该 commit diff · <strong>k9s</strong> Pulses 图表 <code>Enter</code> 直接跳到该资源列表 · <strong>btop</strong> 弱（仅选中→详情浮层）· <strong>AI 派</strong> 无（无多面板）</td><td><span class="b s">★ lazygit 是标杆</span></td></tr>
   </table>
 
+  <div class="diag">
+    <div class="diag-cap">示意图：diff 审查粒度缺口（tp-05-a）</div>
+    <div style="display:flex;flex-direction:column;gap:var(--s3)">
+      <div style="background:var(--surface-2);border-radius:var(--r-md);padding:var(--s3)">
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--fg3);margin-bottom:var(--s2)">现状：Claude / OpenCode 都是这样——</div>
+        <div style="border:2px solid var(--primary-h);border-radius:var(--r-sm);padding:var(--s3);background:rgba(0,119,255,.05)">
+          <div style="font-family:var(--mono);font-size:10px;line-height:1.7;color:var(--fg2)">
+            <div>@@ hunk 1 @@</div><div style="color:var(--danger)">- old line</div><div style="color:var(--ok)">+ new line</div>
+            <div style="margin-top:5px">@@ hunk 2 @@</div><div style="color:var(--danger)">- old line</div><div style="color:var(--ok)">+ new line</div>
+            <div style="margin-top:5px">@@ hunk 3 @@</div><div style="color:var(--danger)">- old line</div><div style="color:var(--ok)">+ new line</div>
+          </div>
+          <div style="text-align:center;margin-top:var(--s3);font-family:var(--mono);font-size:10.5px;color:var(--primary-h);font-weight:700">一个 ✓ / ✗ 批准整个工具调用</div>
+        </div>
+      </div>
+      <div style="background:var(--surface-2);border-radius:var(--r-md);padding:var(--s3);opacity:.55">
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--fg4);margin-bottom:var(--s2)">理想中的样子（全行业都没做到）——</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:var(--s2);border:1.5px dashed var(--fg4);border-radius:var(--r-sm);padding:5px 9px"><span style="font-family:var(--mono);font-size:10px;color:var(--fg3);flex:1">@@ hunk 1 @@</span><span style="font-family:var(--mono);font-size:10px;color:var(--fg4)">✓ / ✗</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2);border:1.5px dashed var(--fg4);border-radius:var(--r-sm);padding:5px 9px"><span style="font-family:var(--mono);font-size:10px;color:var(--fg3);flex:1">@@ hunk 2 @@</span><span style="font-family:var(--mono);font-size:10px;color:var(--fg4)">✓ / ✗</span></div>
+          <div style="display:flex;align-items:center;gap:var(--s2);border:1.5px dashed var(--fg4);border-radius:var(--r-sm);padding:5px 9px"><span style="font-family:var(--mono);font-size:10px;color:var(--fg3);flex:1">@@ hunk 3 @@</span><span style="font-family:var(--mono);font-size:10px;color:var(--fg4)">✓ / ✗</span></div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">批准粒度停在"整个工具调用"这一级——<b style="color:var(--danger)">想留 hunk 1、拒 hunk 2，现在只能全盘接受再手动改回去</b></p>
+  </div>
+
   <div class="sub">⑥ 收尾与复用</div>
   <table>
     <tr><th>触点</th><th>做法对比</th><th>判断</th></tr>
@@ -1316,6 +1402,34 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td>窄屏降级<div class="tp">tp-06-c</div></td><td><strong>lazygit</strong> portraitMode auto（≤84 列且 ≥46 行→侧栏转竖排），真响应式断点 · <strong>btop</strong> 硬阻断页但<strong>可在报错页现场关盒子</strong> · <strong>k9s</strong> <strong>未找到自动降级</strong>，列被挤压截断</td><td><span class="b s">★ lazygit 最优 / k9s 反面</span></td></tr>
     <tr><td>原生能力保全<div class="tp">tp-06-d</div></td><td><strong>Claude</strong> 全屏捕获鼠标破坏原生复制/搜索（多个 issue、CJK 复制乱码），逃生舱是 <code>[</code> 把对话吐回 scrollback · <strong>lazygit</strong> 官方注释自陈 mouseEvents "makes text selection harder" · <strong>Zellij</strong> pane 边框漂亮但<strong>要复制代码得先关掉边框</strong></td><td><span class="b d">★ 三派全中的行业级失败</span></td></tr>
   </table>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：终端被拉窄之后，三个产品分别怎么办（tp-06-c）</div>
+    <div class="diag-frames">
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="left:6px;right:6px;top:8px;height:22px;background:rgba(4,215,147,.14);color:var(--ok)">会话树</div>
+          <div class="hm" style="left:6px;right:6px;top:34px;bottom:8px;background:rgba(4,215,147,.08);color:var(--ok)">主区（下移，非并排）</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--ok)">lazygit</b>：≤84 列自动转竖排<br>侧栏与主区上下叠</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="inset:8px;background:rgba(255,170,59,.12);color:var(--warn);flex-direction:column">⚠ 装不下<br><span style="font-size:8px;margin-top:3px">按 1 2 3 4 现场关盒子</span></div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--warn)">btop</b>：硬阻断页<br>但阻断页本身可操作</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="left:6px;right:6px;top:10px;height:16px;background:rgba(255,75,123,.12);color:var(--danger);justify-content:flex-start;padding-left:4px">:lusterInf…</div>
+          <div class="hm" style="left:6px;right:6px;top:32px;height:16px;background:rgba(255,75,123,.12);color:var(--danger);justify-content:flex-start;padding-left:4px">导航栈…</div>
+          <div class="hm" style="left:6px;right:6px;top:54px;height:16px;background:rgba(255,75,123,.12);color:var(--danger);justify-content:flex-start;padding-left:4px">Pulses…</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--danger)">k9s</b>：无自动降级<br>列被逐个截断挤压</div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">同样是"装不下"，<b style="color:var(--ok)">lazygit 重排</b>、<b style="color:var(--warn)">btop 挡住但给操作路径</b>、<b style="color:var(--danger)">k9s 什么都不做，任由内容被截断</b>——三种答案里只有第三种是纯粹的负面案例</p>
+  </div>
 </section>
 
 <!-- ══════ F6 模式 ══════ -->
@@ -1353,6 +1467,72 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
       <p class="rule">代价：产品需维护 capability detection + fallback 逻辑，且不同终端的渲染效果会有差异——这是 TUI Design System 的 capability adaptation 问题。</p></div>
   </div>
 
+  <div class="diag">
+    <div class="diag-cap">示意图：M2 · 预设循环 vs 拖拽调整</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)">
+      <div style="background:var(--surface-2);border-radius:var(--r-md);padding:var(--s3)">
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--danger);margin-bottom:var(--s2);text-align:center">GUI 式：拖拽调整</div>
+        <div class="diag-slider"><div class="trail"></div><div class="handle"></div></div>
+        <p style="font-size:10px;color:var(--fg4);text-align:center;font-family:var(--mono);margin-top:var(--s2)">鼠标拖到任意位置<br>终端里成本高、精度差</p>
+      </div>
+      <div style="background:var(--surface-2);border-radius:var(--r-md);padding:var(--s3)">
+        <div style="font-family:var(--mono);font-size:10.5px;color:var(--ok);margin-bottom:var(--s2);text-align:center">TUI 式：预设循环</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:0;margin:var(--s3) 0;font-family:var(--mono)">
+          <div style="padding:8px 10px;border-radius:var(--r-sm);background:rgba(4,215,147,.16);color:var(--ok);font-size:10.5px;font-weight:700">preset 1</div>
+          <span style="padding:0 5px;color:var(--fg4)">→</span>
+          <div style="padding:8px 10px;border-radius:var(--r-sm);background:var(--surface-3);color:var(--fg3);font-size:10.5px">preset 2</div>
+          <span style="padding:0 5px;color:var(--fg4)">→</span>
+          <div style="padding:8px 10px;border-radius:var(--r-sm);background:var(--surface-3);color:var(--fg3);font-size:10.5px">preset 3</div>
+          <span style="padding:0 5px;color:var(--fg4)">↺</span>
+        </div>
+        <p style="font-size:10px;color:var(--fg4);text-align:center;font-family:var(--mono)">按 <code>p</code>/<code>P</code> 跳到下一个够用的布局<br>一步到位，无需微调</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：M4 · 折叠低信号输出</div>
+    <div class="diag-frames">
+      <div class="mf-wrap">
+        <div class="mf">
+          <div class="hm" style="left:8px;right:8px;top:14px;height:18px;background:rgba(4,215,147,.14);color:var(--ok);justify-content:flex-start;padding-left:6px">▸ Read file.ts（120 行）</div>
+          <div class="hm" style="left:8px;right:8px;top:38px;height:18px;background:rgba(4,215,147,.14);color:var(--ok);justify-content:flex-start;padding-left:6px">▸ Edit config.json</div>
+          <div class="hm" style="left:8px;right:8px;top:62px;height:18px;background:rgba(0,119,255,.16);color:var(--primary-h);justify-content:flex-start;padding-left:6px">写操作，展开可见</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--ok)">Claude</b>：低信号折成一行<br>写操作留在视野里</div>
+      </div>
+      <div class="mf-wrap">
+        <div class="mf" style="border:1.5px solid var(--danger)">
+          <div class="hm" style="left:6px;right:6px;top:6px;bottom:6px;background:repeating-linear-gradient(to bottom,rgba(255,75,123,.08) 0 8px,rgba(255,75,123,.16) 8px 16px);color:var(--danger);align-items:flex-start;justify-content:flex-start;padding:5px;font-size:8px;text-align:left">+++ 500 行 diff<br>全部内联展开<br>一直刷到底……</div>
+        </div>
+        <div class="mf-cap"><b style="color:var(--danger)">OpenCode</b>：无折叠<br>500+ 行糊一屏</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：M7 · 同一屏幕，四个面板各自选自己的精度</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface-2);border-radius:var(--r-md);padding:var(--s3)">
+      <div style="background:var(--surface-3);border-radius:var(--r-sm);padding:var(--s3);text-align:center">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--fg3);margin-bottom:6px">CPU 图表</div>
+        <span class="b s">truecolor raster</span>
+      </div>
+      <div style="background:var(--surface-3);border-radius:var(--r-sm);padding:var(--s3);text-align:center">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--fg3);margin-bottom:6px">网络吞吐</div>
+        <span class="b p">braille sub-cell</span>
+      </div>
+      <div style="background:var(--surface-3);border-radius:var(--r-sm);padding:var(--s3);text-align:center">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--fg3);margin-bottom:6px">进程列表</div>
+        <span class="b w">block sparkline</span>
+      </div>
+      <div style="background:var(--surface-3);border-radius:var(--r-sm);padding:var(--s3);text-align:center">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--fg3);margin-bottom:6px">日志流</div>
+        <span class="b">tty 纯文本</span>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">这不是"整个应用降级到最低公约数"，而是<b style="color:var(--primary-h)">每个面板独立判断"这里值不值得上更高精度"</b>——和 F2 里 Yazi 的协议降级链是同一原则的两种形态：<b>一个管单区域随终端能力 fallback，一个管多区域各自选档</b></p>
+  </div>
+
   <div class="sub">独特设计 · 值得单独记住</div>
   <table>
     <tr><th>产品</th><th>设计</th><th>推测原因</th><th>可借鉴度</th></tr>
@@ -1384,6 +1564,26 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
     <tr><td class="mono">F6</td><td><strong>撤销只覆盖一部分 = 假安全感</strong></td><td>Claude checkpoint 官方自陈不追踪 bash 与 subagent 编辑</td><td>要么全覆盖，要么<strong>显式告知覆盖边界</strong></td></tr>
     <tr><td class="mono">F7</td><td><strong>静默覆盖用户配置</strong></td><td>btop 退出时覆盖 config，用户要求"文档里明确写出来"</td><td>配置写入需可预期、可版本化</td></tr>
   </table>
+
+  <div class="diag">
+    <div class="diag-cap">示意图：坑 #1 · 全屏接管吞掉原生 scrollback（三派全中）</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:var(--s4);flex-wrap:wrap">
+      <div class="mf-wrap">
+        <div class="mf" style="background:var(--surface-3)">
+          <div class="hm" style="inset:0;background:rgba(255,75,123,.1);color:var(--danger);flex-direction:column">Alt-screen App UI<br><span style="font-size:8px;margin-top:4px">完全遮盖</span></div>
+        </div>
+        <div class="mf-cap">Cmd+F 搜索 <b style="color:var(--danger)">✕</b> · 系统级复制 <b style="color:var(--danger)">✕</b></div>
+      </div>
+      <div style="font-family:var(--mono);font-size:10.5px;color:var(--fg3);text-align:center;line-height:1.5">按 <code>[</code><br>吐回<br>→</div>
+      <div class="mf-wrap">
+        <div class="mf" style="background:var(--surface-3)">
+          <div class="hm" style="inset:0;background:rgba(4,215,147,.1);color:var(--ok);flex-direction:column">原生 Scrollback<br><span style="font-size:8px;margin-top:4px">对话历史原样躺在这里</span></div>
+        </div>
+        <div class="mf-cap">Cmd+F 搜索 <b style="color:var(--ok)">✓</b> · 系统级复制 <b style="color:var(--ok)">✓</b></div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--fg3);margin-top:var(--s3);text-align:center">Claude Code / lazygit / Zellij <b style="color:var(--danger)">三派全中</b>的行业级失败——只有 Claude 给了 <code>[</code> 这一个逃生舱，多数产品连"吐回去"这一步都没做</p>
+  </div>
 </section>
 
 <!-- ══════ F7 SWOT ══════ -->
