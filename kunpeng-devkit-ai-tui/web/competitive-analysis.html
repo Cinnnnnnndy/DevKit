@@ -169,6 +169,9 @@ code{font-family:var(--mono);font-size:12px;background:var(--surface-2);
 .b.s{color:var(--ok)}
 .b.w{color:var(--warn)}
 .b.d{color:var(--danger)}
+a.b{text-decoration:none;cursor:pointer;box-shadow:inset 0 0 0 1px transparent;transition:box-shadow var(--fast) var(--ease)}
+a.b.s:hover{box-shadow:inset 0 0 0 1px rgba(4,215,147,.4);background:rgba(4,215,147,.08)}
+table tr:target{background:rgba(0,119,255,.09)}
 
 /* ══ tables ══ */
 table{width:100%;border-collapse:collapse;margin:var(--s3) 0;font-size:12.5px}
@@ -998,7 +1001,7 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 <div class="wfcap"><b>递归分割 + 浮动 + 堆叠</b>，布局用 KDL 描述 · 但独占 8 个 Ctrl 键</div>
       <p><strong>UI 本身是 WASM 插件。</strong>状态栏、标签栏、文件浏览器都可替换，布局用 KDL 文件描述，甚至能从 HTTP URL 加载。</p>
       <p class="rule">招牌：<strong>Swap Layouts</strong>——预定义"pane 数量变化时布局怎么重排"，开关 pane 自动触发。多路复用器里独一份。</p>
-      <p><span class="b s">递归分屏 + 浮动 + 堆叠</span><span class="b d">独占 8 个 Ctrl 键</span><span class="b d">鼠标不能拖拽调尺寸</span></p>
+      <p><a class="b s" href="#src-docs">递归分屏 + 浮动 + 堆叠</a><span class="b d">独占 8 个 Ctrl 键</span><span class="b d">鼠标不能拖拽调尺寸</span></p>
     </div>
     <div class="card pcard" style="--tint:var(--hl-v)">
       <div class="plane">AI Coding TUI 派</div>
@@ -1020,7 +1023,7 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 <div class="wfcap"><b>覆盖层驱动</b>：辅助视图全是浮层 · 并行走多会话 + worktree</div>
       <p><strong>覆盖层驱动，无侧栏无分屏。</strong>所有辅助视图都是 overlay；并行走"多会话 + 后台 supervisor + 自动 git worktree"而非多面板。</p>
       <p class="rule">招牌：<strong>auto mode 分类器</strong>——权限从静态规则升级为独立模型的语义判断，连"你在对话里说的口头约束"都当硬约束执行。</p>
-      <p><span class="b s">Plan 是一等公民</span><span class="b s">rewind 双向摘要</span><span class="b d">全屏破坏原生复制</span></p>
+      <p><a class="b s" href="#src-docs">Plan 是一等公民</a><a class="b s" href="#src-docs">rewind 双向摘要</a><span class="b d">全屏破坏原生复制</span></p>
     </div>
     <div class="card pcard" style="--tint:var(--hl-v)">
       <div class="plane">AI Coding TUI 派</div>
@@ -1036,7 +1039,7 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 <div class="wfcap">无分屏无标签（<b>not planned</b>，让位 tmux）· <b>ctrl+p 命令面板</b> + which-key 浮层</div>
       <p><strong>Zig 渲染核心 + Yoga flexbox + 客户端/服务器分离。</strong>同一后端可被 TUI / Web / IDE 多端接入，还能被外部反向驱动 TUI。</p>
       <p class="rule">招牌：<strong><code>doom_loop</code> 权限</strong>——同一工具连调 3 次自动触发询问，把"反空转"做成一等公民权限项。</p>
-      <p><span class="b s">ctrl+p 命令面板 + which-key</span><span class="b s">父子会话原地导航</span><span class="b d">diff 刷屏无折叠</span></p>
+      <p><a class="b s" href="#src-docs">ctrl+p 命令面板 + which-key</a><a class="b s" href="#src-docs">父子会话原地导航</a><span class="b d">diff 刷屏无折叠</span></p>
     </div>
     <div class="card pcard" style="--tint:var(--hl-o)">
       <div class="plane">工程观测派</div>
@@ -1051,7 +1054,7 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 <div class="wfcap"><b>多盒同屏全常驻</b> · preset（p/P）打包「布局 + 渲染精度」9 套循环</div>
       <p><strong>多盒同屏，preset 一键换视角。</strong>三套图形符号（braille / block / tty）可按盒子分别设定。</p>
       <p class="rule">招牌两条：<strong>preset 把"布局 + 渲染精度"打包成一个可循环状态</strong>；<strong>窄屏阻断页可交互</strong>——装不下时在报错页上直接按 1-4 关盒子。</p>
-      <p><span class="b s">边框即工具栏（键位可点）</span><span class="b d">退出静默覆盖配置</span></p>
+      <p><a class="b s" href="#src-code">边框即工具栏（键位可点）</a><span class="b d">退出静默覆盖配置</span></p>
     </div>
     <div class="card pcard" style="--tint:var(--hl-o)">
       <div class="plane">工程观测派</div>
@@ -1068,7 +1071,7 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 <div class="wfcap"><b>crumbs 说"我在哪" + 键位网格说"能干什么"</b>，二者由同一 stack 事件驱动</div>
       <p><strong><code>:</code> 命令行把整个资源空间变成可寻址的。</strong>别名 + ghost-text 补全，无需菜单树。</p>
       <p class="rule">招牌：<strong>导航栈驱动的双重反馈</strong>——crumbs 说"我在哪"，6 行键位网格说"我现在能干什么"，二者由同一个 stack 事件驱动。</p>
-      <p><span class="b s">Pulses 图表可下钻</span><span class="b d">窄屏无降级</span><span class="b d">大规模卡死</span></p>
+      <p><a class="b s" href="#src-code">Pulses 图表可下钻</a><span class="b d">窄屏无降级</span><span class="b d">大规模卡死</span></p>
     </div>
     <div class="card pcard" style="--tint:var(--hl-o)">
       <div class="plane">工程观测派</div>
@@ -1090,7 +1093,7 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 <div class="wfcap"><b>左选什么，右画什么</b>——选中联动最彻底 · screenMode(+/_) 当缩放 · portrait 自动重排</div>
       <p><strong>选中联动做得最彻底。</strong>左侧任一列表的选中项决定右侧主区画什么，master-detail 范式的标杆。</p>
       <p class="rule">招牌三条：<strong>上下文相关键位</strong>（24 个 context，底部提示随之重绘）；<strong>screenMode 当缩放</strong>（<code>+</code>/<code>_</code> 循环）；<strong>portrait 自动重排</strong>（≤84 列侧栏转竖排）——TUI 里少见的真响应式断点。</p>
-      <p><span class="b s">command log 教学式透明</span><span class="b s">reflog undo/redo</span><span class="b d">鼠标挡住原生复制</span></p>
+      <p><a class="b s" href="#src-code">command log 教学式透明</a><a class="b s" href="#src-code">reflog undo/redo</a><span class="b d">鼠标挡住原生复制</span></p>
     </div>
     <div class="card">
       <div class="plane" style="color:var(--hl-g)">Hybrid TUI 派 🆕</div>
@@ -1113,7 +1116,7 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
 <div class="wfcap"><b>双重分辨率共存：</b>左侧 Cell 布局 + 右侧 Pixel 渲染 · 协议降级链（Kitty → iTerm2 → Sixel → Chafa → text）</div>
       <p><strong>Hybrid TUI 的代表。</strong>图片 preview 通过 Kitty/iTerm2/Sixel 协议实现真实 raster 渲染，但文件树的 layout 仍是 cell-based。展示了现代 TUI 的能力边界。</p>
       <p class="rule">核心启示：<strong>位置用 cell 定位，内容用 pixel 渲染</strong>——chart / diff / 架构图区域可借鉴此模型按终端能力自适应升级渲染精度。</p>
-      <p><span class="b s">协议降级链</span><span class="b s">Cell + Pixel 共存</span></p>
+      <p><a class="b s" href="#src-code">协议降级链</a><a class="b s" href="#src-code">Cell + Pixel 共存</a></p>
     </div>
     <div class="card">
       <div class="plane" style="color:var(--fg3)">对照基线</div>
@@ -1582,8 +1585,8 @@ footer{max-width:1120px;margin:80px auto 0;padding:var(--s5) var(--s6) 70px;bord
   <table>
     <tr><th>类型</th><th>来源</th><th>用途</th><th>备注</th></tr>
     <tr><td>样本库</td><td><a href="https://awesometui.com/system">awesometui.com</a></td><td><strong>开源 TUI 应用目录</strong>，20+ 分类（AI / 开发 / Git / 编辑器 / 系统…），可按 star、更新时间、发布版本排序</td><td><span class="b w">注意</span>它<strong>不是</strong>设计系统文档，是应用目录——价值在于<strong>快速找到同类可研究的产品</strong>。<strong>但它自己的站点视觉值得单独借鉴</strong>：抖动像素排版 · 单一荧光强调色 · 点阵尘埃图形 · 角部裁切标记 · 反色分段标签 · 点阵分隔线（手法见 VISUAL.md，色板不借）</td></tr>
-    <tr><td>深度来源</td><td>各产品 GitHub 源码</td><td>btop 的 <code>btop_draw.cpp</code>（三套符号矩阵）· lazygit 的 <code>window_arrangement_helper.go</code>（portrait 断点）· k9s 的 <code>internal/view/app.go</code>（区域结构）</td><td>本次分析中<strong>二手文档多处有误</strong>（terminal.guide 的 btop 键位表就是错的），关键结论均以源码为准</td></tr>
-    <tr><td>深度来源</td><td>官方文档</td><td><a href="https://code.claude.com/docs/en/interactive-mode">Claude Code</a> · <a href="https://opencode.ai/docs/keybinds">OpenCode</a> · <a href="https://k9scli.io/topics/commands/">k9s</a> · <a href="https://zellij.dev/documentation/">Zellij</a></td><td>权限模型、键位体系、布局配置以官方文档为准</td></tr>
+    <tr id="src-code"><td>深度来源</td><td>各产品 GitHub 源码</td><td>btop 的 <code>btop_draw.cpp</code>（三套符号矩阵）· lazygit 的 <code>window_arrangement_helper.go</code>（portrait 断点）· k9s 的 <code>internal/view/app.go</code>（区域结构）· Yazi（<a href="https://github.com/sxyazi/yazi">sxyazi/yazi</a>）的 image preview 与协议降级实现</td><td>本次分析中<strong>二手文档多处有误</strong>（terminal.guide 的 btop 键位表就是错的），关键结论均以源码为准；Yazi 一项为仓库级参考，未逐文件核对</td></tr>
+    <tr id="src-docs"><td>深度来源</td><td>官方文档</td><td><a href="https://code.claude.com/docs/en/interactive-mode">Claude Code</a> · <a href="https://opencode.ai/docs/keybinds">OpenCode</a> · <a href="https://k9scli.io/topics/commands/">k9s</a> · <a href="https://zellij.dev/documentation/">Zellij</a></td><td>权限模型、键位体系、布局配置以官方文档为准</td></tr>
     <tr><td>痛点来源</td><td>GitHub issue + HN 讨论</td><td>用户原话优于评测结论——"EXPLICITLY STATE IN THE DOCUMENTATION THAT CLOSING BTOP OVERWRITES YOUR CONFIGURATION"这种句子比任何"配置管理体验欠佳"都有信息量</td><td>七条反面教训全部有 issue 链接</td></tr>
     <tr><td>设计参考</td><td>PTO Design System 4.1</td><td>本产品视觉体系的直接来源（529 tokens · Dark-first）</td><td>web→terminal 翻译见 VISUAL.md</td></tr>
     <tr><td>设计参考</td><td>CodeArts CLI/TUI 研究库</td><td>AI CLI 六阶段生命周期 · /model /codebase /runmode /btw /lsp-toggle 五个已验证方案</td><td>已移植为 P13–P20</td></tr>
