@@ -267,6 +267,7 @@ pre .hw{font-size:1ch}
     <div class="hero-actions">
       <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/screens.html">看五个典型页面 ★</a>
       <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/design-input.html">设计输入</a>
+      <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/agent-workspace.html">Agent Workspace 演示 ★</a>
       <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/demo.html">看 TUI 设计 demo</a>
       <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/tui-live.html">看真机实录 ▶</a>
       <a class="pill" href="./kunpeng-devkit-ai-tui/web/index.html">设计系统</a>
@@ -561,6 +562,40 @@ pre .hw{font-size:1ch}
           </div>
         </article>
 
+        <!-- agent-workspace.html -->
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/agent-workspace.html">Agent Workspace 演示</a><span class="star">★</span></h3>
+            <div class="card-tags">
+              <span class="tag tag--star">新</span>
+              <span class="tag tag--html">演示</span>
+              <span class="tag">Tokyo Night</span>
+              <span class="tag">玻璃质感</span>
+            </div>
+          </div>
+          <div class="card-preview tall" aria-hidden="true">
+<pre><span class="pv-dim">┌ SESSIONS ─────────┬──────────────────</span>
+<span class="pv-dim">│</span> <span class="pv-run">▸ 应用迁移</span>          <span class="pv-dim">│</span> <span class="pv-fg">任务配置</span>
+<span class="pv-dim">│   系统迁移</span>          <span class="pv-dim">│</span> <span class="pv-fg">源码类型</span>  <span class="pv-dim">C/C++/ASM</span>
+<span class="pv-dim">│</span> <span class="pv-run">▸ 容器迁移</span>          <span class="pv-dim">│</span> <span class="pv-fg">目标环境</span>  <span class="pv-dim">openEuler</span>
+<span class="pv-dim">├ PROJECT ──────────┤──────────────────</span>
+<span class="pv-dim">│</span> <span class="pv-fg">src/crypto.c</span>   <span class="pv-er">M</span>  <span class="pv-dim">│</span> <span class="pv-ok">✓</span> <span class="pv-fg">Analyze dep</span>  <span class="pv-dim">18</span>
+<span class="pv-dim">│</span> <span class="pv-fg">conf/nginx</span>     <span class="pv-er">M</span>  <span class="pv-dim">│</span> <span class="pv-ok">✓</span> <span class="pv-fg">Gen patches</span>  <span class="pv-dim">25</span>
+<span class="pv-dim">│</span> <span class="pv-fg">order-item.sql</span> <span class="pv-er">M</span>  <span class="pv-dim">│</span> <span class="pv-ok">✓</span> <span class="pv-fg">Build verify</span>
+<span class="pv-dim">└──────────────────┴──────────────────</span></pre>
+          </div>
+          <p class="card-desc"><b>风格 B · 面板质感</b>的完整工作台演示。Tokyo Night 配色 + 玻璃质感（backdrop-filter blur + 彩色辉光阴影），三栏布局：<b>侧栏导航 · AI 对话主区 · 代码面板</b>。场景是 <b>order-center C++ 项目</b>迁移到鲲鹏 ARM64 的全流程——依赖分析 → 补丁生成 → 构建验证，含 diff 高亮、统计卡片、迁移报告表格。文字对比度经 WCAG AA 审查。附配套<a href="./kunpeng-devkit-ai-tui/web/launch.html" style="color:var(--pri-h)">启动页</a>。</p>
+          <div class="card-links">
+            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/agent-workspace.html">打开工作台</a>
+            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/launch.html">启动页</a>
+          </div>
+          <div class="card-src">
+            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/agent-workspace.html" target="_blank" rel="noopener">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/agent-workspace.html
+            </a>
+          </div>
+        </article>
+
         <!-- demo.html -->
         <article class="card">
           <div class="card-head">
@@ -675,7 +710,7 @@ pre .hw{font-size:1ch}
     <div>卡片按用途分四组：<b>研究</b>是结论的来处，<b>设计系统</b>回答凭什么这么设计，<b>Demo</b>看界面长什么样，<b>实机录屏</b>证明程序真的跑了。同一份文件只在一组里出现，跨组的引用走卡片里的链接条。</div>
     <div>卡片里指向 <span class="mono">app/</span> 与 Markdown 原文的链接都落到 GitHub：终端应用在浏览器里跑不了，只能给源码（本地 <span class="mono">bun run dev</span> / <span class="mono">preview</span> / <span class="mono">gallery</span> 可直接跑起来）；<span class="mono">.md</span> 被 Pages 当纯文本返回，读起来不方便。每张卡片底部的灰色路径是它在仓库里的位置，点进去就是源。</div>
     <div>视觉 token 的速查表在<a href="./kunpeng-devkit-ai-tui/web/index.html#cheat">设计系统页</a>——规范内容归规范页，这一页只做入口。本页视觉直接取自 <span class="mono">docs/VISUAL.md</span>：Dark-first 六级表面、预合成前景实色、红身份 / 蓝交互 / 粉红语义的三分工、方形为默认（圆角 = 浮起）。<b>启动页本身就是这套规范的第一个样例</b>——参照页是浅色的，这里没有照抄，因为这套 token 是 Dark-first 的。</div>
-    <div>本页生成于 <span id="build-stamp">2026-08-18 01:17 UTC · 基于 0fac143</span>。浏览器缓存 10 分钟，看到的不是这个时间就按 <span class="mono">Ctrl/Cmd+Shift+R</span> 强刷，或在地址后加 <span class="mono">?v=1</span>。</div>
+    <div>本页生成于 <span id="build-stamp">2026-08-25 12:51 UTC · 基于 4bcd8ed</span>。浏览器缓存 10 分钟，看到的不是这个时间就按 <span class="mono">Ctrl/Cmd+Shift+R</span> 强刷，或在地址后加 <span class="mono">?v=1</span>。</div>
     <div>本页与全站均为 noindex。内部设计资料，授权方式待定；Kunpeng 标识及华为品牌色版权归华为技术有限公司所有，本仓库仅在设计示意中引用。</div>
   </footer>
 

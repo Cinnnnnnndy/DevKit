@@ -39,11 +39,11 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
   -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden;position:relative}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(ellipse 120% 90% at 0% 100%,rgba(122,162,247,.28) 0%,rgba(122,162,247,.10) 30%,transparent 60%),
-    radial-gradient(ellipse 100% 80% at 95% 90%,rgba(125,207,255,.20) 0%,rgba(125,207,255,.07) 30%,transparent 55%),
-    radial-gradient(ellipse 90% 70% at 50% 95%,rgba(187,154,247,.18) 0%,rgba(187,154,247,.06) 30%,transparent 55%),
-    radial-gradient(ellipse 80% 60% at 10% 15%,rgba(122,162,247,.12) 0%,rgba(122,162,247,.03) 35%,transparent 60%),
-    radial-gradient(ellipse 70% 50% at 90% 10%,rgba(187,154,247,.10) 0%,rgba(187,154,247,.03) 35%,transparent 55%)}
+    radial-gradient(ellipse 120% 90% at 0% 100%,rgba(0,119,255,.22) 0%,rgba(0,119,255,.08) 30%,transparent 60%),
+    radial-gradient(ellipse 100% 80% at 95% 90%,rgba(0,119,255,.16) 0%,rgba(0,119,255,.05) 30%,transparent 55%),
+    radial-gradient(ellipse 90% 70% at 50% 95%,rgba(122,162,247,.10) 0%,rgba(122,162,247,.03) 30%,transparent 55%),
+    radial-gradient(ellipse 80% 60% at 10% 15%,rgba(0,119,255,.10) 0%,rgba(0,119,255,.03) 35%,transparent 60%),
+    radial-gradient(ellipse 70% 50% at 90% 10%,rgba(0,119,255,.06) 0%,rgba(0,119,255,.02) 35%,transparent 55%)}
 body>*{position:relative;z-index:1}
 .scan{position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.3;
   background:repeating-linear-gradient(180deg,rgba(255,255,255,.013) 0 1px,transparent 1px 3px)}
@@ -75,8 +75,9 @@ body>*{position:relative;z-index:1}
   flex:none;display:flex;align-items:center;gap:5px;background:transparent;
   transition:background .12s ease,color .12s ease,border-color .12s ease}
 .stab:hover{color:var(--fg2);background:rgba(41,46,66,.7);border-color:rgba(255,255,255,.06)}
-.stab.on{background:rgba(41,46,66,.8);border-color:rgba(255,255,255,.08);color:var(--fg);
-  box-shadow:0 0 12px -3px rgba(122,162,247,.18),0 0 0 1px rgba(255,255,255,.04) inset}
+.stab.on{background:rgba(41,46,66,.8);border-color:rgba(122,162,247,.18);color:var(--fg);
+  box-shadow:0 0 0 1px rgba(255,255,255,.05) inset,
+    0 0 16px -3px rgba(122,162,247,.28),0 0 36px -8px rgba(122,162,247,.12)}
 .stab .st{width:5px;height:5px;border-radius:1px;flex:none}
 .stab .st.done{background:var(--ok)}
 .stab .st.doing{background:var(--pri-h)}
@@ -90,7 +91,7 @@ body>*{position:relative;z-index:1}
 
 /* ══ Workspace（侧栏 + 主内容 + 代码列） ══ */
 .workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0 8px;background:transparent}
-.main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;
+.main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;position:relative;
   margin:8px 0;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;
   background:rgba(31,35,53,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
   box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,
@@ -146,8 +147,9 @@ body>*{position:relative;z-index:1}
 .right-panel .panel-body{position:relative}
 
 /* ══ Conversation title ══ */
-.conv-title{flex:none;padding:8px var(--sp-lg) 4px;font-family:var(--mono);font-size:13px;
+.conv-title{flex:none;display:flex;align-items:center;gap:8px;padding:8px var(--sp-lg) 4px;font-family:var(--mono);font-size:13px;
   font-weight:700;color:var(--fg);letter-spacing:.02em}
+.conv-title .ct-text{flex:1;min-width:0}
 
 /* AI PLAN：钉在 nav-bar 下方、main-area 上方，跟随当前 Agent、可收起 */
 .ai-plan{flex:none;background:var(--s1);border-bottom:1px solid var(--bd1);overflow:hidden}
@@ -207,11 +209,12 @@ body>*{position:relative;z-index:1}
 
 /* 通用小标题 */
 .sub-h{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
-  text-transform:uppercase;margin:14px 0 7px}
+  text-transform:uppercase;margin:18px 0 8px}
 .sub-h:first-child{margin-top:0}
+.sub-h .cm{font-weight:400;letter-spacing:normal;text-transform:none}
 
 /* Plan / Checklist / Pipeline steps（复用 .slist/.srow 结构）*/
-.steps{display:flex;flex-direction:column;gap:2px}
+.steps{display:flex;flex-direction:column;gap:2px;margin:8px 0}
 .step{display:flex;align-items:flex-start;gap:9px;padding:4px 0}
 .step .c{width:13px;flex:none;text-align:center;font-size:9px;font-weight:700;margin-top:2px;color:var(--fg4)}
 .step .c.done{color:var(--ok)}
@@ -223,11 +226,10 @@ body>*{position:relative;z-index:1}
 .step .est{color:var(--fg4);margin-left:6px}
 
 /* Checklist（诊断项，取自 .rl 左边框日志行）*/
-.chk{display:flex;align-items:baseline;gap:9px;padding:2.5px 0 2.5px 9px;border-left:2px solid var(--bd2);
-  margin:1px 0;font-size:11.5px}
-.chk:has(.ic.warn){border-color:var(--warn)}
-.chk:has(.ic.ok){border-color:var(--ok)}
-.chk .ic{flex:none;font-weight:700;display:none}
+.chk{display:flex;align-items:baseline;gap:9px;padding:4px 10px;
+  margin:2px 0;font-size:11.5px;border-radius:4px;background:rgba(22,22,30,.4)}
+.chk .ic{flex:none;font-weight:700;font-size:9px;width:12px;text-align:center}
+.chk .ic.ok{color:var(--ok)} .chk .ic.warn{color:var(--warn)}
 .chk .lb{flex:none;color:var(--fg);min-width:120px}
 .chk .v{color:var(--fg3)} .chk .v b{color:var(--warn);font-weight:600}
 
@@ -243,19 +245,21 @@ table.rpt-tb td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-wi
 table.rpt-tb td.mu{color:var(--fg4)}
 
 /* 对话区域：会话开场的用户自然语言输入，区分于 Agent 输出的样式 */
-.usr-msg{display:flex;align-items:flex-start;gap:7px;padding:6px 9px;margin-bottom:10px;
-  border-left:2px solid var(--pri-h);background:rgba(61,152,255,.06);font-size:11.5px;
-  color:var(--fg);line-height:1.5;border-radius:0 6px 6px 0;
-  box-shadow:0 0 16px -5px rgba(61,152,255,.10)}
+.usr-msg{display:flex;align-items:flex-start;gap:7px;padding:8px 12px;margin-bottom:14px;
+  background:linear-gradient(90deg,rgba(122,162,247,.12),rgba(122,162,247,.04));font-size:11.5px;
+  color:var(--fg);line-height:1.5;border-radius:8px;
+  box-shadow:inset 3px 0 0 var(--pri-h)}
 .usr-msg .p{color:var(--pri-h);font-weight:700;flex:none}
 /* AI 回复消息 */
-.ai-msg{padding:6px 9px;margin-bottom:10px;font-size:11.5px;color:var(--fg2);line-height:1.65}
+.ai-msg{padding:8px 12px;margin-bottom:14px;font-size:11.5px;color:var(--fg2);line-height:1.65;
+  background:rgba(224,175,104,.04);border-radius:8px;
+  box-shadow:inset 3px 0 0 rgba(224,175,104,.35)}
 .ai-msg b{color:var(--fg);font-weight:600}
 
 /* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
-.tc-collapse{border:1px solid rgba(255,255,255,.05);margin-bottom:16px;border-radius:6px;overflow:hidden;
-  box-shadow:0 0 0 1px rgba(255,255,255,.02) inset,0 2px 8px rgba(0,0,0,.2)}
-.tc-chead{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;background:rgba(22,22,30,.55)}
+.tc-collapse{margin:18px 0;border-radius:8px;overflow:hidden;
+  box-shadow:0 2px 10px rgba(0,0,0,.25)}
+.tc-chead{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;background:rgba(22,22,30,.65)}
 .tc-chead:hover{background:var(--s2)}
 .tc-car{font-family:var(--mono);font-size:9px;color:var(--fg4);flex:none;transition:transform .15s}
 .tc-collapse:not(.open) .tc-car{transform:rotate(-90deg)}
@@ -266,11 +270,11 @@ table.rpt-tb td.mu{color:var(--fg4)}
 
 /* 报告横幅 · 统计卡片（对齐 Porting Advisor 迁移报告结构）*/
 .rpt-banner{display:flex;align-items:baseline;gap:7px;font-size:11.5px;color:var(--ok);
-  background:rgba(158,206,106,.07);border:1px solid rgba(158,206,106,.20);padding:6px 10px;margin-bottom:12px;
-  border-radius:6px;box-shadow:0 0 20px -6px rgba(158,206,106,.12)}
-.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.stat-card{border:1px solid rgba(255,255,255,.05);background:rgba(22,22,30,.6);padding:8px 10px;
-  border-radius:6px;box-shadow:0 0 0 1px rgba(255,255,255,.02) inset,0 2px 8px rgba(0,0,0,.25)}
+  background:rgba(158,206,106,.08);padding:8px 12px;margin:14px 0;
+  border-radius:8px;box-shadow:0 0 20px -6px rgba(158,206,106,.15)}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.stat-card{background:rgba(22,22,30,.55);padding:9px 10px;
+  border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 .stat-card .sc-lb{font-size:9px;letter-spacing:.1em;color:var(--fg4);text-transform:uppercase}
 .stat-card .sc-big{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--fg);margin:3px 0 1px}
 .stat-card .sc-sub{font-size:10px;color:var(--fg4)}
@@ -289,7 +293,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .mrow .tg{color:var(--fg2);flex:1;min-width:0}
 
 /* Chips / 标签（取自 .tagf .tg）*/
-.chipf{display:flex;flex-wrap:wrap;gap:5px}
+.chipf{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
 .chip{display:inline-flex;align-items:baseline;gap:5px;font-family:var(--mono);font-size:10.5px;
   border:1px solid var(--bd2);padding:2px 8px;color:var(--fg2)}
 .chip.on{border-color:var(--ok);color:var(--ok)}
@@ -324,9 +328,8 @@ td.fnname{color:var(--fg2)}
 .ai-note .conf{color:var(--fg4);font-size:10px;margin-top:2px}
 
 /* Agent Console（取自 .rl 日志行 + s1 容器）*/
-.console{background:rgba(31,35,53,.65);border:1px solid rgba(255,255,255,.05);padding:6px 9px;
-  display:flex;flex-direction:column;gap:1px;font-size:11px;margin-top:6px;border-radius:6px;
-  box-shadow:0 0 0 1px rgba(255,255,255,.02) inset}
+.console{background:rgba(22,22,30,.55);padding:8px 10px;
+  display:flex;flex-direction:column;gap:1px;font-size:11px;margin:12px 0;border-radius:6px}
 .console .ln{display:flex;gap:7px;align-items:baseline;color:var(--fg2);padding:1.5px 0}
 
 /* 场景 section 显隐 */
@@ -353,6 +356,38 @@ td.fnname{color:var(--fg2)}
 .status-bar .keys{display:flex;gap:11px;overflow:hidden;align-items:center;padding:0 var(--sp-lg)}
 .status-bar .keys b{background:var(--s4);color:var(--fg);font-weight:500;padding:0 5px;font-size:9.5px}
 
+/* ══ TUI 装饰 ══ */
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 8% 15%,rgba(122,162,247,.3),transparent),
+    radial-gradient(1px 1px at 25% 55%,rgba(0,119,255,.2),transparent),
+    radial-gradient(1.5px 1.5px at 45% 85%,rgba(0,119,255,.25),transparent),
+    radial-gradient(1px 1px at 65% 25%,rgba(122,162,247,.25),transparent),
+    radial-gradient(1px 1px at 82% 65%,rgba(0,119,255,.18),transparent),
+    radial-gradient(1.5px 1.5px at 15% 78%,rgba(122,162,247,.2),transparent),
+    radial-gradient(1px 1px at 92% 42%,rgba(0,119,255,.2),transparent);
+  animation:particleDrift 25s linear infinite}
+@keyframes particleDrift{0%{transform:translateY(0)}100%{transform:translateY(-20px)}}
+.stab.on{animation:tabGlow 3s ease-in-out infinite}
+@keyframes tabGlow{0%,100%{box-shadow:0 0 0 1px rgba(255,255,255,.05) inset,
+  0 0 16px -3px rgba(122,162,247,.28),0 0 36px -8px rgba(122,162,247,.12)}
+  50%{box-shadow:0 0 0 1px rgba(255,255,255,.06) inset,
+  0 0 22px -2px rgba(122,162,247,.35),0 0 42px -6px rgba(122,162,247,.18)}}
+.workspace{position:relative}
+.workspace::before,.workspace::after{content:'';position:absolute;width:12px;height:12px;pointer-events:none;z-index:3;opacity:.2}
+.workspace::before{top:4px;left:4px;border-top:1px solid var(--pri-h);border-left:1px solid var(--pri-h)}
+.workspace::after{bottom:4px;right:4px;border-bottom:1px solid var(--pri-h);border-right:1px solid var(--pri-h)}
+.scroll-btm{position:absolute;bottom:56px;right:14px;width:28px;height:28px;
+  border-radius:50%;background:var(--s3);color:var(--fg3);border:none;cursor:pointer;
+  display:none;align-items:center;justify-content:center;z-index:10;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);font-size:12px;font-family:var(--mono);
+  transition:opacity .15s,background .15s}
+.scroll-btm.show{display:flex}
+.scroll-btm:hover{background:var(--pri);color:#fff}
+@keyframes inputGlow{0%,100%{box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,0 0 20px -4px rgba(122,162,247,.15),0 2px 8px rgba(0,0,0,.35)}
+  50%{box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 0 26px -3px rgba(122,162,247,.22),0 2px 8px rgba(0,0,0,.35)}}
+.bi-row{animation:inputGlow 4s ease-in-out infinite}
+
 /* ══ 响应式：整页自适应，不是固定画布 ══ */
 @media (max-width:980px){
   .sidebar{width:180px}
@@ -369,6 +404,7 @@ td.fnname{color:var(--fg2)}
 </head>
 <body>
 <div class="scan"></div>
+<div class="particles"></div>
 
 <div class="topbar">
   <span class="blogo"><img class="kpi" alt="Kunpeng" src="data:image/png;base64,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"><span class="g2">KUNPENG</span><span class="g1">DEVKIT AI</span></span>
@@ -411,12 +447,11 @@ td.fnname{color:var(--fg2)}
   </aside>
 
   <div class="main-col">
-  <div class="conv-title" id="convTitle">应用迁移</div>
+  <div class="conv-title"><span class="ct-text" id="convTitle">应用迁移</span><button class="cfold" id="cfoldBtn" title="代码区" aria-label="代码区"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button></div>
   <div class="ai-plan" id="aiPlan">
     <div class="ap-head" id="apHead">
       <span class="ap-arrow">▾</span><span class="ap-t">AI PLAN</span>
       <span class="ap-goal" id="apGoal"></span>
-      <button class="cfold" id="cfoldBtn" title="代码区" aria-label="代码区"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button>
     </div>
     <div class="ap-body" id="apBody"><div class="ap-steps" id="apSteps"></div></div>
   </div>
@@ -655,17 +690,17 @@ td.fnname{color:var(--fg2)}
           <div class="console">
             <div class="ln"><span style="color:var(--pri-h)">▶</span> ./ksys collect -d 10 -i 1 -o /home/order-center/ && ./ksys diff -i baseline.json now.json -o ./diff-out</div>
           </div>
-          <div class="sub-h">TOP 13 · 热点调用栈</div>
-          <table class="hotspot" id="hotspotTable">
-            <thead><tr><th>周期数占比</th><th>周期数</th><th>进程名</th><th>共享库/文件</th></tr></thead>
-            <tbody id="hotspotBody"></tbody>
-          </table>
           <div class="sub-h">ksys diff · Topdown 分析</div>
           <div class="stat3">
             <div class="stat-card"><div class="sc-lb">IPC</div><div class="sc-big">0.86</div><div class="sc-sub">基线 1.42 · <span class="wn">-39.4%</span></div></div>
             <div class="stat-card"><div class="sc-lb">Backend Bound</div><div class="sc-big">61%</div><div class="sc-sub">Topdown 主导瓶颈</div></div>
             <div class="stat-card"><div class="sc-lb">L1D MPKI</div><div class="sc-big">24.1</div><div class="sc-sub">基线 6.3 · <span class="wn">+282%</span></div></div>
           </div>
+          <div class="sub-h">TOP 10 · 热点调用栈</div>
+          <table class="hotspot" id="hotspotTable">
+            <thead><tr><th>周期数占比</th><th>周期数</th><th>进程名</th><th>共享库/文件</th></tr></thead>
+            <tbody id="hotspotBody"></tbody>
+          </table>
           <div class="sub-h">FLAME GRAPH</div>
           <div class="fg-legend">
             <span><i style="background:var(--tn-gold)"></i>18%</span>
@@ -728,11 +763,13 @@ td.fnname{color:var(--fg2)}
     </div>
   </div>
 
+  <button class="scroll-btm" id="scrollBtm" title="回到底部">↓</button>
+
   <div class="bottom-input">
     <div class="bi-row">
       <span class="p">&gt;</span>
-      <input type="text" placeholder="描述你想让 Agent 做什么...">
       <span class="bi-cur"></span>
+      <input type="text" placeholder="描述你想让 Agent 做什么...">
     </div>
   </div>
   </div>
@@ -838,7 +875,11 @@ td.fnname{color:var(--fg2)}
 
 <div class="status-bar">
   <div class="keys">
-    <span><b>C</b> 代码区</span><span><b>P</b> AI Plan</span><span><b>Esc</b> 返回启动页</span>
+    <span><b>1</b> 迁移</span><span><b>2</b> 开发</span><span><b>3</b> 调优</span>
+    <span><b>↑↓</b> 场景</span>
+    <span><b>C</b> 代码区</span><span><b>P</b> AI Plan</span>
+    <span><b>Ctrl+P</b> 命令</span><span><b>F1</b> 帮助</span>
+    <span><b>Esc</b> 返回启动页</span>
   </div>
 </div>
 
@@ -919,8 +960,10 @@ function selectScenario(agentKey,scenarioKey){
   document.querySelectorAll('#sidebar .sd-node[data-file]').forEach(el=>
     el.classList.toggle('active',!!meta && el.dataset.file===meta.file));
   renderAIPlan(agentKey,scenarioKey);
-  document.getElementById('workspace').classList.add('foldcode');
-  document.getElementById('cfoldBtn').classList.remove('on');
+  const hasCode=!!meta&&meta.code;
+  document.getElementById('workspace').classList.toggle('foldcode',!hasCode);
+  document.getElementById('cfoldBtn').classList.toggle('on',hasCode);
+  setTimeout(checkScrollBottom,50);
   if(agentKey==='tune' && scenarioKey==='bottleneck') initHotspot();
 }
 
@@ -942,6 +985,15 @@ document.addEventListener('keydown',e=>{
   if(tag==='INPUT'||tag==='TEXTAREA'||document.activeElement.isContentEditable) return;
   if(e.key==='c'||e.key==='C') toggleCodeFold();
   else if(e.key==='p'||e.key==='P') toggleAIPlan();
+  else if(e.key==='1') selectScenario('migrate',lastScenario.migrate);
+  else if(e.key==='2') selectScenario('develop',lastScenario.develop);
+  else if(e.key==='3') selectScenario('tune',lastScenario.tune);
+  else if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+    e.preventDefault();
+    const sc=SCENARIOS[curAgent],ci=sc.findIndex(s=>s.key===lastScenario[curAgent]);
+    const ni=e.key==='ArrowUp'?Math.max(0,ci-1):Math.min(sc.length-1,ci+1);
+    selectScenario(curAgent,sc[ni].key);
+  }
 });
 
 /* 高价值输出（报告/表格）默认折叠，点击标题展开/收起 */
@@ -962,10 +1014,7 @@ const HOTSPOTS=[
  {fn:'ngx_epoll_process_events',pct:4.66,cycles:23300000,proc:'nginx-worker',lib:'nginx (ngx_epoll_module.c)'},
  {fn:'copy_page',pct:3.92,cycles:19600000,proc:'nginx-worker',lib:'[kernel.kallsyms]'},
  {fn:'SSL_write',pct:3.15,cycles:15750000,proc:'nginx-worker',lib:'/usr/lib64/libssl.so.1.1'},
- {fn:'__do_softirq',pct:2.68,cycles:13400000,proc:'ksoftirqd',lib:'[kernel.kallsyms]'},
- {fn:'ngx_slab_alloc',pct:2.11,cycles:10550000,proc:'nginx-worker',lib:'nginx (ngx_slab.c)'},
- {fn:'__memmove_avx_unaligned',pct:1.79,cycles:8950000,proc:'nginx-worker',lib:'/usr/lib64/libc-2.28.so'},
- {fn:'do_page_fault',pct:1.38,cycles:6900000,proc:'nginx-worker',lib:'[kernel.kallsyms]'}
+ {fn:'__do_softirq',pct:2.68,cycles:13400000,proc:'ksoftirqd',lib:'[kernel.kallsyms]'}
 ];
 const FLAME=[
  [{sp:0,w:100,c:'var(--bg-floating)',fn:'nginx-worker (all)'}],
@@ -990,7 +1039,7 @@ function initHotspot(){
   if(hotspotReady) return; hotspotReady=true;
   const body=document.getElementById('hotspotBody');
   body.innerHTML=HOTSPOTS.map((h,i)=>{
-    const color='var(--tn-'+CYCLE_COLORS[i%8]+')';
+    const color=i<3?'var(--tn-'+['gold','red','orange'][i]+')':'var(--fg4)';
     return `<tr data-func="${h.fn}">
       <td><div class="ht-pct"><div class="ht-bar" style="width:${Math.max(4,h.pct*4)}px;background:${color}"></div>
         <span class="v" style="color:${color}">${h.pct.toFixed(2)}%</span></div></td>
@@ -1027,6 +1076,18 @@ function highlightFunction(funcName){
   const crumb=document.getElementById('crumbFn');
   if(crumb) crumb.textContent=funcName+'()';
 }
+
+function checkScrollBottom(){
+  const pb=document.querySelector('.scene.on .panel-body');
+  const btn=document.getElementById('scrollBtm');
+  if(!pb||!btn)return;
+  btn.classList.toggle('show',pb.scrollHeight-pb.scrollTop-pb.clientHeight>50);
+}
+document.querySelectorAll('.panel-body').forEach(pb=>pb.addEventListener('scroll',checkScrollBottom));
+document.getElementById('scrollBtm').addEventListener('click',()=>{
+  const pb=document.querySelector('.scene.on .panel-body');
+  if(pb)pb.scrollTo({top:pb.scrollHeight,behavior:'smooth'});
+});
 
 renderSessionList('migrate','app-migrate');
 selectScenario('migrate','app-migrate');
