@@ -71,6 +71,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .stab .st{width:5px;height:5px;border-radius:1px;flex:none}
 .stab .st.done{background:var(--ok)}
 .stab .st.doing{background:var(--pri-h)}
+.stab .st.wait{background:var(--warn)}
 .stab .st.todo{background:var(--fg4)}
 .stab-sep{flex:none;width:1px;align-self:stretch;background:var(--bd1);margin:0 4px}
 
@@ -847,7 +848,7 @@ const SCENARIOS={
      goal:'中间件、数据库智能替换，配置/SQL 智能转换，自动部署并启动验证',
      plan:[{t:'系统成分分析',d:'中间件 2/2 兼容',s:'done'},{t:'SQL 智能转换',d:'12/19 张表',s:'doing'},
        {t:'自动部署 3 个微服务',d:'',s:'doing'},{t:'启动验证',d:'/actuator/health 2/3',s:'todo'}]},
-    {key:'container-migrate',label:'容器迁移',status:'todo',file:'Dockerfile',code:true,
+    {key:'container-migrate',label:'容器迁移',status:'wait',file:'Dockerfile',code:true,
      goal:'devkit sys-mig -c container_mig 分析 x86 镜像与 Dockerfile，生成鲲鹏版 Dockerfile 与双语迁移报告',
      plan:[{t:'识别分类镜像',d:'基础镜像 / 业务镜像',s:'todo'},{t:'基础镜像重建',d:'',s:'todo'},
        {t:'业务镜像适配',d:'',s:'todo'},{t:'生成 Dockerfile + 报告',d:'11 files · 10 可兼容 · 1 待确认',s:'todo'},{t:'构建与验证',d:'',s:'todo'}]}
@@ -857,7 +858,7 @@ const SCENARIOS={
      goal:'识别 x86 SIMD intrinsics，自动改写为鲲鹏 NEON/SVE 向量化实现',
      plan:[{t:'火焰图扫描定位热点',d:'--simd-target=sve',s:'done'},{t:'识别候选 intrinsics',d:'12 处候选',s:'done'},
        {t:'生成 SVE 向量化实现',d:'已完成 5 处',s:'doing'},{t:'实测收益验证',d:'342ms → 96ms',s:'doing'}]},
-    {key:'op-gen',label:'通算算子智能生成',status:'todo',file:'Settlement',code:false,
+    {key:'op-gen',label:'通算算子智能生成',status:'wait',file:'Settlement',code:false,
      goal:'识别计算密集算子，自动生成鲲鹏亲和实现',
      plan:[{t:'识别候选算子',d:'',s:'doing'},{t:'生成鲲鹏适配实现',d:'',s:'todo'},{t:'正确性 + 性能双重验证',d:'',s:'todo'}]}
   ],
