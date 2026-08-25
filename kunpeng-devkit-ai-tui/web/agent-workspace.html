@@ -115,15 +115,16 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .ai-plan.collapsed .ap-arrow{transform:rotate(-90deg)}
 .ap-t{font-size:9px;font-weight:700;letter-spacing:.2em;color:var(--pri-h)}
 .ap-goal{font-size:10.5px;color:var(--fg4)}
+.ap-goal b{color:var(--fg2);font-weight:700}
 .ap-body{max-height:100px;overflow:hidden;transition:max-height .18s ease}
 .ai-plan.collapsed .ap-body{max-height:0}
 .ap-steps{display:flex;gap:0;padding:0 var(--sp-lg) 8px;overflow-x:auto}
-.ap-step{display:flex;align-items:center;gap:7px;flex:none;padding:3px 12px 3px 0;cursor:pointer}
+.ap-step{display:flex;align-items:baseline;gap:7px;flex:none;padding:3px 12px 3px 0}
 .ap-step .n{font-family:var(--mono);font-size:10px;color:var(--fg4);flex:none}
-.ap-step .c{width:5px;height:5px;flex:none;border-radius:1px}
+.ap-step .c{width:5px;height:5px;flex:none;border-radius:1px;align-self:center}
 .ap-step .c.done{background:var(--ok)} .ap-step .c.doing{background:var(--pri-h)} .ap-step .c.todo{background:var(--fg4)}
-.ap-step .lb{font-size:11px;color:var(--fg3);white-space:nowrap}
-.ap-step.cur .lb{color:var(--fg);font-weight:600}
+.ap-step .lb{font-size:11px;color:var(--fg2);white-space:nowrap}
+.ap-step .d{font-size:10px;color:var(--fg4);white-space:nowrap}
 .ap-step:not(:last-child)::after{content:'→';color:var(--bd3);margin-left:9px;font-size:10px}
 
 .cfold{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--fg4);
@@ -674,19 +675,44 @@ td.fnname{color:var(--fg2)}
 /* ══ 场景元数据：驱动二级 tab 生成 + 侧栏文件联动 ══ */
 const SCENARIOS={
   migrate:[
-    {key:'app-migrate',label:'应用迁移',status:'done',file:'crypto.c',code:true},
-    {key:'sys-migrate',label:'系统迁移',status:'doing',file:'order_item.sql',code:true},
-    {key:'container-migrate',label:'容器迁移',status:'todo',file:'Dockerfile',code:true}
+    {key:'app-migrate',label:'应用迁移',status:'done',file:'crypto.c',code:true,
+     goal:'分析不兼容源码与依赖，智能改写并编译构建出包',
+     plan:[{t:'Analyze dependency',d:'18 libs',s:'done'},{t:'Find incompatible API',d:'知识库命中 3 处',s:'done'},
+       {t:'Generate patches',d:'25 files',s:'done'},{t:'Build verify',d:'aarch64 制品已产出',s:'done'}]},
+    {key:'sys-migrate',label:'系统迁移',status:'doing',file:'order_item.sql',code:true,
+     goal:'中间件、数据库智能替换，配置/SQL 智能转换，自动部署并启动验证',
+     plan:[{t:'系统成分分析',d:'中间件 2/2 兼容',s:'done'},{t:'SQL 智能转换',d:'12/19 张表',s:'doing'},
+       {t:'自动部署 3 个微服务',d:'',s:'doing'},{t:'启动验证',d:'/actuator/health 2/3',s:'todo'}]},
+    {key:'container-migrate',label:'容器迁移',status:'todo',file:'Dockerfile',code:true,
+     goal:'识别分类镜像，重建基础/业务镜像，生成鲲鹏版 Dockerfile 并验证',
+     plan:[{t:'识别分类镜像',d:'',s:'todo'},{t:'基础镜像重建',d:'',s:'todo'},
+       {t:'业务镜像适配',d:'',s:'todo'},{t:'生成 Dockerfile',d:'',s:'todo'},{t:'构建与验证',d:'',s:'todo'}]}
   ],
   develop:[
-    {key:'vectorize',label:'源码向量化改造',status:'doing',file:'Settlement',code:true},
-    {key:'op-gen',label:'通算算子智能生成',status:'todo',file:'Settlement',code:false}
+    {key:'vectorize',label:'源码向量化改造',status:'doing',file:'Settlement',code:true,
+     goal:'分析源码优化方向，自动完成向量化改造',
+     plan:[{t:'识别候选循环',d:'12 处候选',s:'done'},{t:'生成向量化实现',d:'已完成 5 处',s:'doing'},
+       {t:'实测收益验证',d:'342ms → 96ms',s:'doing'}]},
+    {key:'op-gen',label:'通算算子智能生成',status:'todo',file:'Settlement',code:false,
+     goal:'识别计算密集算子，自动生成鲲鹏亲和实现',
+     plan:[{t:'识别候选算子',d:'',s:'doing'},{t:'生成鲲鹏适配实现',d:'',s:'todo'},{t:'正确性 + 性能双重验证',d:'',s:'todo'}]}
   ],
   tune:[
-    {key:'diagnose',label:'自动配置诊断',status:'done',file:'app-prod.yml',code:false},
-    {key:'bottleneck',label:'快速定界性能瓶颈',status:'doing',file:'crypto.c',code:true},
-    {key:'auto-param',label:'参数自动迭代优化',status:'doing',file:'app-prod.yml',code:true},
-    {key:'accel-match',label:'加速特性匹配',status:'done',file:null,code:false}
+    {key:'diagnose',label:'自动配置诊断',status:'done',file:'app-prod.yml',code:false,
+     goal:'自动检查诊断系统配置',
+     plan:[{t:'内核参数检查',d:'',s:'done'},{t:'文件描述符检查',d:'',s:'done'},
+       {t:'JVM 堆参数检查',d:'',s:'done'},{t:'连接池检查',d:'',s:'done'}]},
+    {key:'bottleneck',label:'快速定界性能瓶颈',status:'doing',file:'crypto.c',code:true,
+     goal:'采集热点调用栈与火焰图，AI 定位根因',
+     plan:[{t:'采集热点调用栈',d:'Top 13',s:'done'},{t:'生成火焰图',d:'',s:'done'},
+       {t:'AI 定位根因',d:'置信度计算中',s:'doing'}]},
+    {key:'auto-param',label:'参数自动迭代优化',status:'doing',file:'app-prod.yml',code:true,
+     goal:'一键开启参数自动迭代优化',
+     plan:[{t:'Round 1',d:'3.2k → 3.9k',s:'done'},{t:'Round 2',d:'3.9k → 4.6k',s:'done'},
+       {t:'Round 3',d:'方案 A/B 对照',s:'doing'}]},
+    {key:'accel-match',label:'加速特性匹配',status:'done',file:null,code:false,
+     goal:'智能匹配 BoostKit、openEuler 等加速特性',
+     plan:[{t:'硬件特性探测',d:'',s:'done'},{t:'匹配加速特性',d:'',s:'done'},{t:'应用并验证',d:'',s:'done'}]}
   ]
 };
 const lastScenario={migrate:'app-migrate',develop:'vectorize',tune:'diagnose'};
@@ -700,14 +726,14 @@ function renderScenarioBar(agentKey){
 }
 
 const AGENT_LABELS={migrate:'迁移 Agent',develop:'开发 Agent',tune:'调优 Agent'};
-const AGENT_GOALS={migrate:'将 order-center 迁移到鲲鹏 ARM64',
-  develop:'结算模块源码优化与通算算子适配',tune:'定位性能瓶颈并收敛最优参数'};
 
 function renderAIPlan(agentKey,scenarioKey){
-  document.getElementById('apGoal').textContent=AGENT_GOALS[agentKey];
-  document.getElementById('apSteps').innerHTML=SCENARIOS[agentKey].map((s,i)=>
-    `<div class="ap-step ${s.key===scenarioKey?'cur':''}" data-scenario="${s.key}">
-      <span class="n">${i+1}</span><span class="c ${s.status}"></span><span class="lb">${s.label}</span></div>`).join('');
+  const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
+  if(!meta) return;
+  document.getElementById('apGoal').innerHTML=`<b>${meta.label}</b> · ${meta.goal||''}`;
+  document.getElementById('apSteps').innerHTML=(meta.plan||[]).map((p,i)=>
+    `<div class="ap-step"><span class="n">${i+1}</span><span class="c ${p.s}"></span>
+      <span class="lb">${p.t}</span>${p.d?`<span class="d">${p.d}</span>`:''}</div>`).join('');
 }
 
 function selectAgent(agentKey){
@@ -737,9 +763,6 @@ function selectScenario(agentKey,scenarioKey){
 document.getElementById('agentSelect').addEventListener('change',e=>selectAgent(e.target.value));
 document.getElementById('apHead').addEventListener('click',()=>
   document.getElementById('aiPlan').classList.toggle('collapsed'));
-document.getElementById('apSteps').addEventListener('click',e=>{
-  const t=e.target.closest('.ap-step'); if(t) selectScenario(curAgent,t.dataset.scenario);
-});
 document.getElementById('cfoldBtn').addEventListener('click',e=>{
   const on=document.getElementById('mainArea').classList.toggle('foldcode');
   e.target.textContent=on?'▾ 代码区':'▸ 代码区';
