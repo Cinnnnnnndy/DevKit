@@ -53,20 +53,21 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .topbar .dot{width:5px;height:5px;background:var(--ok)}
 .topbar .ready{color:var(--ok);font-weight:700;letter-spacing:.08em}
 
-/* ══ Agent tabs（一级导航：三个 Agent，方角 btn 语汇）══ */
-.agent-tabs{flex:none;display:flex;gap:6px;padding:9px var(--sp-lg) 0;flex-wrap:wrap;background:var(--s1)}
-.atab{font-family:var(--sans);font-size:var(--fs-sm);font-weight:500;color:var(--fg2);
-  background:var(--s2);border:1px solid var(--bd2);padding:7px 14px;cursor:pointer;
-  display:flex;align-items:center;gap:7px;transition:all .1s}
-.atab .n{font-family:var(--mono);font-size:9.5px;color:var(--fg3);background:var(--s3);
-  border:1px solid var(--bd1);padding:0 5px}
-.atab:hover{background:var(--s3);border-color:var(--bd3)}
-.atab.on{color:#fff;background:var(--pri);border-color:var(--pri)}
-.atab.on .n{background:rgba(255,255,255,.18);border-color:transparent;color:#fff}
+/* ══ Nav bar：Agent 切换（窄屏 TaskTabs 收起语汇：▶ 当前项 ▾）+ 场景 tab 同一行 ══ */
+.nav-bar{flex:none;display:flex;align-items:stretch;background:var(--s2);
+  border-bottom:1px solid var(--bd1);height:34px}
+.agent-switch{position:relative;flex:none;display:flex;align-items:center;gap:6px;
+  padding:0 12px;background:var(--sel);border-right:1px solid var(--bd1);cursor:pointer}
+.agent-switch .car{font-family:var(--mono);font-size:9px;color:var(--pri-h);flex:none}
+.agent-switch .car.dn{color:var(--fg4);font-size:8px}
+.agent-switch .cur{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--pri-h);
+  white-space:nowrap}
+.agent-switch select{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;
+  cursor:pointer;font-size:11px}
 
 /* ══ Scenario tabs（二级导航：具体场景，取自 .tab 文档标签语汇）══ */
-.scenario-bar{flex:none;display:flex;align-items:flex-end;gap:2px;padding:0 var(--sp-lg);
-  background:var(--s2);border-bottom:1px solid var(--bd1);overflow-x:auto;height:38px}
+.scenario-bar{flex:1;min-width:0;display:flex;align-items:flex-end;gap:2px;padding:0 var(--sp-lg);
+  overflow-x:auto;height:100%}
 .stab{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--fg3);
   padding:4px 11px;cursor:pointer;white-space:nowrap;border:1px solid transparent;border-bottom:none;
   position:relative;top:1px;flex:none;display:flex;align-items:center;gap:6px}
@@ -249,8 +250,8 @@ td.fnname{color:var(--fg2)}
 }
 @media (max-width:560px){
   .topbar .r span:not(.ready){display:none}
-  .agent-tabs{padding:7px var(--sp-md) 0}
-  .atab{padding:6px 10px;font-size:10.5px}
+  .agent-switch{padding:0 8px}
+  .agent-switch .cur{font-size:10px}
   .status-bar .keys{display:none}
 }
 </style>
@@ -264,13 +265,17 @@ td.fnname{color:var(--fg2)}
   <span class="r"><span class="dot"></span> <span class="ready">READY</span></span>
 </div>
 
-<div class="agent-tabs" id="agentTabs">
-  <div class="atab on" data-agent="migrate">迁移 Agent <span class="n">3</span></div>
-  <div class="atab" data-agent="develop">开发 Agent <span class="n">2</span></div>
-  <div class="atab" data-agent="tune">调优 Agent <span class="n">4</span></div>
+<div class="nav-bar">
+  <div class="agent-switch">
+    <span class="car">▶</span><span class="cur" id="agentCur">迁移 Agent</span><span class="car dn">▾</span>
+    <select id="agentSelect" aria-label="切换 Agent">
+      <option value="migrate">迁移 Agent · 3</option>
+      <option value="develop">开发 Agent · 2</option>
+      <option value="tune">调优 Agent · 4</option>
+    </select>
+  </div>
+  <div class="scenario-bar" id="scenarioBar"></div>
 </div>
-
-<div class="scenario-bar" id="scenarioBar"></div>
 
 <div class="workspace">
   <aside class="sidebar" id="sidebar">
@@ -655,10 +660,12 @@ function renderScenarioBar(agentKey){
       <span class="st ${s.status}"></span>${s.label}</div>`).join('');
 }
 
+const AGENT_LABELS={migrate:'迁移 Agent',develop:'开发 Agent',tune:'调优 Agent'};
+
 function selectAgent(agentKey){
   curAgent=agentKey;
-  document.querySelectorAll('#agentTabs .atab').forEach(el=>
-    el.classList.toggle('on',el.dataset.agent===agentKey));
+  document.getElementById('agentCur').textContent=AGENT_LABELS[agentKey];
+  document.getElementById('agentSelect').value=agentKey;
   renderScenarioBar(agentKey);
   selectScenario(agentKey,lastScenario[agentKey]);
 }
@@ -675,9 +682,7 @@ function selectScenario(agentKey,scenarioKey){
   if(agentKey==='tune' && scenarioKey==='bottleneck') initHotspot();
 }
 
-document.getElementById('agentTabs').addEventListener('click',e=>{
-  const t=e.target.closest('.atab'); if(t) selectAgent(t.dataset.agent);
-});
+document.getElementById('agentSelect').addEventListener('change',e=>selectAgent(e.target.value));
 document.getElementById('scenarioBar').addEventListener('click',e=>{
   const t=e.target.closest('.stab'); if(t) selectScenario(curAgent,t.dataset.scenario);
 });
