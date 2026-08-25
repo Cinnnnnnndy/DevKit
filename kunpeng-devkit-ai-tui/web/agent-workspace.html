@@ -63,7 +63,7 @@ body>*{position:relative;z-index:1}
 
 /* ══ Nav bar：场景 tab（取自 .tab 文档标签语汇）══ */
 .nav-bar{flex:none;display:flex;align-items:stretch;background:transparent;
-  border-bottom:1px solid var(--bd1);height:34px;overflow:hidden}
+  border-bottom:1px solid rgba(255,255,255,.04);height:34px;overflow:hidden}
 
 /* ══ Scenario tabs（PTO 风格圆角标签页）══ */
 .scenario-bar{flex:1;min-width:0;display:flex;align-items:center;gap:2px;padding:0 var(--sp-lg);
@@ -74,8 +74,9 @@ body>*{position:relative;z-index:1}
   border:1px solid transparent;border-radius:6px;
   flex:none;display:flex;align-items:center;gap:5px;background:transparent;
   transition:background .12s ease,color .12s ease,border-color .12s ease}
-.stab:hover{color:var(--fg2);background:var(--s3);border-color:var(--bd2)}
-.stab.on{background:var(--s3);border-color:var(--bd2);color:var(--fg)}
+.stab:hover{color:var(--fg2);background:rgba(38,38,38,.7);border-color:rgba(255,255,255,.06)}
+.stab.on{background:rgba(38,38,38,.8);border-color:rgba(255,255,255,.08);color:var(--fg);
+  box-shadow:0 0 12px -3px rgba(52,94,231,.18),0 0 0 1px rgba(255,255,255,.04) inset}
 .stab .st{width:5px;height:5px;border-radius:1px;flex:none}
 .stab .st.done{background:var(--ok)}
 .stab .st.doing{background:var(--pri-h)}
@@ -90,19 +91,31 @@ body>*{position:relative;z-index:1}
 /* ══ Workspace（侧栏 + 主内容 + 代码列） ══ */
 .workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0 8px;background:transparent}
 .main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;
-  margin:8px 0;border:1px solid var(--bd1);border-radius:8px;overflow:hidden;background:var(--s1)}
+  margin:8px 0;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;
+  background:rgba(22,22,22,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,
+    0 1px 2px rgba(0,0,0,.45),0 4px 16px rgba(0,0,0,.3),
+    0 0 40px -10px rgba(52,94,231,.10)}
 /* 代码列：workspace 级别的独立面板，在 main-col 右侧展开 */
 .code-col{flex:0 0 0;min-width:0;display:flex;flex-direction:column;
-  margin:8px 0;border-radius:8px;overflow:hidden;background:var(--s1);
-  transition:flex-basis .18s ease,border .18s ease}
-.workspace:not(.foldcode) .code-col{flex-basis:28%;border:1px solid var(--bd1)}
-.workspace.foldcode .code-col{flex-basis:0;border:none}
+  margin:8px 0;border-radius:12px;overflow:hidden;
+  background:rgba(22,22,22,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  transition:flex-basis .18s ease,border .18s ease,box-shadow .18s ease}
+.workspace:not(.foldcode) .code-col{flex-basis:28%;border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,
+    0 1px 2px rgba(0,0,0,.45),0 4px 16px rgba(0,0,0,.3),
+    0 0 40px -10px rgba(102,206,250,.08)}
+.workspace.foldcode .code-col{flex-basis:0;border:none;box-shadow:none}
 .code-scene{display:none;flex-direction:column;flex:1;min-height:0}
 .code-scene.on{display:flex}
 
 /* 侧栏是一整块从上到下的圆角卡片，四个分组靠内部分隔线区分，而不是各自独立的卡片 */
-.sidebar{width:220px;flex:none;background:var(--s1);overflow-y:auto;
-  margin:8px 0;border:1px solid var(--bd1);border-radius:8px}
+.sidebar{width:220px;flex:none;overflow-y:auto;
+  margin:8px 0;border:1px solid rgba(255,255,255,.06);border-radius:12px;
+  background:rgba(22,22,22,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,
+    0 1px 2px rgba(0,0,0,.45),0 4px 16px rgba(0,0,0,.3),
+    0 0 40px -10px rgba(52,94,231,.08)}
 .sd-sec{padding:6px 4px;border-bottom:1px solid var(--bd1)}
 .sd-sec:last-child{border-bottom:none}
 .sd-sec .h{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
@@ -110,7 +123,8 @@ body>*{position:relative;z-index:1}
 .sd-node{display:flex;align-items:center;gap:7px;padding:5px var(--sp-lg);margin:1px 5px;
   cursor:default;color:var(--fg2);min-width:0;position:relative}
 .sd-node:hover{background:var(--s2)}
-.sd-node.active{background:var(--s3);border-radius:6px;color:#fff;font-weight:700}
+.sd-node.active{background:rgba(38,38,38,.75);border-radius:6px;color:#fff;font-weight:700;
+  box-shadow:0 0 14px -4px rgba(0,119,255,.20),0 0 0 1px rgba(255,255,255,.05) inset}
 .sd-node.active::before{display:none}
 .sd-node .ic{width:12px;flex:none;text-align:center;font-size:10px}
 .sd-node .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
@@ -231,15 +245,17 @@ table.rpt-tb td.mu{color:var(--fg4)}
 /* 对话区域：会话开场的用户自然语言输入，区分于 Agent 输出的样式 */
 .usr-msg{display:flex;align-items:flex-start;gap:7px;padding:6px 9px;margin-bottom:10px;
   border-left:2px solid var(--pri-h);background:rgba(61,152,255,.06);font-size:11.5px;
-  color:var(--fg);line-height:1.5}
+  color:var(--fg);line-height:1.5;border-radius:0 6px 6px 0;
+  box-shadow:0 0 16px -5px rgba(61,152,255,.10)}
 .usr-msg .p{color:var(--pri-h);font-weight:700;flex:none}
 /* AI 回复消息 */
 .ai-msg{padding:6px 9px;margin-bottom:10px;font-size:11.5px;color:var(--fg2);line-height:1.65}
 .ai-msg b{color:var(--fg);font-weight:600}
 
 /* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
-.tc-collapse{border:1px solid var(--bd1);margin-bottom:16px}
-.tc-chead{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;background:var(--app)}
+.tc-collapse{border:1px solid rgba(255,255,255,.05);margin-bottom:16px;border-radius:6px;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.02) inset,0 2px 8px rgba(0,0,0,.2)}
+.tc-chead{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;background:rgba(16,16,16,.55)}
 .tc-chead:hover{background:var(--s2)}
 .tc-car{font-family:var(--mono);font-size:9px;color:var(--fg4);flex:none;transition:transform .15s}
 .tc-collapse:not(.open) .tc-car{transform:rotate(-90deg)}
@@ -250,9 +266,11 @@ table.rpt-tb td.mu{color:var(--fg4)}
 
 /* 报告横幅 · 统计卡片（对齐 Porting Advisor 迁移报告结构）*/
 .rpt-banner{display:flex;align-items:baseline;gap:7px;font-size:11.5px;color:var(--ok);
-  background:rgba(4,215,147,.07);border:1px solid rgba(4,215,147,.25);padding:6px 10px;margin-bottom:12px}
+  background:rgba(4,215,147,.07);border:1px solid rgba(4,215,147,.20);padding:6px 10px;margin-bottom:12px;
+  border-radius:6px;box-shadow:0 0 20px -6px rgba(4,215,147,.12)}
 .stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.stat-card{border:1px solid var(--bd1);background:var(--app);padding:8px 10px}
+.stat-card{border:1px solid rgba(255,255,255,.05);background:rgba(16,16,16,.6);padding:8px 10px;
+  border-radius:6px;box-shadow:0 0 0 1px rgba(255,255,255,.02) inset,0 2px 8px rgba(0,0,0,.25)}
 .stat-card .sc-lb{font-size:9px;letter-spacing:.1em;color:var(--fg4);text-transform:uppercase}
 .stat-card .sc-big{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--fg);margin:3px 0 1px}
 .stat-card .sc-sub{font-size:10px;color:var(--fg4)}
@@ -306,8 +324,9 @@ td.fnname{color:var(--fg2)}
 .ai-note .conf{color:var(--fg4);font-size:10px;margin-top:2px}
 
 /* Agent Console（取自 .rl 日志行 + s1 容器）*/
-.console{background:var(--s1);border:1px solid var(--bd1);padding:6px 9px;
-  display:flex;flex-direction:column;gap:1px;font-size:11px;margin-top:6px}
+.console{background:rgba(22,22,22,.65);border:1px solid rgba(255,255,255,.05);padding:6px 9px;
+  display:flex;flex-direction:column;gap:1px;font-size:11px;margin-top:6px;border-radius:6px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.02) inset}
 .console .ln{display:flex;gap:7px;align-items:baseline;color:var(--fg2);padding:1.5px 0}
 
 /* 场景 section 显隐 */
@@ -316,8 +335,11 @@ td.fnname{color:var(--fg2)}
 
 /* ══ Bottom Input（取自 .inp .box）══ */
 .bottom-input{flex:none;background:transparent;border-top:none;padding:10px var(--sp-lg)}
-.bi-row{display:flex;align-items:center;gap:9px;background:var(--app);border:1px solid var(--bd2);
-  border-radius:8px;padding:6px 12px;box-shadow:0 0 0 2px rgba(0,119,255,.09);font-size:var(--fs-md)}
+.bi-row{display:flex;align-items:center;gap:9px;background:rgba(16,16,16,.75);
+  border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-radius:10px;padding:6px 12px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,0 0 20px -4px rgba(0,119,255,.15),
+    0 2px 8px rgba(0,0,0,.35);font-size:var(--fs-md)}
 .bi-row .p{color:var(--pri-h);font-weight:700}
 .bi-row input{flex:1;background:transparent;border:0;outline:0;color:var(--fg);font-family:var(--mono);
   font-size:var(--fs-md)}
