@@ -68,9 +68,9 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 /* ══ Scenario tabs（二级导航：具体场景，取自 .tab 文档标签语汇）══ */
 .scenario-bar{flex:1;min-width:0;display:flex;align-items:flex-end;gap:2px;padding:0 var(--sp-lg);
   overflow-x:auto;height:100%}
-.stab{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--fg3);
-  padding:4px 11px;cursor:pointer;white-space:nowrap;border:1px solid transparent;border-bottom:none;
-  position:relative;top:1px;flex:none;display:flex;align-items:center;gap:6px}
+.stab{font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--fg3);
+  padding:4px 8px;cursor:pointer;white-space:nowrap;border:1px solid transparent;border-bottom:none;
+  position:relative;top:1px;flex:none;display:flex;align-items:center;gap:5px}
 .stab:hover{color:var(--fg2)}
 .stab.on{background:var(--app);border-color:var(--bd1);color:var(--fg)}
 .stab.on::after{content:'';position:absolute;left:-1px;right:-1px;top:-1px;height:2px;background:var(--pri)}
@@ -78,6 +78,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .stab .st.done{background:var(--ok)}
 .stab .st.doing{background:var(--pri-h)}
 .stab .st.todo{background:var(--fg4)}
+.stab-sep{flex:none;width:1px;align-self:stretch;background:var(--bd1);margin:0 4px}
 
 /* ══ Workspace（侧栏 + 主内容） ══ */
 .workspace{flex:1;min-height:0;display:flex;gap:0;padding:0}
@@ -718,11 +719,16 @@ const SCENARIOS={
 const lastScenario={migrate:'app-migrate',develop:'vectorize',tune:'diagnose'};
 let curAgent='migrate';
 
-function renderScenarioBar(agentKey){
+/* 场景 tab 不再按当前 Agent 过滤 —— 九个场景一次性全部展示，
+   按所属 Agent 分组、组间留一道分隔，点哪个就切到哪个（含跨 Agent） */
+function renderScenarioBar(activeAgent,activeScenario){
   const bar=document.getElementById('scenarioBar');
-  bar.innerHTML=SCENARIOS[agentKey].map(s=>
-    `<div class="stab ${s.key===lastScenario[agentKey]?'on':''}" data-scenario="${s.key}">
-      <span class="st ${s.status}"></span>${s.label}</div>`).join('');
+  bar.innerHTML=Object.keys(SCENARIOS).map(agentKey=>
+    SCENARIOS[agentKey].map(s=>
+      `<div class="stab ${agentKey===activeAgent&&s.key===activeScenario?'on':''} grp-${agentKey}"
+        data-agent="${agentKey}" data-scenario="${s.key}">
+        <span class="st ${s.status}"></span>${s.label}</div>`).join('')
+  ).join('<span class="stab-sep"></span>');
 }
 
 const AGENT_LABELS={migrate:'迁移 Agent',develop:'开发 Agent',tune:'调优 Agent'};
@@ -737,17 +743,16 @@ function renderAIPlan(agentKey,scenarioKey){
 }
 
 function selectAgent(agentKey){
-  curAgent=agentKey;
-  document.getElementById('agentCur').textContent=AGENT_LABELS[agentKey];
-  document.getElementById('agentSelect').value=agentKey;
-  renderScenarioBar(agentKey);
   selectScenario(agentKey,lastScenario[agentKey]);
 }
 
 function selectScenario(agentKey,scenarioKey){
+  curAgent=agentKey;
   lastScenario[agentKey]=scenarioKey;
+  document.getElementById('agentCur').textContent=AGENT_LABELS[agentKey];
+  document.getElementById('agentSelect').value=agentKey;
   document.querySelectorAll('#scenarioBar .stab').forEach(el=>
-    el.classList.toggle('on',el.dataset.scenario===scenarioKey));
+    el.classList.toggle('on',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
   document.querySelectorAll('.scene').forEach(el=>
     el.classList.toggle('on',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
   const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
@@ -768,7 +773,7 @@ document.getElementById('cfoldBtn').addEventListener('click',e=>{
   e.target.textContent=on?'▾ 代码区':'▸ 代码区';
 });
 document.getElementById('scenarioBar').addEventListener('click',e=>{
-  const t=e.target.closest('.stab'); if(t) selectScenario(curAgent,t.dataset.scenario);
+  const t=e.target.closest('.stab'); if(t) selectScenario(t.dataset.agent,t.dataset.scenario);
 });
 
 /* ══ 热点表格 + 火焰图（调优 · 快速定界性能瓶颈）══ */
@@ -850,7 +855,7 @@ function highlightFunction(funcName){
   if(crumb) crumb.textContent=funcName+'()';
 }
 
-renderScenarioBar('migrate');
+renderScenarioBar('migrate','app-migrate');
 selectScenario('migrate','app-migrate');
 </script>
 </body>
