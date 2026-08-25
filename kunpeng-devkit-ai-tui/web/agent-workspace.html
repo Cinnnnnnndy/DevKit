@@ -92,10 +92,9 @@ body>*{position:relative;z-index:1}
 .stab .tc:hover{opacity:1;background:var(--s4);color:var(--fg)}
 
 /* ══ Workspace（侧栏 + 主内容 + 代码列） ══ */
-.workspace{flex:1;min-height:0;display:flex;gap:0;padding:0;background:transparent}
+.workspace{flex:1;min-height:0;display:flex;gap:0;padding:0;background:var(--app)}
 .main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;position:relative;
-  border-left:1px solid var(--bd1);overflow:hidden;
-  background:var(--s1)}
+  overflow:hidden;background:var(--s1)}
 /* 代码列：workspace 级别的独立面板，在 main-col 右侧展开 */
 .code-col{flex:0 0 0;min-width:0;display:flex;flex-direction:column;
   overflow:hidden;background:var(--s1);
