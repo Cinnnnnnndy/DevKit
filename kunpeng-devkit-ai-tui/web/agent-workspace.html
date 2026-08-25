@@ -81,6 +81,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 
 /* ══ Workspace（侧栏 + 主内容） ══ */
 .workspace{flex:1;min-height:0;display:flex;gap:0;padding:0}
+.main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0}
 
 .sidebar{width:220px;flex:none;background:var(--app);border-right:1px solid var(--bd1);
   overflow-y:auto;padding:6px 0}
@@ -100,10 +101,34 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .sd-node .a{color:var(--ok);font-weight:700;flex:none;font-size:9.5px}
 .sd-node.lv1{padding-left:24px} .sd-node.lv2{padding-left:35px}
 
-.main-area{flex:1;min-width:0;display:flex}
-.center-panel{flex:0 0 42%;min-width:0;display:flex;flex-direction:column;
-  background:var(--app);border-right:1px solid var(--bd1);overflow:hidden}
+.main-area{flex:1;min-width:0;min-height:0;display:flex}
+.center-panel{flex:0 0 32%;min-width:0;display:flex;flex-direction:column;
+  background:var(--app);border-right:1px solid var(--bd1);overflow:hidden;transition:flex-basis .15s ease}
+.main-area.foldcode .center-panel{flex-basis:0;border-right:none;overflow:hidden}
 .right-panel{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--s1);overflow:hidden}
+
+/* AI PLAN：钉在 nav-bar 下方、main-area 上方，跟随当前 Agent、可收起 */
+.ai-plan{flex:none;background:var(--s1);border-bottom:1px solid var(--bd1)}
+.ap-head{display:flex;align-items:center;gap:8px;padding:6px var(--sp-lg);cursor:pointer;
+  font-family:var(--mono)}
+.ap-arrow{font-size:9px;color:var(--fg4);transition:transform .15s;flex:none}
+.ai-plan.collapsed .ap-arrow{transform:rotate(-90deg)}
+.ap-t{font-size:9px;font-weight:700;letter-spacing:.2em;color:var(--pri-h)}
+.ap-goal{font-size:10.5px;color:var(--fg4)}
+.ap-body{max-height:100px;overflow:hidden;transition:max-height .18s ease}
+.ai-plan.collapsed .ap-body{max-height:0}
+.ap-steps{display:flex;gap:0;padding:0 var(--sp-lg) 8px;overflow-x:auto}
+.ap-step{display:flex;align-items:center;gap:7px;flex:none;padding:3px 12px 3px 0;cursor:pointer}
+.ap-step .n{font-family:var(--mono);font-size:10px;color:var(--fg4);flex:none}
+.ap-step .c{width:5px;height:5px;flex:none;border-radius:1px}
+.ap-step .c.done{background:var(--ok)} .ap-step .c.doing{background:var(--pri-h)} .ap-step .c.todo{background:var(--fg4)}
+.ap-step .lb{font-size:11px;color:var(--fg3);white-space:nowrap}
+.ap-step.cur .lb{color:var(--fg);font-weight:600}
+.ap-step:not(:last-child)::after{content:'→';color:var(--bd3);margin-left:9px;font-size:10px}
+
+.cfold{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--fg4);
+  background:var(--s2);border:1px solid var(--bd2);padding:1px 7px;cursor:pointer;flex:none}
+.cfold:hover{color:var(--fg2);border-color:var(--bd3)}
 .panel-head{flex:none;display:flex;align-items:center;gap:8px;padding:8px var(--sp-lg);
   border-bottom:1px solid var(--bd1);font-family:var(--mono)}
 .panel-head::before{content:'>_';color:var(--fg4);font-size:10px;flex:none}
@@ -128,6 +153,10 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .cline.hl{background:rgba(255,170,59,.07)}
 .cline .kw,.cline .fn,.cline .str,.cline .num,.cline .ty{color:var(--fg2)}
 .cline .cmt{color:var(--fg4)}
+/* 字级 diff：只高亮真正变化的 token，而不是整行 */
+.tk{padding:0 2px}
+.tk.d{background:#5a2330;color:#ff9db0}
+.tk.a{background:#12463a;color:#5ee7b7}
 
 /* 通用小标题 */
 .sub-h{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
@@ -188,12 +217,12 @@ table.hotspot td{padding:3.5px 8px;font-size:11px;border-bottom:1px solid var(--
 td.fnname{color:var(--fg2)}
 .fg-legend{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:7px;font-size:9.5px;color:var(--fg4)}
 .fg-legend i{display:inline-block;width:7px;height:7px;margin-right:4px;vertical-align:-1px}
-.flame{display:flex;flex-direction:column;gap:2px}
-.flame-row{display:flex;height:19px}
+.flame{display:flex;flex-direction:column;gap:1px;background:var(--app)}
+.flame-row{display:flex;height:20px}
 .flame-spacer{flex:none}
 .flame-block{flex:none;height:100%;display:flex;align-items:center;justify-content:center;
   overflow:hidden;color:#0b0b0b;font-weight:700;font-size:9px;white-space:nowrap;cursor:pointer;
-  transition:filter .1s;font-family:var(--mono)}
+  transition:filter .1s;font-family:var(--mono);border-right:1px solid var(--app)}
 .flame-block:hover{filter:brightness(1.25)}
 .flame-block.active{outline:2px solid var(--pri-h);outline-offset:-2px}
 .ai-note{margin-top:9px;font-size:11.5px;color:var(--dgr);display:flex;gap:6px;align-items:flex-start}
@@ -265,18 +294,6 @@ td.fnname{color:var(--fg2)}
   <span class="r"><span class="dot"></span> <span class="ready">READY</span></span>
 </div>
 
-<div class="nav-bar">
-  <div class="agent-switch">
-    <span class="car">▶</span><span class="cur" id="agentCur">迁移 Agent</span><span class="car dn">▾</span>
-    <select id="agentSelect" aria-label="切换 Agent">
-      <option value="migrate">迁移 Agent · 3</option>
-      <option value="develop">开发 Agent · 2</option>
-      <option value="tune">调优 Agent · 4</option>
-    </select>
-  </div>
-  <div class="scenario-bar" id="scenarioBar"></div>
-</div>
-
 <div class="workspace">
   <aside class="sidebar" id="sidebar">
     <div class="sd-sec">
@@ -312,6 +329,28 @@ td.fnname{color:var(--fg2)}
     </div>
   </aside>
 
+  <div class="main-col">
+  <div class="nav-bar">
+    <div class="agent-switch">
+      <span class="car">▶</span><span class="cur" id="agentCur">迁移 Agent</span><span class="car dn">▾</span>
+      <select id="agentSelect" aria-label="切换 Agent">
+        <option value="migrate">迁移 Agent · 3</option>
+        <option value="develop">开发 Agent · 2</option>
+        <option value="tune">调优 Agent · 4</option>
+      </select>
+    </div>
+    <div class="scenario-bar" id="scenarioBar"></div>
+    <button class="cfold" id="cfoldBtn">▾ 代码区</button>
+  </div>
+
+  <div class="ai-plan" id="aiPlan">
+    <div class="ap-head" id="apHead">
+      <span class="ap-arrow">▾</span><span class="ap-t">AI PLAN</span>
+      <span class="ap-goal" id="apGoal"></span>
+    </div>
+    <div class="ap-body" id="apBody"><div class="ap-steps" id="apSteps"></div></div>
+  </div>
+
   <div class="main-area" id="mainArea">
     <!-- ═══ 迁移 Agent ═══ -->
     <div class="scene on" data-agent="migrate" data-scenario="app-migrate">
@@ -321,8 +360,8 @@ td.fnname{color:var(--fg2)}
         <div class="panel-body">
           <div class="cline"><span class="no">84</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">while</span> (*lock) {</div>
           <div class="cline"><span class="no">86</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (spin--) {</div>
-          <div class="cline del"><span class="no">87</span><span class="pfx del">-</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">_mm_pause</span>();</div>
-          <div class="cline add hl"><span class="no">87</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">asm</span> <span class="kw">volatile</span>(<span class="str">"yield"</span>);</div>
+          <div class="cline del"><span class="no">87</span><span class="pfx del">-</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk d">_mm_pause()</span>;</div>
+          <div class="cline add hl"><span class="no">87</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk a">asm volatile("yield")</span>;</div>
           <div class="cline"><span class="no">88</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
           <div class="cline"><span class="no">89</span><span class="pfx"></span>&nbsp;&nbsp;}</div>
           <div class="cline"><span class="no">90</span><span class="pfx"></span>}</div>
@@ -341,10 +380,10 @@ td.fnname{color:var(--fg2)}
           <div class="chk"><span class="ic ok">✓</span><span class="lb">交叉编译</span><span class="v">aarch64 · <b style="color:var(--accent-green)">BUILD SUCCESS</b></span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">改写文件</span><span class="v">25 个 · 3 处待人工确认</span></div>
           <div class="console">
-            <div class="ln">✅ Analyze dependency · 18 libs</div>
-            <div class="ln">✅ Find incompatible API · 知识库命中 3 处</div>
-            <div class="ln">✅ Generate patches · 25 files</div>
-            <div class="ln">✅ Build verify · aarch64 制品已产出</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> Analyze dependency · 18 libs</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> Find incompatible API · 知识库命中 3 处</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> Generate patches · 25 files</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> Build verify · aarch64 制品已产出</div>
           </div>
         </div>
       </section>
@@ -355,10 +394,10 @@ td.fnname{color:var(--fg2)}
         <div class="panel-head"><span class="crumb"><span class="m">[M]</span> order_item.sql &gt; sql &gt; <span class="fn">order_item.sql</span></span>
           <span class="badge run">62%</span></div>
         <div class="panel-body">
-          <div class="cline del"><span class="no">1</span><span class="pfx del">-</span>INSERT INTO <span class="fn">`order_item`</span> (<span class="fn">`order_id`,`sku`,`qty`</span>)</div>
-          <div class="cline del"><span class="no">2</span><span class="pfx del">-</span>ON DUPLICATE KEY UPDATE <span class="fn">`qty` = `qty` + VALUES(`qty`)</span>;</div>
-          <div class="cline add"><span class="no">1</span><span class="pfx add">+</span>INSERT INTO <span class="fn">"order_item"</span> (<span class="fn">"order_id","sku","qty"</span>)</div>
-          <div class="cline add hl"><span class="no">2</span><span class="pfx add">+</span>ON CONFLICT (<span class="str">"order_id","sku"</span>) DO UPDATE <span class="fn">SET "qty"=...</span></div>
+          <div class="cline del"><span class="no">1</span><span class="pfx del">-</span>INSERT INTO <span class="tk d">`order_item`</span> (<span class="tk d">`order_id`,`sku`,`qty`</span>)</div>
+          <div class="cline del"><span class="no">2</span><span class="pfx del">-</span><span class="tk d">ON DUPLICATE KEY UPDATE `qty` = `qty` + VALUES(`qty`)</span>;</div>
+          <div class="cline add"><span class="no">1</span><span class="pfx add">+</span>INSERT INTO <span class="tk a">"order_item"</span> (<span class="tk a">"order_id","sku","qty"</span>)</div>
+          <div class="cline add hl"><span class="no">2</span><span class="pfx add">+</span><span class="tk a">ON CONFLICT ("order_id","sku") DO UPDATE SET "qty"=...</span></div>
         </div>
       </main>
       <section class="right-panel">
@@ -374,8 +413,8 @@ td.fnname{color:var(--fg2)}
             <div class="step"><span class="c pending">2</span><span class="bd"><div class="t1">启动验证</div><div class="t2">/actuator/health <span class="est">2/3</span></div></span></div>
           </div>
           <div class="console">
-            <div class="ln">🔵 系统成分分析 · 中间件 2/2 兼容</div>
-            <div class="ln">🔵 SQL 智能转换 · 12/19 张表已转换</div>
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> 系统成分分析 · 中间件 2/2 兼容</div>
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> SQL 智能转换 · 12/19 张表已转换</div>
           </div>
         </div>
       </section>
@@ -386,11 +425,11 @@ td.fnname{color:var(--fg2)}
         <div class="panel-head"><span class="crumb"><span class="m">[+]</span> Dockerfile.kunpeng &gt; docker &gt; <span class="fn">Dockerfile.kunpeng</span></span>
           <span class="badge queue">排队</span></div>
         <div class="panel-body">
-          <div class="cline del"><span class="no">1</span><span class="pfx del">-</span><span class="kw">FROM</span> nginx:1.25</div>
-          <div class="cline add hl"><span class="no">1</span><span class="pfx add">+</span><span class="kw">FROM</span> kunpeng-registry/nginx:1.25-aarch64</div>
+          <div class="cline del"><span class="no">1</span><span class="pfx del">-</span><span class="kw">FROM</span> <span class="tk d">nginx:1.25</span></div>
+          <div class="cline add hl"><span class="no">1</span><span class="pfx add">+</span><span class="kw">FROM</span> <span class="tk a">kunpeng-registry/nginx:1.25-aarch64</span></div>
           <div class="cline"><span class="no">2</span><span class="pfx"></span></div>
-          <div class="cline del"><span class="no">3</span><span class="pfx del">-</span><span class="kw">COPY</span> --from=build /out/nginx-x86_64 /usr/sbin/nginx</div>
-          <div class="cline add hl"><span class="no">3</span><span class="pfx add">+</span><span class="kw">COPY</span> --from=build /out/nginx-aarch64 /usr/sbin/nginx</div>
+          <div class="cline del"><span class="no">3</span><span class="pfx del">-</span><span class="kw">COPY</span> --from=build <span class="tk d">/out/nginx-x86_64</span> /usr/sbin/nginx</div>
+          <div class="cline add hl"><span class="no">3</span><span class="pfx add">+</span><span class="kw">COPY</span> --from=build <span class="tk a">/out/nginx-aarch64</span> /usr/sbin/nginx</div>
           <div class="cline"><span class="no">4</span><span class="pfx"></span><span class="kw">EXPOSE</span> <span class="num">80</span> <span class="num">443</span></div>
         </div>
       </main>
@@ -405,7 +444,7 @@ td.fnname{color:var(--fg2)}
             <div class="step"><span class="c pending">4</span><span class="bd"><div class="t1">生成 Dockerfile</div><div class="t2">鲲鹏版本</div></span></div>
             <div class="step"><span class="c pending">5</span><span class="bd"><div class="t1">构建与验证</div><div class="t2">镜像构建 + 启动自检</div></span></div>
           </div>
-          <div class="console"><div class="ln">⚪ 等待系统迁移完成后启动 · 预计 4 min</div></div>
+          <div class="console"><div class="ln"><span style="color:var(--fg4)">○</span> 等待系统迁移完成后启动 · 预计 4 min</div></div>
         </div>
       </section>
     </div>
@@ -417,9 +456,9 @@ td.fnname{color:var(--fg2)}
           <span class="badge run">5/12</span></div>
         <div class="panel-body">
           <div class="cline del"><span class="no">104</span><span class="pfx del">-</span>&nbsp;<span class="kw">for</span> (<span class="ty">int</span> i=0;i&lt;n;i++)</div>
-          <div class="cline del"><span class="no">105</span><span class="pfx del">-</span>&nbsp;&nbsp;total[i]=amount[i]*rate[i]+fee[i];</div>
-          <div class="cline add hl"><span class="no">104</span><span class="pfx add">+</span>&nbsp;<span class="ty">var</span> va=<span class="fn">FloatVector.fromArray</span>(SPECIES,amount,i);</div>
-          <div class="cline add hl"><span class="no">105</span><span class="pfx add">+</span>&nbsp;va.<span class="fn">fma</span>(rate[i],fee[i]).<span class="fn">intoArray</span>(total,i);</div>
+          <div class="cline del"><span class="no">105</span><span class="pfx del">-</span>&nbsp;&nbsp;<span class="tk d">total[i]=amount[i]*rate[i]+fee[i];</span></div>
+          <div class="cline add hl"><span class="no">104</span><span class="pfx add">+</span>&nbsp;<span class="ty">var</span> va=<span class="tk a">FloatVector.fromArray(SPECIES,amount,i)</span>;</div>
+          <div class="cline add hl"><span class="no">105</span><span class="pfx add">+</span>&nbsp;<span class="tk a">va.fma(rate[i],fee[i]).intoArray(total,i);</span></div>
           <div class="cline"><span class="no">106</span><span class="pfx"></span></div>
           <div class="cline"><span class="no">107</span><span class="pfx"></span><span class="cmt">// Vector API · SVE 128-bit 通道</span></div>
         </div>
@@ -436,7 +475,7 @@ td.fnname{color:var(--fg2)}
             <span class="chip">ReconcileJob.diffBatch()</span>
           </div>
           <div class="console">
-            <div class="ln">🔵 源码向量化改造 — 12 处候选，已完成 5 处</div>
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> 源码向量化改造 — 12 处候选，已完成 5 处</div>
           </div>
         </div>
       </section>
@@ -467,7 +506,7 @@ td.fnname{color:var(--fg2)}
             <span class="chip">结算矩阵化计算</span>
             <span class="chip">风控评分模型</span>
           </div>
-          <div class="console"><div class="ln">⚪ 等待源码向量化改造收尾后启动</div></div>
+          <div class="console"><div class="ln"><span style="color:var(--fg4)">○</span> 等待源码向量化改造收尾后启动</div></div>
         </div>
       </section>
     </div>
@@ -497,7 +536,7 @@ td.fnname{color:var(--fg2)}
           <div class="chk"><span class="ic warn">⚠</span><span class="lb">JVM 堆参数</span><span class="v">Xmx 偏小，GC 停顿偏高</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">连接池</span><span class="v">HikariCP maxPoolSize=10</span></div>
           <div class="console">
-            <div class="ln">✅ 配置诊断 — 4 项检查，2 项待优化</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> 配置诊断 — 4 项检查，2 项待优化</div>
           </div>
         </div>
       </section>
@@ -537,7 +576,7 @@ td.fnname{color:var(--fg2)}
           </div>
           <div class="flame" id="flameGraph"></div>
           <div class="ai-note"><span>⚠</span><div><div>AI: DB IO 等待占比 61%，与 ngx_crypto_spin_wait 自旋叠加，集中在结算批处理窗口 → I/O + spin-lock 双重瓶颈</div><div class="conf">置信度 88%</div></div></div>
-          <div class="console"><div class="ln">🔵 Root cause located · 置信度计算中</div></div>
+          <div class="console"><div class="ln"><span style="color:var(--pri-h)">▶</span> Root cause located · 置信度计算中</div></div>
         </div>
       </section>
     </div>
@@ -547,12 +586,12 @@ td.fnname{color:var(--fg2)}
         <div class="panel-head"><span class="crumb">config &gt; <span class="fn">application-prod.yml</span></span>
           <span class="badge run">压测中</span></div>
         <div class="panel-body">
-          <div class="cline del"><span class="no">7</span><span class="pfx del">-</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="num">10</span></div>
-          <div class="cline add hl"><span class="no">7</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="num">32</span></div>
-          <div class="cline del"><span class="no">8</span><span class="pfx del">-</span>-Xmx2g -XX:+UseG1GC</div>
-          <div class="cline add hl"><span class="no">8</span><span class="pfx add">+</span>-Xmx6g -XX:+UseZGC</div>
-          <div class="cline del"><span class="no">9</span><span class="pfx del">-</span>server.tomcat.max-connections=1024</div>
-          <div class="cline add hl"><span class="no">9</span><span class="pfx add">+</span>server.tomcat.max-connections=4096</div>
+          <div class="cline del"><span class="no">7</span><span class="pfx del">-</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="tk d">10</span></div>
+          <div class="cline add hl"><span class="no">7</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="tk a">32</span></div>
+          <div class="cline del"><span class="no">8</span><span class="pfx del">-</span><span class="tk d">-Xmx2g -XX:+UseG1GC</span></div>
+          <div class="cline add hl"><span class="no">8</span><span class="pfx add">+</span><span class="tk a">-Xmx6g -XX:+UseZGC</span></div>
+          <div class="cline del"><span class="no">9</span><span class="pfx del">-</span>server.tomcat.max-connections=<span class="tk d">1024</span></div>
+          <div class="cline add hl"><span class="no">9</span><span class="pfx add">+</span>server.tomcat.max-connections=<span class="tk a">4096</span></div>
         </div>
       </main>
       <section class="right-panel">
@@ -573,7 +612,7 @@ td.fnname{color:var(--fg2)}
             <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">Round 2</div><div class="t2">TPS 3.9k → 4.6k，收敛</div></span></div>
             <div class="step"><span class="c doing">▶</span><span class="bd"><div class="t1">Round 3</div><div class="t2">压测方案 A / B 对照</div></span></div>
           </div>
-          <div class="console"><div class="ln">🔵 压测 3 组配置 · wrk 60s × 3</div></div>
+          <div class="console"><div class="ln"><span style="color:var(--pri-h)">▶</span> 压测 3 组配置 · wrk 60s × 3</div></div>
         </div>
       </section>
     </div>
@@ -604,18 +643,19 @@ td.fnname{color:var(--fg2)}
           <div class="chk"><span class="ic ok">✓</span><span class="lb">迁移</span><span class="v">应用 · 系统 · 容器 三条迁移已完成</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">开发</span><span class="v">源码向量化改造已完成，通算算子生成中</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">调优</span><span class="v">诊断定界 + 参数收敛 + 加速特性匹配已完成</span></div>
-          <div class="console"><div class="ln">✅ order-center 已全量迁移并调优上鲲鹏</div></div>
+          <div class="console"><div class="ln"><span style="color:var(--ok)">✓</span> order-center 已全量迁移并调优上鲲鹏</div></div>
         </div>
       </section>
     </div>
   </div>
-</div>
 
-<div class="bottom-input">
-  <div class="bi-row">
-    <span class="p">&gt;</span>
-    <input type="text" placeholder="描述你想让 Agent 做什么...">
-    <span class="bi-cur"></span>
+  <div class="bottom-input">
+    <div class="bi-row">
+      <span class="p">&gt;</span>
+      <input type="text" placeholder="描述你想让 Agent 做什么...">
+      <span class="bi-cur"></span>
+    </div>
+  </div>
   </div>
 </div>
 
@@ -625,7 +665,6 @@ td.fnname{color:var(--fg2)}
     <span><b>A</b></span><span><b>E</b></span><span><b>R</b></span><span><b>Space</b></span>
     <span><b>Esc</b></span><span><b>Ctrl+P</b></span><span><b>Ctrl+J</b></span><span><b>B</b></span>
   </div>
-  <div class="prog"><i id="statProg" style="width:60%"></i></div>
   <div class="r">
     <span class="tag">order-center</span><span class="tag" id="statCtx">ctx 42%</span><span class="tag ready">ready</span>
   </div>
@@ -635,19 +674,19 @@ td.fnname{color:var(--fg2)}
 /* ══ 场景元数据：驱动二级 tab 生成 + 侧栏文件联动 ══ */
 const SCENARIOS={
   migrate:[
-    {key:'app-migrate',label:'应用迁移',status:'done',file:'crypto.c'},
-    {key:'sys-migrate',label:'系统迁移',status:'doing',file:'order_item.sql'},
-    {key:'container-migrate',label:'容器迁移',status:'todo',file:'Dockerfile'}
+    {key:'app-migrate',label:'应用迁移',status:'done',file:'crypto.c',code:true},
+    {key:'sys-migrate',label:'系统迁移',status:'doing',file:'order_item.sql',code:true},
+    {key:'container-migrate',label:'容器迁移',status:'todo',file:'Dockerfile',code:true}
   ],
   develop:[
-    {key:'vectorize',label:'源码向量化改造',status:'doing',file:'Settlement'},
-    {key:'op-gen',label:'通算算子智能生成',status:'todo',file:'Settlement'}
+    {key:'vectorize',label:'源码向量化改造',status:'doing',file:'Settlement',code:true},
+    {key:'op-gen',label:'通算算子智能生成',status:'todo',file:'Settlement',code:false}
   ],
   tune:[
-    {key:'diagnose',label:'自动配置诊断',status:'done',file:'app-prod.yml'},
-    {key:'bottleneck',label:'快速定界性能瓶颈',status:'doing',file:'crypto.c'},
-    {key:'auto-param',label:'参数自动迭代优化',status:'doing',file:'app-prod.yml'},
-    {key:'accel-match',label:'加速特性匹配',status:'done',file:null}
+    {key:'diagnose',label:'自动配置诊断',status:'done',file:'app-prod.yml',code:false},
+    {key:'bottleneck',label:'快速定界性能瓶颈',status:'doing',file:'crypto.c',code:true},
+    {key:'auto-param',label:'参数自动迭代优化',status:'doing',file:'app-prod.yml',code:true},
+    {key:'accel-match',label:'加速特性匹配',status:'done',file:null,code:false}
   ]
 };
 const lastScenario={migrate:'app-migrate',develop:'vectorize',tune:'diagnose'};
@@ -661,6 +700,15 @@ function renderScenarioBar(agentKey){
 }
 
 const AGENT_LABELS={migrate:'迁移 Agent',develop:'开发 Agent',tune:'调优 Agent'};
+const AGENT_GOALS={migrate:'将 order-center 迁移到鲲鹏 ARM64',
+  develop:'结算模块源码优化与通算算子适配',tune:'定位性能瓶颈并收敛最优参数'};
+
+function renderAIPlan(agentKey,scenarioKey){
+  document.getElementById('apGoal').textContent=AGENT_GOALS[agentKey];
+  document.getElementById('apSteps').innerHTML=SCENARIOS[agentKey].map((s,i)=>
+    `<div class="ap-step ${s.key===scenarioKey?'cur':''}" data-scenario="${s.key}">
+      <span class="n">${i+1}</span><span class="c ${s.status}"></span><span class="lb">${s.label}</span></div>`).join('');
+}
 
 function selectAgent(agentKey){
   curAgent=agentKey;
@@ -679,10 +727,23 @@ function selectScenario(agentKey,scenarioKey){
   const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
   document.querySelectorAll('#sidebar .sd-node[data-file]').forEach(el=>
     el.classList.toggle('active',!!meta && el.dataset.file===meta.file));
+  renderAIPlan(agentKey,scenarioKey);
+  const showCode=!meta||meta.code!==false;
+  document.getElementById('mainArea').classList.toggle('foldcode',!showCode);
+  document.getElementById('cfoldBtn').textContent=showCode?'▾ 代码区':'▸ 代码区';
   if(agentKey==='tune' && scenarioKey==='bottleneck') initHotspot();
 }
 
 document.getElementById('agentSelect').addEventListener('change',e=>selectAgent(e.target.value));
+document.getElementById('apHead').addEventListener('click',()=>
+  document.getElementById('aiPlan').classList.toggle('collapsed'));
+document.getElementById('apSteps').addEventListener('click',e=>{
+  const t=e.target.closest('.ap-step'); if(t) selectScenario(curAgent,t.dataset.scenario);
+});
+document.getElementById('cfoldBtn').addEventListener('click',e=>{
+  const on=document.getElementById('mainArea').classList.toggle('foldcode');
+  e.target.textContent=on?'▾ 代码区':'▸ 代码区';
+});
 document.getElementById('scenarioBar').addEventListener('click',e=>{
   const t=e.target.closest('.stab'); if(t) selectScenario(curAgent,t.dataset.scenario);
 });
@@ -721,7 +782,7 @@ const FLAME=[
   {sp:0,w:8,c:'var(--tn-teal)',fn:'ngx_output_chain'},
   {sp:0,w:7,c:'var(--tn-purple)',fn:'tcp_write_xmit'},
   {sp:0,w:5,c:'var(--tn-cyan)',fn:'__alloc_skb'}],
- [{sp:38,w:14,c:'var(--tn-gold)',fn:'arch_cpu_idle (spin)'},
+ [{sp:18,w:14,c:'var(--tn-gold)',fn:'arch_cpu_idle (spin)'},
   {sp:0,w:6,c:'var(--tn-orange)',fn:'cache miss stall'}]
 ];
 function initHotspot(){
