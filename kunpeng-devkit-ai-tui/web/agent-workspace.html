@@ -56,7 +56,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 
 /* ══ Nav bar：场景 tab（取自 .tab 文档标签语汇）══ */
 .nav-bar{flex:none;display:flex;align-items:stretch;background:var(--s2);
-  border:1px solid var(--bd1);border-radius:8px;height:34px;overflow:hidden}
+  border-bottom:1px solid var(--bd1);height:34px;overflow:hidden}
 
 /* ══ Scenario tabs（二级导航：具体场景，取自 .tab 文档标签语汇）══ */
 .scenario-bar{flex:1;min-width:0;display:flex;align-items:flex-end;gap:2px;padding:0 var(--sp-lg);
@@ -76,7 +76,10 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 
 /* ══ Workspace（侧栏 + 主内容） ══ */
 .workspace{flex:1;min-height:0;display:flex;gap:0;padding:0;background:var(--bg)}
-.main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;gap:8px;padding:8px 8px 0}
+/* main-col 是统一的一整块圆角卡片：tab / AI Plan / 对话区域 / 输入框 都在
+   这一张卡片里，靠内部分隔线区分，而不是各自独立的卡片 */
+.main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;
+  margin:8px 8px 8px 0;border:1px solid var(--bd1);border-radius:8px;overflow:hidden;background:var(--s1)}
 
 .sidebar{width:220px;flex:none;background:var(--bg);border-right:1px solid var(--bd1);
   overflow-y:auto;padding:8px}
@@ -110,17 +113,16 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .scroll-bottom .arw{color:var(--pri-h);font-weight:700}
 .sd-node.lv1{padding-left:24px} .sd-node.lv2{padding-left:35px}
 
-.main-area{flex:1;min-width:0;min-height:0;display:flex;border:1px solid var(--bd1);border-radius:8px;overflow:hidden}
-.center-panel{order:2;flex:1;min-width:0;display:flex;flex-direction:column;
-  background:var(--app);overflow:hidden}
-.right-panel{order:1;flex:1;min-width:0;display:flex;flex-direction:column;background:var(--s1);overflow:hidden}
+.main-area{flex:1;min-width:0;min-height:0;display:flex;gap:8px;padding:8px}
+.right-panel{order:1;flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
 .right-panel .panel-body{position:relative}
-/* 代码区作为整块视图，与对话区域切换展示，而非并排窄栏 */
-.main-area.foldcode .center-panel{display:none}
-.main-area:not(.foldcode) .right-panel{display:none}
+/* 代码区：在右侧展开的独立圆角卡片，挤压对话区域宽度，而非整块切换或贴边窄栏 */
+.center-panel{order:2;flex:0 0 0;min-width:0;display:flex;flex-direction:column;
+  background:var(--app);overflow:hidden;border-radius:8px;transition:flex-basis .15s ease}
+.main-area:not(.foldcode) .center-panel{flex-basis:42%;border:1px solid var(--bd1)}
 
 /* AI PLAN：钉在 nav-bar 下方、main-area 上方，跟随当前 Agent、可收起 */
-.ai-plan{flex:none;background:var(--s1);border:1px solid var(--bd1);border-radius:8px;overflow:hidden}
+.ai-plan{flex:none;background:var(--s1);border-bottom:1px solid var(--bd1);overflow:hidden}
 .ap-head{display:flex;align-items:center;gap:8px;padding:6px var(--sp-lg);cursor:pointer;
   font-family:var(--mono)}
 .ap-arrow{font-size:9px;color:var(--fg4);transition:transform .15s;flex:none}
@@ -139,10 +141,10 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .ap-step .d{font-size:10px;color:var(--fg4);white-space:nowrap}
 .ap-step:not(:last-child)::after{content:'→';color:var(--bd3);margin-left:9px;font-size:10px}
 
-.cfold{margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--fg4);
-  background:var(--s2);border:1px solid var(--bd2);padding:2px 9px;cursor:pointer;flex:none}
-.cfold:hover{color:var(--fg2);border-color:var(--bd3)}
-.cfold.on{color:var(--pri-h);border-color:var(--pri-h);background:var(--sel)}
+.cfold{margin-left:auto;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--fg4);
+  background:none;border:none;padding:6px 12px;cursor:pointer;flex:none}
+.cfold:hover{color:var(--fg2)}
+.cfold.on{color:var(--pri-h)}
 .panel-head{flex:none;display:flex;align-items:center;gap:8px;padding:8px var(--sp-lg);
   border-bottom:1px solid var(--bd1);font-family:var(--mono)}
 .panel-head::before{content:'>_';color:var(--fg4);font-size:10px;flex:none}
