@@ -36,21 +36,23 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:13px
 .pbar .brand i{width:6px;height:6px;background:var(--pri-h);display:inline-block;flex:none}
 
 /* ══ 光感渐变起伏：底部一层缓慢明灭/位移的辉光，纯 CSS ══ */
-.glow{position:absolute;left:0;right:0;bottom:0;height:56%;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 62% 100% at 22% 100%,rgba(61,152,255,.30) 0%,
-    rgba(61,152,255,.14) 32%,rgba(20,60,110,.07) 55%,transparent 78%);
+.glow{position:absolute;left:0;right:0;bottom:0;height:70%;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 80% at 20% 100%,rgba(52,94,231,.35) 0%,rgba(52,94,231,.12) 40%,transparent 70%),
+    radial-gradient(ellipse 60% 70% at 80% 90%,rgba(102,206,250,.25) 0%,rgba(102,206,250,.08) 35%,transparent 65%),
+    radial-gradient(ellipse 50% 60% at 50% 100%,rgba(120,80,220,.20) 0%,rgba(120,80,220,.06) 40%,transparent 70%);
   animation:glowshift 7s ease-in-out infinite alternate}
 @keyframes glowshift{
-  0%{opacity:.75;transform:translateX(-1.5%) scaleY(1)}
+  0%{opacity:.8;transform:translateX(-1.5%) scaleY(1)}
   100%{opacity:1;transform:translateX(1.5%) scaleY(1.06)}
 }
 
 /* ══ 字符场背景（复用 demo.html 的半调点阵算法）══ */
 pre.bgf{position:absolute;inset:0;z-index:0;overflow:hidden;color:transparent;
-  background:linear-gradient(148deg,#20262f 0%,#1c2626 26%,#1a2020 48%,#1c242a 72%,#212a34 100%);
+  background:linear-gradient(148deg,#1a2240 0%,#1c2838 26%,#1a2330 48%,#1e2440 72%,#222a3a 100%);
   -webkit-background-clip:text;background-clip:text;
   white-space:pre;font-family:var(--mono);pointer-events:none;user-select:none;letter-spacing:0}
-pre.bgw2{color:transparent;background:linear-gradient(148deg,#3a4658 0%,#324a46 34%,#304552 66%,#3a4660 100%);
+pre.bgw2{color:transparent;background:linear-gradient(148deg,#344a6e 0%,#2e4860 34%,#2c4468 66%,#384e72 100%);
   -webkit-background-clip:text;background-clip:text}
 pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 34%,#6598ac 66%,#7d8abc 100%);
   -webkit-background-clip:text;background-clip:text}

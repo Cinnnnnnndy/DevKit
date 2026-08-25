@@ -36,7 +36,13 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(--fs-base);
-  -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden}
+  -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden;position:relative}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 70% at 15% 100%,rgba(52,94,231,.10) 0%,rgba(52,94,231,.03) 40%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 85% 95%,rgba(102,206,250,.07) 0%,rgba(102,206,250,.02) 35%,transparent 65%),
+    radial-gradient(ellipse 40% 50% at 50% 100%,rgba(120,80,220,.06) 0%,rgba(120,80,220,.02) 40%,transparent 70%)}
+body>*{position:relative;z-index:1}
 .scan{position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.3;
   background:repeating-linear-gradient(180deg,rgba(255,255,255,.013) 0 1px,transparent 1px 3px)}
 ::-webkit-scrollbar{width:6px;height:6px}
@@ -224,7 +230,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .usr-msg .p{color:var(--pri-h);font-weight:700;flex:none}
 
 /* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
-.tc-collapse{border:1px solid var(--bd1);margin-bottom:12px}
+.tc-collapse{border:1px solid var(--bd1);margin-bottom:16px}
 .tc-chead{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;background:var(--app)}
 .tc-chead:hover{background:var(--s2)}
 .tc-car{font-family:var(--mono);font-size:9px;color:var(--fg4);flex:none;transition:transform .15s}
@@ -418,7 +424,7 @@ td.fnname{color:var(--fg2)}
             <div class="ln"><span style="color:var(--ok)">✓</span> Build verify · aarch64 制品已产出</div>
           </div>
 
-          <div class="tc-collapse">
+          <div class="tc-collapse open">
             <div class="tc-chead">
               <span class="tc-car">▾</span>
               <span class="tc-clb">迁移分析报告</span>
@@ -564,7 +570,7 @@ td.fnname{color:var(--fg2)}
           <div class="chk"><span class="ic ok">✓</span><span class="lb">SIMD 目标</span><span class="v">--simd-target=<b style="color:var(--accent-green)">sve</b></span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">x86 指令集识别</span><span class="v">--isa=avx2 --enable-intel-intrinsics</span></div>
 
-          <div class="tc-collapse">
+          <div class="tc-collapse open">
             <div class="tc-chead">
               <span class="tc-car">▾</span>
               <span class="tc-clb">Edit settlement_kernel.c</span>
