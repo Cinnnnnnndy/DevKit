@@ -44,8 +44,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 ::-webkit-scrollbar-thumb{background:var(--bd3)}
 
 /* ══ Top Bar ══ */
-.topbar{height:40px;flex:none;display:flex;align-items:center;gap:12px;padding:0 var(--sp-lg);
-  background:var(--s1)}
+.topbar{height:40px;flex:none;display:flex;align-items:center;gap:12px;padding:0 var(--sp-lg)}
 /* 品牌标 —— 与 demo.html 的 blogo 语汇一致：图标 + 分段反色标识块 */
 .blogo{display:inline-flex;align-items:stretch;font-family:var(--mono);font-size:10px;
   font-weight:700;letter-spacing:.14em;line-height:1.9;user-select:none;flex:none}
@@ -94,11 +93,11 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .sd-sec:last-child{border-bottom:none}
 .sd-sec .h{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
   padding:4px var(--sp-lg) 5px;text-transform:uppercase}
-.sd-node{display:flex;align-items:center;gap:7px;padding:3.5px var(--sp-lg);margin:0 5px;
+.sd-node{display:flex;align-items:center;gap:7px;padding:5px var(--sp-lg);margin:1px 5px;
   cursor:default;color:var(--fg2);min-width:0;position:relative}
 .sd-node:hover{background:var(--s2)}
-.sd-node.active{background:var(--sel);color:var(--pri-h)}
-.sd-node.active::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:2px;background:var(--pri-h)}
+.sd-node.active{background:var(--s3);border-radius:6px;color:#fff;font-weight:700}
+.sd-node.active::before{display:none}
 .sd-node .ic{width:12px;flex:none;text-align:center;font-size:10px}
 .sd-node .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
 .sd-node .dot{width:5px;height:5px;border-radius:1px;flex:none}
@@ -142,12 +141,12 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .ap-step .d{font-size:10px;color:var(--fg4);white-space:nowrap}
 .ap-step:not(:last-child)::after{content:'→';color:var(--bd3);margin-left:9px;font-size:10px}
 
-.cfold{margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--fg3);
-  background:transparent;border:1px solid transparent;border-radius:6px;
-  padding:0 9px;height:25px;cursor:pointer;flex:none;display:flex;align-items:center;
-  transition:background .12s ease,color .12s ease,border-color .12s ease}
-.cfold:hover{color:var(--fg2);background:var(--s3);border-color:var(--bd2)}
-.cfold.on{color:var(--pri-h);background:var(--s3);border-color:var(--bd2)}
+.cfold{margin-left:auto;color:var(--fg4);
+  background:transparent;border:none;border-radius:5px;
+  padding:4px 6px;cursor:pointer;flex:none;display:flex;align-items:center;
+  transition:background .12s ease,color .12s ease}
+.cfold:hover{color:var(--fg2);background:var(--s3)}
+.cfold.on{color:var(--pri-h);background:var(--s3)}
 .panel-head{flex:none;display:flex;align-items:center;gap:8px;padding:8px var(--sp-lg);
   border-bottom:1px solid var(--bd1);font-family:var(--mono)}
 .panel-head::before{content:'>_';color:var(--fg4);font-size:10px;flex:none}
@@ -298,9 +297,9 @@ td.fnname{color:var(--fg2)}
 .scene.on{display:flex;flex:1;min-width:0}
 
 /* ══ Bottom Input（取自 .inp .box）══ */
-.bottom-input{flex:none;background:var(--s2);border-top:1px solid var(--bd1);padding:8px var(--sp-lg)}
+.bottom-input{flex:none;background:transparent;border-top:1px solid var(--bd1);padding:10px var(--sp-lg)}
 .bi-row{display:flex;align-items:center;gap:9px;background:var(--app);border:1px solid var(--bd2);
-  padding:6px 12px;box-shadow:0 0 0 2px rgba(0,119,255,.09);font-size:var(--fs-md)}
+  border-radius:8px;padding:6px 12px;box-shadow:0 0 0 2px rgba(0,119,255,.09);font-size:var(--fs-md)}
 .bi-row .p{color:var(--pri-h);font-weight:700}
 .bi-row input{flex:1;background:transparent;border:0;outline:0;color:var(--fg);font-family:var(--mono);
   font-size:var(--fs-md)}
@@ -337,20 +336,7 @@ td.fnname{color:var(--fg2)}
 
 <div class="workspace">
   <aside class="sidebar" id="sidebar">
-    <div class="sd-sec">
-      <div class="h">Sessions</div>
-      <div class="sess-scroll" id="sessScroll">
-        <div class="sd-node active"><span class="dot done"></span><span class="lb">应用迁移</span></div>
-        <div class="sd-node"><span class="dot working"></span><span class="lb">系统迁移</span></div>
-        <div class="sd-node"><span class="dot wait"></span><span class="lb">容器迁移</span></div>
-        <div class="sd-node"><span class="dot working"></span><span class="lb">源码向量化改造</span></div>
-        <div class="sd-node"><span class="dot wait"></span><span class="lb">通算算子智能生成</span></div>
-        <div class="sd-node"><span class="dot done"></span><span class="lb">自动配置诊断</span></div>
-        <div class="sd-node"><span class="dot working"></span><span class="lb">快速定界性能瓶颈</span></div>
-        <div class="sd-node"><span class="dot working"></span><span class="lb">参数自动迭代优化</span></div>
-      </div>
-    </div>
-    <div class="sd-sec">
+    <div class="sd-sec" style="border-bottom:none">
       <div class="h">Project — order-center/ (aarch64)</div>
       <div class="sd-node lv1"><span class="ic">▾</span><span class="lb">nginx-gateway/</span></div>
       <div class="sd-node lv2" data-file="crypto.c"><span class="ic">≡</span><span class="lb">src/crypto.c</span><span class="m">M</span></div>
@@ -363,33 +349,15 @@ td.fnname{color:var(--fg2)}
       <div class="sd-node lv1" data-file="Dockerfile"><span class="ic">≡</span><span class="lb">docker/Dockerfile.kunpeng</span><span class="a">A</span></div>
       <div class="sd-node lv1" data-file="app-prod.yml"><span class="ic">≡</span><span class="lb">config/application-prod.yml</span></div>
     </div>
-    <div class="sd-sec">
-      <div class="h">Tools</div>
-      <div class="sd-node"><span class="ic" style="color:var(--accent-green)">✓</span><span class="lb">code_migrator</span></div>
-      <div class="sd-node"><span class="ic" style="color:var(--accent-green)">✓</span><span class="lb">sql_migrator</span></div>
-      <div class="sd-node"><span class="ic" style="color:var(--accent-blue)">▶</span><span class="lb">container_builder</span></div>
-      <div class="sd-node"><span class="ic" style="color:var(--accent-blue)">▶</span><span class="lb">vector_optimizer</span></div>
-      <div class="sd-node"><span class="ic" style="color:var(--accent-green)">✓</span><span class="lb">system_diagnoser</span></div>
-      <div class="sd-node"><span class="ic" style="color:var(--accent-blue)">▶</span><span class="lb">param_tuner</span></div>
-      <div class="sd-node"><span class="ic" style="color:var(--accent-green)">✓</span><span class="lb">boostkit_matcher</span></div>
-    </div>
-    <div class="sd-sec">
-      <div class="h">Settings</div>
-      <div class="sd-node"><span class="ic">◇</span><span class="lb">Model · qwen</span></div>
-      <div class="sd-node"><span class="ic">◇</span><span class="lb">Server · Kunpeng920 remote</span></div>
-    </div>
+    <div class="sess-scroll" id="sessScroll" style="display:none"></div>
   </aside>
 
   <div class="main-col">
-  <div class="nav-bar">
-    <div class="scenario-bar" id="scenarioBar"></div>
-    <button class="cfold" id="cfoldBtn" title="代码区" aria-label="代码区"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button>
-  </div>
-
   <div class="ai-plan" id="aiPlan">
     <div class="ap-head" id="apHead">
       <span class="ap-arrow">▾</span><span class="ap-t">AI PLAN</span>
       <span class="ap-goal" id="apGoal"></span>
+      <button class="cfold" id="cfoldBtn" title="代码区" aria-label="代码区"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button>
     </div>
     <div class="ap-body" id="apBody"><div class="ap-steps" id="apSteps"></div></div>
   </div>
@@ -844,15 +812,13 @@ const SCENARIOS={
 const lastScenario={migrate:'app-migrate',develop:'vectorize',tune:'diagnose'};
 let curAgent='migrate';
 
-/* 场景 tab 不再按当前 Agent 过滤 —— 九个场景一次性全部展示，
-   按所属 Agent 分组、组间留一道分隔，点哪个就切到哪个（含跨 Agent） */
-function renderScenarioBar(activeAgent,activeScenario){
-  const bar=document.getElementById('scenarioBar');
-  bar.innerHTML=Object.keys(SCENARIOS).map(agentKey=>
+function renderSessionList(activeAgent,activeScenario){
+  const el=document.getElementById('sessScroll');
+  el.innerHTML=Object.keys(SCENARIOS).map(agentKey=>
     SCENARIOS[agentKey].map(s=>
-      `<div class="stab ${agentKey===activeAgent&&s.key===activeScenario?'on':''} grp-${agentKey}"
+      `<div class="sd-node ${agentKey===activeAgent&&s.key===activeScenario?'active':''}"
         data-agent="${agentKey}" data-scenario="${s.key}">
-        ${s.label}<span class="tc">&times;</span></div>`).join('')
+        <span class="dot ${s.status}"></span><span class="lb">${s.label}</span></div>`).join('')
   ).join('');
 }
 
@@ -868,8 +834,8 @@ function renderAIPlan(agentKey,scenarioKey){
 function selectScenario(agentKey,scenarioKey){
   curAgent=agentKey;
   lastScenario[agentKey]=scenarioKey;
-  document.querySelectorAll('#scenarioBar .stab').forEach(el=>
-    el.classList.toggle('on',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
+  document.querySelectorAll('#sessScroll .sd-node').forEach(el=>
+    el.classList.toggle('active',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
   document.querySelectorAll('.scene').forEach(el=>
     el.classList.toggle('on',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
   const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
@@ -890,8 +856,8 @@ function toggleCodeFold(){
 }
 document.getElementById('apHead').addEventListener('click',toggleAIPlan);
 document.getElementById('cfoldBtn').addEventListener('click',toggleCodeFold);
-document.getElementById('scenarioBar').addEventListener('click',e=>{
-  const t=e.target.closest('.stab'); if(t) selectScenario(t.dataset.agent,t.dataset.scenario);
+document.getElementById('sessScroll').addEventListener('click',e=>{
+  const t=e.target.closest('.sd-node[data-agent]'); if(t) selectScenario(t.dataset.agent,t.dataset.scenario);
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){ location.href='launch.html'; return; }
@@ -985,7 +951,7 @@ function highlightFunction(funcName){
   if(crumb) crumb.textContent=funcName+'()';
 }
 
-renderScenarioBar('migrate','app-migrate');
+renderSessionList('migrate','app-migrate');
 selectScenario('migrate','app-migrate');
 </script>
 </body>
