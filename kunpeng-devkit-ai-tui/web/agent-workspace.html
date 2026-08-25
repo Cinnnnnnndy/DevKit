@@ -39,9 +39,11 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
   -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden;position:relative}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(ellipse 80% 80% at 10% 100%,rgba(52,94,231,.18) 0%,rgba(52,94,231,.06) 40%,transparent 75%),
-    radial-gradient(ellipse 70% 70% at 90% 90%,rgba(102,206,250,.12) 0%,rgba(102,206,250,.04) 40%,transparent 70%),
-    radial-gradient(ellipse 60% 60% at 50% 95%,rgba(120,80,220,.10) 0%,rgba(120,80,220,.03) 40%,transparent 70%)}
+    radial-gradient(ellipse 120% 90% at 0% 100%,rgba(52,94,231,.38) 0%,rgba(52,94,231,.15) 30%,transparent 60%),
+    radial-gradient(ellipse 100% 80% at 95% 90%,rgba(102,206,250,.28) 0%,rgba(102,206,250,.10) 30%,transparent 55%),
+    radial-gradient(ellipse 90% 70% at 50% 95%,rgba(120,80,220,.24) 0%,rgba(120,80,220,.08) 30%,transparent 55%),
+    radial-gradient(ellipse 80% 60% at 10% 15%,rgba(52,94,231,.15) 0%,rgba(52,94,231,.04) 35%,transparent 60%),
+    radial-gradient(ellipse 70% 50% at 90% 10%,rgba(102,206,250,.12) 0%,rgba(102,206,250,.03) 35%,transparent 55%)}
 body>*{position:relative;z-index:1}
 .scan{position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.3;
   background:repeating-linear-gradient(180deg,rgba(255,255,255,.013) 0 1px,transparent 1px 3px)}
@@ -86,21 +88,21 @@ body>*{position:relative;z-index:1}
 .stab .tc:hover{opacity:1;background:var(--s4);color:var(--fg)}
 
 /* ══ Workspace（侧栏 + 主内容 + 代码列） ══ */
-.workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0;background:var(--bg)}
+.workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0 8px;background:transparent}
 .main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;
-  margin:8px 0 8px 0;border:1px solid var(--bd1);border-radius:8px;overflow:hidden;background:var(--s1)}
+  margin:8px 0;border:1px solid var(--bd1);border-radius:8px;overflow:hidden;background:var(--s1)}
 /* 代码列：workspace 级别的独立面板，在 main-col 右侧展开 */
 .code-col{flex:0 0 0;min-width:0;display:flex;flex-direction:column;
-  margin:8px 8px 8px 0;border-radius:8px;overflow:hidden;background:var(--s1);
-  transition:flex-basis .18s ease,border .18s ease,margin .18s ease}
-.workspace:not(.foldcode) .code-col{flex-basis:42%;border:1px solid var(--bd1)}
-.workspace.foldcode .code-col{flex-basis:0;border:none;margin-left:0;margin-right:8px}
+  margin:8px 0;border-radius:8px;overflow:hidden;background:var(--s1);
+  transition:flex-basis .18s ease,border .18s ease}
+.workspace:not(.foldcode) .code-col{flex-basis:28%;border:1px solid var(--bd1)}
+.workspace.foldcode .code-col{flex-basis:0;border:none}
 .code-scene{display:none;flex-direction:column;flex:1;min-height:0}
 .code-scene.on{display:flex}
 
 /* 侧栏是一整块从上到下的圆角卡片，四个分组靠内部分隔线区分，而不是各自独立的卡片 */
 .sidebar{width:220px;flex:none;background:var(--s1);overflow-y:auto;
-  margin:8px 0 8px 8px;border:1px solid var(--bd1);border-radius:8px}
+  margin:8px 0;border:1px solid var(--bd1);border-radius:8px}
 .sd-sec{padding:6px 4px;border-bottom:1px solid var(--bd1)}
 .sd-sec:last-child{border-bottom:none}
 .sd-sec .h{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
