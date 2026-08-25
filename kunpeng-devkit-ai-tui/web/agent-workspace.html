@@ -111,11 +111,13 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .sd-node.lv1{padding-left:24px} .sd-node.lv2{padding-left:35px}
 
 .main-area{flex:1;min-width:0;min-height:0;display:flex;border:1px solid var(--bd1);border-radius:8px;overflow:hidden}
-.center-panel{order:2;flex:0 0 32%;min-width:0;display:flex;flex-direction:column;
-  background:var(--app);border-left:1px solid var(--bd1);overflow:hidden;transition:flex-basis .15s ease}
-.main-area.foldcode .center-panel{flex-basis:0;border-left:none;overflow:hidden}
+.center-panel{order:2;flex:1;min-width:0;display:flex;flex-direction:column;
+  background:var(--app);overflow:hidden}
 .right-panel{order:1;flex:1;min-width:0;display:flex;flex-direction:column;background:var(--s1);overflow:hidden}
 .right-panel .panel-body{position:relative}
+/* 代码区作为整块视图，与对话区域切换展示，而非并排窄栏 */
+.main-area.foldcode .center-panel{display:none}
+.main-area:not(.foldcode) .right-panel{display:none}
 
 /* AI PLAN：钉在 nav-bar 下方、main-area 上方，跟随当前 Agent、可收起 */
 .ai-plan{flex:none;background:var(--s1);border:1px solid var(--bd1);border-radius:8px;overflow:hidden}
@@ -137,9 +139,10 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .ap-step .d{font-size:10px;color:var(--fg4);white-space:nowrap}
 .ap-step:not(:last-child)::after{content:'→';color:var(--bd3);margin-left:9px;font-size:10px}
 
-.cfold{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--fg4);
-  background:var(--s2);border:1px solid var(--bd2);padding:1px 7px;cursor:pointer;flex:none}
+.cfold{margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--fg4);
+  background:var(--s2);border:1px solid var(--bd2);padding:2px 9px;cursor:pointer;flex:none}
 .cfold:hover{color:var(--fg2);border-color:var(--bd3)}
+.cfold.on{color:var(--pri-h);border-color:var(--pri-h);background:var(--sel)}
 .panel-head{flex:none;display:flex;align-items:center;gap:8px;padding:8px var(--sp-lg);
   border-bottom:1px solid var(--bd1);font-family:var(--mono)}
 .panel-head::before{content:'>_';color:var(--fg4);font-size:10px;flex:none}
@@ -307,9 +310,6 @@ td.fnname{color:var(--fg2)}
 .status-bar .keys b{background:var(--s4);color:var(--fg);font-weight:500;padding:0 5px;font-size:9.5px}
 
 /* ══ 响应式：整页自适应，不是固定画布 ══ */
-@media (max-width:1180px){
-  .center-panel{flex-basis:46%}
-}
 @media (max-width:980px){
   .sidebar{width:180px}
   .center-panel .panel-body pre,.cline{font-size:11px}
@@ -317,11 +317,6 @@ td.fnname{color:var(--fg2)}
 @media (max-width:820px){
   .workspace{flex-direction:column}
   .sidebar{width:100%;max-height:150px;border-right:none;border-bottom:1px solid var(--bd1)}
-  .main-area{flex-direction:column}
-  .scene.on{flex-direction:column}
-  .center-panel,.right-panel{flex:none}
-  .center-panel{border-left:none;border-bottom:1px solid var(--bd1)}
-  .center-panel .panel-body{max-height:240px}
 }
 @media (max-width:560px){
   .status-bar .keys{display:none}
@@ -382,7 +377,7 @@ td.fnname{color:var(--fg2)}
   <div class="main-col">
   <div class="nav-bar">
     <div class="scenario-bar" id="scenarioBar"></div>
-    <button class="cfold" id="cfoldBtn">▾ 代码区</button>
+    <button class="cfold" id="cfoldBtn" title="代码区" aria-label="代码区">&lt;/&gt;</button>
   </div>
 
   <div class="ai-plan" id="aiPlan">
@@ -397,8 +392,7 @@ td.fnname{color:var(--fg2)}
     <!-- ═══ 迁移 Agent ═══ -->
     <div class="scene on" data-agent="migrate" data-scenario="app-migrate">
       <main class="center-panel">
-        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> crypto.c &gt; nginx-gateway &gt; src &gt; crypto.c &gt; <span class="fn">ngx_crypto_spin_wait()</span></span>
-          <span class="badge pass">PASS</span></div>
+        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> crypto.c &gt; nginx-gateway &gt; src &gt; crypto.c &gt; <span class="fn">ngx_crypto_spin_wait()</span></span></div>
         <div class="panel-body">
           <div class="cline"><span class="no">84</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">while</span> (*lock) {</div>
           <div class="cline"><span class="no">86</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (spin--) {</div>
@@ -412,7 +406,6 @@ td.fnname{color:var(--fg2)}
         </div>
       </main>
       <section class="right-panel">
-        <div class="panel-head"><span class="t">应用迁移</span><span class="badge pass">PASS</span></div>
         <div class="panel-body">
           <div class="sub-h">任务配置</div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">任务名称</span><span class="v">Code_Porting_order-center</span></div>
@@ -471,8 +464,7 @@ td.fnname{color:var(--fg2)}
 
     <div class="scene" data-agent="migrate" data-scenario="sys-migrate">
       <main class="center-panel">
-        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> order_item.sql &gt; sql &gt; <span class="fn">order_item.sql</span></span>
-          <span class="badge run">62%</span></div>
+        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> order_item.sql &gt; sql &gt; <span class="fn">order_item.sql</span></span></div>
         <div class="panel-body">
           <div class="cline del"><span class="no">1</span><span class="pfx del">-</span>INSERT INTO <span class="tk d">`order_item`</span> (<span class="tk d">`order_id`,`sku`,`qty`</span>)</div>
           <div class="cline del"><span class="no">2</span><span class="pfx del">-</span><span class="tk d">ON DUPLICATE KEY UPDATE `qty` = `qty` + VALUES(`qty`)</span>;</div>
@@ -481,7 +473,6 @@ td.fnname{color:var(--fg2)}
         </div>
       </main>
       <section class="right-panel">
-        <div class="panel-head"><span class="t">系统迁移</span><span class="badge run">RUNNING</span></div>
         <div class="panel-body">
           <div class="sub-h">工程配置</div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">迁移工程名称</span><span class="v">order-center-sysmig</span></div>
@@ -511,8 +502,7 @@ td.fnname{color:var(--fg2)}
 
     <div class="scene" data-agent="migrate" data-scenario="container-migrate">
       <main class="center-panel">
-        <div class="panel-head"><span class="crumb"><span class="m">[+]</span> Dockerfile.kunpeng &gt; docker &gt; <span class="fn">Dockerfile.kunpeng</span></span>
-          <span class="badge queue">排队</span></div>
+        <div class="panel-head"><span class="crumb"><span class="m">[+]</span> Dockerfile.kunpeng &gt; docker &gt; <span class="fn">Dockerfile.kunpeng</span></span></div>
         <div class="panel-body">
           <div class="cline del"><span class="no">1</span><span class="pfx del">-</span><span class="kw">FROM</span> <span class="tk d">nginx:1.25</span></div>
           <div class="cline add hl"><span class="no">1</span><span class="pfx add">+</span><span class="kw">FROM</span> <span class="tk a">kunpeng-registry/nginx:1.25-aarch64</span></div>
@@ -523,7 +513,6 @@ td.fnname{color:var(--fg2)}
         </div>
       </main>
       <section class="right-panel">
-        <div class="panel-head"><span class="t">容器迁移</span><span class="badge queue">排队</span></div>
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我把 order-gateway 的容器镜像迁移到鲲鹏架构</div>
           <div class="console">
@@ -550,8 +539,7 @@ td.fnname{color:var(--fg2)}
     <!-- ═══ 开发 Agent ═══ -->
     <div class="scene" data-agent="develop" data-scenario="vectorize">
       <main class="center-panel">
-        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> settlement_kernel.c &gt; settlement &gt; <span class="fn">calc_batch():104</span></span>
-          <span class="badge run">5/12</span></div>
+        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> settlement_kernel.c &gt; settlement &gt; <span class="fn">calc_batch():104</span></span></div>
         <div class="panel-body">
           <div class="cline"><span class="no">102</span><span class="pfx"></span><span class="cmt">// 天秤扫描：x86 AVX2 intrinsics，--simd-target=sve</span></div>
           <div class="cline del"><span class="no">103</span><span class="pfx del">-</span><span class="tk d">__m256 va=_mm256_loadu_ps(&amp;amount[i]);</span></div>
@@ -567,7 +555,6 @@ td.fnname{color:var(--fg2)}
         </div>
       </main>
       <section class="right-panel">
-        <div class="panel-head"><span class="t">源码向量化改造</span><span class="badge run">RUNNING</span></div>
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我把 settlement_kernel.c 里的 AVX2 向量化代码改成鲲鹏 SVE 实现</div>
           <div class="console">
@@ -618,8 +605,7 @@ td.fnname{color:var(--fg2)}
 
     <div class="scene" data-agent="develop" data-scenario="op-gen">
       <main class="center-panel">
-        <div class="panel-head"><span class="crumb">settlement &gt; <span class="fn">MatrixSettle.java</span></span>
-          <span class="badge queue">排队</span></div>
+        <div class="panel-head"><span class="crumb">settlement &gt; <span class="fn">MatrixSettle.java</span></span></div>
         <div class="panel-body">
           <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt">// 候选算子：结算矩阵化计算 —— 识别中，暂无改动</span></div>
           <div class="cline"><span class="no">2</span><span class="pfx"></span><span class="ty">double</span>[][] <span class="fn">settle</span>(<span class="ty">double</span>[][] a, <span class="ty">double</span>[][] b) {</div>
@@ -628,7 +614,6 @@ td.fnname{color:var(--fg2)}
         </div>
       </main>
       <section class="right-panel">
-        <div class="panel-head"><span class="t">通算算子智能生成</span><span class="badge queue">排队</span></div>
         <div class="panel-body">
           <div class="sub-h">识别计算密集算子，自动生成鲲鹏亲和实现</div>
           <div class="steps">
@@ -649,8 +634,7 @@ td.fnname{color:var(--fg2)}
     <!-- ═══ 调优 Agent ═══ -->
     <div class="scene" data-agent="tune" data-scenario="diagnose">
       <main class="center-panel">
-        <div class="panel-head"><span class="crumb">kspect &gt; <span class="fn">domain scan</span></span>
-          <span class="badge pass">DONE</span></div>
+        <div class="panel-head"><span class="crumb">kspect &gt; <span class="fn">domain scan</span></span></div>
         <div class="panel-body">
           <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt"># kspect scan · 4 类别 · 6 项参数</span></div>
           <div class="cline hl"><span class="no">2</span><span class="pfx"></span>vm.min_free_kbytes = <span class="num">112640</span> <span class="cmt">← 建议 NUMAs*2097152</span></div>
@@ -664,7 +648,6 @@ td.fnname{color:var(--fg2)}
         </div>
       </main>
       <section class="right-panel">
-        <div class="panel-head"><span class="t">自动配置诊断</span><span class="badge pass">DONE</span></div>
         <div class="panel-body">
           <div class="sub-h">依赖参数配置</div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">BMC_IP</span><span class="v">192.168.10.21</span></div>
@@ -692,8 +675,7 @@ td.fnname{color:var(--fg2)}
 
     <div class="scene" data-agent="tune" data-scenario="bottleneck">
       <main class="center-panel">
-        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> crypto.c &gt; nginx-gateway &gt; src &gt; crypto.c &gt; <span class="fn" id="crumbFn">ngx_crypto_spin_wait()</span></span>
-          <span class="badge run">采集中</span></div>
+        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> crypto.c &gt; nginx-gateway &gt; src &gt; crypto.c &gt; <span class="fn" id="crumbFn">ngx_crypto_spin_wait()</span></span></div>
         <div class="panel-body">
           <div class="cline"><span class="no">84</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">while</span> (*lock) {</div>
           <div class="cline"><span class="no">86</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (spin--) {</div>
@@ -704,7 +686,6 @@ td.fnname{color:var(--fg2)}
         </div>
       </main>
       <section class="right-panel">
-        <div class="panel-head"><span class="t">快速定界性能瓶颈</span><span class="badge run">RUNNING</span></div>
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我定位一下结算服务最近变慢的原因</div>
           <div class="console">
@@ -741,8 +722,7 @@ td.fnname{color:var(--fg2)}
 
     <div class="scene" data-agent="tune" data-scenario="auto-param">
       <main class="center-panel">
-        <div class="panel-head"><span class="crumb">config &gt; <span class="fn">application-prod.yml</span></span>
-          <span class="badge run">压测中</span></div>
+        <div class="panel-head"><span class="crumb">config &gt; <span class="fn">application-prod.yml</span></span></div>
         <div class="panel-body">
           <div class="cline del"><span class="no">7</span><span class="pfx del">-</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="tk d">10</span></div>
           <div class="cline add hl"><span class="no">7</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="tk a">32</span></div>
@@ -753,7 +733,6 @@ td.fnname{color:var(--fg2)}
         </div>
       </main>
       <section class="right-panel">
-        <div class="panel-head"><span class="t">参数自动迭代优化</span><span class="badge run">RUNNING</span></div>
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我把订单服务的 JVM 和连接池参数调到最优</div>
           <div class="console">
@@ -796,8 +775,7 @@ td.fnname{color:var(--fg2)}
 
     <div class="scene" data-agent="tune" data-scenario="accel-match">
       <main class="center-panel">
-        <div class="panel-head"><span class="crumb">server &gt; <span class="fn">Kunpeng920 · openEuler 24.03</span></span>
-          <span class="badge pass">DONE</span></div>
+        <div class="panel-head"><span class="crumb">server &gt; <span class="fn">Kunpeng920 · openEuler 24.03</span></span></div>
         <div class="panel-body">
           <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt">// 硬件加速特性探测</span></div>
           <div class="cline"><span class="no">2</span><span class="pfx"></span>KAE crypto engine ................ <span class="fn">detected</span></div>
@@ -807,7 +785,6 @@ td.fnname{color:var(--fg2)}
         </div>
       </main>
       <section class="right-panel">
-        <div class="panel-head"><span class="t">加速特性匹配</span><span class="badge pass">DONE</span></div>
         <div class="panel-body">
           <div class="sub-h">智能匹配 BoostKit / openEuler 加速特性</div>
           <div class="chipf">
@@ -922,7 +899,7 @@ function selectScenario(agentKey,scenarioKey){
     el.classList.toggle('active',!!meta && el.dataset.file===meta.file));
   renderAIPlan(agentKey,scenarioKey);
   document.getElementById('mainArea').classList.add('foldcode');
-  document.getElementById('cfoldBtn').textContent='▸ 代码区';
+  document.getElementById('cfoldBtn').classList.remove('on');
   if(agentKey==='tune' && scenarioKey==='bottleneck') initHotspot();
 }
 
@@ -931,7 +908,7 @@ function toggleAIPlan(){
 }
 function toggleCodeFold(){
   const folded=document.getElementById('mainArea').classList.toggle('foldcode');
-  document.getElementById('cfoldBtn').textContent=folded?'▸ 代码区':'▾ 代码区';
+  document.getElementById('cfoldBtn').classList.toggle('on',!folded);
 }
 document.getElementById('apHead').addEventListener('click',toggleAIPlan);
 document.getElementById('cfoldBtn').addEventListener('click',toggleCodeFold);
