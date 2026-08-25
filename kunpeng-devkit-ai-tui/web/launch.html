@@ -34,8 +34,6 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:13px
   letter-spacing:.04em;color:var(--fg3);z-index:2}
 .pbar .brand{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--fg);letter-spacing:.12em}
 .pbar .brand i{width:6px;height:6px;background:var(--pri-h);display:inline-block;flex:none}
-.pbar .r{margin-left:auto;display:flex;align-items:center;gap:8px}
-.pbar .r i{width:7px;height:7px;border:1px solid var(--fg4);display:inline-block}
 
 /* ══ 光感渐变起伏：底部一层缓慢明灭/位移的辉光，纯 CSS ══ */
 .glow{position:absolute;left:0;right:0;bottom:0;height:56%;pointer-events:none;z-index:0;
@@ -90,12 +88,9 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
   text-transform:uppercase;background:var(--s4);color:var(--fg);padding:2px 8px}
 .p2title{text-align:center;margin-bottom:8px}
 .p2title .wm{font-size:12px}
-.welcome{text-align:center;font-size:13px;color:var(--fg2);margin-bottom:26px}
-.hintline{text-align:center;font-size:11px;color:var(--fg4);margin:-10px 0 18px}
-.hintline .cmdc{margin:0 2px}
 
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-.fcard{border:1px solid var(--bd1);background:var(--s1);padding:11px 13px}
+.fcard{border:1px solid var(--bd1);background:var(--s1);padding:11px 13px;border-radius:8px}
 .fcard .h{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.1em;
   color:var(--pri-h);margin-bottom:8px;text-transform:uppercase}
 .fcard .r{font-size:11px;color:var(--fg3);padding:2px 0}
@@ -124,7 +119,7 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
 .row .bd{flex:1;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 /* 建议按钮：渐变 + 发光 + 马赛克暗纹（棋盘格纹理叠在渐变上）*/
 .sug{border:1px solid rgba(61,152,255,.35);padding:5px 12px;color:var(--pri-h);
-  cursor:pointer;font-size:11px;font-weight:500;letter-spacing:.02em;
+  cursor:pointer;font-size:11px;font-weight:500;letter-spacing:.02em;border-radius:6px;
   background:rgba(61,152,255,.08);transition:background .15s ease}
 .sug:hover{background:rgba(61,152,255,.16)}
 
@@ -133,7 +128,7 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
 .sessrow .nm{color:var(--pri-h);font-weight:600}
 .sessrow .meta{color:var(--fg4);font-size:10.5px}
 .actbtn{border:1px solid var(--bd2);padding:1px 9px;color:var(--fg2);font-size:10px;
-  cursor:pointer;flex:none;background:var(--s2)}
+  cursor:pointer;flex:none;background:var(--s2);border-radius:6px}
 .actbtn:hover{border-color:var(--pri-h);color:var(--pri-h)}
 .actbtn b{color:var(--pri-h);font-weight:700;margin-right:4px}
 .cmdc{border:1px solid var(--bd2);border-radius:4px;padding:1px 8px;color:var(--fg3);
@@ -173,7 +168,6 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
   <div class="phase on" id="p1">
     <div class="pbar">
       <span class="brand"><img class="kpi" alt="Kunpeng" src="data:image/png;base64,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">KUNPENG</span>
-      <span class="r">LOCAL · ARM64</span>
     </div>
     <div class="glow"></div>
     <pre class="bgf" id="bgf1"></pre><pre class="bgf bgw2" id="bgw2a"></pre><pre class="bgf bgw1" id="bgw1a"></pre>
@@ -210,7 +204,6 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
   <div class="phase" id="p2">
     <div class="pbar">
       <span class="brand"><img class="kpi" alt="Kunpeng" src="data:image/png;base64,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">KUNPENG</span>
-      <span class="r">LOCAL · ARM64</span>
     </div>
     <div class="glow" style="height:40%;opacity:.6"></div>
     <div class="body">
@@ -228,7 +221,6 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
           <div class="fcard"><div class="h">调优</div>
             <div class="r">自动检查诊断系统配置、快速定界性能瓶颈，一键开启参数自动迭代优化</div></div>
         </div>
-        <div class="hintline">具体信息请执行 <span class="cmdc">/info</span> 查看</div>
 
         <div class="binput">
           <span class="p">❯</span>
