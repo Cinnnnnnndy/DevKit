@@ -112,10 +112,10 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .sd-node.lv1{padding-left:24px} .sd-node.lv2{padding-left:35px}
 
 .main-area{flex:1;min-width:0;min-height:0;display:flex}
-.center-panel{flex:0 0 32%;min-width:0;display:flex;flex-direction:column;
-  background:var(--app);border-right:1px solid var(--bd1);overflow:hidden;transition:flex-basis .15s ease}
-.main-area.foldcode .center-panel{flex-basis:0;border-right:none;overflow:hidden}
-.right-panel{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--s1);overflow:hidden}
+.center-panel{order:2;flex:0 0 32%;min-width:0;display:flex;flex-direction:column;
+  background:var(--app);border-left:1px solid var(--bd1);overflow:hidden;transition:flex-basis .15s ease}
+.main-area.foldcode .center-panel{flex-basis:0;border-left:none;overflow:hidden}
+.right-panel{order:1;flex:1;min-width:0;display:flex;flex-direction:column;background:var(--s1);overflow:hidden}
 .right-panel .panel-body{position:relative}
 
 /* AI PLAN：钉在 nav-bar 下方、main-area 上方，跟随当前 Agent、可收起 */
@@ -206,6 +206,12 @@ table.cmp tr.reco td:first-child{color:var(--ok);font-weight:700}
 .cmp-bar{display:inline-block;height:9px;vertical-align:-2px;margin-right:6px}
 table.rpt-tb td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:1px}
 table.rpt-tb td.mu{color:var(--fg4)}
+
+/* 对话区域：会话开场的用户自然语言输入，区分于 Agent 输出的样式 */
+.usr-msg{display:flex;align-items:flex-start;gap:7px;padding:6px 9px;margin-bottom:10px;
+  border-left:2px solid var(--pri-h);background:rgba(61,152,255,.06);font-size:11.5px;
+  color:var(--fg);line-height:1.5}
+.usr-msg .p{color:var(--pri-h);font-weight:700;flex:none}
 
 /* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
 .tc-collapse{border:1px solid var(--bd1);margin-bottom:12px}
@@ -526,7 +532,10 @@ td.fnname{color:var(--fg2)}
       <section class="right-panel">
         <div class="panel-head"><span class="t">容器迁移</span><span class="badge queue">排队</span></div>
         <div class="panel-body">
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">命令</span><span class="v">devkit sys-mig -c container_mig -i order-gateway.tar -dockerfile Dockerfile</span></div>
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我把 order-gateway 的容器镜像迁移到鲲鹏架构</div>
+          <div class="console">
+            <div class="ln"><span style="color:var(--fg4)">○</span> devkit sys-mig -c container_mig -i order-gateway.tar -dockerfile Dockerfile</div>
+          </div>
           <div class="stat3">
             <div class="stat-card"><div class="sc-lb">镜像文件统计</div><div class="sc-big">11</div><div class="sc-sub">Total Files</div></div>
             <div class="stat-card"><div class="sc-lb">可兼容</div><div class="sc-big">10</div><div class="sc-sub">Adaptable for Compatibility</div></div>
@@ -567,8 +576,11 @@ td.fnname{color:var(--fg2)}
       <section class="right-panel">
         <div class="panel-head"><span class="t">源码向量化改造</span><span class="badge run">RUNNING</span></div>
         <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我把 settlement_kernel.c 里的 AVX2 向量化代码改成鲲鹏 SVE 实现</div>
+          <div class="console">
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> ./tiancheng --flamegraph settlement_hotspot.svg --top=12 -r /order-center -o ./output --enable-intel-intrinsics --isa=avx2 --simd-target=sve</div>
+          </div>
           <div class="sub-h">扫描配置</div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">命令</span><span class="v">./tiancheng --flamegraph settlement_hotspot.svg --top=12 -r /order-center -o ./output --enable-intel-intrinsics --isa=avx2 --simd-target=sve</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">扫描模式</span><span class="v">火焰图扫描（推荐）</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">SIMD 目标</span><span class="v">--simd-target=<b style="color:var(--accent-green)">sve</b></span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">x86 指令集识别</span><span class="v">--isa=avx2 --enable-intel-intrinsics</span></div>
@@ -701,8 +713,10 @@ td.fnname{color:var(--fg2)}
       <section class="right-panel">
         <div class="panel-head"><span class="t">快速定界性能瓶颈</span><span class="badge run">RUNNING</span></div>
         <div class="panel-body">
-          <div class="sub-h">采集配置</div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">命令</span><span class="v">./ksys collect -d 10 -i 1 -o /home/order-center/ && ./ksys diff -i baseline.json now.json -o ./diff-out</span></div>
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我定位一下结算服务最近变慢的原因</div>
+          <div class="console">
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> ./ksys collect -d 10 -i 1 -o /home/order-center/ && ./ksys diff -i baseline.json now.json -o ./diff-out</div>
+          </div>
           <div class="sub-h">TOP 13 · 热点调用栈</div>
           <table class="hotspot" id="hotspotTable">
             <thead><tr><th>周期数占比</th><th>周期数</th><th>进程名</th><th>共享库/文件</th></tr></thead>
@@ -748,8 +762,10 @@ td.fnname{color:var(--fg2)}
       <section class="right-panel">
         <div class="panel-head"><span class="t">参数自动迭代优化</span><span class="badge run">RUNNING</span></div>
         <div class="panel-body">
-          <div class="sub-h">调优配置</div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">命令</span><span class="v">devkit kat train -t order-center-task.cfg -p jvm-param.cfg -o ./train-out</span></div>
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我把订单服务的 JVM 和连接池参数调到最优</div>
+          <div class="console">
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> devkit kat train -t order-center-task.cfg -p jvm-param.cfg -o ./train-out</div>
+          </div>
           <div class="sub-h">Auto Tuning Report <span class="cm">devkit kat train · 算法 HPO</span></div>
           <div class="stat3">
             <div class="stat-card"><div class="sc-lb">总轮次</div><div class="sc-big">3</div><div class="sc-sub">失败 0</div></div>
@@ -829,7 +845,7 @@ td.fnname{color:var(--fg2)}
 
 <div class="status-bar">
   <div class="keys">
-    <span><b>C</b> 代码区</span><span><b>P</b> AI Plan</span>
+    <span><b>C</b> 代码区</span><span><b>P</b> AI Plan</span><span><b>Esc</b> 返回启动页</span>
   </div>
   <div class="r">
     <span class="tag">order-center</span><span class="tag" id="statCtx">ctx 42%</span><span class="tag ready">ready</span>
@@ -915,9 +931,8 @@ function selectScenario(agentKey,scenarioKey){
   document.querySelectorAll('#sidebar .sd-node[data-file]').forEach(el=>
     el.classList.toggle('active',!!meta && el.dataset.file===meta.file));
   renderAIPlan(agentKey,scenarioKey);
-  const showCode=!meta||meta.code!==false;
-  document.getElementById('mainArea').classList.toggle('foldcode',!showCode);
-  document.getElementById('cfoldBtn').textContent=showCode?'▾ 代码区':'▸ 代码区';
+  document.getElementById('mainArea').classList.add('foldcode');
+  document.getElementById('cfoldBtn').textContent='▸ 代码区';
   if(agentKey==='tune' && scenarioKey==='bottleneck') initHotspot();
 }
 
@@ -934,6 +949,7 @@ document.getElementById('scenarioBar').addEventListener('click',e=>{
   const t=e.target.closest('.stab'); if(t) selectScenario(t.dataset.agent,t.dataset.scenario);
 });
 document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ location.href='launch.html'; return; }
   const tag=document.activeElement.tagName;
   if(tag==='INPUT'||tag==='TEXTAREA'||document.activeElement.isContentEditable) return;
   if(e.key==='c'||e.key==='C') toggleCodeFold();
