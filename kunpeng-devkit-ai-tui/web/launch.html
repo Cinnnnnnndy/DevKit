@@ -6,12 +6,12 @@
 <title>Kunpeng DevKit AI · 启动</title>
 <style>
 :root{
-  --bg:#0b0b0b; --app:#101010; --elev:#141414;
-  --s1:#161616; --s2:#1c1c1c; --s3:#262626; --s4:#313131;
-  --fg:#e8e8e8; --fg2:#a4a4a4; --fg3:#777; --fg4:#555;
-  --bd1:#242424; --bd2:#2d2d2d; --bd3:#3b3b3b;
-  --pri:#0077ff; --pri-h:#3d98ff; --acc:#7c8db8;
-  --ok:#04d793; --warn:#ffaa3b; --dgr:#ff4b7b;
+  --bg:#1a1b26; --app:#16161e; --elev:#1f2335;
+  --s1:#1f2335; --s2:#24283b; --s3:#292e42; --s4:#343a52;
+  --fg:#e8e8e8; --fg2:#b8bcc8; --fg3:#9ea3b4; --fg4:#858b9d;
+  --bd1:#292e42; --bd2:#33395a; --bd3:#414868;
+  --pri:#0077ff; --pri-h:#7aa2f7; --acc:#7c8db8;
+  --ok:#9ece6a; --warn:#e0af68; --dgr:#f7768e;
   --kp:#ED1C24; --kp2:#c9c9c9;
   --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
   --sans:'Inter','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
@@ -92,17 +92,31 @@ pre.bgf.lower{inset:auto;left:0;right:0;bottom:0;height:22%;
 .chips{display:flex;gap:7px;justify-content:center;margin-bottom:22px}
 .ivl{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.16em;
   text-transform:uppercase;background:var(--s4);color:var(--fg);padding:2px 8px}
-.p2title{text-align:center;margin-bottom:28px}
+.p2title{text-align:center;margin-bottom:36px}
 .p2title .wm{font-size:12px}
 
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
-.fcard{border:1px solid var(--bd1);background:var(--s1);padding:11px 13px;border-radius:8px}
+.demo-entry{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:12px 18px;
+  background:rgba(31,35,53,.72);backdrop-filter:blur(14px);
+  border:1px solid rgba(122,162,247,.22);border-radius:10px;cursor:pointer;
+  box-shadow:0 0 20px -4px rgba(122,162,247,.18),0 0 0 1px rgba(255,255,255,.03) inset;
+  transition:border-color .2s,box-shadow .2s}
+.demo-entry:hover{border-color:rgba(122,162,247,.45);
+  box-shadow:0 0 28px -2px rgba(122,162,247,.28),0 0 0 1px rgba(255,255,255,.06) inset}
+.demo-tag{font-size:9px;font-weight:700;letter-spacing:.18em;padding:2px 8px;
+  background:var(--pri);color:#fff;border-radius:4px;flex:none}
+.demo-title{font-size:13px;font-weight:600;color:var(--fg);flex:none}
+.demo-desc{font-size:11px;color:var(--fg3);flex:1}
+.demo-arrow{font-size:14px;color:var(--pri-h);flex:none;transition:transform .2s}
+.demo-entry:hover .demo-arrow{transform:translateX(3px)}
+
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
+.fcard{border:1px solid var(--bd1);background:var(--s1);padding:14px 16px;border-radius:8px}
 .fcard .h{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.1em;
   color:var(--pri-h);margin-bottom:8px;text-transform:uppercase}
-.fcard .r{font-size:11px;color:var(--fg3);padding:2px 0}
+.fcard .r{font-size:11px;color:var(--fg3);padding:3px 0}
 
 
-.binput{display:flex;align-items:center;gap:10px;margin-bottom:14px;
+.binput{display:flex;align-items:center;gap:10px;margin-bottom:18px;
   background:var(--s1);border:1px solid var(--bd2);padding:9px 14px;border-radius:8px;
   box-shadow:0 0 0 3px rgba(0,119,255,.10);font-size:13.5px}
 .binput .p{flex:none;color:var(--pri-h)}
@@ -113,12 +127,12 @@ pre.bgf.lower{inset:auto;left:0;right:0;bottom:0;height:22%;
 @keyframes bl{50%{opacity:0}}
 .binput .hint{flex:none;font-size:11px;color:var(--fg4)}
 .binput .hint b{background:var(--s4);color:var(--fg2);font-weight:500;padding:1px 6px;margin-right:5px;font-size:10.5px}
-.bsub{display:flex;align-items:center;gap:8px;margin:-8px 0 14px 2px;font-size:10.5px;color:var(--fg4)}
+.bsub{display:flex;align-items:center;gap:8px;margin:-8px 0 20px 2px;font-size:10.5px;color:var(--fg4)}
 .bsub b{background:var(--s4);color:var(--fg2);font-weight:500;padding:1px 6px;margin-right:2px;font-size:10px}
 .bsub .mdl{color:var(--fg3)}
 .bsub .sep{color:var(--bd3)}
 
-.row{display:flex;align-items:flex-start;gap:10px;font-size:11.5px;margin-bottom:9px}
+.row{display:flex;align-items:flex-start;gap:10px;font-size:11.5px;margin-bottom:16px}
 .row .lb{flex:none;width:34px;color:var(--fg4);font-size:9.5px;letter-spacing:.14em;
   text-transform:uppercase;padding-top:3px}
 .row .bd{flex:1;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
@@ -128,7 +142,7 @@ pre.bgf.lower{inset:auto;left:0;right:0;bottom:0;height:22%;
   background:var(--pri);transition:background .15s ease}
 .sug:hover{background:var(--pri-h)}
 
-.row .bd.sess{display:flex;flex-direction:column;gap:8px;flex:1;align-items:flex-start;justify-content:flex-start}
+.row .bd.sess{display:flex;flex-direction:column;gap:10px;flex:1;align-items:flex-start;justify-content:flex-start}
 .sessrow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .sessrow .nm{color:var(--pri-h);font-weight:600}
 .sessrow .meta{color:var(--fg4);font-size:10.5px}
@@ -216,6 +230,13 @@ pre.bgf.lower{inset:auto;left:0;right:0;bottom:0;height:22%;
       <div class="col">
         <div class="p2title"><pre class="wm" id="wm2"></pre></div>
 
+        <div class="demo-entry" id="demoGo">
+          <span class="demo-tag">DEMO</span>
+          <span class="demo-title">应用迁移全流程演示</span>
+          <span class="demo-desc">order-center C++ 项目 · 源码迁移 → 依赖分析 → 补丁生成 → 构建验证</span>
+          <span class="demo-arrow">→</span>
+        </div>
+
         <div class="cards">
           <div class="fcard"><div class="h">迁移</div>
             <div class="r">应用迁移</div>
@@ -237,7 +258,6 @@ pre.bgf.lower{inset:auto;left:0;right:0;bottom:0;height:22%;
           <span class="hint"><b>Ctrl+P</b>命令面板</span>
         </div>
         <div class="bsub">
-          <span class="mdl">盘古-Coder-38B</span>
         </div>
 
         <div class="row"><span class="lb">建议</span><div class="bd">
@@ -462,6 +482,7 @@ E('mainInput').addEventListener('keydown',e=>{
   if(e.key==='Enter') location.href='agent-workspace.html';
 });
 E('sessGo').addEventListener('click',()=>location.href='agent-workspace.html');
+E('demoGo').addEventListener('click',()=>location.href='agent-workspace.html');
 </script>
 </body>
 </html>
