@@ -91,24 +91,22 @@ body>*{position:relative;z-index:1}
 .stab .tc:hover{opacity:1;background:var(--s4);color:var(--fg)}
 
 /* ══ Workspace（侧栏 + 主内容 + 代码列） ══ */
-.workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0 8px;background:transparent}
+.workspace{flex:1;min-height:0;display:flex;gap:0;padding:0;background:transparent}
 .main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;position:relative;
-  margin:8px 0;border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;
-  background:rgba(31,35,53,.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  border-left:1px solid var(--bd1);overflow:hidden;
+  background:var(--s1)}
 /* 代码列：workspace 级别的独立面板，在 main-col 右侧展开 */
 .code-col{flex:0 0 0;min-width:0;display:flex;flex-direction:column;
-  margin:8px 0;border-radius:12px;overflow:hidden;
-  background:rgba(31,35,53,.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  overflow:hidden;background:var(--s1);
   transition:flex-basis .18s ease,border .18s ease}
-.workspace:not(.foldcode) .code-col{flex-basis:28%;border:1px solid rgba(255,255,255,.06)}
+.workspace:not(.foldcode) .code-col{flex-basis:28%;border-left:1px solid var(--bd1)}
 .workspace.foldcode .code-col{flex-basis:0;border:none}
 .code-scene{display:none;flex-direction:column;flex:1;min-height:0}
 .code-scene.on{display:flex}
 
-/* 侧栏是一整块从上到下的圆角卡片，四个分组靠内部分隔线区分，而不是各自独立的卡片 */
+/* 侧栏扁平面板，右侧分隔线 */
 .sidebar{width:220px;flex:none;overflow-y:auto;
-  margin:8px 0;border:1px solid rgba(255,255,255,.06);border-radius:12px;
-  background:rgba(31,35,53,.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  background:var(--app)}
 .sd-sec{padding:6px 4px;border-bottom:1px solid var(--bd1)}
 .sd-sec:last-child{border-bottom:none}
 .sd-sec .h{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
@@ -330,9 +328,9 @@ td.fnname{color:var(--fg2)}
 
 /* ══ Bottom Input（取自 .inp .box）══ */
 .bottom-input{flex:none;background:transparent;border-top:none;padding:10px var(--sp-lg)}
-.bi-row{display:flex;align-items:center;gap:9px;background:rgba(22,22,30,.75);
-  border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border-radius:10px;padding:6px 12px;font-size:var(--fs-md)}
+.bi-row{display:flex;align-items:center;gap:9px;background:var(--app);
+  border:1px solid var(--bd1);
+  border-radius:6px;padding:6px 12px;font-size:var(--fs-md)}
 .bi-row:focus-within{border-color:rgba(61,152,255,.4)}
 .bi-row .p{color:var(--pri-h);font-weight:700}
 .bi-row input{flex:1;background:transparent;border:0;outline:0;color:var(--fg);font-family:var(--mono);
@@ -360,9 +358,6 @@ td.fnname{color:var(--fg2)}
   animation:particleDrift 25s linear infinite}
 @keyframes particleDrift{0%{transform:translateY(0)}100%{transform:translateY(-20px)}}
 .workspace{position:relative}
-.workspace::before,.workspace::after{content:'';position:absolute;width:12px;height:12px;pointer-events:none;z-index:3;opacity:.2}
-.workspace::before{top:4px;left:4px;border-top:1px solid var(--pri-h);border-left:1px solid var(--pri-h)}
-.workspace::after{bottom:4px;right:4px;border-bottom:1px solid var(--pri-h);border-right:1px solid var(--pri-h)}
 .scroll-btm{position:absolute;bottom:56px;right:14px;width:28px;height:28px;
   border-radius:50%;background:var(--s3);color:var(--fg3);border:none;cursor:pointer;
   display:none;align-items:center;justify-content:center;z-index:10;
@@ -378,7 +373,7 @@ td.fnname{color:var(--fg2)}
 }
 @media (max-width:820px){
   .workspace{flex-direction:column}
-  .sidebar{width:100%;max-height:150px;border-right:none;border-bottom:1px solid var(--bd1)}
+  .sidebar{width:100%;max-height:150px;border-bottom:1px solid var(--bd1)}
 }
 @media (max-width:560px){
   .status-bar .keys{display:none}
