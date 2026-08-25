@@ -54,6 +54,7 @@ pre.bgw2{color:transparent;background:linear-gradient(148deg,#3a4658 0%,#324a46 
   -webkit-background-clip:text;background-clip:text}
 pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 34%,#6598ac 66%,#7d8abc 100%);
   -webkit-background-clip:text;background-clip:text}
+pre.bgf.lower{inset:auto;left:0;right:0;bottom:0;height:50%}
 
 /* ══ Kunpeng 半块像素标识 + 字标 ══ */
 .kpm{font-family:var(--mono);white-space:pre;line-height:.86;letter-spacing:0;font-size:11px;flex:none}
@@ -206,6 +207,7 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
       <span class="brand"><img class="kpi" alt="Kunpeng" src="data:image/png;base64,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">KUNPENG</span>
     </div>
     <div class="glow" style="height:40%;opacity:.6"></div>
+    <pre class="bgf lower" id="bgf2"></pre><pre class="bgf bgw2 lower" id="bgw2b"></pre><pre class="bgf bgw1 lower" id="bgw1b"></pre>
     <div class="body">
       <div class="col">
         <div class="p2title"><pre class="wm" id="wm2"></pre></div>
@@ -375,6 +377,66 @@ function fillBG(){
 }
 requestAnimationFrame(fillBG);
 addEventListener('resize',()=>{cancelAnimationFrame(FLOW.raf);fillBG();});
+
+/* ══ Phase 02 下半部分同款字符场（独立较矮的场，避免遮挡卡片文字）══ */
+let FLOW2={raf:0,d:null,cols:0,rows:0,elig:[]}, SPARKS2=[];
+function seedSparks2(n){ SPARKS2.length=0; for(let i=0;i<n;i++) SPARKS2.push({t:0,ttl:1,i:-1,big:0}); }
+function WAVE2b(d,cols,rows,elig){
+  const amp=new Float32Array(cols*rows);
+  const put=(x,y,v)=>{ if(x<0||y<0||x>=cols||y>=rows) return;
+    const j=y*cols+x; if(v>amp[j]) amp[j]=v; };
+  for(let k=0;k<SPARKS2.length;k++){
+    const sp=SPARKS2[k]; sp.t++;
+    if(sp.t>=sp.ttl||sp.i<0){
+      sp.t=0; sp.ttl=7+((Math.random()*22)|0);
+      sp.i=elig[(Math.random()*elig.length)|0]; sp.big=Math.random()<0.34?1:0;
+    }
+    const g=Math.sin(Math.PI*sp.t/sp.ttl); if(g<=0.02) continue;
+    const x=sp.i%cols, y=(sp.i/cols)|0;
+    put(x,y,g);
+    if(sp.big){ put(x-1,y,g*.52); put(x+1,y,g*.52); put(x,y-1,g*.44); put(x,y+1,g*.44); }
+  }
+  const L1=[],L2=[];
+  for(let y=0;y<rows;y++){
+    let a='',c='';
+    for(let x=0;x<cols;x++){
+      const i=y*cols+x, f=amp[i];
+      if(f<=0){a+=' ';c+=' ';continue;}
+      const v=f*(0.80+0.28*d[i]);
+      a += (v<.56)?' ':WGLY[Math.min(6,((v-.56)/.44*7)|0)];
+      c += (v<.14)?' ':WGLY[Math.min(6,((v-.14)/.46*7)|0)];
+    }
+    L1.push(a);L2.push(c);
+  }
+  return [L1.join('\n'),L2.join('\n')];
+}
+function startFlow2(){
+  const w1=E('bgw1b'), w2=E('bgw2b'); if(!w1||!w2||!FLOW2.d) return;
+  let last=0;
+  const step=(ts)=>{
+    FLOW2.raf=requestAnimationFrame(step);
+    if(ts-last<30) return; last=ts;
+    const L=WAVE2b(FLOW2.d,FLOW2.cols,FLOW2.rows,FLOW2.elig);
+    w1.textContent=L[0]; w2.textContent=L[1];
+  };
+  FLOW2.raf=requestAnimationFrame(step);
+}
+function fillBG2(){
+  const el=E('bgf2'); if(!el) return;
+  const box=el.getBoundingClientRect();
+  const p=document.createElement('span');
+  p.style.cssText='position:absolute;visibility:hidden;white-space:pre;font-family:'+getComputedStyle(el).fontFamily+';font-size:'+getComputedStyle(el).fontSize;
+  p.textContent='M'.repeat(100); document.body.appendChild(p);
+  const r=p.getBoundingClientRect(); const cw=r.width/100, ch=r.height||14; p.remove();
+  const cols=Math.ceil((box.width||innerWidth)/cw)+1, rows=Math.ceil((box.height||innerHeight*.5)/ch)+1;
+  FLOW2.d=FIELD(cols,rows); FLOW2.cols=cols; FLOW2.rows=rows;
+  const eg=[]; for(let i=0;i<cols*rows;i++) if(FLOW2.d[i]>0.30) eg.push(i);
+  FLOW2.elig=eg; seedSparks2(Math.max(16, Math.round(eg.length*0.016)));
+  el.textContent=RENDER(FLOW2.d,cols,rows);
+  startFlow2();
+}
+requestAnimationFrame(fillBG2);
+addEventListener('resize',()=>{cancelAnimationFrame(FLOW2.raf);fillBG2();});
 
 /* ══ 阶段切换：01 自动过场到 02，可点击跳过 ══ */
 let advanced=false;
