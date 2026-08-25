@@ -852,7 +852,7 @@ function renderScenarioBar(activeAgent,activeScenario){
     SCENARIOS[agentKey].map(s=>
       `<div class="stab ${agentKey===activeAgent&&s.key===activeScenario?'on':''} grp-${agentKey}"
         data-agent="${agentKey}" data-scenario="${s.key}">
-        <span class="st ${s.status}"></span>${s.label}<span class="tc">&times;</span></div>`).join('')
+        ${s.label}<span class="tc">&times;</span></div>`).join('')
   ).join('');
 }
 
