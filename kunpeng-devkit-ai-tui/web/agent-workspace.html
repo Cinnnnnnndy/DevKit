@@ -49,9 +49,9 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 /* 品牌标 —— 与 demo.html 的 blogo 语汇一致：图标 + 分段反色标识块 */
 .blogo{display:inline-flex;align-items:stretch;font-family:var(--mono);font-size:10px;
   font-weight:700;letter-spacing:.14em;line-height:1.9;user-select:none;flex:none}
-.blogo span{padding:0 6px;display:flex;align-items:center;justify-content:center}
-.blogo .g1{background:var(--s4);color:var(--fg);letter-spacing:.18em}
-.blogo .g2{background:var(--s2);color:var(--fg2);letter-spacing:.18em;border:1px solid var(--bd2)}
+.blogo span{padding:0 4px;display:flex;align-items:center;justify-content:center}
+.blogo .g1{color:var(--fg);letter-spacing:.18em}
+.blogo .g2{color:var(--fg2);letter-spacing:.18em}
 .blogo .kpi{width:22px;height:22px;margin-right:7px;align-self:center;object-fit:contain;flex:none}
 
 /* ══ Nav bar：场景 tab（取自 .tab 文档标签语汇）══ */
@@ -81,9 +81,11 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;
   margin:8px 8px 8px 0;border:1px solid var(--bd1);border-radius:8px;overflow:hidden;background:var(--s1)}
 
-.sidebar{width:220px;flex:none;background:var(--bg);border-right:1px solid var(--bd1);
-  overflow-y:auto;padding:8px}
-.sd-sec{padding:6px 4px;margin-bottom:8px;background:var(--s1);border:1px solid var(--bd1);border-radius:8px}
+/* 侧栏是一整块从上到下的圆角卡片，四个分组靠内部分隔线区分，而不是各自独立的卡片 */
+.sidebar{width:220px;flex:none;background:var(--s1);overflow-y:auto;
+  margin:8px 0 8px 8px;border:1px solid var(--bd1);border-radius:8px}
+.sd-sec{padding:6px 4px;border-bottom:1px solid var(--bd1)}
+.sd-sec:last-child{border-bottom:none}
 .sd-sec .h{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
   padding:4px var(--sp-lg) 5px;text-transform:uppercase}
 .sd-node{display:flex;align-items:center;gap:7px;padding:3.5px var(--sp-lg);margin:0 5px;
@@ -774,35 +776,6 @@ td.fnname{color:var(--fg2)}
         </div>
       </section>
     </div>
-
-    <div class="scene" data-agent="tune" data-scenario="accel-match">
-      <main class="center-panel">
-        <div class="panel-head"><span class="crumb">server &gt; <span class="fn">Kunpeng920 · openEuler 24.03</span></span></div>
-        <div class="panel-body">
-          <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt">// 硬件加速特性探测</span></div>
-          <div class="cline"><span class="no">2</span><span class="pfx"></span>KAE crypto engine ................ <span class="fn">detected</span></div>
-          <div class="cline"><span class="no">3</span><span class="pfx"></span>zlib hardware accel ............... <span class="fn">detected</span></div>
-          <div class="cline"><span class="no">4</span><span class="pfx"></span>openEuler sched affinity .......... <span class="fn">detected</span></div>
-          <div class="cline"><span class="no">5</span><span class="pfx"></span>BoostKit-BigData ................... <span class="cmt">optional</span></div>
-        </div>
-      </main>
-      <section class="right-panel">
-        <div class="panel-body">
-          <div class="sub-h">智能匹配 BoostKit / openEuler 加速特性</div>
-          <div class="chipf">
-            <span class="chip on"><b>KAE</b> 硬件加解密卸载 · 已启用</span>
-            <span class="chip on"><b>zlib_accel</b> · 已启用</span>
-            <span class="chip on"><b>openEuler</b> 内核调度亲和 · 已启用</span>
-            <span class="chip"><b>BoostKit-BigData</b> · 可选</span>
-          </div>
-          <div class="sub-h">order-center · 全链路</div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">迁移</span><span class="v">应用 · 系统 · 容器 三条迁移已完成</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">开发</span><span class="v">源码向量化改造已完成，通算算子生成中</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">调优</span><span class="v">诊断定界 + 参数收敛 + 加速特性匹配已完成</span></div>
-          <div class="console"><div class="ln"><span style="color:var(--ok)">✓</span> order-center 已全量迁移并调优上鲲鹏</div></div>
-        </div>
-      </section>
-    </div>
   </div>
 
   <div class="bottom-input">
@@ -859,10 +832,7 @@ const SCENARIOS={
     {key:'auto-param',label:'参数自动迭代优化',status:'doing',file:'app-prod.yml',code:true,
      goal:'一键开启参数自动迭代优化',
      plan:[{t:'Round 1',d:'3.2k → 3.9k',s:'done'},{t:'Round 2',d:'3.9k → 4.6k',s:'done'},
-       {t:'Round 3',d:'方案 A/B 对照',s:'doing'}]},
-    {key:'accel-match',label:'加速特性匹配',status:'done',file:null,code:false,
-     goal:'智能匹配 BoostKit、openEuler 等加速特性',
-     plan:[{t:'硬件特性探测',d:'',s:'done'},{t:'匹配加速特性',d:'',s:'done'},{t:'应用并验证',d:'',s:'done'}]}
+       {t:'Round 3',d:'方案 A/B 对照',s:'doing'}]}
   ]
 };
 const lastScenario={migrate:'app-migrate',develop:'vectorize',tune:'diagnose'};
