@@ -91,9 +91,23 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .sd-node .ic{width:12px;flex:none;text-align:center;font-size:10px}
 .sd-node .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
 .sd-node .dot{width:5px;height:5px;border-radius:1px;flex:none}
-.sd-node .dot.working{background:var(--pri-h)}
+.sd-node .dot.working{background:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
+.sd-node .dot.wait{background:var(--warn)}
+.sd-node .dot.done{background:var(--ok)}
+.sd-node .dot.idle{background:var(--fg4)}
+@keyframes sdpulse{50%{opacity:.35}}
 .sd-node .m{color:var(--o3);font-weight:700;flex:none;font-size:9.5px}
 .sd-node .a{color:var(--ok);font-weight:700;flex:none;font-size:9.5px}
+
+/* 会话列表：auto-follow + 手动脱离 + 一键回底 */
+.sess-scroll{max-height:120px;overflow-y:auto;position:relative}
+.scroll-bottom{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:none;
+  align-items:center;gap:4px;font-family:var(--mono);font-size:9.5px;color:var(--fg);
+  background:var(--s3);border:1px solid var(--pri-h);padding:3px 9px;cursor:pointer;z-index:5;
+  white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.scroll-bottom.show{display:inline-flex}
+.scroll-bottom:hover{background:var(--sel)}
+.scroll-bottom .arw{color:var(--pri-h);font-weight:700}
 .sd-node.lv1{padding-left:24px} .sd-node.lv2{padding-left:35px}
 
 .main-area{flex:1;min-width:0;min-height:0;display:flex}
@@ -313,7 +327,15 @@ td.fnname{color:var(--fg2)}
   <aside class="sidebar" id="sidebar">
     <div class="sd-sec">
       <div class="h">Sessions</div>
-      <div class="sd-node active"><span class="dot working"></span><span class="lb">order-center</span></div>
+      <div class="sess-scroll" id="sessScroll">
+        <div class="sd-node active"><span class="dot working"></span><span class="lb">order-center</span></div>
+        <div class="sd-node"><span class="dot done"></span><span class="lb">nginx-gateway</span></div>
+        <div class="sd-node"><span class="dot working"></span><span class="lb">payment-gateway</span></div>
+        <div class="sd-node"><span class="dot wait"></span><span class="lb">user-center</span></div>
+        <div class="sd-node"><span class="dot idle"></span><span class="lb">risk-engine</span></div>
+        <div class="sd-node"><span class="dot done"></span><span class="lb">settlement-batch</span></div>
+        <div class="sd-node"><span class="dot idle"></span><span class="lb">api-gateway</span></div>
+      </div>
     </div>
     <div class="sd-sec">
       <div class="h">Project — order-center/ (aarch64)</div>
@@ -874,6 +896,46 @@ document.addEventListener('keydown',e=>{
   if(e.key==='c'||e.key==='C') toggleCodeFold();
   else if(e.key==='p'||e.key==='P') toggleAIPlan();
 });
+
+/* ══ 会话列表滚动策略：auto-follow + 手动脱离 + 一键回底 ══
+   新会话到达时，若用户仍停留在底部则跟随滚动；一旦用户向上翻看历史即视为
+   手动脱离，停止跟随并露出"回到底部"按钮，点击后立即回底并恢复跟随。 */
+function attachAutoScroll(container){
+  const BOTTOM_SLACK=6;
+  let following=true;
+  const btn=document.createElement('div');
+  btn.className='scroll-bottom';
+  btn.innerHTML='<span class="arw">↓</span> 回到底部';
+  container.appendChild(btn);
+  const atBottom=()=>container.scrollHeight-container.scrollTop-container.clientHeight<=BOTTOM_SLACK;
+  const sync=()=>btn.classList.toggle('show',!following);
+  container.addEventListener('scroll',()=>{ following=atBottom(); sync(); });
+  btn.addEventListener('click',()=>{
+    container.scrollTo({top:container.scrollHeight,behavior:'smooth'});
+    following=true; sync();
+  });
+  return {
+    onGrow(){ if(following) container.scrollTop=container.scrollHeight; else sync(); }
+  };
+}
+const sessScroll=attachAutoScroll(document.getElementById('sessScroll'));
+
+/* 演示用：模拟新会话陆续接入，驱动上面的自动追尾/脱离/回底策略 */
+const INCOMING_SESSIONS=[
+  {lb:'log-pipeline',state:'working'},
+  {lb:'auth-service',state:'wait'},
+  {lb:'inventory-sync',state:'done'}
+];
+let incomingIdx=0;
+const incomingTimer=setInterval(()=>{
+  if(incomingIdx>=INCOMING_SESSIONS.length){ clearInterval(incomingTimer); return; }
+  const s=INCOMING_SESSIONS[incomingIdx++];
+  const row=document.createElement('div');
+  row.className='sd-node';
+  row.innerHTML=`<span class="dot ${s.state}"></span><span class="lb">${s.lb}</span>`;
+  document.getElementById('sessScroll').insertBefore(row,document.querySelector('.scroll-bottom'));
+  sessScroll.onGrow();
+},3400);
 
 /* ══ 热点表格 + 火焰图（调优 · 快速定界性能瓶颈）══ */
 let hotspotReady=false;
