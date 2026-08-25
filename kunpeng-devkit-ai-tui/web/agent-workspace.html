@@ -55,7 +55,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .blogo .kpi{width:22px;height:22px;margin-right:7px;align-self:center;object-fit:contain;flex:none}
 
 /* ══ Nav bar：场景 tab（取自 .tab 文档标签语汇）══ */
-.nav-bar{flex:none;display:flex;align-items:stretch;background:var(--s2);
+.nav-bar{flex:none;display:flex;align-items:stretch;background:transparent;
   border-bottom:1px solid var(--bd1);height:34px;overflow:hidden}
 
 /* ══ Scenario tabs（PTO 风格圆角标签页）══ */
@@ -383,7 +383,7 @@ td.fnname{color:var(--fg2)}
   <div class="main-col">
   <div class="nav-bar">
     <div class="scenario-bar" id="scenarioBar"></div>
-    <button class="cfold" id="cfoldBtn" title="代码区" aria-label="代码区">&lt;/&gt;</button>
+    <button class="cfold" id="cfoldBtn" title="代码区" aria-label="代码区"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button>
   </div>
 
   <div class="ai-plan" id="aiPlan">
