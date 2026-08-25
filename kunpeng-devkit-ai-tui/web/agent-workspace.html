@@ -9,10 +9,10 @@
    结构性区块（侧栏分组、导航/AI Plan/主内容）改为圆角矩形卡片浮在页面
    背景上，去掉贴边分隔线与状态栏底色。布局仍是响应式三栏 workspace。 */
 :root{
-  --bg:#1a1b26; --app:#16161e; --elev:#1f2335;
-  --s1:#1f2335; --s2:#24283b; --s3:#292e42; --s4:#343a52;
+  --bg:#111219; --app:#0e0f16; --elev:#181a28;
+  --s1:#181a28; --s2:#1e2133; --s3:#252840; --s4:#2e3250;
   --fg:#e8e8e8; --fg2:#b8bcc8; --fg3:#9ea3b4; --fg4:#858b9d;
-  --bd1:#292e42; --bd2:#33395a; --bd3:#414868;
+  --bd1:#252840; --bd2:#2e3456; --bd3:#3a4068;
   --pri:#0077ff; --pri-h:#3d98ff; --acc:#7c8db8;
   --ok:#9ece6a; --warn:#e0af68; --dgr:#f7768e;
   --o8:#6e4a2e;--o7:#99603a;--o6:#c77840;--o5:#ff9e64;--o4:#ffb07a;--o3:#ffc799;
@@ -39,11 +39,12 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
   -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden;position:relative}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(ellipse 120% 90% at 0% 100%,rgba(0,119,255,.22) 0%,rgba(0,119,255,.08) 30%,transparent 60%),
-    radial-gradient(ellipse 100% 80% at 95% 90%,rgba(0,119,255,.16) 0%,rgba(0,119,255,.05) 30%,transparent 55%),
-    radial-gradient(ellipse 90% 70% at 50% 95%,rgba(61,152,255,.10) 0%,rgba(61,152,255,.03) 30%,transparent 55%),
-    radial-gradient(ellipse 80% 60% at 10% 15%,rgba(0,119,255,.10) 0%,rgba(0,119,255,.03) 35%,transparent 60%),
-    radial-gradient(ellipse 70% 50% at 90% 10%,rgba(0,119,255,.06) 0%,rgba(0,119,255,.02) 35%,transparent 55%)}
+    radial-gradient(ellipse 120% 90% at 0% 100%,rgba(52,94,231,.28) 0%,rgba(52,94,231,.10) 30%,transparent 60%),
+    radial-gradient(ellipse 100% 80% at 95% 90%,rgba(102,206,250,.14) 0%,rgba(102,206,250,.04) 30%,transparent 55%),
+    radial-gradient(ellipse 90% 70% at 50% 95%,rgba(52,94,231,.12) 0%,rgba(102,206,250,.04) 30%,transparent 55%),
+    radial-gradient(ellipse 80% 60% at 10% 15%,rgba(187,154,247,.10) 0%,rgba(123,79,184,.03) 35%,transparent 60%),
+    radial-gradient(ellipse 70% 50% at 90% 10%,rgba(52,94,231,.08) 0%,rgba(187,154,247,.03) 35%,transparent 55%),
+    radial-gradient(ellipse 60% 40% at 50% 50%,rgba(52,94,231,.06) 0%,transparent 50%)}
 body>*{position:relative;z-index:1}
 .scan{position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.3;
   background:repeating-linear-gradient(180deg,rgba(255,255,255,.013) 0 1px,transparent 1px 3px)}
@@ -66,7 +67,7 @@ body>*{position:relative;z-index:1}
 
 /* ══ Nav bar：场景 tab（取自 .tab 文档标签语汇）══ */
 .nav-bar{flex:none;display:flex;align-items:stretch;background:transparent;
-  border-bottom:1px solid rgba(255,255,255,.04);height:34px;overflow:hidden}
+  border-bottom:1px solid var(--bd1);height:34px;overflow:hidden}
 
 /* ══ Scenario tabs（PTO 风格圆角标签页）══ */
 .scenario-bar{flex:1;min-width:0;display:flex;align-items:center;gap:2px;padding:0 var(--sp-lg);
@@ -78,7 +79,7 @@ body>*{position:relative;z-index:1}
   flex:none;display:flex;align-items:center;gap:5px;background:transparent;
   transition:background .12s ease,color .12s ease,border-color .12s ease}
 .stab:hover{color:var(--fg2);background:rgba(41,46,66,.7);border-color:rgba(255,255,255,.06)}
-.stab.on{background:rgba(41,46,66,.9);border-color:rgba(61,152,255,.3);color:var(--fg)}
+.stab.on{background:rgba(52,94,231,.15);border-color:rgba(52,94,231,.35);color:var(--fg)}
 .stab .st{width:5px;height:5px;border-radius:1px;flex:none}
 .stab .st.done{background:var(--ok)}
 .stab .st.doing{background:var(--pri-h)}
@@ -104,7 +105,7 @@ body>*{position:relative;z-index:1}
 .code-scene{display:none;flex-direction:column;flex:1;min-height:0}
 .code-scene.on{display:flex}
 
-/* 侧栏扁平面板，右侧分隔线 */
+/* 侧栏扁平面板 */
 .sidebar{width:220px;flex:none;overflow-y:auto;
   background:var(--app)}
 .sd-sec{padding:6px 4px;border-bottom:1px solid var(--bd1)}
@@ -114,8 +115,8 @@ body>*{position:relative;z-index:1}
 .sd-node{display:flex;align-items:center;gap:7px;padding:5px var(--sp-lg);margin:1px 5px;
   cursor:default;color:var(--fg2);min-width:0;position:relative}
 .sd-node:hover{background:var(--s2)}
-.sd-node.active{background:rgba(61,152,255,.14);border-radius:6px;color:#fff;font-weight:700;
-  box-shadow:inset 2px 0 0 var(--pri-h)}
+.sd-node.active{background:rgba(52,94,231,.18);border-radius:6px;color:#fff;font-weight:700;
+  box-shadow:inset 2px 0 0 var(--pri)}
 .sd-node.active::before{display:none}
 .sd-node .ic{width:12px;flex:none;text-align:center;font-size:10px}
 .sd-node .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
@@ -236,9 +237,9 @@ table.rpt-tb td.mu{color:var(--fg4)}
 
 /* 对话区域：会话开场的用户自然语言输入，区分于 Agent 输出的样式 */
 .usr-msg{display:flex;align-items:flex-start;gap:7px;padding:8px 12px;margin:14px 0;
-  background:linear-gradient(90deg,rgba(61,152,255,.12),rgba(61,152,255,.04));font-size:11.5px;
+  background:linear-gradient(90deg,rgba(52,94,231,.14),rgba(52,94,231,.04));font-size:11.5px;
   color:var(--fg);line-height:1.5;border-radius:8px;
-  box-shadow:inset 3px 0 0 var(--pri-h)}
+  box-shadow:inset 3px 0 0 var(--pri)}
 .usr-msg:first-child{margin-top:0}
 .usr-msg .p{color:var(--pri-h);font-weight:700;flex:none}
 /* AI 回复消息 */
@@ -331,7 +332,7 @@ td.fnname{color:var(--fg2)}
 .bi-row{display:flex;align-items:center;gap:9px;background:var(--app);
   border:1px solid var(--bd1);
   border-radius:6px;padding:6px 12px;font-size:var(--fs-md)}
-.bi-row:focus-within{border-color:rgba(61,152,255,.4)}
+.bi-row:focus-within{border-color:rgba(52,94,231,.5)}
 .bi-row .p{color:var(--pri-h);font-weight:700}
 .bi-row input{flex:1;background:transparent;border:0;outline:0;color:var(--fg);font-family:var(--mono);
   font-size:var(--fs-md)}
@@ -348,13 +349,13 @@ td.fnname{color:var(--fg2)}
 /* ══ TUI 装饰 ══ */
 .particles{position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:
-    radial-gradient(1.5px 1.5px at 8% 15%,rgba(61,152,255,.3),transparent),
-    radial-gradient(1px 1px at 25% 55%,rgba(0,119,255,.2),transparent),
-    radial-gradient(1.5px 1.5px at 45% 85%,rgba(0,119,255,.25),transparent),
-    radial-gradient(1px 1px at 65% 25%,rgba(61,152,255,.25),transparent),
-    radial-gradient(1px 1px at 82% 65%,rgba(0,119,255,.18),transparent),
-    radial-gradient(1.5px 1.5px at 15% 78%,rgba(61,152,255,.2),transparent),
-    radial-gradient(1px 1px at 92% 42%,rgba(0,119,255,.2),transparent);
+    radial-gradient(1.5px 1.5px at 8% 15%,rgba(52,94,231,.35),transparent),
+    radial-gradient(1px 1px at 25% 55%,rgba(102,206,250,.2),transparent),
+    radial-gradient(1.5px 1.5px at 45% 85%,rgba(52,94,231,.3),transparent),
+    radial-gradient(1px 1px at 65% 25%,rgba(187,154,247,.25),transparent),
+    radial-gradient(1px 1px at 82% 65%,rgba(102,206,250,.18),transparent),
+    radial-gradient(1.5px 1.5px at 15% 78%,rgba(52,94,231,.22),transparent),
+    radial-gradient(1px 1px at 92% 42%,rgba(187,154,247,.2),transparent);
   animation:particleDrift 25s linear infinite}
 @keyframes particleDrift{0%{transform:translateY(0)}100%{transform:translateY(-20px)}}
 .workspace{position:relative}
