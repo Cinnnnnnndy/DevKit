@@ -295,7 +295,6 @@ td.fnname{color:var(--fg2)}
   .center-panel,.right-panel{flex:none}
   .center-panel{border-right:none;border-bottom:1px solid var(--bd1)}
   .center-panel .panel-body{max-height:240px}
-  .status-bar .keys span:nth-child(n+8){display:none}
 }
 @media (max-width:560px){
   .status-bar .keys{display:none}
@@ -765,9 +764,7 @@ td.fnname{color:var(--fg2)}
 
 <div class="status-bar">
   <div class="keys">
-    <span><b>↑↓</b></span><span><b>[ ]</b></span><span><b>/</b></span><span><b>Tab</b></span>
-    <span><b>A</b></span><span><b>E</b></span><span><b>R</b></span><span><b>Space</b></span>
-    <span><b>Esc</b></span><span><b>Ctrl+P</b></span><span><b>Ctrl+J</b></span><span><b>B</b></span>
+    <span><b>C</b> 代码区</span><span><b>P</b> AI Plan</span>
   </div>
   <div class="r">
     <span class="tag">order-center</span><span class="tag" id="statCtx">ctx 42%</span><span class="tag ready">ready</span>
@@ -859,14 +856,23 @@ function selectScenario(agentKey,scenarioKey){
   if(agentKey==='tune' && scenarioKey==='bottleneck') initHotspot();
 }
 
-document.getElementById('apHead').addEventListener('click',()=>
-  document.getElementById('aiPlan').classList.toggle('collapsed'));
-document.getElementById('cfoldBtn').addEventListener('click',e=>{
-  const on=document.getElementById('mainArea').classList.toggle('foldcode');
-  e.target.textContent=on?'▾ 代码区':'▸ 代码区';
-});
+function toggleAIPlan(){
+  document.getElementById('aiPlan').classList.toggle('collapsed');
+}
+function toggleCodeFold(){
+  const folded=document.getElementById('mainArea').classList.toggle('foldcode');
+  document.getElementById('cfoldBtn').textContent=folded?'▸ 代码区':'▾ 代码区';
+}
+document.getElementById('apHead').addEventListener('click',toggleAIPlan);
+document.getElementById('cfoldBtn').addEventListener('click',toggleCodeFold);
 document.getElementById('scenarioBar').addEventListener('click',e=>{
   const t=e.target.closest('.stab'); if(t) selectScenario(t.dataset.agent,t.dataset.scenario);
+});
+document.addEventListener('keydown',e=>{
+  const tag=document.activeElement.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||document.activeElement.isContentEditable) return;
+  if(e.key==='c'||e.key==='C') toggleCodeFold();
+  else if(e.key==='p'||e.key==='P') toggleAIPlan();
 });
 
 /* ══ 热点表格 + 火焰图（调优 · 快速定界性能瓶颈）══ */
