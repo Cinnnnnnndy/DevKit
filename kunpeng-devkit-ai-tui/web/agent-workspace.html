@@ -582,29 +582,39 @@ td.fnname{color:var(--fg2)}
     <!-- ═══ 调优 Agent ═══ -->
     <div class="scene" data-agent="tune" data-scenario="diagnose">
       <main class="center-panel">
-        <div class="panel-head"><span class="crumb">config &gt; <span class="fn">application-prod.yml</span></span>
+        <div class="panel-head"><span class="crumb">kspect &gt; <span class="fn">domain scan</span></span>
           <span class="badge pass">DONE</span></div>
         <div class="panel-body">
-          <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="fn">server</span>:</div>
-          <div class="cline"><span class="no">2</span><span class="pfx"></span>&nbsp;&nbsp;<span class="fn">tomcat</span>:</div>
-          <div class="cline hl"><span class="no">3</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;max-connections: <span class="num">1024</span> <span class="cmt">← 建议调大</span></div>
-          <div class="cline"><span class="no">4</span><span class="pfx"></span><span class="fn">spring</span>:</div>
-          <div class="cline"><span class="no">5</span><span class="pfx"></span>&nbsp;&nbsp;<span class="fn">datasource</span>:</div>
-          <div class="cline"><span class="no">6</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;hikari:</div>
-          <div class="cline"><span class="no">7</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="num">10</span></div>
-          <div class="cline hl"><span class="no">8</span><span class="pfx"></span><span class="cmt">-Xmx2g  ← 偏小，GC 停顿偏高</span></div>
+          <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt"># kspect scan · 4 类别 · 6 项参数</span></div>
+          <div class="cline hl"><span class="no">2</span><span class="pfx"></span>vm.min_free_kbytes = <span class="num">112640</span> <span class="cmt">← 建议 NUMAs*2097152</span></div>
+          <div class="cline"><span class="no">3</span><span class="pfx"></span>kernel.numa_balancing = <span class="num">0</span> <span class="cmt">建议 0（一致）</span></div>
+          <div class="cline"><span class="no">4</span><span class="pfx"></span></div>
+          <div class="cline"><span class="no">5</span><span class="pfx"></span><span class="cmt"># nic enp125s0f0</span></div>
+          <div class="cline hl"><span class="no">6</span><span class="pfx"></span>NIC Queue Count = <span class="num">1</span> <span class="cmt">← 建议 NUMA Core Count</span></div>
+          <div class="cline hl"><span class="no">7</span><span class="pfx"></span>IRQ Core Binding = <span class="num">0</span> <span class="cmt">← 建议 IRQ NUMA Affinity</span></div>
+          <div class="cline"><span class="no">8</span><span class="pfx"></span>RX Queue Depth = <span class="num">4096</span> <span class="cmt">建议 4096（一致）</span></div>
+          <div class="cline"><span class="no">9</span><span class="pfx"></span>irqbalance.service = <span class="fn">inactive</span> <span class="cmt">建议 inactive（一致）</span></div>
         </div>
       </main>
       <section class="right-panel">
         <div class="panel-head"><span class="t">自动配置诊断</span><span class="badge pass">DONE</span></div>
         <div class="panel-body">
-          <div class="sub-h">系统配置自动检查</div>
-          <div class="chk"><span class="ic warn">⚠</span><span class="lb">内核参数</span><span class="v">net.core.somaxconn=1024 → 建议 <b>4096</b></span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">文件描述符上限</span><span class="v">65535</span></div>
-          <div class="chk"><span class="ic warn">⚠</span><span class="lb">JVM 堆参数</span><span class="v">Xmx 偏小，GC 停顿偏高</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">连接池</span><span class="v">HikariCP maxPoolSize=10</span></div>
+          <div class="rpt-banner">✓ Kspect 场景化扫描完成，6 项参数中 3 项建议修改，已生成备份 resource/backups/</div>
+          <div class="stat3">
+            <div class="stat-card"><div class="sc-lb">扫描参数</div><div class="sc-big">6</div><div class="sc-sub">bios · memory · nic · os</div></div>
+            <div class="stat-card"><div class="sc-lb">建议修改</div><div class="sc-big">3</div><div class="sc-sub"><span class="wn">待应用</span></div></div>
+            <div class="stat-card"><div class="sc-lb">已一致</div><div class="sc-big">3</div><div class="sc-sub">无需修改</div></div>
+          </div>
+          <div class="sub-h">nic · enp125s0f0</div>
+          <div class="mrow"><span class="ic wn">●</span><span class="lb">NIC Queue Count</span><span class="ar">→</span><span class="tg">NUMA Core Count</span><span class="rbadge warn">当前 1</span></div>
+          <div class="mrow"><span class="ic wn">●</span><span class="lb">IRQ Core Binding</span><span class="ar">→</span><span class="tg">IRQ NUMA Affinity</span><span class="rbadge warn">当前 0</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">RX Queue Depth</span><span class="ar">→</span><span class="tg">4096</span><span class="rbadge ok">一致</span></div>
+          <div class="sub-h">memory · os</div>
+          <div class="mrow"><span class="ic wn">●</span><span class="lb">vm.min_free_kbytes</span><span class="ar">→</span><span class="tg">NUMAs*2097152</span><span class="rbadge warn">当前 112640</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">kernel.numa_balancing</span><span class="ar">→</span><span class="tg">0</span><span class="rbadge ok">一致</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">irqbalance.service</span><span class="ar">→</span><span class="tg">inactive</span><span class="rbadge ok">一致</span></div>
           <div class="console">
-            <div class="ln"><span style="color:var(--ok)">✓</span> 配置诊断 — 4 项检查，2 项待优化</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> kspect domain scan — 6 项检查，3 项待应用</div>
           </div>
         </div>
       </section>
@@ -631,6 +641,12 @@ td.fnname{color:var(--fg2)}
             <thead><tr><th>周期数占比</th><th>周期数</th><th>进程名</th><th>共享库/文件</th></tr></thead>
             <tbody id="hotspotBody"></tbody>
           </table>
+          <div class="sub-h">ksys diff · Topdown 分析</div>
+          <div class="stat3">
+            <div class="stat-card"><div class="sc-lb">IPC</div><div class="sc-big">0.86</div><div class="sc-sub">基线 1.42 · <span class="wn">-39.4%</span></div></div>
+            <div class="stat-card"><div class="sc-lb">Backend Bound</div><div class="sc-big">61%</div><div class="sc-sub">Topdown 主导瓶颈</div></div>
+            <div class="stat-card"><div class="sc-lb">L1D MPKI</div><div class="sc-big">24.1</div><div class="sc-sub">基线 6.3 · <span class="wn">+282%</span></div></div>
+          </div>
           <div class="sub-h">FLAME GRAPH</div>
           <div class="fg-legend">
             <span><i style="background:var(--tn-gold)"></i>18%</span>
@@ -665,13 +681,28 @@ td.fnname{color:var(--fg2)}
       <section class="right-panel">
         <div class="panel-head"><span class="t">参数自动迭代优化</span><span class="badge run">RUNNING</span></div>
         <div class="panel-body">
-          <div class="sub-h">方案对比</div>
+          <div class="sub-h">Auto Tuning Report <span class="cm">devkit kat train · 算法 HPO</span></div>
+          <div class="stat3">
+            <div class="stat-card"><div class="sc-lb">总轮次</div><div class="sc-big">3</div><div class="sc-sub">失败 0</div></div>
+            <div class="stat-card"><div class="sc-lb">调优方向</div><div class="sc-big">maximize</div><div class="sc-sub">TPS</div></div>
+            <div class="stat-card"><div class="sc-lb">性能提升</div><div class="sc-big">+43.8%</div><div class="sc-sub">3.2k → <span class="wn">4.6k</span></div></div>
+          </div>
+          <div class="sub-h">方案对比 <span class="cm">baseline / best / worst</span></div>
           <table class="cmp">
             <thead><tr><th></th><th>TPS</th><th>P99</th><th>GC 停顿</th></tr></thead>
             <tbody>
               <tr><td>baseline</td><td><span class="cmp-bar" style="width:22px;background:var(--tn-orange)"></span>3.2k</td><td>210ms</td><td>38%</td></tr>
-              <tr class="reco"><td>方案 A ★推荐</td><td><span class="cmp-bar" style="width:34px;background:var(--accent-green)"></span>4.6k</td><td>126ms</td><td>9%</td></tr>
-              <tr><td>方案 B 激进</td><td><span class="cmp-bar" style="width:38px;background:var(--tn-red)"></span>5.1k</td><td>98ms</td><td>4% <span style="color:var(--accent-orange)">↑内存+38%</span></td></tr>
+              <tr class="reco"><td>best ★推荐</td><td><span class="cmp-bar" style="width:34px;background:var(--accent-green)"></span>4.6k</td><td>126ms</td><td>9%</td></tr>
+              <tr><td>worst 激进</td><td><span class="cmp-bar" style="width:38px;background:var(--tn-red)"></span>5.1k</td><td>98ms</td><td>4% <span style="color:var(--accent-orange)">↑内存+38%</span></td></tr>
+            </tbody>
+          </table>
+          <div class="sub-h">参数重要性</div>
+          <table class="cmp rpt-tb">
+            <thead><tr><th>参数</th><th>重要性</th><th>baseline</th><th>best</th><th>worst</th></tr></thead>
+            <tbody>
+              <tr><td>maximum-pool-size</td><td>0.42</td><td>10</td><td>32</td><td>48</td></tr>
+              <tr><td>-Xmx</td><td>0.35</td><td>2g</td><td>6g</td><td>8g</td></tr>
+              <tr><td>max-connections</td><td>0.18</td><td>1024</td><td>4096</td><td>8192</td></tr>
             </tbody>
           </table>
           <div class="sub-h">迭代轮次</div>
@@ -766,9 +797,9 @@ const SCENARIOS={
   ],
   tune:[
     {key:'diagnose',label:'自动配置诊断',status:'done',file:'app-prod.yml',code:false,
-     goal:'自动检查诊断系统配置',
-     plan:[{t:'内核参数检查',d:'',s:'done'},{t:'文件描述符检查',d:'',s:'done'},
-       {t:'JVM 堆参数检查',d:'',s:'done'},{t:'连接池检查',d:'',s:'done'}]},
+     goal:'kspect 场景化扫描 BIOS/内存/网卡/OS 参数，比对推荐值并给出可一键应用的修改建议',
+     plan:[{t:'扫描 4 类参数',d:'bios · memory · nic · os',s:'done'},{t:'比对推荐值',d:'6 项 · 3 项待应用',s:'done'},
+       {t:'生成修改前备份',d:'resource/backups/',s:'done'},{t:'待用户确认应用',d:'',s:'done'}]},
     {key:'bottleneck',label:'快速定界性能瓶颈',status:'doing',file:'crypto.c',code:true,
      goal:'采集热点调用栈与火焰图，AI 定位根因',
      plan:[{t:'采集热点调用栈',d:'Top 13',s:'done'},{t:'生成火焰图',d:'',s:'done'},
