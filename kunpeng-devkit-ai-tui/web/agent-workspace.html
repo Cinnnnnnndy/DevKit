@@ -571,6 +571,26 @@ td.fnname{color:var(--fg2)}
           <div class="chk"><span class="ic ok">✓</span><span class="lb">扫描模式</span><span class="v">火焰图扫描（推荐）</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">SIMD 目标</span><span class="v">--simd-target=<b style="color:var(--accent-green)">sve</b></span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">x86 指令集识别</span><span class="v">--isa=avx2 --enable-intel-intrinsics</span></div>
+
+          <div class="tc-collapse">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">Edit settlement_kernel.c</span>
+              <span class="tc-csum"><span class="tk d">_mm256_loadu_ps(...)</span> → <span class="tk a">svld1_f32(...)</span> · 共 4 处改动</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="cline"><span class="no">102</span><span class="pfx"></span><span class="cmt">// 天秤扫描：x86 AVX2 intrinsics，--simd-target=sve</span></div>
+              <div class="cline del"><span class="no">103</span><span class="pfx del">-</span><span class="tk d">__m256 va=_mm256_loadu_ps(&amp;amount[i]);</span></div>
+              <div class="cline del"><span class="no">104</span><span class="pfx del">-</span><span class="tk d">__m256 vr=_mm256_loadu_ps(&amp;rate[i]);</span></div>
+              <div class="cline del"><span class="no">105</span><span class="pfx del">-</span><span class="tk d">__m256 vt=_mm256_fmadd_ps(va,vr,vf);</span></div>
+              <div class="cline del"><span class="no">106</span><span class="pfx del">-</span><span class="tk d">_mm256_storeu_ps(&amp;total[i],vt);</span></div>
+              <div class="cline add hl"><span class="no">103</span><span class="pfx add">+</span><span class="tk a">svbool_t pg=svwhilelt_b32(i,n);</span></div>
+              <div class="cline add hl"><span class="no">104</span><span class="pfx add">+</span><span class="tk a">svfloat32_t va=svld1_f32(pg,&amp;amount[i]);</span></div>
+              <div class="cline add hl"><span class="no">105</span><span class="pfx add">+</span><span class="tk a">svfloat32_t vt=svmad_f32_z(pg,va,vr,vf);</span></div>
+              <div class="cline add hl"><span class="no">106</span><span class="pfx add">+</span><span class="tk a">svst1_f32(pg,&amp;total[i],vt);</span></div>
+            </div>
+          </div>
+
           <div class="stat3">
             <div class="stat-card"><div class="sc-lb">需修改文件数</div><div class="sc-big">4</div><div class="sc-sub">天秤扫描</div></div>
             <div class="stat-card"><div class="sc-lb">建议项总数</div><div class="sc-big">12</div><div class="sc-sub">已完成 <span class="wn">5</span></div></div>
