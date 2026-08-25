@@ -115,6 +115,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
   background:var(--app);border-right:1px solid var(--bd1);overflow:hidden;transition:flex-basis .15s ease}
 .main-area.foldcode .center-panel{flex-basis:0;border-right:none;overflow:hidden}
 .right-panel{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--s1);overflow:hidden}
+.right-panel .panel-body{position:relative}
 
 /* AI PLAN：钉在 nav-bar 下方、main-area 上方，跟随当前 Agent、可收起 */
 .ai-plan{flex:none;background:var(--s1);border-bottom:1px solid var(--bd1)}
@@ -204,6 +205,17 @@ table.cmp tr.reco td:first-child{color:var(--ok);font-weight:700}
 .cmp-bar{display:inline-block;height:9px;vertical-align:-2px;margin-right:6px}
 table.rpt-tb td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:1px}
 table.rpt-tb td.mu{color:var(--fg4)}
+
+/* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
+.tc-collapse{border:1px solid var(--bd1);margin-bottom:12px}
+.tc-chead{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;background:var(--app)}
+.tc-chead:hover{background:var(--s2)}
+.tc-car{font-family:var(--mono);font-size:9px;color:var(--fg4);flex:none;transition:transform .15s}
+.tc-collapse:not(.open) .tc-car{transform:rotate(-90deg)}
+.tc-clb{font-family:var(--mono);font-size:10.5px;color:var(--fg2);flex:none}
+.tc-csum{font-size:10.5px;color:var(--fg4);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-cbody{padding:12px 10px 2px}
+.tc-collapse:not(.open) .tc-cbody{display:none}
 
 /* 报告横幅 · 统计卡片（对齐 Porting Advisor 迁移报告结构）*/
 .rpt-banner{display:flex;align-items:baseline;gap:7px;font-size:11.5px;color:var(--ok);
@@ -407,41 +419,51 @@ td.fnname{color:var(--fg2)}
           <div class="chk"><span class="ic ok">✓</span><span class="lb">源码类型 / 迁移服务</span><span class="v">C/C++/ASM · 架构源码迁移</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">目标环境</span><span class="v">openEuler 22.03 · kernel 5.10.0 · BiSheng Compiler 2.5.0.1</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">构建工具 / 编译命令</span><span class="v">make / make</span></div>
-          <div class="rpt-banner">✓ 源码迁移分析成功，可根据建议完成源码包迁移，重新编译或执行以验证迁移结果</div>
-
-          <div class="stat3">
-            <div class="stat-card"><div class="sc-lb">扫描文件统计</div><div class="sc-big">25</div><div class="sc-sub">文件总数</div></div>
-            <div class="stat-card"><div class="sc-lb">依赖文件统计</div><div class="sc-big">2</div>
-              <div class="sc-sub">文件总数 · <span class="wn">可兼容 1</span> · <span class="mu">待确认 1</span></div></div>
-            <div class="stat-card"><div class="sc-lb">源码文件统计</div><div class="sc-big">23</div><div class="sc-sub">需修改文件 · 1734 行</div></div>
-          </div>
-
-          <div class="sub-h">与架构相关的依赖文件</div>
-          <table class="cmp rpt-tb">
-            <thead><tr><th>依赖文件名</th><th>类型</th><th>待下载软件包</th><th>分析结果</th></tr></thead>
-            <tbody>
-              <tr><td>libz.so.1</td><td>动态库</td><td>zlib-1.2.11-20.oe1.aarch64.rpm</td><td><span class="rbadge warn">可兼容</span></td></tr>
-              <tr><td>libstdlib.so</td><td>动态库</td><td>--</td><td><span class="rbadge muted">待确认</span></td></tr>
-            </tbody>
-          </table>
-
-          <div class="sub-h">需要迁移的源码文件 <span class="cm">共 15 个 · 需修改 1726 行</span></div>
-          <table class="cmp rpt-tb">
-            <thead><tr><th>文件名</th><th>存放路径</th><th>需修改代码行</th></tr></thead>
-            <tbody>
-              <tr><td>top13.c</td><td class="mu">c_code/test/</td><td>892</td></tr>
-              <tr><td>top13-330chu.c</td><td class="mu">c_code/test/</td><td>331</td></tr>
-              <tr><td>suggestion_type_600_multiple.c</td><td class="mu">c_code/test/</td><td>22</td></tr>
-              <tr><td>ksw.h</td><td class="mu">cgo_code/</td><td>2</td></tr>
-              <tr><td>file_lock.c</td><td class="mu">cgo_code/</td><td>1</td></tr>
-            </tbody>
-          </table>
 
           <div class="console">
             <div class="ln"><span style="color:var(--ok)">✓</span> Analyze dependency · 18 libs</div>
             <div class="ln"><span style="color:var(--ok)">✓</span> Find incompatible API · 知识库命中 3 处</div>
             <div class="ln"><span style="color:var(--ok)">✓</span> Generate patches · 25 files</div>
             <div class="ln"><span style="color:var(--ok)">✓</span> Build verify · aarch64 制品已产出</div>
+          </div>
+
+          <div class="tc-collapse">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">迁移分析报告</span>
+              <span class="tc-csum">25 文件 · 依赖 2（可兼容 1 · 待确认 1）· 需修改 23 文件 / 1734 行</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="rpt-banner">✓ 源码迁移分析成功，可根据建议完成源码包迁移，重新编译或执行以验证迁移结果</div>
+
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">扫描文件统计</div><div class="sc-big">25</div><div class="sc-sub">文件总数</div></div>
+                <div class="stat-card"><div class="sc-lb">依赖文件统计</div><div class="sc-big">2</div>
+                  <div class="sc-sub">文件总数 · <span class="wn">可兼容 1</span> · <span class="mu">待确认 1</span></div></div>
+                <div class="stat-card"><div class="sc-lb">源码文件统计</div><div class="sc-big">23</div><div class="sc-sub">需修改文件 · 1734 行</div></div>
+              </div>
+
+              <div class="sub-h">与架构相关的依赖文件</div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>依赖文件名</th><th>类型</th><th>待下载软件包</th><th>分析结果</th></tr></thead>
+                <tbody>
+                  <tr><td>libz.so.1</td><td>动态库</td><td>zlib-1.2.11-20.oe1.aarch64.rpm</td><td><span class="rbadge warn">可兼容</span></td></tr>
+                  <tr><td>libstdlib.so</td><td>动态库</td><td>--</td><td><span class="rbadge muted">待确认</span></td></tr>
+                </tbody>
+              </table>
+
+              <div class="sub-h">需要迁移的源码文件 <span class="cm">共 15 个 · 需修改 1726 行</span></div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>文件名</th><th>存放路径</th><th>需修改代码行</th></tr></thead>
+                <tbody>
+                  <tr><td>top13.c</td><td class="mu">c_code/test/</td><td>892</td></tr>
+                  <tr><td>top13-330chu.c</td><td class="mu">c_code/test/</td><td>331</td></tr>
+                  <tr><td>suggestion_type_600_multiple.c</td><td class="mu">c_code/test/</td><td>22</td></tr>
+                  <tr><td>ksw.h</td><td class="mu">cgo_code/</td><td>2</td></tr>
+                  <tr><td>file_lock.c</td><td class="mu">cgo_code/</td><td>1</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
@@ -919,6 +941,13 @@ function attachAutoScroll(container){
   };
 }
 const sessScroll=attachAutoScroll(document.getElementById('sessScroll'));
+
+/* 对话区域（各场景右侧面板）：同一套 auto-follow 滚动策略 */
+document.querySelectorAll('.right-panel .panel-body').forEach(attachAutoScroll);
+
+/* 高价值输出（报告/表格）默认折叠，点击标题展开/收起 */
+document.querySelectorAll('.tc-chead').forEach(head=>
+  head.addEventListener('click',()=>head.closest('.tc-collapse').classList.toggle('open')));
 
 /* 演示用：模拟新会话陆续接入，驱动上面的自动追尾/脱离/回底策略 */
 const INCOMING_SESSIONS=[
