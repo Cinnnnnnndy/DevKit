@@ -58,21 +58,27 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .nav-bar{flex:none;display:flex;align-items:stretch;background:var(--s2);
   border-bottom:1px solid var(--bd1);height:34px;overflow:hidden}
 
-/* ══ Scenario tabs（二级导航：具体场景，取自 .tab 文档标签语汇）══ */
-.scenario-bar{flex:1;min-width:0;display:flex;align-items:flex-end;gap:2px;padding:0 var(--sp-lg);
-  overflow-x:auto;height:100%}
-.stab{font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--fg3);
-  padding:4px 8px;cursor:pointer;white-space:nowrap;border:1px solid transparent;border-bottom:none;
-  position:relative;top:1px;flex:none;display:flex;align-items:center;gap:5px}
-.stab:hover{color:var(--fg2)}
-.stab.on{background:var(--app);border-color:var(--bd1);color:var(--fg)}
-.stab.on::after{content:'';position:absolute;left:-1px;right:-1px;top:-1px;height:2px;background:var(--pri)}
+/* ══ Scenario tabs（PTO 风格圆角标签页）══ */
+.scenario-bar{flex:1;min-width:0;display:flex;align-items:center;gap:2px;padding:0 var(--sp-lg);
+  overflow-x:auto;height:100%;scrollbar-width:none}
+.scenario-bar::-webkit-scrollbar{display:none}
+.stab{font-family:var(--mono);font-size:11px;color:var(--fg3);
+  padding:0 4px 0 9px;height:25px;cursor:pointer;white-space:nowrap;
+  border:1px solid transparent;border-radius:6px;
+  flex:none;display:flex;align-items:center;gap:5px;background:transparent;
+  transition:background .12s ease,color .12s ease,border-color .12s ease}
+.stab:hover{color:var(--fg2);background:var(--s3);border-color:var(--bd2)}
+.stab.on{background:var(--s3);border-color:var(--bd2);color:var(--fg)}
 .stab .st{width:5px;height:5px;border-radius:1px;flex:none}
 .stab .st.done{background:var(--ok)}
 .stab .st.doing{background:var(--pri-h)}
 .stab .st.wait{background:var(--warn)}
 .stab .st.todo{background:var(--fg4)}
-.stab-sep{flex:none;width:1px;align-self:stretch;background:var(--bd1);margin:0 4px}
+.stab .tc{width:18px;height:18px;display:flex;align-items:center;justify-content:center;
+  border:none;background:transparent;color:var(--fg4);border-radius:3px;cursor:pointer;
+  font-size:14px;line-height:1;opacity:0;transition:opacity .1s,background .1s}
+.stab:hover .tc,.stab.on .tc{opacity:.55}
+.stab .tc:hover{opacity:1;background:var(--s4);color:var(--fg)}
 
 /* ══ Workspace（侧栏 + 主内容） ══ */
 .workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0;background:var(--bg)}
@@ -105,14 +111,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .sd-node .a{color:var(--ok);font-weight:700;flex:none;font-size:9.5px}
 
 /* 会话列表：auto-follow + 手动脱离 + 一键回底 */
-.sess-scroll{max-height:120px;overflow-y:auto;position:relative}
-.scroll-bottom{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:none;
-  align-items:center;gap:4px;font-family:var(--mono);font-size:9.5px;color:var(--fg);
-  background:var(--s3);border:1px solid var(--pri-h);padding:3px 9px;cursor:pointer;z-index:5;
-  white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.scroll-bottom.show{display:inline-flex}
-.scroll-bottom:hover{background:var(--sel)}
-.scroll-bottom .arw{color:var(--pri-h);font-weight:700}
+.sess-scroll{max-height:none;overflow-y:visible;position:relative}
 .sd-node.lv1{padding-left:24px} .sd-node.lv2{padding-left:35px}
 
 .main-area{flex:1;min-width:0;min-height:0;display:flex;gap:8px;padding:8px}
@@ -143,10 +142,12 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .ap-step .d{font-size:10px;color:var(--fg4);white-space:nowrap}
 .ap-step:not(:last-child)::after{content:'→';color:var(--bd3);margin-left:9px;font-size:10px}
 
-.cfold{margin-left:auto;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--fg4);
-  background:none;border:none;padding:6px 12px;cursor:pointer;flex:none}
-.cfold:hover{color:var(--fg2)}
-.cfold.on{color:var(--pri-h)}
+.cfold{margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--fg3);
+  background:transparent;border:1px solid transparent;border-radius:6px;
+  padding:0 9px;height:25px;cursor:pointer;flex:none;display:flex;align-items:center;
+  transition:background .12s ease,color .12s ease,border-color .12s ease}
+.cfold:hover{color:var(--fg2);background:var(--s3);border-color:var(--bd2)}
+.cfold.on{color:var(--pri-h);background:var(--s3);border-color:var(--bd2)}
 .panel-head{flex:none;display:flex;align-items:center;gap:8px;padding:8px var(--sp-lg);
   border-bottom:1px solid var(--bd1);font-family:var(--mono)}
 .panel-head::before{content:'>_';color:var(--fg4);font-size:10px;flex:none}
@@ -339,13 +340,14 @@ td.fnname{color:var(--fg2)}
     <div class="sd-sec">
       <div class="h">Sessions</div>
       <div class="sess-scroll" id="sessScroll">
-        <div class="sd-node active"><span class="dot working"></span><span class="lb">order-center</span></div>
-        <div class="sd-node"><span class="dot done"></span><span class="lb">nginx-gateway</span></div>
-        <div class="sd-node"><span class="dot working"></span><span class="lb">payment-gateway</span></div>
-        <div class="sd-node"><span class="dot wait"></span><span class="lb">user-center</span></div>
-        <div class="sd-node"><span class="dot idle"></span><span class="lb">risk-engine</span></div>
-        <div class="sd-node"><span class="dot done"></span><span class="lb">settlement-batch</span></div>
-        <div class="sd-node"><span class="dot idle"></span><span class="lb">api-gateway</span></div>
+        <div class="sd-node active"><span class="dot done"></span><span class="lb">应用迁移</span></div>
+        <div class="sd-node"><span class="dot working"></span><span class="lb">系统迁移</span></div>
+        <div class="sd-node"><span class="dot wait"></span><span class="lb">容器迁移</span></div>
+        <div class="sd-node"><span class="dot working"></span><span class="lb">源码向量化改造</span></div>
+        <div class="sd-node"><span class="dot wait"></span><span class="lb">通算算子智能生成</span></div>
+        <div class="sd-node"><span class="dot done"></span><span class="lb">自动配置诊断</span></div>
+        <div class="sd-node"><span class="dot working"></span><span class="lb">快速定界性能瓶颈</span></div>
+        <div class="sd-node"><span class="dot working"></span><span class="lb">参数自动迭代优化</span></div>
       </div>
     </div>
     <div class="sd-sec">
@@ -850,8 +852,8 @@ function renderScenarioBar(activeAgent,activeScenario){
     SCENARIOS[agentKey].map(s=>
       `<div class="stab ${agentKey===activeAgent&&s.key===activeScenario?'on':''} grp-${agentKey}"
         data-agent="${agentKey}" data-scenario="${s.key}">
-        <span class="st ${s.status}"></span>${s.label}</div>`).join('')
-  ).join('<span class="stab-sep"></span>');
+        <span class="st ${s.status}"></span>${s.label}<span class="tc">&times;</span></div>`).join('')
+  ).join('');
 }
 
 function renderAIPlan(agentKey,scenarioKey){
@@ -899,52 +901,10 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='p'||e.key==='P') toggleAIPlan();
 });
 
-/* ══ 会话列表滚动策略：auto-follow + 手动脱离 + 一键回底 ══
-   新会话到达时，若用户仍停留在底部则跟随滚动；一旦用户向上翻看历史即视为
-   手动脱离，停止跟随并露出"回到底部"按钮，点击后立即回底并恢复跟随。 */
-function attachAutoScroll(container){
-  const BOTTOM_SLACK=6;
-  let following=true;
-  const btn=document.createElement('div');
-  btn.className='scroll-bottom';
-  btn.innerHTML='<span class="arw">↓</span> 回到底部';
-  container.appendChild(btn);
-  const atBottom=()=>container.scrollHeight-container.scrollTop-container.clientHeight<=BOTTOM_SLACK;
-  const sync=()=>btn.classList.toggle('show',!following);
-  container.addEventListener('scroll',()=>{ following=atBottom(); sync(); });
-  btn.addEventListener('click',()=>{
-    container.scrollTo({top:container.scrollHeight,behavior:'smooth'});
-    following=true; sync();
-  });
-  return {
-    onGrow(){ if(following) container.scrollTop=container.scrollHeight; else sync(); }
-  };
-}
-const sessScroll=attachAutoScroll(document.getElementById('sessScroll'));
-
-/* 对话区域（各场景右侧面板）：同一套 auto-follow 滚动策略 */
-document.querySelectorAll('.right-panel .panel-body').forEach(attachAutoScroll);
-
 /* 高价值输出（报告/表格）默认折叠，点击标题展开/收起 */
 document.querySelectorAll('.tc-chead').forEach(head=>
   head.addEventListener('click',()=>head.closest('.tc-collapse').classList.toggle('open')));
 
-/* 演示用：模拟新会话陆续接入，驱动上面的自动追尾/脱离/回底策略 */
-const INCOMING_SESSIONS=[
-  {lb:'log-pipeline',state:'working'},
-  {lb:'auth-service',state:'wait'},
-  {lb:'inventory-sync',state:'done'}
-];
-let incomingIdx=0;
-const incomingTimer=setInterval(()=>{
-  if(incomingIdx>=INCOMING_SESSIONS.length){ clearInterval(incomingTimer); return; }
-  const s=INCOMING_SESSIONS[incomingIdx++];
-  const row=document.createElement('div');
-  row.className='sd-node';
-  row.innerHTML=`<span class="dot ${s.state}"></span><span class="lb">${s.lb}</span>`;
-  document.getElementById('sessScroll').insertBefore(row,document.querySelector('.scroll-bottom'));
-  sessScroll.onGrow();
-},3400);
 
 /* ══ 热点表格 + 火焰图（调优 · 快速定界性能瓶颈）══ */
 let hotspotReady=false;
