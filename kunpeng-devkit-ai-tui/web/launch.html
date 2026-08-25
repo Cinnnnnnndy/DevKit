@@ -122,6 +122,10 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
 @keyframes bl{50%{opacity:0}}
 .binput .hint{flex:none;font-size:11px;color:var(--fg4)}
 .binput .hint b{background:var(--s4);color:var(--fg2);font-weight:500;padding:1px 6px;margin-right:5px;font-size:10.5px}
+.bsub{display:flex;align-items:center;gap:8px;margin:-8px 0 14px 2px;font-size:10.5px;color:var(--fg4)}
+.bsub b{background:var(--s4);color:var(--fg2);font-weight:500;padding:1px 6px;margin-right:2px;font-size:10px}
+.bsub .mdl{color:var(--fg3)}
+.bsub .sep{color:var(--bd3)}
 
 .row{display:flex;align-items:flex-start;gap:10px;font-size:11.5px;margin-bottom:9px}
 .row .lb{flex:none;width:34px;color:var(--fg4);font-size:9.5px;letter-spacing:.14em;
@@ -151,9 +155,7 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
   color:var(--fg4);border-top:1px solid var(--bd1);background:var(--s1);z-index:2}
 #p2 .foot b{background:var(--s4);color:var(--fg2);font-weight:500;padding:0 5px;margin-right:4px;font-size:10px}
 #p2 .foot .r{margin-left:auto;display:flex;gap:6px}
-#p2 .navdot{font-family:var(--mono);font-size:10px;letter-spacing:.08em;padding:2px 8px;
-  border:1px solid var(--bd2);color:var(--fg4);cursor:pointer}
-#p2 .navdot.on{color:var(--pri-h);border-color:var(--pri-h)}
+#p2 .foot .ver{font-family:var(--mono);letter-spacing:.04em}
 
 @media (max-width:820px){
   .cards{grid-template-columns:repeat(2,1fr)}
@@ -254,10 +256,11 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
           <div class="ipanel">
             <div class="irow"><span class="k">环境</span><span class="v"><span class="d ok"></span>本机 Kunpeng 920 · aarch64 · openEuler 22.03 LTS</span></div>
             <div class="irow"><span class="k"></span><span class="v warn">⚠ 未检测到 aarch64 交叉编译工具链</span></div>
-            <div class="irow"><span class="k">模型</span><span class="v"><span class="d ok"></span>devkit-gateway · qwen2.5-72b-instruct</span></div>
+            <div class="irow"><span class="k">模型</span><span class="v"><span class="d ok"></span>devkit-gateway · 盘古-Coder-38B</span></div>
           </div>
           <div class="ipanel">
             <div class="irow"><span class="k">Runtime</span><span class="v">本地已就绪，不联网也能用</span></div>
+            <div class="irow"><span class="k">MCP</span><span class="v"><span class="d ok"></span>7 个已连接服务 · <span style="color:var(--pri-h)">/status</span> 查看详情</span></div>
             <div class="iact"><b>[F]</b>修复&nbsp;&nbsp;<b>[C]</b>连接远程鲲鹏服务器</div>
             <div class="irow" style="margin-top:4px"><span class="k"></span><span class="v ok">✓ 连接正常 218ms · <span style="color:var(--pri-h)">/model</span> 切换</span></div>
           </div>
@@ -268,6 +271,10 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
           <input type="text" id="mainInput" placeholder="想做什么？直接说 —— 例如「把 ./nginx 迁到鲲鹏」">
           <span class="cur"></span>
           <span class="hint"><b>Ctrl+P</b>命令面板</span>
+        </div>
+        <div class="bsub">
+          <span class="mdl">盘古-Coder-38B</span><span class="sep">·</span>
+          <span><b>Shift+Tab</b>循环 Default→Auto-Edit→Plan；或 <b>/plan</b> [目标] 直接进入</span>
         </div>
 
         <div class="row"><span class="lb">建议</span><div class="bd">
@@ -284,7 +291,7 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
         </div></div>
 
         <div class="row"><span class="lb">命令</span><div class="bd">
-          <span class="cmdc">Ctrl+P</span><span class="cmdc">/help</span><span class="cmdc">/skill</span>
+          <span class="cmdc">Ctrl+P</span><span class="cmdc">/help</span><span class="cmdc">/status</span><span class="cmdc">/skill</span>
           <span class="cmdc">/view-skills</span><span class="cmdc">/sessions</span><span class="cmdc">/model</span>
           <span class="cmdc">/provider</span><span class="cmdc">/connect-server</span>
         </div></div>
@@ -292,10 +299,7 @@ pre.bgw1{color:transparent;background:linear-gradient(148deg,#7891b2 0%,#699a8e 
     </div>
     <div class="foot">
       <span><b>Enter</b>开始 &nbsp;<b>Ctrl+P</b>命令 &nbsp;<b>F1</b>帮助 &nbsp;<b>Ctrl+Q</b>退出</span>
-      <span class="r">
-        <span class="navdot" data-p="1">01 OPENING</span>
-        <span class="navdot on" data-p="2">02 MAIN LAUNCH</span>
-      </span>
+      <span class="r"><span class="ver">v1.1.19</span></span>
     </div>
   </div>
 
@@ -416,22 +420,19 @@ function fillBG(){
 requestAnimationFrame(fillBG);
 addEventListener('resize',()=>{cancelAnimationFrame(FLOW.raf);fillBG();});
 
-/* ══ 阶段切换：01 自动过场到 02，可点击跳过 / 点导航跳转 ══ */
+/* ══ 阶段切换：01 自动过场到 02，可点击跳过 ══ */
 let advanced=false;
 function goPhase(n){
   E('p1').classList.toggle('on',n===1);
   E('p2').classList.toggle('on',n===2);
-  document.querySelectorAll('.navdot').forEach(el=>el.classList.toggle('on',+el.dataset.p===n));
   if(n===2){ advanced=true; setTimeout(()=>E('mainInput')&&E('mainInput').focus(),350); }
 }
 const advTimer=setTimeout(()=>{ if(!advanced) goPhase(2); },2600);
 function skip(){ clearTimeout(advTimer); if(!advanced) goPhase(2); }
-E('p1').addEventListener('click',e=>{ if(!e.target.closest('.navdot')) skip(); });
+E('p1').addEventListener('click',skip);
 addEventListener('keydown',e=>{
   if(!advanced && e.key!=='Tab'){ skip(); }
 });
-document.querySelectorAll('.navdot').forEach(el=>
-  el.addEventListener('click',e=>{ e.stopPropagation(); clearTimeout(advTimer); advanced=true; goPhase(+el.dataset.p); }));
 
 /* 主输入框回车 —— 进入实际工作台 */
 E('mainInput').addEventListener('keydown',e=>{
