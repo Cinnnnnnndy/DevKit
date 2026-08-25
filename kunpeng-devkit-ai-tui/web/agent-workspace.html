@@ -491,12 +491,18 @@ td.fnname{color:var(--fg2)}
       <section class="right-panel">
         <div class="panel-head"><span class="t">容器迁移</span><span class="badge queue">排队</span></div>
         <div class="panel-body">
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">命令</span><span class="v">devkit sys-mig -c container_mig -i order-gateway.tar -dockerfile Dockerfile</span></div>
+          <div class="stat3">
+            <div class="stat-card"><div class="sc-lb">镜像文件统计</div><div class="sc-big">11</div><div class="sc-sub">Total Files</div></div>
+            <div class="stat-card"><div class="sc-lb">可兼容</div><div class="sc-big">10</div><div class="sc-sub">Adaptable for Compatibility</div></div>
+            <div class="stat-card"><div class="sc-lb">待确认</div><div class="sc-big">1</div><div class="sc-sub"><span class="mu">To Be Confirmed</span></div></div>
+          </div>
           <div class="sub-h">自动识别分类容器镜像</div>
           <div class="steps">
             <div class="step"><span class="c pending">1</span><span class="bd"><div class="t1">识别分类镜像</div><div class="t2">基础镜像 / 业务镜像</div></span></div>
             <div class="step"><span class="c pending">2</span><span class="bd"><div class="t1">基础镜像</div><div class="t2">拉取官方 arm64 版本，或智能重建</div></span></div>
             <div class="step"><span class="c pending">3</span><span class="bd"><div class="t1">业务镜像</div><div class="t2">拉取源码，智能适配</div></span></div>
-            <div class="step"><span class="c pending">4</span><span class="bd"><div class="t1">生成 Dockerfile</div><div class="t2">鲲鹏版本</div></span></div>
+            <div class="step"><span class="c pending">4</span><span class="bd"><div class="t1">生成 Dockerfile + 迁移报告</div><div class="t2">Dockerfile.kunpeng · report.json/html（中英双语）</div></span></div>
             <div class="step"><span class="c pending">5</span><span class="bd"><div class="t1">构建与验证</div><div class="t2">镜像构建 + 启动自检</div></span></div>
           </div>
           <div class="console"><div class="ln"><span style="color:var(--fg4)">○</span> 等待系统迁移完成后启动 · 预计 4 min</div></div>
@@ -782,9 +788,9 @@ const SCENARIOS={
      plan:[{t:'系统成分分析',d:'中间件 2/2 兼容',s:'done'},{t:'SQL 智能转换',d:'12/19 张表',s:'doing'},
        {t:'自动部署 3 个微服务',d:'',s:'doing'},{t:'启动验证',d:'/actuator/health 2/3',s:'todo'}]},
     {key:'container-migrate',label:'容器迁移',status:'todo',file:'Dockerfile',code:true,
-     goal:'识别分类镜像，重建基础/业务镜像，生成鲲鹏版 Dockerfile 并验证',
-     plan:[{t:'识别分类镜像',d:'',s:'todo'},{t:'基础镜像重建',d:'',s:'todo'},
-       {t:'业务镜像适配',d:'',s:'todo'},{t:'生成 Dockerfile',d:'',s:'todo'},{t:'构建与验证',d:'',s:'todo'}]}
+     goal:'devkit sys-mig -c container_mig 分析 x86 镜像与 Dockerfile，生成鲲鹏版 Dockerfile 与双语迁移报告',
+     plan:[{t:'识别分类镜像',d:'基础镜像 / 业务镜像',s:'todo'},{t:'基础镜像重建',d:'',s:'todo'},
+       {t:'业务镜像适配',d:'',s:'todo'},{t:'生成 Dockerfile + 报告',d:'11 files · 10 可兼容 · 1 待确认',s:'todo'},{t:'构建与验证',d:'',s:'todo'}]}
   ],
   develop:[
     {key:'vectorize',label:'源码向量化改造',status:'doing',file:'kernel',code:true,
