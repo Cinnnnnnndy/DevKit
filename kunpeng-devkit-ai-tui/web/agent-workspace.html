@@ -48,22 +48,10 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .topbar .logo{font-family:var(--sans);font-size:var(--fs-md);font-weight:700;letter-spacing:.02em;flex:none}
 .topbar .c{font-family:var(--mono);font-size:10.5px;color:var(--fg3);background:var(--s2);
   border:1px solid var(--bd1);padding:2px 8px}
-.topbar .r{margin-left:auto;display:flex;align-items:center;gap:7px;flex:none;
-  font-size:var(--fs-xs);color:var(--fg3);white-space:nowrap}
-.topbar .dot{width:5px;height:5px;background:var(--ok)}
-.topbar .ready{color:var(--ok);font-weight:700;letter-spacing:.08em}
 
-/* ══ Nav bar：Agent 切换（窄屏 TaskTabs 收起语汇：▶ 当前项 ▾）+ 场景 tab 同一行 ══ */
+/* ══ Nav bar：场景 tab（取自 .tab 文档标签语汇）══ */
 .nav-bar{flex:none;display:flex;align-items:stretch;background:var(--s2);
   border-bottom:1px solid var(--bd1);height:34px}
-.agent-switch{position:relative;flex:none;display:flex;align-items:center;gap:6px;
-  padding:0 12px;background:var(--sel);border-right:1px solid var(--bd1);cursor:pointer}
-.agent-switch .car{font-family:var(--mono);font-size:9px;color:var(--pri-h);flex:none}
-.agent-switch .car.dn{color:var(--fg4);font-size:8px}
-.agent-switch .cur{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--pri-h);
-  white-space:nowrap}
-.agent-switch select{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;
-  cursor:pointer;font-size:11px}
 
 /* ══ Scenario tabs（二级导航：具体场景，取自 .tab 文档标签语汇）══ */
 .scenario-bar{flex:1;min-width:0;display:flex;align-items:flex-end;gap:2px;padding:0 var(--sp-lg);
@@ -96,7 +84,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .sd-node.active::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:2px;background:var(--pri-h)}
 .sd-node .ic{width:12px;flex:none;text-align:center;font-size:10px}
 .sd-node .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
-.sd-node .dot{width:4px;height:4px;border-radius:1px;flex:none}
+.sd-node .dot{width:5px;height:5px;border-radius:1px;flex:none}
 .sd-node .dot.working{background:var(--pri-h)}
 .sd-node .m{color:var(--o3);font-weight:700;flex:none;font-size:9.5px}
 .sd-node .a{color:var(--ok);font-weight:700;flex:none;font-size:9.5px}
@@ -304,9 +292,6 @@ td.fnname{color:var(--fg2)}
   .status-bar .keys span:nth-child(n+8){display:none}
 }
 @media (max-width:560px){
-  .topbar .r span:not(.ready){display:none}
-  .agent-switch{padding:0 8px}
-  .agent-switch .cur{font-size:10px}
   .status-bar .keys{display:none}
 }
 </style>
@@ -317,14 +302,13 @@ td.fnname{color:var(--fg2)}
 <div class="topbar">
   <span class="logo">KUNPENG DEVKIT AI</span>
   <span class="c">v0.1.0 · Kunpeng ARM64</span>
-  <span class="r"><span class="dot"></span> <span class="ready">READY</span></span>
 </div>
 
 <div class="workspace">
   <aside class="sidebar" id="sidebar">
     <div class="sd-sec">
       <div class="h">Sessions</div>
-      <div class="sd-node active"><span class="ic">●</span><span class="dot working"></span><span class="lb">order-center</span></div>
+      <div class="sd-node active"><span class="dot working"></span><span class="lb">order-center</span></div>
     </div>
     <div class="sd-sec">
       <div class="h">Project — order-center/ (aarch64)</div>
@@ -358,14 +342,6 @@ td.fnname{color:var(--fg2)}
 
   <div class="main-col">
   <div class="nav-bar">
-    <div class="agent-switch">
-      <span class="car">▶</span><span class="cur" id="agentCur">迁移 Agent</span><span class="car dn">▾</span>
-      <select id="agentSelect" aria-label="切换 Agent">
-        <option value="migrate">迁移 Agent · 3</option>
-        <option value="develop">开发 Agent · 2</option>
-        <option value="tune">调优 Agent · 4</option>
-      </select>
-    </div>
     <div class="scenario-bar" id="scenarioBar"></div>
     <button class="cfold" id="cfoldBtn">▾ 代码区</button>
   </div>
@@ -851,8 +827,6 @@ function renderScenarioBar(activeAgent,activeScenario){
   ).join('<span class="stab-sep"></span>');
 }
 
-const AGENT_LABELS={migrate:'迁移 Agent',develop:'开发 Agent',tune:'调优 Agent'};
-
 function renderAIPlan(agentKey,scenarioKey){
   const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
   if(!meta) return;
@@ -862,15 +836,9 @@ function renderAIPlan(agentKey,scenarioKey){
       <span class="lb">${p.t}</span>${p.d?`<span class="d">${p.d}</span>`:''}</div>`).join('');
 }
 
-function selectAgent(agentKey){
-  selectScenario(agentKey,lastScenario[agentKey]);
-}
-
 function selectScenario(agentKey,scenarioKey){
   curAgent=agentKey;
   lastScenario[agentKey]=scenarioKey;
-  document.getElementById('agentCur').textContent=AGENT_LABELS[agentKey];
-  document.getElementById('agentSelect').value=agentKey;
   document.querySelectorAll('#scenarioBar .stab').forEach(el=>
     el.classList.toggle('on',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
   document.querySelectorAll('.scene').forEach(el=>
@@ -885,7 +853,6 @@ function selectScenario(agentKey,scenarioKey){
   if(agentKey==='tune' && scenarioKey==='bottleneck') initHotspot();
 }
 
-document.getElementById('agentSelect').addEventListener('change',e=>selectAgent(e.target.value));
 document.getElementById('apHead').addEventListener('click',()=>
   document.getElementById('aiPlan').classList.toggle('collapsed'));
 document.getElementById('cfoldBtn').addEventListener('click',e=>{
