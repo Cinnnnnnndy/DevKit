@@ -95,6 +95,20 @@ pre.bgf.lower{inset:auto;left:0;right:0;bottom:0;height:22%;
 .p2title{text-align:center;margin-bottom:36px}
 .p2title .wm{font-size:12px}
 
+.demo-entry{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:12px 18px;
+  background:rgba(31,35,53,.72);backdrop-filter:blur(14px);
+  border:1px solid rgba(122,162,247,.22);border-radius:10px;cursor:pointer;
+  box-shadow:0 0 20px -4px rgba(122,162,247,.18),0 0 0 1px rgba(255,255,255,.03) inset;
+  transition:border-color .2s,box-shadow .2s}
+.demo-entry:hover{border-color:rgba(122,162,247,.45);
+  box-shadow:0 0 28px -2px rgba(122,162,247,.28),0 0 0 1px rgba(255,255,255,.06) inset}
+.demo-tag{font-size:9px;font-weight:700;letter-spacing:.18em;padding:2px 8px;
+  background:var(--pri);color:#fff;border-radius:4px;flex:none}
+.demo-title{font-size:13px;font-weight:600;color:var(--fg);flex:none}
+.demo-desc{font-size:11px;color:var(--fg3);flex:1}
+.demo-arrow{font-size:14px;color:var(--pri-h);flex:none;transition:transform .2s}
+.demo-entry:hover .demo-arrow{transform:translateX(3px)}
+
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
 .fcard{border:1px solid var(--bd1);background:var(--s1);padding:14px 16px;border-radius:8px}
 .fcard .h{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:.1em;
@@ -215,6 +229,13 @@ pre.bgf.lower{inset:auto;left:0;right:0;bottom:0;height:22%;
     <div class="body">
       <div class="col">
         <div class="p2title"><pre class="wm" id="wm2"></pre></div>
+
+        <div class="demo-entry" id="demoGo">
+          <span class="demo-tag">DEMO</span>
+          <span class="demo-title">应用迁移全流程演示</span>
+          <span class="demo-desc">order-center C++ 项目 · 源码迁移 → 依赖分析 → 补丁生成 → 构建验证</span>
+          <span class="demo-arrow">→</span>
+        </div>
 
         <div class="cards">
           <div class="fcard"><div class="h">迁移</div>
@@ -461,6 +482,7 @@ E('mainInput').addEventListener('keydown',e=>{
   if(e.key==='Enter') location.href='agent-workspace.html';
 });
 E('sessGo').addEventListener('click',()=>location.href='agent-workspace.html');
+E('demoGo').addEventListener('click',()=>location.href='agent-workspace.html');
 </script>
 </body>
 </html>
