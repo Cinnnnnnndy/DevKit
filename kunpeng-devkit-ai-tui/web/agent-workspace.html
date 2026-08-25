@@ -46,12 +46,12 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 /* ══ Top Bar ══ */
 .topbar{height:40px;flex:none;display:flex;align-items:center;gap:12px;padding:0 var(--sp-lg)}
 /* 品牌标 —— 与 demo.html 的 blogo 语汇一致：图标 + 分段反色标识块 */
-.blogo{display:inline-flex;align-items:stretch;font-family:var(--mono);font-size:10px;
+.blogo{display:inline-flex;align-items:stretch;font-family:var(--mono);font-size:14px;
   font-weight:700;letter-spacing:.14em;line-height:1.9;user-select:none;flex:none}
 .blogo span{padding:0 4px;display:flex;align-items:center;justify-content:center}
 .blogo .g1{color:var(--fg);letter-spacing:.18em}
 .blogo .g2{color:var(--fg2);letter-spacing:.18em}
-.blogo .kpi{width:22px;height:22px;margin-right:7px;align-self:center;object-fit:contain;flex:none}
+.blogo .kpi{width:26px;height:26px;margin-right:7px;align-self:center;object-fit:contain;flex:none}
 
 /* ══ Nav bar：场景 tab（取自 .tab 文档标签语汇）══ */
 .nav-bar{flex:none;display:flex;align-items:stretch;background:transparent;
@@ -120,6 +120,10 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .center-panel{order:2;flex:0 0 0;min-width:0;display:flex;flex-direction:column;
   background:var(--app);overflow:hidden;border-radius:8px;transition:flex-basis .15s ease}
 .main-area:not(.foldcode) .center-panel{flex-basis:42%;border:1px solid var(--bd1)}
+
+/* ══ Conversation title ══ */
+.conv-title{flex:none;padding:8px var(--sp-lg) 4px;font-family:var(--mono);font-size:13px;
+  font-weight:700;color:var(--fg);letter-spacing:.02em}
 
 /* AI PLAN：钉在 nav-bar 下方、main-area 上方，跟随当前 Agent、可收起 */
 .ai-plan{flex:none;background:var(--s1);border-bottom:1px solid var(--bd1);overflow:hidden}
@@ -336,8 +340,12 @@ td.fnname{color:var(--fg2)}
 
 <div class="workspace">
   <aside class="sidebar" id="sidebar">
-    <div class="sd-sec" style="border-bottom:none">
-      <div class="h">Project — order-center/ (aarch64)</div>
+    <div class="sd-sec">
+      <div class="h">Sessions</div>
+      <div class="sess-scroll" id="sessScroll"></div>
+    </div>
+    <div class="sd-sec">
+      <div class="h">Project</div>
       <div class="sd-node lv1"><span class="ic">▾</span><span class="lb">nginx-gateway/</span></div>
       <div class="sd-node lv2" data-file="crypto.c"><span class="ic">≡</span><span class="lb">src/crypto.c</span><span class="m">M</span></div>
       <div class="sd-node lv2" data-file="nginx.conf"><span class="ic">≡</span><span class="lb">conf/nginx.conf</span><span class="m">M</span></div>
@@ -349,10 +357,25 @@ td.fnname{color:var(--fg2)}
       <div class="sd-node lv1" data-file="Dockerfile"><span class="ic">≡</span><span class="lb">docker/Dockerfile.kunpeng</span><span class="a">A</span></div>
       <div class="sd-node lv1" data-file="app-prod.yml"><span class="ic">≡</span><span class="lb">config/application-prod.yml</span></div>
     </div>
-    <div class="sess-scroll" id="sessScroll" style="display:none"></div>
+    <div class="sd-sec">
+      <div class="h">Tools</div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-green)">✓</span><span class="lb">code_migrator</span></div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-green)">✓</span><span class="lb">sql_migrator</span></div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-blue)">▶</span><span class="lb">container_builder</span></div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-blue)">▶</span><span class="lb">vector_optimizer</span></div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-green)">✓</span><span class="lb">system_diagnoser</span></div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-blue)">▶</span><span class="lb">param_tuner</span></div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-green)">✓</span><span class="lb">boostkit_matcher</span></div>
+    </div>
+    <div class="sd-sec">
+      <div class="h">Settings</div>
+      <div class="sd-node"><span class="ic">◇</span><span class="lb">Model · qwen</span></div>
+      <div class="sd-node"><span class="ic">◇</span><span class="lb">Server · Kunpeng920 remote</span></div>
+    </div>
   </aside>
 
   <div class="main-col">
+  <div class="conv-title" id="convTitle">应用迁移</div>
   <div class="ai-plan" id="aiPlan">
     <div class="ap-head" id="apHead">
       <span class="ap-arrow">▾</span><span class="ap-t">AI PLAN</span>
@@ -839,6 +862,7 @@ function selectScenario(agentKey,scenarioKey){
   document.querySelectorAll('.scene').forEach(el=>
     el.classList.toggle('on',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
   const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
+  if(meta) document.getElementById('convTitle').textContent=meta.label;
   document.querySelectorAll('#sidebar .sd-node[data-file]').forEach(el=>
     el.classList.toggle('active',!!meta && el.dataset.file===meta.file));
   renderAIPlan(agentKey,scenarioKey);
