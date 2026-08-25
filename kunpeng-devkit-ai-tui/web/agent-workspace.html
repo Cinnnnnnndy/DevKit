@@ -85,12 +85,18 @@ body>*{position:relative;z-index:1}
 .stab:hover .tc,.stab.on .tc{opacity:.55}
 .stab .tc:hover{opacity:1;background:var(--s4);color:var(--fg)}
 
-/* ══ Workspace（侧栏 + 主内容） ══ */
+/* ══ Workspace（侧栏 + 主内容 + 代码列） ══ */
 .workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0;background:var(--bg)}
-/* main-col 是统一的一整块圆角卡片：tab / AI Plan / 对话区域 / 输入框 都在
-   这一张卡片里，靠内部分隔线区分，而不是各自独立的卡片 */
 .main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;
-  margin:8px 8px 8px 0;border:1px solid var(--bd1);border-radius:8px;overflow:hidden;background:var(--s1)}
+  margin:8px 0 8px 0;border:1px solid var(--bd1);border-radius:8px;overflow:hidden;background:var(--s1)}
+/* 代码列：workspace 级别的独立面板，在 main-col 右侧展开 */
+.code-col{flex:0 0 0;min-width:0;display:flex;flex-direction:column;
+  margin:8px 8px 8px 0;border-radius:8px;overflow:hidden;background:var(--s1);
+  transition:flex-basis .18s ease,border .18s ease,margin .18s ease}
+.workspace:not(.foldcode) .code-col{flex-basis:42%;border:1px solid var(--bd1)}
+.workspace.foldcode .code-col{flex-basis:0;border:none;margin-left:0;margin-right:8px}
+.code-scene{display:none;flex-direction:column;flex:1;min-height:0}
+.code-scene.on{display:flex}
 
 /* 侧栏是一整块从上到下的圆角卡片，四个分组靠内部分隔线区分，而不是各自独立的卡片 */
 .sidebar{width:220px;flex:none;background:var(--s1);overflow-y:auto;
@@ -119,13 +125,9 @@ body>*{position:relative;z-index:1}
 .sess-scroll{max-height:none;overflow-y:visible;position:relative}
 .sd-node.lv1{padding-left:24px} .sd-node.lv2{padding-left:35px}
 
-.main-area{flex:1;min-width:0;min-height:0;display:flex;gap:8px;padding:8px}
-.right-panel{order:1;flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.main-area{flex:1;min-width:0;min-height:0;display:flex;gap:0;padding:8px}
+.right-panel{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
 .right-panel .panel-body{position:relative}
-/* 代码区：在右侧展开的独立圆角卡片，挤压对话区域宽度，而非整块切换或贴边窄栏 */
-.center-panel{order:2;flex:0 0 0;min-width:0;display:flex;flex-direction:column;
-  background:var(--app);overflow:hidden;border-radius:8px;transition:flex-basis .15s ease}
-.main-area:not(.foldcode) .center-panel{flex-basis:42%;border:1px solid var(--bd1)}
 
 /* ══ Conversation title ══ */
 .conv-title{flex:none;padding:8px var(--sp-lg) 4px;font-family:var(--mono);font-size:13px;
@@ -170,7 +172,8 @@ body>*{position:relative;z-index:1}
 .panel-head .badge.run{color:#2b1a03;background:var(--warn)}
 .panel-head .badge.queue{color:var(--fg3);background:var(--s4)}
 .panel-body{flex:1;min-height:0;overflow-y:auto;padding:var(--sp-lg)}
-.center-panel .panel-body{padding:9px 0}
+.code-col .panel-head{border-bottom:1px solid var(--bd1)}
+.code-col .panel-body{padding:9px 0;flex:1;min-height:0;overflow-y:auto}
 
 /* 代码 / diff 行 —— 与 demo.html 的 .dl/.tk 同一套克制配色，不做彩虹语法高亮 */
 .cline{font-size:12px;line-height:1.5;white-space:pre;padding:0 var(--sp-lg)}
@@ -228,6 +231,9 @@ table.rpt-tb td.mu{color:var(--fg4)}
   border-left:2px solid var(--pri-h);background:rgba(61,152,255,.06);font-size:11.5px;
   color:var(--fg);line-height:1.5}
 .usr-msg .p{color:var(--pri-h);font-weight:700;flex:none}
+/* AI 回复消息 */
+.ai-msg{padding:6px 9px;margin-bottom:10px;font-size:11.5px;color:var(--fg2);line-height:1.65}
+.ai-msg b{color:var(--fg);font-weight:600}
 
 /* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
 .tc-collapse{border:1px solid var(--bd1);margin-bottom:16px}
@@ -307,7 +313,7 @@ td.fnname{color:var(--fg2)}
 .scene.on{display:flex;flex:1;min-width:0}
 
 /* ══ Bottom Input（取自 .inp .box）══ */
-.bottom-input{flex:none;background:transparent;border-top:1px solid var(--bd1);padding:10px var(--sp-lg)}
+.bottom-input{flex:none;background:transparent;border-top:none;padding:10px var(--sp-lg)}
 .bi-row{display:flex;align-items:center;gap:9px;background:var(--app);border:1px solid var(--bd2);
   border-radius:8px;padding:6px 12px;box-shadow:0 0 0 2px rgba(0,119,255,.09);font-size:var(--fs-md)}
 .bi-row .p{color:var(--pri-h);font-weight:700}
@@ -344,7 +350,7 @@ td.fnname{color:var(--fg2)}
   <span class="blogo"><img class="kpi" alt="Kunpeng" src="data:image/png;base64,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"><span class="g2">KUNPENG</span><span class="g1">DEVKIT AI</span></span>
 </div>
 
-<div class="workspace">
+<div class="workspace foldcode" id="workspace">
   <aside class="sidebar" id="sidebar">
     <div class="sd-sec">
       <div class="h">Sessions</div>
@@ -394,28 +400,16 @@ td.fnname{color:var(--fg2)}
   <div class="main-area" id="mainArea">
     <!-- ═══ 迁移 Agent ═══ -->
     <div class="scene on" data-agent="migrate" data-scenario="app-migrate">
-      <main class="center-panel">
-        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> crypto.c &gt; nginx-gateway &gt; src &gt; crypto.c &gt; <span class="fn">ngx_crypto_spin_wait()</span></span></div>
-        <div class="panel-body">
-          <div class="cline"><span class="no">84</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">while</span> (*lock) {</div>
-          <div class="cline"><span class="no">86</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (spin--) {</div>
-          <div class="cline del"><span class="no">87</span><span class="pfx del">-</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk d">_mm_pause()</span>;</div>
-          <div class="cline add hl"><span class="no">87</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk a">asm volatile("yield")</span>;</div>
-          <div class="cline"><span class="no">88</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
-          <div class="cline"><span class="no">89</span><span class="pfx"></span>&nbsp;&nbsp;}</div>
-          <div class="cline"><span class="no">90</span><span class="pfx"></span>}</div>
-          <div class="cline"><span class="no">91</span><span class="pfx"></span></div>
-          <div class="cline"><span class="no">92</span><span class="pfx"></span><span class="cmt">// ARM 手册 §B2.5：YIELD 是自旋场景下的等价替换，语义不变</span></div>
-        </div>
-      </main>
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我看看 order-center 这个 C++ 项目能不能迁到鲲鹏架构，不兼容的地方直接改</div>
+          <div class="ai-msg">好的，我来分析一下 <b>order-center</b> 项目。已识别到项目信息，确认以下迁移配置：</div>
           <div class="sub-h">任务配置</div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">任务名称</span><span class="v">Code_Porting_order-center</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">源码类型 / 迁移服务</span><span class="v">C/C++/ASM · 架构源码迁移</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">目标环境</span><span class="v">openEuler 22.03 · kernel 5.10.0 · BiSheng Compiler 2.5.0.1</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">构建工具 / 编译命令</span><span class="v">make / make</span></div>
+          <div class="ai-msg">配置确认完毕，开始执行源码迁移分析 ——</div>
 
           <div class="console">
             <div class="ln"><span style="color:var(--ok)">✓</span> Analyze dependency · 18 libs</div>
@@ -467,22 +461,15 @@ td.fnname{color:var(--fg2)}
     </div>
 
     <div class="scene" data-agent="migrate" data-scenario="sys-migrate">
-      <main class="center-panel">
-        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> order_item.sql &gt; sql &gt; <span class="fn">order_item.sql</span></span></div>
-        <div class="panel-body">
-          <div class="cline del"><span class="no">1</span><span class="pfx del">-</span>INSERT INTO <span class="tk d">`order_item`</span> (<span class="tk d">`order_id`,`sku`,`qty`</span>)</div>
-          <div class="cline del"><span class="no">2</span><span class="pfx del">-</span><span class="tk d">ON DUPLICATE KEY UPDATE `qty` = `qty` + VALUES(`qty`)</span>;</div>
-          <div class="cline add"><span class="no">1</span><span class="pfx add">+</span>INSERT INTO <span class="tk a">"order_item"</span> (<span class="tk a">"order_id","sku","qty"</span>)</div>
-          <div class="cline add hl"><span class="no">2</span><span class="pfx add">+</span><span class="tk a">ON CONFLICT ("order_id","sku") DO UPDATE SET "qty"=...</span></div>
-        </div>
-      </main>
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我把 order-center 的数据库、中间件和应用一起迁移到鲲鹏</div>
+          <div class="ai-msg">好的，我来创建系统迁移工程。已识别到项目的基础设施组件，确认以下迁移配置：</div>
           <div class="sub-h">工程配置</div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">迁移工程名称</span><span class="v">order-center-sysmig</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">成分选型表</span><span class="v">数据库 1 · 中间件 3 · 应用 2</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">预计迁移时长</span><span class="v">5 分钟</span></div>
+          <div class="ai-msg">配置已确认，开始执行系统迁移 ——</div>
           <div class="sub-h">数据库迁移 <span class="cm">全部 1 · 已迁移 0 · 待迁移 1</span></div>
           <div class="mrow"><span class="ic wn">●</span><span class="lb">MySQL 8.0</span><span class="ar">→</span><span class="tg">Vastbase G100 V2.2</span>
             <span class="rbadge warn">SQL 智能转换中 62%</span></div>
@@ -506,20 +493,10 @@ td.fnname{color:var(--fg2)}
     </div>
 
     <div class="scene" data-agent="migrate" data-scenario="container-migrate">
-      <main class="center-panel">
-        <div class="panel-head"><span class="crumb"><span class="m">[+]</span> Dockerfile.kunpeng &gt; docker &gt; <span class="fn">Dockerfile.kunpeng</span></span></div>
-        <div class="panel-body">
-          <div class="cline del"><span class="no">1</span><span class="pfx del">-</span><span class="kw">FROM</span> <span class="tk d">nginx:1.25</span></div>
-          <div class="cline add hl"><span class="no">1</span><span class="pfx add">+</span><span class="kw">FROM</span> <span class="tk a">kunpeng-registry/nginx:1.25-aarch64</span></div>
-          <div class="cline"><span class="no">2</span><span class="pfx"></span></div>
-          <div class="cline del"><span class="no">3</span><span class="pfx del">-</span><span class="kw">COPY</span> --from=build <span class="tk d">/out/nginx-x86_64</span> /usr/sbin/nginx</div>
-          <div class="cline add hl"><span class="no">3</span><span class="pfx add">+</span><span class="kw">COPY</span> --from=build <span class="tk a">/out/nginx-aarch64</span> /usr/sbin/nginx</div>
-          <div class="cline"><span class="no">4</span><span class="pfx"></span><span class="kw">EXPOSE</span> <span class="num">80</span> <span class="num">443</span></div>
-        </div>
-      </main>
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我把 order-gateway 的容器镜像迁移到鲲鹏架构</div>
+          <div class="ai-msg">好的，我来分析 <b>order-gateway</b> 的容器镜像。正在解析镜像层和 Dockerfile ——</div>
           <div class="console">
             <div class="ln"><span style="color:var(--fg4)">○</span> devkit sys-mig -c container_mig -i order-gateway.tar -dockerfile Dockerfile</div>
           </div>
@@ -543,32 +520,18 @@ td.fnname{color:var(--fg2)}
 
     <!-- ═══ 开发 Agent ═══ -->
     <div class="scene" data-agent="develop" data-scenario="vectorize">
-      <main class="center-panel">
-        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> settlement_kernel.c &gt; settlement &gt; <span class="fn">calc_batch():104</span></span></div>
-        <div class="panel-body">
-          <div class="cline"><span class="no">102</span><span class="pfx"></span><span class="cmt">// 天秤扫描：x86 AVX2 intrinsics，--simd-target=sve</span></div>
-          <div class="cline del"><span class="no">103</span><span class="pfx del">-</span><span class="tk d">__m256 va=_mm256_loadu_ps(&amp;amount[i]);</span></div>
-          <div class="cline del"><span class="no">104</span><span class="pfx del">-</span><span class="tk d">__m256 vr=_mm256_loadu_ps(&amp;rate[i]);</span></div>
-          <div class="cline del"><span class="no">105</span><span class="pfx del">-</span><span class="tk d">__m256 vt=_mm256_fmadd_ps(va,vr,vf);</span></div>
-          <div class="cline del"><span class="no">106</span><span class="pfx del">-</span><span class="tk d">_mm256_storeu_ps(&amp;total[i],vt);</span></div>
-          <div class="cline add hl"><span class="no">103</span><span class="pfx add">+</span><span class="tk a">svbool_t pg=svwhilelt_b32(i,n);</span></div>
-          <div class="cline add hl"><span class="no">104</span><span class="pfx add">+</span><span class="tk a">svfloat32_t va=svld1_f32(pg,&amp;amount[i]);</span></div>
-          <div class="cline add hl"><span class="no">105</span><span class="pfx add">+</span><span class="tk a">svfloat32_t vt=svmad_f32_z(pg,va,vr,vf);</span></div>
-          <div class="cline add hl"><span class="no">106</span><span class="pfx add">+</span><span class="tk a">svst1_f32(pg,&amp;total[i],vt);</span></div>
-          <div class="cline"><span class="no">107</span><span class="pfx"></span></div>
-          <div class="cline"><span class="no">108</span><span class="pfx"></span><span class="cmt">// SVE 谓词寄存器按剩余元素数收尾，免去标量 tail loop</span></div>
-        </div>
-      </main>
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我把 settlement_kernel.c 里的 AVX2 向量化代码改成鲲鹏 SVE 实现</div>
-          <div class="console">
-            <div class="ln"><span style="color:var(--pri-h)">▶</span> ./tiancheng --flamegraph settlement_hotspot.svg --top=12 -r /order-center -o ./output --enable-intel-intrinsics --isa=avx2 --simd-target=sve</div>
-          </div>
+          <div class="ai-msg">好的，我来用天秤扫描工具分析 <b>settlement_kernel.c</b>。先确认扫描配置：</div>
           <div class="sub-h">扫描配置</div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">扫描模式</span><span class="v">火焰图扫描（推荐）</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">SIMD 目标</span><span class="v">--simd-target=<b style="color:var(--accent-green)">sve</b></span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">x86 指令集识别</span><span class="v">--isa=avx2 --enable-intel-intrinsics</span></div>
+          <div class="ai-msg">配置确认，启动向量化扫描 ——</div>
+          <div class="console">
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> ./tiancheng --flamegraph settlement_hotspot.svg --top=12 -r /order-center -o ./output --enable-intel-intrinsics --isa=avx2 --simd-target=sve</div>
+          </div>
 
           <div class="tc-collapse open">
             <div class="tc-chead">
@@ -609,18 +572,10 @@ td.fnname{color:var(--fg2)}
     </div>
 
     <div class="scene" data-agent="develop" data-scenario="op-gen">
-      <main class="center-panel">
-        <div class="panel-head"><span class="crumb">settlement &gt; <span class="fn">MatrixSettle.java</span></span></div>
-        <div class="panel-body">
-          <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt">// 候选算子：结算矩阵化计算 —— 识别中，暂无改动</span></div>
-          <div class="cline"><span class="no">2</span><span class="pfx"></span><span class="ty">double</span>[][] <span class="fn">settle</span>(<span class="ty">double</span>[][] a, <span class="ty">double</span>[][] b) {</div>
-          <div class="cline"><span class="no">3</span><span class="pfx"></span>&nbsp;&nbsp;<span class="cmt">// 三重循环矩阵乘，等待生成鲲鹏亲和实现</span></div>
-          <div class="cline"><span class="no">4</span><span class="pfx"></span>}</div>
-        </div>
-      </main>
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我看看结算矩阵计算能不能用鲲鹏亲和库加速一下</div>
+          <div class="ai-msg">好的，我来扫描项目中的计算密集算子，匹配 <b>BoostKit</b> 算子库看看哪些可以加速。</div>
           <div class="sub-h">识别计算密集算子，自动生成鲲鹏亲和实现</div>
           <div class="steps">
             <div class="step"><span class="c doing">▶</span><span class="bd"><div class="t1">识别候选算子</div><div class="t2">结算矩阵化计算 · 风控评分模型</div></span></div>
@@ -639,26 +594,14 @@ td.fnname{color:var(--fg2)}
 
     <!-- ═══ 调优 Agent ═══ -->
     <div class="scene" data-agent="tune" data-scenario="diagnose">
-      <main class="center-panel">
-        <div class="panel-head"><span class="crumb">kspect &gt; <span class="fn">domain scan</span></span></div>
-        <div class="panel-body">
-          <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt"># kspect scan · 4 类别 · 6 项参数</span></div>
-          <div class="cline hl"><span class="no">2</span><span class="pfx"></span>vm.min_free_kbytes = <span class="num">112640</span> <span class="cmt">← 建议 NUMAs*2097152</span></div>
-          <div class="cline"><span class="no">3</span><span class="pfx"></span>kernel.numa_balancing = <span class="num">0</span> <span class="cmt">建议 0（一致）</span></div>
-          <div class="cline"><span class="no">4</span><span class="pfx"></span></div>
-          <div class="cline"><span class="no">5</span><span class="pfx"></span><span class="cmt"># nic enp125s0f0</span></div>
-          <div class="cline hl"><span class="no">6</span><span class="pfx"></span>NIC Queue Count = <span class="num">1</span> <span class="cmt">← 建议 NUMA Core Count</span></div>
-          <div class="cline hl"><span class="no">7</span><span class="pfx"></span>IRQ Core Binding = <span class="num">0</span> <span class="cmt">← 建议 IRQ NUMA Affinity</span></div>
-          <div class="cline"><span class="no">8</span><span class="pfx"></span>RX Queue Depth = <span class="num">4096</span> <span class="cmt">建议 4096（一致）</span></div>
-          <div class="cline"><span class="no">9</span><span class="pfx"></span>irqbalance.service = <span class="fn">inactive</span> <span class="cmt">建议 inactive（一致）</span></div>
-        </div>
-      </main>
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我扫描一下这台鲲鹏服务器的配置，看看哪些参数没调优到位</div>
+          <div class="ai-msg">好的，扫描需要 BMC 访问权限来读取硬件配置。请确认以下连接信息：</div>
           <div class="sub-h">依赖参数配置</div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">BMC_IP</span><span class="v">192.168.10.21</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">BMC_USER / BMC_PASSWD</span><span class="v">已配置 · Apply Depend</span></div>
+          <div class="ai-msg">BMC 连接验证通过，开始场景化扫描 BIOS / 内存 / 网卡 / OS 参数 ——</div>
           <div class="rpt-banner">✓ Kspect 场景化扫描完成，6 项参数中 3 项建议修改，已生成备份 resource/backups/</div>
           <div class="stat3">
             <div class="stat-card"><div class="sc-lb">扫描参数</div><div class="sc-big">6</div><div class="sc-sub">bios · memory · nic · os</div></div>
@@ -681,20 +624,10 @@ td.fnname{color:var(--fg2)}
     </div>
 
     <div class="scene" data-agent="tune" data-scenario="bottleneck">
-      <main class="center-panel">
-        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> crypto.c &gt; nginx-gateway &gt; src &gt; crypto.c &gt; <span class="fn" id="crumbFn">ngx_crypto_spin_wait()</span></span></div>
-        <div class="panel-body">
-          <div class="cline"><span class="no">84</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">while</span> (*lock) {</div>
-          <div class="cline"><span class="no">86</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (spin--) {</div>
-          <div class="cline hl"><span class="no">87</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">asm</span> <span class="kw">volatile</span>(<span class="str">"yield"</span>); <span class="cmt">← 热点 18.42%</span></div>
-          <div class="cline"><span class="no">88</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
-          <div class="cline"><span class="no">89</span><span class="pfx"></span>&nbsp;&nbsp;}</div>
-          <div class="cline"><span class="no">90</span><span class="pfx"></span>}</div>
-        </div>
-      </main>
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我定位一下结算服务最近变慢的原因</div>
+          <div class="ai-msg">好的，我来用 <b>ksys</b> 采集性能数据并与基线对比，定位瓶颈根因 ——</div>
           <div class="console">
             <div class="ln"><span style="color:var(--pri-h)">▶</span> ./ksys collect -d 10 -i 1 -o /home/order-center/ && ./ksys diff -i baseline.json now.json -o ./diff-out</div>
           </div>
@@ -728,20 +661,10 @@ td.fnname{color:var(--fg2)}
     </div>
 
     <div class="scene" data-agent="tune" data-scenario="auto-param">
-      <main class="center-panel">
-        <div class="panel-head"><span class="crumb">config &gt; <span class="fn">application-prod.yml</span></span></div>
-        <div class="panel-body">
-          <div class="cline del"><span class="no">7</span><span class="pfx del">-</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="tk d">10</span></div>
-          <div class="cline add hl"><span class="no">7</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="tk a">32</span></div>
-          <div class="cline del"><span class="no">8</span><span class="pfx del">-</span><span class="tk d">-Xmx2g -XX:+UseG1GC</span></div>
-          <div class="cline add hl"><span class="no">8</span><span class="pfx add">+</span><span class="tk a">-Xmx6g -XX:+UseZGC</span></div>
-          <div class="cline del"><span class="no">9</span><span class="pfx del">-</span>server.tomcat.max-connections=<span class="tk d">1024</span></div>
-          <div class="cline add hl"><span class="no">9</span><span class="pfx add">+</span>server.tomcat.max-connections=<span class="tk a">4096</span></div>
-        </div>
-      </main>
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我把订单服务的 JVM 和连接池参数调到最优</div>
+          <div class="ai-msg">好的，我来用 <b>kat</b> 自动调参工具进行迭代优化。使用 HPO 算法搜索最优参数组合 ——</div>
           <div class="console">
             <div class="ln"><span style="color:var(--pri-h)">▶</span> devkit kat train -t order-center-task.cfg -p jvm-param.cfg -o ./train-out</div>
           </div>
@@ -788,6 +711,104 @@ td.fnname{color:var(--fg2)}
       <span class="bi-cur"></span>
     </div>
   </div>
+  </div>
+
+  <div class="code-col" id="codeCol">
+    <div class="code-scene on" data-agent="migrate" data-scenario="app-migrate">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> crypto.c &gt; nginx-gateway &gt; src &gt; crypto.c &gt; <span class="fn">ngx_crypto_spin_wait()</span></span></div>
+      <div class="panel-body">
+        <div class="cline"><span class="no">84</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">while</span> (*lock) {</div>
+        <div class="cline"><span class="no">86</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (spin--) {</div>
+        <div class="cline del"><span class="no">87</span><span class="pfx del">-</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk d">_mm_pause()</span>;</div>
+        <div class="cline add hl"><span class="no">87</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk a">asm volatile("yield")</span>;</div>
+        <div class="cline"><span class="no">88</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+        <div class="cline"><span class="no">89</span><span class="pfx"></span>&nbsp;&nbsp;}</div>
+        <div class="cline"><span class="no">90</span><span class="pfx"></span>}</div>
+        <div class="cline"><span class="no">91</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">92</span><span class="pfx"></span><span class="cmt">// ARM 手册 §B2.5：YIELD 是自旋场景下的等价替换，语义不变</span></div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="migrate" data-scenario="sys-migrate">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> order_item.sql &gt; sql &gt; <span class="fn">order_item.sql</span></span></div>
+      <div class="panel-body">
+        <div class="cline del"><span class="no">1</span><span class="pfx del">-</span>INSERT INTO <span class="tk d">`order_item`</span> (<span class="tk d">`order_id`,`sku`,`qty`</span>)</div>
+        <div class="cline del"><span class="no">2</span><span class="pfx del">-</span><span class="tk d">ON DUPLICATE KEY UPDATE `qty` = `qty` + VALUES(`qty`)</span>;</div>
+        <div class="cline add"><span class="no">1</span><span class="pfx add">+</span>INSERT INTO <span class="tk a">"order_item"</span> (<span class="tk a">"order_id","sku","qty"</span>)</div>
+        <div class="cline add hl"><span class="no">2</span><span class="pfx add">+</span><span class="tk a">ON CONFLICT ("order_id","sku") DO UPDATE SET "qty"=...</span></div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="migrate" data-scenario="container-migrate">
+      <div class="panel-head"><span class="crumb"><span class="m">[+]</span> Dockerfile.kunpeng &gt; docker &gt; <span class="fn">Dockerfile.kunpeng</span></span></div>
+      <div class="panel-body">
+        <div class="cline del"><span class="no">1</span><span class="pfx del">-</span><span class="kw">FROM</span> <span class="tk d">nginx:1.25</span></div>
+        <div class="cline add hl"><span class="no">1</span><span class="pfx add">+</span><span class="kw">FROM</span> <span class="tk a">kunpeng-registry/nginx:1.25-aarch64</span></div>
+        <div class="cline"><span class="no">2</span><span class="pfx"></span></div>
+        <div class="cline del"><span class="no">3</span><span class="pfx del">-</span><span class="kw">COPY</span> --from=build <span class="tk d">/out/nginx-x86_64</span> /usr/sbin/nginx</div>
+        <div class="cline add hl"><span class="no">3</span><span class="pfx add">+</span><span class="kw">COPY</span> --from=build <span class="tk a">/out/nginx-aarch64</span> /usr/sbin/nginx</div>
+        <div class="cline"><span class="no">4</span><span class="pfx"></span><span class="kw">EXPOSE</span> <span class="num">80</span> <span class="num">443</span></div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="develop" data-scenario="vectorize">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> settlement_kernel.c &gt; settlement &gt; <span class="fn">calc_batch():104</span></span></div>
+      <div class="panel-body">
+        <div class="cline"><span class="no">102</span><span class="pfx"></span><span class="cmt">// 天秤扫描：x86 AVX2 intrinsics，--simd-target=sve</span></div>
+        <div class="cline del"><span class="no">103</span><span class="pfx del">-</span><span class="tk d">__m256 va=_mm256_loadu_ps(&amp;amount[i]);</span></div>
+        <div class="cline del"><span class="no">104</span><span class="pfx del">-</span><span class="tk d">__m256 vr=_mm256_loadu_ps(&amp;rate[i]);</span></div>
+        <div class="cline del"><span class="no">105</span><span class="pfx del">-</span><span class="tk d">__m256 vt=_mm256_fmadd_ps(va,vr,vf);</span></div>
+        <div class="cline del"><span class="no">106</span><span class="pfx del">-</span><span class="tk d">_mm256_storeu_ps(&amp;total[i],vt);</span></div>
+        <div class="cline add hl"><span class="no">103</span><span class="pfx add">+</span><span class="tk a">svbool_t pg=svwhilelt_b32(i,n);</span></div>
+        <div class="cline add hl"><span class="no">104</span><span class="pfx add">+</span><span class="tk a">svfloat32_t va=svld1_f32(pg,&amp;amount[i]);</span></div>
+        <div class="cline add hl"><span class="no">105</span><span class="pfx add">+</span><span class="tk a">svfloat32_t vt=svmad_f32_z(pg,va,vr,vf);</span></div>
+        <div class="cline add hl"><span class="no">106</span><span class="pfx add">+</span><span class="tk a">svst1_f32(pg,&amp;total[i],vt);</span></div>
+        <div class="cline"><span class="no">107</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">108</span><span class="pfx"></span><span class="cmt">// SVE 谓词寄存器按剩余元素数收尾，免去标量 tail loop</span></div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="develop" data-scenario="op-gen">
+      <div class="panel-head"><span class="crumb">settlement &gt; <span class="fn">MatrixSettle.java</span></span></div>
+      <div class="panel-body">
+        <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt">// 候选算子：结算矩阵化计算 —— 识别中，暂无改动</span></div>
+        <div class="cline"><span class="no">2</span><span class="pfx"></span><span class="ty">double</span>[][] <span class="fn">settle</span>(<span class="ty">double</span>[][] a, <span class="ty">double</span>[][] b) {</div>
+        <div class="cline"><span class="no">3</span><span class="pfx"></span>&nbsp;&nbsp;<span class="cmt">// 三重循环矩阵乘，等待生成鲲鹏亲和实现</span></div>
+        <div class="cline"><span class="no">4</span><span class="pfx"></span>}</div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="tune" data-scenario="diagnose">
+      <div class="panel-head"><span class="crumb">kspect &gt; <span class="fn">domain scan</span></span></div>
+      <div class="panel-body">
+        <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt"># kspect scan · 4 类别 · 6 项参数</span></div>
+        <div class="cline hl"><span class="no">2</span><span class="pfx"></span>vm.min_free_kbytes = <span class="num">112640</span> <span class="cmt">← 建议 NUMAs*2097152</span></div>
+        <div class="cline"><span class="no">3</span><span class="pfx"></span>kernel.numa_balancing = <span class="num">0</span> <span class="cmt">建议 0（一致）</span></div>
+        <div class="cline"><span class="no">4</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">5</span><span class="pfx"></span><span class="cmt"># nic enp125s0f0</span></div>
+        <div class="cline hl"><span class="no">6</span><span class="pfx"></span>NIC Queue Count = <span class="num">1</span> <span class="cmt">← 建议 NUMA Core Count</span></div>
+        <div class="cline hl"><span class="no">7</span><span class="pfx"></span>IRQ Core Binding = <span class="num">0</span> <span class="cmt">← 建议 IRQ NUMA Affinity</span></div>
+        <div class="cline"><span class="no">8</span><span class="pfx"></span>RX Queue Depth = <span class="num">4096</span> <span class="cmt">建议 4096（一致）</span></div>
+        <div class="cline"><span class="no">9</span><span class="pfx"></span>irqbalance.service = <span class="fn">inactive</span> <span class="cmt">建议 inactive（一致）</span></div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="tune" data-scenario="bottleneck">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> crypto.c &gt; nginx-gateway &gt; src &gt; crypto.c &gt; <span class="fn" id="crumbFn">ngx_crypto_spin_wait()</span></span></div>
+      <div class="panel-body">
+        <div class="cline"><span class="no">84</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">while</span> (*lock) {</div>
+        <div class="cline"><span class="no">86</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (spin--) {</div>
+        <div class="cline hl"><span class="no">87</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">asm</span> <span class="kw">volatile</span>(<span class="str">"yield"</span>); <span class="cmt">← 热点 18.42%</span></div>
+        <div class="cline"><span class="no">88</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+        <div class="cline"><span class="no">89</span><span class="pfx"></span>&nbsp;&nbsp;}</div>
+        <div class="cline"><span class="no">90</span><span class="pfx"></span>}</div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="tune" data-scenario="auto-param">
+      <div class="panel-head"><span class="crumb">config &gt; <span class="fn">application-prod.yml</span></span></div>
+      <div class="panel-body">
+        <div class="cline del"><span class="no">7</span><span class="pfx del">-</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="tk d">10</span></div>
+        <div class="cline add hl"><span class="no">7</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="tk a">32</span></div>
+        <div class="cline del"><span class="no">8</span><span class="pfx del">-</span><span class="tk d">-Xmx2g -XX:+UseG1GC</span></div>
+        <div class="cline add hl"><span class="no">8</span><span class="pfx add">+</span><span class="tk a">-Xmx6g -XX:+UseZGC</span></div>
+        <div class="cline del"><span class="no">9</span><span class="pfx del">-</span>server.tomcat.max-connections=<span class="tk d">1024</span></div>
+        <div class="cline add hl"><span class="no">9</span><span class="pfx add">+</span>server.tomcat.max-connections=<span class="tk a">4096</span></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -867,12 +888,14 @@ function selectScenario(agentKey,scenarioKey){
     el.classList.toggle('active',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
   document.querySelectorAll('.scene').forEach(el=>
     el.classList.toggle('on',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
+  document.querySelectorAll('.code-scene').forEach(el=>
+    el.classList.toggle('on',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
   const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
   if(meta) document.getElementById('convTitle').textContent=meta.label;
   document.querySelectorAll('#sidebar .sd-node[data-file]').forEach(el=>
     el.classList.toggle('active',!!meta && el.dataset.file===meta.file));
   renderAIPlan(agentKey,scenarioKey);
-  document.getElementById('mainArea').classList.add('foldcode');
+  document.getElementById('workspace').classList.add('foldcode');
   document.getElementById('cfoldBtn').classList.remove('on');
   if(agentKey==='tune' && scenarioKey==='bottleneck') initHotspot();
 }
@@ -881,7 +904,7 @@ function toggleAIPlan(){
   document.getElementById('aiPlan').classList.toggle('collapsed');
 }
 function toggleCodeFold(){
-  const folded=document.getElementById('mainArea').classList.toggle('foldcode');
+  const folded=document.getElementById('workspace').classList.toggle('foldcode');
   document.getElementById('cfoldBtn').classList.toggle('on',!folded);
 }
 document.getElementById('apHead').addEventListener('click',toggleAIPlan);
