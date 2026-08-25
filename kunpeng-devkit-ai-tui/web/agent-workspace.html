@@ -194,6 +194,30 @@ table.cmp td{padding:5px 8px;border-bottom:1px solid var(--bd1);color:var(--fg3)
 table.cmp tr.reco td{color:var(--fg)}
 table.cmp tr.reco td:first-child{color:var(--ok);font-weight:700}
 .cmp-bar{display:inline-block;height:9px;vertical-align:-2px;margin-right:6px}
+table.rpt-tb td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:1px}
+table.rpt-tb td.mu{color:var(--fg4)}
+
+/* 报告横幅 · 统计卡片（对齐 Porting Advisor 迁移报告结构）*/
+.rpt-banner{display:flex;align-items:baseline;gap:7px;font-size:11.5px;color:var(--ok);
+  background:rgba(4,215,147,.07);border:1px solid rgba(4,215,147,.25);padding:6px 10px;margin-bottom:12px}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat-card{border:1px solid var(--bd1);background:var(--app);padding:8px 10px}
+.stat-card .sc-lb{font-size:9px;letter-spacing:.1em;color:var(--fg4);text-transform:uppercase}
+.stat-card .sc-big{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--fg);margin:3px 0 1px}
+.stat-card .sc-sub{font-size:10px;color:var(--fg4)}
+.stat-card .sc-sub .wn{color:var(--warn)} .stat-card .sc-sub .mu{color:var(--fg4)}
+.rbadge{font-family:var(--mono);font-size:9.5px;font-weight:700;padding:0 6px;letter-spacing:.02em}
+.rbadge.warn{color:#2b1a03;background:var(--warn)}
+.rbadge.ok{color:#04231a;background:var(--ok)}
+.rbadge.muted{color:var(--fg3);background:var(--s4)}
+
+/* 迁移成分行：源 → 目标 + 状态徽标（系统迁移场景）*/
+.mrow{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11.5px}
+.mrow .ic{flex:none;font-weight:700}
+.mrow .ic.ok{color:var(--ok)} .mrow .ic.wn{color:var(--warn)}
+.mrow .lb{color:var(--fg)}
+.mrow .ar{color:var(--fg4)}
+.mrow .tg{color:var(--fg2);flex:1;min-width:0}
 
 /* Chips / 标签（取自 .tagf .tg）*/
 .chipf{display:flex;flex-wrap:wrap;gap:5px}
@@ -309,6 +333,7 @@ td.fnname{color:var(--fg2)}
       <div class="sd-node lv2" data-file="nginx.conf"><span class="ic">≡</span><span class="lb">conf/nginx.conf</span><span class="m">M</span></div>
       <div class="sd-node lv1"><span class="ic">▾</span><span class="lb">order-api/</span></div>
       <div class="sd-node lv2" data-file="Settlement"><span class="ic">≡</span><span class="lb">SettlementCalculator.java</span><span class="m">M</span></div>
+      <div class="sd-node lv2" data-file="kernel"><span class="ic">≡</span><span class="lb">settlement_kernel.c</span><span class="m">M</span></div>
       <div class="sd-node lv2" data-file="RiskScore"><span class="ic">≡</span><span class="lb">RiskScoreEngine.java</span></div>
       <div class="sd-node lv1" data-file="order_item.sql"><span class="ic">≡</span><span class="lb">sql/order_item.sql</span><span class="m">M</span></div>
       <div class="sd-node lv1" data-file="Dockerfile"><span class="ic">≡</span><span class="lb">docker/Dockerfile.kunpeng</span><span class="a">A</span></div>
@@ -374,13 +399,36 @@ td.fnname{color:var(--fg2)}
       <section class="right-panel">
         <div class="panel-head"><span class="t">应用迁移</span><span class="badge pass">PASS</span></div>
         <div class="panel-body">
-          <div class="sub-h">不兼容源码 &amp; 依赖分析</div>
-          <div class="chk"><span class="ic warn">⚠</span><span class="lb">x86 SIMD 指令</span><span class="v"><b>14</b> 处 · SSE/AVX intrinsics</span></div>
-          <div class="chk"><span class="ic warn">⚠</span><span class="lb">内联汇编</span><span class="v"><b>6</b> 处</span></div>
-          <div class="chk"><span class="ic warn">⚠</span><span class="lb">x86-only 静态库</span><span class="v"><b>5</b> 个</span></div>
-          <div class="sub-h">构建结果</div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">交叉编译</span><span class="v">aarch64 · <b style="color:var(--accent-green)">BUILD SUCCESS</b></span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">改写文件</span><span class="v">25 个 · 3 处待人工确认</span></div>
+          <div class="rpt-banner">✓ 源码迁移分析成功，可根据建议完成源码包迁移，重新编译或执行以验证迁移结果</div>
+
+          <div class="stat3">
+            <div class="stat-card"><div class="sc-lb">扫描文件统计</div><div class="sc-big">25</div><div class="sc-sub">文件总数</div></div>
+            <div class="stat-card"><div class="sc-lb">依赖文件统计</div><div class="sc-big">2</div>
+              <div class="sc-sub">文件总数 · <span class="wn">可兼容 1</span> · <span class="mu">待确认 1</span></div></div>
+            <div class="stat-card"><div class="sc-lb">源码文件统计</div><div class="sc-big">23</div><div class="sc-sub">需修改文件 · 1734 行</div></div>
+          </div>
+
+          <div class="sub-h">与架构相关的依赖文件</div>
+          <table class="cmp rpt-tb">
+            <thead><tr><th>依赖文件名</th><th>类型</th><th>待下载软件包</th><th>分析结果</th></tr></thead>
+            <tbody>
+              <tr><td>libz.so.1</td><td>动态库</td><td>zlib-1.2.11-20.oe1.aarch64.rpm</td><td><span class="rbadge warn">可兼容</span></td></tr>
+              <tr><td>libstdlib.so</td><td>动态库</td><td>--</td><td><span class="rbadge muted">待确认</span></td></tr>
+            </tbody>
+          </table>
+
+          <div class="sub-h">需要迁移的源码文件 <span class="cm">共 15 个 · 需修改 1726 行</span></div>
+          <table class="cmp rpt-tb">
+            <thead><tr><th>文件名</th><th>存放路径</th><th>需修改代码行</th></tr></thead>
+            <tbody>
+              <tr><td>top13.c</td><td class="mu">c_code/test/</td><td>892</td></tr>
+              <tr><td>top13-330chu.c</td><td class="mu">c_code/test/</td><td>331</td></tr>
+              <tr><td>suggestion_type_600_multiple.c</td><td class="mu">c_code/test/</td><td>22</td></tr>
+              <tr><td>ksw.h</td><td class="mu">cgo_code/</td><td>2</td></tr>
+              <tr><td>file_lock.c</td><td class="mu">cgo_code/</td><td>1</td></tr>
+            </tbody>
+          </table>
+
           <div class="console">
             <div class="ln"><span style="color:var(--ok)">✓</span> Analyze dependency · 18 libs</div>
             <div class="ln"><span style="color:var(--ok)">✓</span> Find incompatible API · 知识库命中 3 处</div>
@@ -405,17 +453,22 @@ td.fnname{color:var(--fg2)}
       <section class="right-panel">
         <div class="panel-head"><span class="t">系统迁移</span><span class="badge run">RUNNING</span></div>
         <div class="panel-body">
-          <div class="sub-h">系统成分分析 → 中间件 / 数据库智能替换</div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">Redis 6.2</span><span class="v">兼容，无需改动</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">RabbitMQ 3.11</span><span class="v">兼容，无需改动</span></div>
-          <div class="chk"><span class="ic warn">⚠</span><span class="lb">MySQL 8.0</span><span class="v">→ <b>Vastbase 2.2</b> · SQL 智能转换中</span></div>
-          <div class="sub-h">自动部署 &amp; 启动验证</div>
+          <div class="sub-h">数据库迁移 <span class="cm">全部 1 · 已迁移 0 · 待迁移 1</span></div>
+          <div class="mrow"><span class="ic wn">●</span><span class="lb">MySQL 8.0</span><span class="ar">→</span><span class="tg">Vastbase G100 V2.2</span>
+            <span class="rbadge warn">SQL 智能转换中 62%</span></div>
+
+          <div class="sub-h">中间件迁移 <span class="cm">全部 3 · 已迁移 3 · 待迁移 0</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">Redis 6.2</span><span class="ar">→</span><span class="tg">Redis 6.2</span><span class="rbadge ok">已迁移</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">RabbitMQ 3.11</span><span class="ar">→</span><span class="tg">RabbitMQ 3.11</span><span class="rbadge ok">已迁移</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">Tomcat 9.0</span><span class="ar">→</span><span class="tg">东方通 TongWeb 7.0.4.9_M3</span><span class="rbadge ok">已迁移</span></div>
+
+          <div class="sub-h">应用迁移 <span class="cm">全部 2 · 已完成 1 · 进行中 1</span></div>
           <div class="steps">
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">迁移成分分析 + 应用包二进制转换</div></span></div>
             <div class="step"><span class="c doing">▶</span><span class="bd"><div class="t1">自动部署 3 个微服务</div><div class="t2">order-api · settlement · gateway</div></span></div>
-            <div class="step"><span class="c pending">2</span><span class="bd"><div class="t1">启动验证</div><div class="t2">/actuator/health <span class="est">2/3</span></div></span></div>
           </div>
           <div class="console">
-            <div class="ln"><span style="color:var(--pri-h)">▶</span> 系统成分分析 · 中间件 2/2 兼容</div>
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> 系统成分分析 · 中间件 3/3 已迁移</div>
             <div class="ln"><span style="color:var(--pri-h)">▶</span> SQL 智能转换 · 12/19 张表已转换</div>
           </div>
         </div>
@@ -454,27 +507,40 @@ td.fnname{color:var(--fg2)}
     <!-- ═══ 开发 Agent ═══ -->
     <div class="scene" data-agent="develop" data-scenario="vectorize">
       <main class="center-panel">
-        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> SettlementCalculator.java &gt; order-api &gt; <span class="fn">calcBatch():104</span></span>
+        <div class="panel-head"><span class="crumb"><span class="m">[M]</span> settlement_kernel.c &gt; settlement &gt; <span class="fn">calc_batch():104</span></span>
           <span class="badge run">5/12</span></div>
         <div class="panel-body">
-          <div class="cline del"><span class="no">104</span><span class="pfx del">-</span>&nbsp;<span class="kw">for</span> (<span class="ty">int</span> i=0;i&lt;n;i++)</div>
-          <div class="cline del"><span class="no">105</span><span class="pfx del">-</span>&nbsp;&nbsp;<span class="tk d">total[i]=amount[i]*rate[i]+fee[i];</span></div>
-          <div class="cline add hl"><span class="no">104</span><span class="pfx add">+</span>&nbsp;<span class="ty">var</span> va=<span class="tk a">FloatVector.fromArray(SPECIES,amount,i)</span>;</div>
-          <div class="cline add hl"><span class="no">105</span><span class="pfx add">+</span>&nbsp;<span class="tk a">va.fma(rate[i],fee[i]).intoArray(total,i);</span></div>
-          <div class="cline"><span class="no">106</span><span class="pfx"></span></div>
-          <div class="cline"><span class="no">107</span><span class="pfx"></span><span class="cmt">// Vector API · SVE 128-bit 通道</span></div>
+          <div class="cline"><span class="no">102</span><span class="pfx"></span><span class="cmt">// 天秤扫描：x86 AVX2 intrinsics，--simd-target=sve</span></div>
+          <div class="cline del"><span class="no">103</span><span class="pfx del">-</span><span class="tk d">__m256 va=_mm256_loadu_ps(&amp;amount[i]);</span></div>
+          <div class="cline del"><span class="no">104</span><span class="pfx del">-</span><span class="tk d">__m256 vr=_mm256_loadu_ps(&amp;rate[i]);</span></div>
+          <div class="cline del"><span class="no">105</span><span class="pfx del">-</span><span class="tk d">__m256 vt=_mm256_fmadd_ps(va,vr,vf);</span></div>
+          <div class="cline del"><span class="no">106</span><span class="pfx del">-</span><span class="tk d">_mm256_storeu_ps(&amp;total[i],vt);</span></div>
+          <div class="cline add hl"><span class="no">103</span><span class="pfx add">+</span><span class="tk a">svbool_t pg=svwhilelt_b32(i,n);</span></div>
+          <div class="cline add hl"><span class="no">104</span><span class="pfx add">+</span><span class="tk a">svfloat32_t va=svld1_f32(pg,&amp;amount[i]);</span></div>
+          <div class="cline add hl"><span class="no">105</span><span class="pfx add">+</span><span class="tk a">svfloat32_t vt=svmad_f32_z(pg,va,vr,vf);</span></div>
+          <div class="cline add hl"><span class="no">106</span><span class="pfx add">+</span><span class="tk a">svst1_f32(pg,&amp;total[i],vt);</span></div>
+          <div class="cline"><span class="no">107</span><span class="pfx"></span></div>
+          <div class="cline"><span class="no">108</span><span class="pfx"></span><span class="cmt">// SVE 谓词寄存器按剩余元素数收尾，免去标量 tail loop</span></div>
         </div>
       </main>
       <section class="right-panel">
         <div class="panel-head"><span class="t">源码向量化改造</span><span class="badge run">RUNNING</span></div>
         <div class="panel-body">
-          <div class="sub-h">按需分析源码优化方向，自动完成向量化改造</div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">候选循环</span><span class="v">12 处，已完成 <b style="color:var(--accent-green)">5</b> 处</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">实测收益</span><span class="v">结算批处理热点循环 342ms → <b style="color:var(--accent-green)">96ms</b> · 3.6x</span></div>
+          <div class="stat3">
+            <div class="stat-card"><div class="sc-lb">需修改文件数</div><div class="sc-big">4</div><div class="sc-sub">天秤扫描</div></div>
+            <div class="stat-card"><div class="sc-lb">建议项总数</div><div class="sc-big">12</div><div class="sc-sub">已完成 <span class="wn">5</span></div></div>
+            <div class="stat-card"><div class="sc-lb">需修改代码行</div><div class="sc-big">86</div><div class="sc-sub">AVX2 → SVE</div></div>
+          </div>
+          <div class="sub-h">扫描配置</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">扫描模式</span><span class="v">火焰图扫描（推荐）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">SIMD 目标</span><span class="v">--simd-target=<b style="color:var(--accent-green)">sve</b></span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">x86 指令集识别</span><span class="v">--isa=avx2 --enable-intel-intrinsics</span></div>
+          <div class="sub-h">实测收益</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">结算批处理热点循环</span><span class="v">342ms → <b style="color:var(--accent-green)">96ms</b> · 3.6x</span></div>
           <div class="sub-h">下一处候选</div>
           <div class="chipf">
-            <span class="chip">RiskScoreEngine.calcScore()</span>
-            <span class="chip">ReconcileJob.diffBatch()</span>
+            <span class="chip">risk_score.c · _mm256_mul_ps</span>
+            <span class="chip">reconcile.c · _mm256_cmp_ps</span>
           </div>
           <div class="console">
             <div class="ln"><span style="color:var(--pri-h)">▶</span> 源码向量化改造 — 12 处候选，已完成 5 处</div>
@@ -690,10 +756,10 @@ const SCENARIOS={
        {t:'业务镜像适配',d:'',s:'todo'},{t:'生成 Dockerfile',d:'',s:'todo'},{t:'构建与验证',d:'',s:'todo'}]}
   ],
   develop:[
-    {key:'vectorize',label:'源码向量化改造',status:'doing',file:'Settlement',code:true,
-     goal:'分析源码优化方向，自动完成向量化改造',
-     plan:[{t:'识别候选循环',d:'12 处候选',s:'done'},{t:'生成向量化实现',d:'已完成 5 处',s:'doing'},
-       {t:'实测收益验证',d:'342ms → 96ms',s:'doing'}]},
+    {key:'vectorize',label:'源码向量化改造',status:'doing',file:'kernel',code:true,
+     goal:'识别 x86 SIMD intrinsics，自动改写为鲲鹏 NEON/SVE 向量化实现',
+     plan:[{t:'火焰图扫描定位热点',d:'--simd-target=sve',s:'done'},{t:'识别候选 intrinsics',d:'12 处候选',s:'done'},
+       {t:'生成 SVE 向量化实现',d:'已完成 5 处',s:'doing'},{t:'实测收益验证',d:'342ms → 96ms',s:'doing'}]},
     {key:'op-gen',label:'通算算子智能生成',status:'todo',file:'Settlement',code:false,
      goal:'识别计算密集算子，自动生成鲲鹏亲和实现',
      plan:[{t:'识别候选算子',d:'',s:'doing'},{t:'生成鲲鹏适配实现',d:'',s:'todo'},{t:'正确性 + 性能双重验证',d:'',s:'todo'}]}
