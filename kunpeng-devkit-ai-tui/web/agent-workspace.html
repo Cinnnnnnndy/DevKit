@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agent Workspace · Kunpeng DevKit AI</title>
 <style>
-/* 视觉体系直接沿用 demo.html / demo-v2.html 的 PTO token —— 方角、1px 描边、
-   字符网格，不引入圆角卡片/渐变/发光。布局仍是新的响应式三栏 workspace。 */
+/* 视觉体系沿用 demo.html / demo-v2.html 的 PTO token —— 1px 描边、字符网格；
+   结构性区块（侧栏分组、导航/AI Plan/主内容）改为圆角矩形卡片浮在页面
+   背景上，去掉贴边分隔线与状态栏底色。布局仍是响应式三栏 workspace。 */
 :root{
   --bg:#0b0b0b; --app:#101010; --elev:#141414;
   --s1:#161616; --s2:#1c1c1c; --s3:#262626; --s4:#313131;
@@ -44,9 +45,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 
 /* ══ Top Bar ══ */
 .topbar{height:40px;flex:none;display:flex;align-items:center;gap:12px;padding:0 var(--sp-lg);
-  border-bottom:1px solid var(--bd1);background:var(--s1)}
-.topbar .c{font-family:var(--mono);font-size:10.5px;color:var(--fg3);background:var(--s2);
-  border:1px solid var(--bd1);padding:2px 8px}
+  background:var(--s1)}
 /* 品牌标 —— 与 demo.html 的 blogo 语汇一致：图标 + 分段反色标识块 */
 .blogo{display:inline-flex;align-items:stretch;font-family:var(--mono);font-size:10px;
   font-weight:700;letter-spacing:.14em;line-height:1.9;user-select:none;flex:none}
@@ -57,7 +56,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 
 /* ══ Nav bar：场景 tab（取自 .tab 文档标签语汇）══ */
 .nav-bar{flex:none;display:flex;align-items:stretch;background:var(--s2);
-  border-bottom:1px solid var(--bd1);height:34px}
+  border:1px solid var(--bd1);border-radius:8px;height:34px;overflow:hidden}
 
 /* ══ Scenario tabs（二级导航：具体场景，取自 .tab 文档标签语汇）══ */
 .scenario-bar{flex:1;min-width:0;display:flex;align-items:flex-end;gap:2px;padding:0 var(--sp-lg);
@@ -76,12 +75,12 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .stab-sep{flex:none;width:1px;align-self:stretch;background:var(--bd1);margin:0 4px}
 
 /* ══ Workspace（侧栏 + 主内容） ══ */
-.workspace{flex:1;min-height:0;display:flex;gap:0;padding:0}
-.main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0}
+.workspace{flex:1;min-height:0;display:flex;gap:0;padding:0;background:var(--bg)}
+.main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;gap:8px;padding:8px 8px 0}
 
-.sidebar{width:220px;flex:none;background:var(--app);border-right:1px solid var(--bd1);
-  overflow-y:auto;padding:6px 0}
-.sd-sec{padding:6px 0}
+.sidebar{width:220px;flex:none;background:var(--bg);border-right:1px solid var(--bd1);
+  overflow-y:auto;padding:8px}
+.sd-sec{padding:6px 4px;margin-bottom:8px;background:var(--s1);border:1px solid var(--bd1);border-radius:8px}
 .sd-sec .h{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
   padding:4px var(--sp-lg) 5px;text-transform:uppercase}
 .sd-node{display:flex;align-items:center;gap:7px;padding:3.5px var(--sp-lg);margin:0 5px;
@@ -111,7 +110,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .scroll-bottom .arw{color:var(--pri-h);font-weight:700}
 .sd-node.lv1{padding-left:24px} .sd-node.lv2{padding-left:35px}
 
-.main-area{flex:1;min-width:0;min-height:0;display:flex}
+.main-area{flex:1;min-width:0;min-height:0;display:flex;border:1px solid var(--bd1);border-radius:8px;overflow:hidden}
 .center-panel{order:2;flex:0 0 32%;min-width:0;display:flex;flex-direction:column;
   background:var(--app);border-left:1px solid var(--bd1);overflow:hidden;transition:flex-basis .15s ease}
 .main-area.foldcode .center-panel{flex-basis:0;border-left:none;overflow:hidden}
@@ -119,7 +118,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
 .right-panel .panel-body{position:relative}
 
 /* AI PLAN：钉在 nav-bar 下方、main-area 上方，跟随当前 Agent、可收起 */
-.ai-plan{flex:none;background:var(--s1);border-bottom:1px solid var(--bd1)}
+.ai-plan{flex:none;background:var(--s1);border:1px solid var(--bd1);border-radius:8px;overflow:hidden}
 .ap-head{display:flex;align-items:center;gap:8px;padding:6px var(--sp-lg);cursor:pointer;
   font-family:var(--mono)}
 .ap-arrow{font-size:9px;color:var(--fg4);transition:transform .15s;flex:none}
@@ -303,14 +302,9 @@ td.fnname{color:var(--fg2)}
 
 /* ══ Status Bar ══ */
 .status-bar{height:26px;flex:none;display:flex;align-items:stretch;
-  font-size:10.5px;color:var(--fg4);background:var(--s2);border-top:1px solid var(--bd1)}
+  font-size:10.5px;color:var(--fg4)}
 .status-bar .keys{display:flex;gap:11px;overflow:hidden;align-items:center;padding:0 var(--sp-lg)}
 .status-bar .keys b{background:var(--s4);color:var(--fg);font-weight:500;padding:0 5px;font-size:9.5px}
-.status-bar .prog{width:60px;height:2px;background:var(--s3);align-self:center;flex:none}
-.status-bar .prog i{display:block;height:100%;background:var(--pri)}
-.status-bar .r{margin-left:auto;display:flex;align-items:stretch;flex:none}
-.status-bar .tag{padding:0 11px;display:flex;align-items:center;border-left:1px solid var(--bd1)}
-.status-bar .tag.ready{color:var(--ok)}
 
 /* ══ 响应式：整页自适应，不是固定画布 ══ */
 @media (max-width:1180px){
@@ -326,7 +320,7 @@ td.fnname{color:var(--fg2)}
   .main-area{flex-direction:column}
   .scene.on{flex-direction:column}
   .center-panel,.right-panel{flex:none}
-  .center-panel{border-right:none;border-bottom:1px solid var(--bd1)}
+  .center-panel{border-left:none;border-bottom:1px solid var(--bd1)}
   .center-panel .panel-body{max-height:240px}
 }
 @media (max-width:560px){
@@ -339,7 +333,6 @@ td.fnname{color:var(--fg2)}
 
 <div class="topbar">
   <span class="blogo"><img class="kpi" alt="Kunpeng" src="data:image/png;base64,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"><span class="g2">KUNPENG</span><span class="g1">DEVKIT AI</span></span>
-  <span class="c">v0.1.0 · Kunpeng ARM64</span>
 </div>
 
 <div class="workspace">
@@ -846,9 +839,6 @@ td.fnname{color:var(--fg2)}
 <div class="status-bar">
   <div class="keys">
     <span><b>C</b> 代码区</span><span><b>P</b> AI Plan</span><span><b>Esc</b> 返回启动页</span>
-  </div>
-  <div class="r">
-    <span class="tag">order-center</span><span class="tag" id="statCtx">ctx 42%</span><span class="tag ready">ready</span>
   </div>
 </div>
 
