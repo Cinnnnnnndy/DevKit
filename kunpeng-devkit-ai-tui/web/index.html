@@ -244,6 +244,7 @@ pre .hw{font-size:1ch}
 pre .s2{color:#a2a2a2}   /* foreground secondary on surface-1 —— 图元标签列 */
 pre .sel{background:#18293C}
 pre .t{color:#E8E8E8;font-weight:600}
+pre .as{font-style:italic;opacity:.6}   /* 过程性旁白 —— 斜体 + 降透明度，不加前缀 */
 
 /* ═══ cards ═══ */
 .grid{display:grid;gap:var(--space-3);margin:var(--space-4) 0}
@@ -301,6 +302,19 @@ td.mono,th.mono{font-family:var(--font-mono)}
 .pat .nm{font-weight:600;font-size:13px;color:var(--foreground)}
 .pat .sc{margin-left:auto;font-size:var(--fs-label);color:var(--foreground-muted)}
 .pat .bd{padding:var(--space-2) var(--space-4) var(--space-4)}
+
+/* ═══ plan card —— 对话流里唯一允许描边的类型 ═══ */
+.plan-card{border:1px solid var(--border-strong);border-radius:var(--radius-md);
+  background:var(--surface-1);margin:var(--space-3) 0;overflow:hidden;font-family:var(--font-mono)}
+.plan-card .pc-h{padding:var(--space-2) var(--space-4);background:var(--surface-2);
+  border-bottom:1px solid var(--border-subtle);font-weight:600;font-size:13px;
+  letter-spacing:.02em;color:var(--foreground)}
+.plan-card .pc-row{display:flex;align-items:center;gap:var(--space-2);
+  padding:5px var(--space-4);font-size:13px;color:var(--foreground-secondary)}
+.plan-card .pc-row.cur{background:var(--state-selected);color:var(--foreground)}
+.plan-card .pc-c{width:16px;flex:none;text-align:center}
+.plan-card .pc-c.done{color:var(--success)}
+.plan-card .pc-c.cur{color:var(--primary-hover)}
 .rule{font-size:var(--fs-body-sm);color:var(--foreground-secondary);
   border-left:2px solid var(--border-strong);padding-left:var(--space-3);margin:var(--space-3) 0}
 .note{background:var(--tone-info-bg);border:1px solid rgba(0,119,255,.28);border-radius:var(--radius-lg);
@@ -453,6 +467,7 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <a href="#cheat">★ 视觉规范速查</a>
   <div class="ngrp">Components · 组件与图元</div>
   <a href="#ui-comp">★ 通用组件</a>
+  <a href="#convo">★ 对话流基元</a>
   <a href="#comp">组件清单</a>
   <a href="#primlib">★ 图表单元</a>
   <div class="ngrp">Layout · 布局与交互</div>
@@ -1006,6 +1021,131 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 </table>
 
 <div class="note"><b>组件评审门槛同样适用于这一层：</b>新增通用组件前先查这张表——<code>ActionButton</code> 已覆盖多数按钮场景，<code>Panel</code> 已覆盖带标题容器。确认没有可用组件再动手，做完把它加进这张表与 <code>index.ts</code> 的导出列表。</div>
+</section>
+
+<section id="convo">
+<div class="eyebrow">Components</div>
+<h2>对话流基元 —— 跨产品调研统一决策</h2>
+<p class="desc">AI CLI 的主界面本质是一条不断滚动的对话流：用户消息、AI 文本、工具调用、等待状态、Plan、进度、系统提示混排在同一条纵向流里——这条流怎么分行分色，直接决定产品好不好读。下面对比了 OpenCode / Codex CLI / Gemini CLI / Claude Code 四家在 13 类基础元件上的做法，逐条给出 DevKit AI 的统一决策。<a href="#p1">P01–P20</a> 里的 Agent Timeline、AI Plan、Tool Execution 等场景级 pattern，都是拿下面这些行级基元拼出来的——这里补的是最底层、被复用最多、却从未单列过规范的一层。</p>
+
+<div class="sublabel">13 类元件 —— 现状与决策</div>
+<table>
+<tr><th>元件</th><th>跨产品现状</th><th>DevKit AI 决策</th></tr>
+<tr><td>用户消息</td><td>OpenCode 左侧蓝色竖线 · Codex CLI 整行灰底高亮 · Gemini CLI/Claude Code <code>&gt;</code> 前缀纯文本</td><td><code>❯</code> 前缀 + 加粗白字，<strong>不用整行背景色</strong>——深色终端下背景色对比度不稳定，16 色降级时更明显</td></tr>
+<tr><td>AI 意图/说明</td><td>四家均纯文本，仅 Gemini CLI 加 <code>✦</code> 标说话人</td><td>纯文本，<strong>不加前缀符号</strong>——AI 文本是对话流的默认态，靠"不是别的类型"识别，加符号是多余的噪声</td></tr>
+<tr><td>工具调用 · 搜索/读取</td><td>OpenCode 用双符号区分子类型 · Gemini CLI/Claude Code 用边框卡片 · Codex CLI 混进圆点说明</td><td>沿用双符号方案——<code>∗</code> 搜索 · <code>→</code> 读取，紧凑单行不加边框（这两类调用频率最高，边框是持续噪声）</td></tr>
+<tr><td>工具调用 · 执行</td><td>四家都不单独区分"执行类"，混在读取类里</td><td>新增 <code>$</code>（终端惯例，一眼识别"在跑命令"）——与 ∗/→ 同为 accent 色，<strong>只换字形不换色相</strong>，见下方说明</td></tr>
+<tr><td>过程性旁白</td><td>OpenCode 独有——多轮工具调用之间插入"再搜宽一点"这类过渡句</td><td>斜体 + 降透明度，不加前缀；与 AI 意图声明区分——旁白更短、更口语化，只起承接作用</td></tr>
+<tr><td>等待/澄清</td><td>OpenCode 用 <code>~</code> 前缀浅色 · 其余产品混进普通 AI 文本</td><td><code>~</code> 前缀 + 警示黄色，<strong>唯一需要用户立即响应的状态</strong>，值得单独语义——与任务级 <code>⏸</code>、P27 配置补齐的区别见下方</td></tr>
+<tr><td>任务规划卡片</td><td>Codex CLI 独立标题卡片 + <code>□</code> 复选框 · OpenCode 侧栏区块 · Crush 底部 Pills · Claude Code <kbd>Ctrl+T</kbd> 唤出清单</td><td><strong>对话流里唯一允许描边的类型</strong>——标题加粗 + 复选框列表，当前项额外背景高亮（吸收 Codex CLI），复用既有 <a href="#p1">P02 AI Plan</a></td></tr>
+<tr><td>进度指示器/Spinner</td><td>Claude Code 红星 + "Running…" + 下一步预告 · Codex CLI 无独立 spinner · Crush 有独立组件</td><td>旋转字符 + 当前步 + 下一步预告（吸收 Claude Code 的 "Next" 设计）——复用已有的 <code>⠋⠙⠹…</code> spinner，只新增"下一步"一行</td></tr>
+<tr><td>状态/元信息</td><td>Gemini CLI 把状态插进对话流中间 · OpenCode/Crush 收进底部常驻栏 · Codex CLI 收进顶部信息块</td><td>统一收进<a href="#frame">底部常驻状态栏</a>，<strong>不再让状态信息打断对话流</strong>——调研里唯一明确的反例，不采纳</td></tr>
+<tr><td>系统提示/帮助</td><td>Codex CLI 独有——独立一行浅灰</td><td>沿用，<strong>仅会话开场出现一次</strong>，不重复展示——反复出现会从提示变成噪音</td></tr>
+<tr><td>文件/Diff 渲染</td><td>Crush 支持 unified/split 双模式 · 其余仅 unified</td><td>默认 unified，<kbd>Ctrl+D</kbd> 打开的 Diff 视图内追加 <code>[V] Split</code>——复用既有 <a href="#p1">P05 Diff Review</a></td></tr>
+<tr><td>阶段标记</td><td>Codex CLI 独有——圆点小标题分段</td><td>分隔线 + 居中弱化小字，<strong>不做成大标题</strong>——避免和 AI 意图声明抢视觉层级</td></tr>
+<tr><td>输入框</td><td>全部产品固定底部 · OpenCode 用示例问题做 placeholder · Gemini CLI 提示 <code>@</code> 语法</td><td>底部固定，placeholder 嵌入常见任务示例（吸收 OpenCode）——比独立帮助文案省一次视觉跳转</td></tr>
+</table>
+
+<div class="sublabel">行级样本 —— 逐条对照真实渲染</div>
+
+<div class="fig"><span class="fig-t">用户消息 · AI 文本 · 过程性旁白</span>
+<pre class="dense"><span class="pr">❯</span> <span class="t"><span class="fw">把</span> BRPC <span class="fw">迁移到鲲鹏架构，不兼容的地方直接改</span></span>
+
+<span class="fw">好的，先扫一遍依赖库的</span> ARM <span class="fw">兼容性。</span>
+
+<span class="as"><span class="fw">　再搜宽一点，</span>snappy <span class="fw">那个头文件不太对…</span></span>
+
+<span class="fw">发现</span> 3 <span class="fw">处</span> x86 <span class="fw">专属指令，生成</span> Plan<span class="fw">。</span></pre>
+</div>
+<p class="rule">三行三种字色，但<strong>没有一行加背景色</strong>：❯ 行靠字重、旁白行靠斜体+透明度、AI 行靠"什么都不加"互相区分——形状/字重优先于色相与背景色，这条原则在这里再用一次。</p>
+
+<div class="fig"><span class="fig-t">工具调用三态 —— ∗ 搜索 / → 读取 / $ 执行</span>
+<pre class="dense"><span class="ac">∗</span> <span class="fw">搜索</span> "SSE4.2 rapidjson macro" · knowledge_base · 12 hits
+<span class="ac">→</span> <span class="fw">读取</span> snappy-stubs-internal.h:140-160
+<span class="ac">$</span> bisheng-g++ -c context.cpp -o context.o          <span class="cm">0.8s</span></pre>
+</div>
+<p class="rule">三个符号同为 accent 色——<strong>只换字形不换色相</strong>，与 <a href="#color">Colors</a> 一节"语义色只上字符与短文本"的形状优先原则一致。真正的风险分级不在这里：折叠态明暗看 <a href="#p2">P18 Output Collapsing</a>，需要审批时的三色分级看 <a href="#p2">P19 Permission Tiers</a>——本节定的只是"这一行默认长什么样、一眼认出是哪种调用"，是那两个 pattern 共用的底层字形，不是替代它们。</p>
+
+<div class="fig"><span class="fig-t">等待/澄清 ~ —— 唯一要求立即响应的状态</span>
+<pre class="dense"><span class="wn">~</span> <span class="wn"><span class="fw">需要确认：</span>3 <span class="fw">个文件都有</span> SSE <span class="fw">宏，全部按方案</span> A <span class="fw">处理，还是逐个确认？</span></span></pre>
+</div>
+<p class="rule"><code>~</code> 只用于<strong>一句话能问清楚</strong>的场景，出现一次、答完即随对话流滚走，不常驻。字段明确、需要结构化输入（工具链路径、口令、并行度）时仍走 <a href="#jscreen">P27 配置补齐</a> 弹层——不要为一句话弹整套表单，也不要把该弹表单的场景硬塞进一行里问。与 <code>⏸</code> 的区别：<code>⏸</code> 标在任务列表里，表示"这个任务卡住了，直到被处理都常驻"；<code>~</code> 标在对话流里，表示"AI 现在问你一句话"——一个是任务级状态，一个是消息级事件。也别与 <a href="#p2">P16 /btw</a> 混淆——/btw 是用户主动插话，<code>~</code> 是 AI 主动发问，方向相反。</p>
+
+<div class="fig"><span class="fig-t">Plan Card —— 唯一允许描边的类型</span>
+<div class="plan-card">
+  <div class="pc-h">PLAN · 迁移 BRPC → Kunpeng ARM64</div>
+  <div class="pc-row"><span class="pc-c done">✓</span>环境检测</div>
+  <div class="pc-row"><span class="pc-c done">✓</span>依赖分析</div>
+  <div class="pc-row cur"><span class="pc-c cur">▸</span>生成迁移补丁</div>
+  <div class="pc-row"><span class="pc-c">□</span>编译验证循环</div>
+  <div class="pc-row"><span class="pc-c">□</span>迁移总结报告</div>
+</div>
+</div>
+<p class="rule">复用既有 <a href="#p1">P02 AI Plan</a> 的信息结构，本节只补两处渲染细节：<strong>加边框</strong>（对话流里唯一一处）、<strong>当前项用 <code>state-selected</code> 背景高亮</strong>——都是已有 token，没有引入新色。信息密度最高的内容值得这一处例外，其余元件仍然"不加边框"。</p>
+
+<div class="fig"><span class="fig-t">进度指示器 —— spinner + 当前步 + 下一步预告</span>
+<pre class="dense"><span class="pr"><span class="fw">⠹</span></span> <span class="fw">生成</span> crypto.c <span class="fw">补丁</span> (2/6)
+  <span class="cm"><span class="fw">下一步：编译验证</span></span></pre>
+</div>
+<p class="rule">复用 <a href="#p1">P01</a>/<a href="#p1">P11</a> 已有的 <code>⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏</code> spinner，只新增"下一步"这一行——吸收 Claude Code 的设计，是缓解等待焦虑最直接的细节，成本只是一行文字。</p>
+
+<div class="fig"><span class="fig-t">阶段标记 —— 分隔线 + 居中弱化小字</span>
+<pre class="dense"><span class="cm">──────────────────── <span class="fw">已探索</span> 6 <span class="fw">个文件</span> ────────────────────</span></pre>
+</div>
+<p class="rule">全部用 comment 灰阶，字号不升级——阶段切换是<strong>导航信息</strong>，AI 意图声明才是<strong>内容信息</strong>，视觉层级不能反过来。</p>
+
+<div class="fig"><span class="fig-t">系统提示 —— 仅会话开场一次</span>
+<pre class="dense"><span class="cm">Tip: <span class="fw">按</span> <span class="t">Ctrl+P</span> <span class="fw">唤出命令面板 ·</span> <span class="fw">本提示本次会话只显示一次</span></span></pre>
+</div>
+
+<div class="fig"><span class="fig-t">Diff 渲染 —— 默认 unified，<kbd>Ctrl+D</kbd> 内 [V] 切 split</span>
+<pre class="dense">src/memory.c        <span class="cm">(2/12 files)</span>
+<span class="er">- _mm_pause();</span>
+<span class="ok">+ asm volatile("yield");</span>
+<span class="pr">[A]ccept</span>  [E]dit  [R]eject  <span class="pr">[V] Split</span>  <span class="cm">[Space] next file</span></pre>
+</div>
+<p class="rule">默认 unified 信息密度最低、适合快速扫视全部改动；<code>[V]</code> 展开为并排双栏只在需要逐字比对时用——扩展自既有 <a href="#p1">P05 Diff Review</a>，不是新 pattern。</p>
+
+<div class="sublabel">拼起来 —— 多条决策落进同一条对话流</div>
+<div class="fig"><span class="fig-t">migrate 场景 · 从输入到收尾（节选）</span>
+<pre class="dense"><span class="pr">❯</span> <span class="t"><span class="fw">把</span> BRPC <span class="fw">迁移到鲲鹏架构，不兼容的地方直接改</span></span>
+
+<span class="fw">好的，我来分析</span> BRPC<span class="fw">，启动六阶段迁移流水线。</span>
+
+<span class="cm">──────────────────── <span class="fw">阶段</span> 1 · <span class="fw">环境检测</span> ────────────────────</span>
+<span class="ac">$</span> bisheng-gcc --version                              <span class="ok">✓</span>
+
+<span class="cm">──────────────────── <span class="fw">阶段</span> 2 · <span class="fw">依赖分析</span> ────────────────────</span>
+<span class="ac">∗</span> <span class="fw">搜索</span> "aarch64 SIMD <span class="fw">替代指令</span>" · knowledge_base
+<span class="ac">→</span> <span class="fw">读取</span> snappy-stubs-internal.h:140-160
+<span class="as"><span class="fw">　这个路径判断看着像源码</span> bug<span class="fw">，再确认一下…</span></span>
+<span class="wn">~</span> <span class="wn"><span class="fw">需要确认：这处按官方</span> bug <span class="fw">记录处理，还是保守跳过？</span></span>
+
+<span class="pr"><span class="fw">⠹</span></span> <span class="fw">生成</span> crypto.c <span class="fw">补丁</span> (2/6)
+  <span class="cm"><span class="fw">下一步：编译验证</span></span></pre>
+</div>
+<p class="rule">这条流里没有一处边框（Plan Card 图中未展开），没有一处整行背景色，状态与提示都不在这条流里——它们在底栏。<strong>这正是本节全部决策要一起达成的效果：一条能快速纵向扫视、不被自身装饰打断的对话流</strong>。</p>
+
+<div class="sublabel">底部常驻 —— 状态栏与输入框</div>
+<pre class="dense"><span class="cm">[mode:auto] [model:pangu] [ctx: <span class="wn">72%</span>] [tasks: 1 <span class="hw">⏸</span>]</span>          <span class="cm"><span class="fw">状态栏 · 见</span> #frame</span>
+<span class="pr">❯</span> <span class="cm"><span class="fw">试试</span> "<span class="fw">帮我把</span> nginx <span class="fw">迁移到鲲鹏</span>" <span class="fw">或</span> "<span class="fw">这段代码为什么在</span> ARM <span class="fw">上崩了</span>"</span>▌</pre>
+<p class="rule">状态栏永远在底部、永远不滚动；输入框永远在最下方一行，placeholder 直接给两条可以照抄的真实任务——用户第一次打开不需要先读一遍帮助文档才知道能问什么。</p>
+
+<div class="sublabel">元件台账 —— 归入 <a href="#comp">#comp 组件清单</a></div>
+<table>
+<tr><th>元件</th><th>用途</th><th>Tier</th><th>关联 Pattern</th></tr>
+<tr><td>User Message Line</td><td>用户消息回显</td><td>T0</td><td>—</td></tr>
+<tr><td>AI Text Line</td><td>AI 默认文本</td><td>T0</td><td>—</td></tr>
+<tr><td>Aside Line</td><td>过程性旁白</td><td>T0</td><td>—</td></tr>
+<tr><td>Tool Call Line</td><td>搜索/读取/执行摘要</td><td>T0</td><td>P18 折叠 · P19 风险色</td></tr>
+<tr><td>Clarify Line</td><td>~ 轻量澄清</td><td>T0</td><td>P27 配置补齐（重量级）</td></tr>
+<tr><td>Plan Card</td><td>任务规划，唯一带边框</td><td>T0</td><td>P02</td></tr>
+<tr><td>Progress Line</td><td>spinner + 下一步</td><td>T0</td><td>P01 · P11</td></tr>
+<tr><td>Phase Divider</td><td>阶段分段</td><td>T0</td><td>—</td></tr>
+<tr><td>System Tip Line</td><td>一次性提示</td><td>T0</td><td>—</td></tr>
+<tr><td>Diff Split Toggle</td><td>unified/split 切换</td><td>T0</td><td>P05</td></tr>
+</table>
+<div class="note"><b>组件评审门槛同样适用：</b>新增对话流元件前先查这张台账与上面 13 类决策——多数"新想法"其实是已有元件的变体，只是符号或颜色选错了。真正的新增，做完补进 <a href="#comp">组件清单</a> 与 <code>theme.ts</code>。</div>
 </section>
 
 <section id="comp">
