@@ -20,7 +20,7 @@
   --g8:#4d6a1a;--g6:#73a839;--g4:#9ece6a;--g3:#b5db8a;
   --a8:#6e4f1e;--a6:#c4a03e;--a4:#e0af68;
   --sel:#283457;
-  --panel-bg:rgba(26,28,44,.92); --panel-bd:rgba(52,94,231,.10); --panel-bd2:rgba(52,94,231,.08);
+  --panel-bg:rgba(15,16,26,.94); --panel-bd:rgba(52,94,231,.10); --panel-bd2:rgba(52,94,231,.08);
   --input-bg:rgba(16,17,24,.8); --input-bd:rgba(52,94,231,.12);
   --surf-1:rgba(12,12,20,.6); --surf-2:rgba(12,12,20,.55); --surf-3:rgba(12,12,20,.4); --surf-4:rgba(12,12,20,.35);
   --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
@@ -67,6 +67,11 @@ body>*{position:relative;z-index:1}
 .blogo .g1{color:var(--fg);letter-spacing:.18em}
 .blogo .g2{color:var(--fg2);letter-spacing:.18em}
 .blogo .kpi{width:26px;height:26px;margin-right:7px;align-self:center;object-fit:contain;flex:none}
+.blogo .ai-badge{display:inline-flex;align-items:center;justify-content:center;
+  margin-left:5px;padding:1px 7px 2px;border-radius:6px;
+  background:linear-gradient(135deg,#345ee7 0%,#4f7ef2 45%,#66cefa 100%);
+  color:#fff;font-weight:800;letter-spacing:.04em;
+  box-shadow:0 0 10px rgba(52,94,231,.55),0 0 22px rgba(102,206,250,.3),inset 0 1px 0 rgba(255,255,255,.3)}
 
 /* ══ Nav bar：场景 tab（取自 .tab 文档标签语汇）══ */
 .nav-bar{flex:none;display:flex;align-items:stretch;background:transparent;
@@ -78,7 +83,7 @@ body>*{position:relative;z-index:1}
 .scenario-bar::-webkit-scrollbar{display:none}
 .stab{font-family:var(--mono);font-size:11px;color:var(--fg3);
   padding:0 4px 0 9px;height:25px;cursor:pointer;white-space:nowrap;
-  border:1px solid transparent;border-radius:0;
+  border:1px solid transparent;border-radius:6px;
   flex:none;display:flex;align-items:center;gap:5px;background:transparent;
   transition:background .12s ease,color .12s ease,border-color .12s ease}
 .stab:hover{color:var(--fg2);background:rgba(41,46,66,.7);border-color:rgba(255,255,255,.06)}
@@ -89,7 +94,7 @@ body>*{position:relative;z-index:1}
 .stab .st.wait{background:var(--warn)}
 .stab .st.todo{background:var(--fg4)}
 .stab .tc{width:18px;height:18px;display:flex;align-items:center;justify-content:center;
-  border:none;background:transparent;color:var(--fg4);border-radius:0;cursor:pointer;
+  border:none;background:transparent;color:var(--fg4);border-radius:3px;cursor:pointer;
   font-size:14px;line-height:1;opacity:0;transition:opacity .1s,background .1s}
 .stab:hover .tc,.stab.on .tc{opacity:.55}
 .stab .tc:hover{opacity:1;background:var(--s4);color:var(--fg)}
@@ -120,7 +125,7 @@ body>*{position:relative;z-index:1}
 .sd-node{display:flex;align-items:center;gap:7px;padding:5px var(--sp-lg);margin:1px 5px;
   cursor:default;color:var(--fg2);min-width:0;position:relative}
 .sd-node:hover{background:var(--s2)}
-.sd-node.active{background:rgba(52,94,231,.16);border-radius:0;color:#fff;font-weight:700;
+.sd-node.active{background:rgba(52,94,231,.16);border-radius:6px;color:#fff;font-weight:700;
   box-shadow:inset 2px 0 0 var(--pri)}
 .sd-node.active::before{display:none}
 .sd-node .ic{width:12px;flex:none;text-align:center;font-size:10px}
@@ -168,7 +173,7 @@ body>*{position:relative;z-index:1}
 .ap-step:not(:last-child)::after{content:'→';color:var(--bd3);margin-left:9px;font-size:10px}
 
 .cfold{margin-left:auto;color:var(--fg4);
-  background:transparent;border:none;border-radius:0;
+  background:transparent;border:none;border-radius:5px;
   padding:4px 6px;cursor:pointer;flex:none;display:flex;align-items:center;
   transition:background .12s ease,color .12s ease}
 .cfold:hover{color:var(--fg2);background:var(--s3)}
@@ -224,7 +229,7 @@ body>*{position:relative;z-index:1}
 
 /* Checklist（诊断项，取自 .rl 左边框日志行）*/
 .chk{display:flex;align-items:baseline;gap:9px;padding:4px 10px;
-  margin:2px 0;font-size:11.5px;border-radius:0;background:var(--surf-3)}
+  margin:2px 0;font-size:11.5px;border-radius:4px;background:var(--surf-3)}
 .chk .ic{flex:none;font-weight:700;font-size:9px;width:12px;text-align:center}
 .chk .ic.ok{color:var(--ok)} .chk .ic.warn{color:var(--warn)}
 .chk .lb{flex:none;color:var(--fg);min-width:120px}
@@ -256,7 +261,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .ai-msg b{color:var(--fg);font-weight:600}
 
 /* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
-.tc-collapse{margin:18px 0;border-radius:0;overflow:hidden;background:var(--surf-4)}
+.tc-collapse{margin:18px 0;border-radius:8px;overflow:hidden;background:var(--surf-4)}
 .tc-chead{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;background:var(--surf-2)}
 .tc-chead:hover{background:var(--s2)}
 .tc-car{font-family:var(--mono);font-size:9px;color:var(--fg4);flex:none;transition:transform .15s}
@@ -269,11 +274,11 @@ table.rpt-tb td.mu{color:var(--fg4)}
 /* 报告横幅 · 统计卡片（对齐 Porting Advisor 迁移报告结构）*/
 .rpt-banner{display:flex;align-items:baseline;gap:7px;font-size:11.5px;color:var(--ok);
   background:rgba(158,206,106,.08);padding:8px 12px;margin:14px 0;
-  border-radius:0}
+  border-radius:8px}
 .rpt-banner.warn{color:var(--warn);background:rgba(224,175,104,.10)}
 
 /* 阻断点提示卡：把"停在哪、为什么、要什么、下一步"从散落的日志里摘出来单独呈现 */
-.blocker{margin:14px 0;padding:10px 12px;border-radius:0;
+.blocker{margin:14px 0;padding:10px 12px;border-radius:6px;
   background:rgba(224,175,104,.07);box-shadow:inset 3px 0 0 var(--warn)}
 .blocker .bt{font-size:11.5px;font-weight:700;color:var(--warn);
   display:flex;align-items:center;gap:6px;margin-bottom:6px}
@@ -282,7 +287,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .blocker code{font-family:var(--mono);font-size:10.5px;background:var(--surf-1);
   padding:1px 5px;color:var(--pri-h)}
 .stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
-.stat-card{background:var(--surf-1);padding:9px 10px;border-radius:0;border:1px solid var(--panel-bd2)}
+.stat-card{background:var(--surf-1);padding:9px 10px;border-radius:6px;border:1px solid var(--panel-bd2)}
 .stat-card .sc-lb{font-size:9px;letter-spacing:.1em;color:var(--fg4);text-transform:uppercase}
 .stat-card .sc-big{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--fg);margin:3px 0 1px}
 .stat-card .sc-sub{font-size:10px;color:var(--fg4)}
@@ -337,7 +342,7 @@ td.fnname{color:var(--fg2)}
 
 /* Agent Console（取自 .rl 日志行 + s1 容器）*/
 .console{background:var(--surf-2);padding:8px 10px;
-  display:flex;flex-direction:column;gap:1px;font-size:11px;margin:12px 0;border-radius:0}
+  display:flex;flex-direction:column;gap:1px;font-size:11px;margin:12px 0;border-radius:6px}
 .console .ln{display:flex;gap:7px;align-items:baseline;color:var(--fg2);padding:1.5px 0}
 
 /* 场景 section 显隐 */
@@ -401,15 +406,15 @@ td.fnname{color:var(--fg2)}
   padding:0 8px 0 var(--sp-lg);flex:none;font-size:11px}
 
 /* ══ Action buttons（蓝色渐变建议按钮）══ */
-.bi-actions{display:flex;gap:8px;padding:0 0 8px;flex-wrap:wrap}
-.bi-btn{font-family:var(--mono);font-size:var(--fs-base);color:#fff;font-weight:600;
+.bi-actions{display:flex;gap:6px;padding:0 0 7px;flex-wrap:wrap}
+.bi-btn{font-family:var(--mono);font-size:10.5px;color:#fff;font-weight:600;
   background:linear-gradient(180deg,rgba(77,142,255,.92) 0%,rgba(45,108,229,.92) 50%,rgba(27,90,208,.92) 100%);
   border:1px solid rgba(100,160,255,.28);border-radius:0!important;-webkit-appearance:none;appearance:none;
-  padding:8px 22px;cursor:pointer;white-space:nowrap;letter-spacing:.02em;
-  box-shadow:0 0 14px rgba(30,80,220,.35),inset 0 1px 0 rgba(255,255,255,.1);
+  padding:4px 12px;cursor:pointer;white-space:nowrap;letter-spacing:.01em;
+  box-shadow:0 0 9px rgba(30,80,220,.3),inset 0 1px 0 rgba(255,255,255,.1);
   transition:box-shadow .15s,filter .15s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .bi-btn:hover{filter:brightness(1.12);
-  box-shadow:0 0 22px rgba(30,80,220,.5),inset 0 1px 0 rgba(255,255,255,.18)}
+  box-shadow:0 0 14px rgba(30,80,220,.45),inset 0 1px 0 rgba(255,255,255,.18)}
 .bi-btn:active{filter:brightness(.92)}
 
 /* ══ Skin switcher（右上角皮肤切换：深色 / 浅色 / 无圆角）══ */
@@ -472,7 +477,7 @@ html[data-theme="sharp"] *{border-radius:0 !important}
 <div class="particles"></div>
 
 <div class="topbar">
-  <span class="blogo"><img class="kpi" alt="Kunpeng" src="data:image/png;base64,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"><span class="g2">KUNPENG</span><span class="g1">DEVKIT AI</span></span>
+  <span class="blogo"><img class="kpi" alt="Kunpeng" src="data:image/png;base64,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"><span class="g2">KUNPENG</span><span class="g1">DEVKIT<span class="ai-badge">AI</span></span></span>
   <div class="skin-switch" id="skinSwitch">
     <span class="ss-lb">SKIN</span>
     <div class="ss-group">
@@ -918,11 +923,7 @@ html[data-theme="sharp"] *{border-radius:0 !important}
   <button class="scroll-btm" id="scrollBtm" title="回到底部">↓</button>
 
   <div class="bottom-input">
-    <div class="bi-actions">
-      <button class="bi-btn">扫描当前工程</button>
-      <button class="bi-btn">安装 SQL 迁移能力包</button>
-      <button class="bi-btn">跑一次性能基线</button>
-    </div>
+    <div class="bi-actions" id="biActions"></div>
     <div class="bi-row">
       <span class="p">&gt;</span>
       <span class="bi-cur"></span>
@@ -1056,39 +1057,47 @@ const SCENARIOS={
      goal:'六阶段流水线：环境检测 → 依赖分析 → 确认 → DevKit 扫描适配 → 编译验证 → 报告',
      plan:[{t:'环境检测',d:'CMake + BiSheng',s:'done'},{t:'依赖分析',d:'32 libs · SSE/snappy',s:'done'},
        {t:'待确认项',d:'rapidjson 保持现状',s:'done'},{t:'源码适配',d:'10 files',s:'done'},
-       {t:'编译验证',d:'第 3 轮成功',s:'done'},{t:'迁移报告',d:'libbrpc.so aarch64',s:'done'}]},
+       {t:'编译验证',d:'第 3 轮成功',s:'done'},{t:'迁移报告',d:'libbrpc.so aarch64',s:'done'}],
+     sugg:['查看完整迁移报告','在目标机运行单元测试','对比迁移前后性能基线']},
     {key:'e2e-migrate',label:'端到端迁移',status:'wait',file:'order_item.sql',code:true,
      goal:'六阶段流水线：预检+解析 → 源端扫描+路线 → 中间件 → 数据库 MySQL→DM → 应用/SQL 改造 → 部署验证',
      plan:[{t:'预检+安装包解析',d:'TongWeb/DM8/JDK/Nginx/Redis',s:'done'},{t:'源端扫描+路线生成',d:'',s:'done'},
        {t:'中间件迁移',d:'TongWeb license 缺失',s:'wait'},{t:'数据库迁移',d:'MySQL→DM · 19/20 一致',s:'done'},
-       {t:'应用+SQL 改造',d:'WAR 重打包',s:'done'},{t:'部署验证',d:'TongWeb+应用待续',s:'wait'}]},
+       {t:'应用+SQL 改造',d:'WAR 重打包',s:'done'},{t:'部署验证',d:'TongWeb+应用待续',s:'wait'}],
+     sugg:['补充 TongWeb License','降级为 Tomcat ARM','重跑中间件阶段']},
     {key:'container-migrate',label:'容器迁移',status:'wait',file:'Dockerfile',code:true,
      goal:'devkit sys-mig -c container_mig 分析 x86 镜像与 Dockerfile，生成鲲鹏版 Dockerfile 与双语迁移报告',
      plan:[{t:'识别分类镜像',d:'基础镜像 / 业务镜像',s:'todo'},{t:'基础镜像重建',d:'',s:'todo'},
-       {t:'业务镜像适配',d:'',s:'todo'},{t:'生成 Dockerfile + 报告',d:'11 files · 10 可兼容 · 1 待确认',s:'todo'},{t:'构建与验证',d:'',s:'todo'}]}
+       {t:'业务镜像适配',d:'',s:'todo'},{t:'生成 Dockerfile + 报告',d:'11 files · 10 可兼容 · 1 待确认',s:'todo'},{t:'构建与验证',d:'',s:'todo'}],
+     sugg:['开始容器镜像迁移','查看基础镜像清单']}
   ],
   develop:[
     {key:'vectorize',label:'源码向量化改造',status:'doing',file:'kernel',code:true,
      goal:'识别 x86 SIMD intrinsics，自动改写为鲲鹏 NEON/SVE 向量化实现',
      plan:[{t:'火焰图扫描定位热点',d:'--simd-target=sve',s:'done'},{t:'识别候选 intrinsics',d:'12 处候选',s:'done'},
-       {t:'生成 SVE 向量化实现',d:'已完成 5 处',s:'doing'},{t:'实测收益验证',d:'342ms → 96ms',s:'doing'}]},
+       {t:'生成 SVE 向量化实现',d:'已完成 5 处',s:'doing'},{t:'实测收益验证',d:'342ms → 96ms',s:'doing'}],
+     sugg:['继续改造下一处候选','运行 SVE 性能基准测试','导出改造前后对比']},
     {key:'op-gen',label:'通算算子智能生成',status:'wait',file:'Settlement',code:false,
      goal:'识别计算密集算子，自动生成鲲鹏亲和实现',
-     plan:[{t:'识别候选算子',d:'',s:'doing'},{t:'生成鲲鹏适配实现',d:'',s:'todo'},{t:'正确性 + 性能双重验证',d:'',s:'todo'}]}
+     plan:[{t:'识别候选算子',d:'',s:'doing'},{t:'生成鲲鹏适配实现',d:'',s:'todo'},{t:'正确性 + 性能双重验证',d:'',s:'todo'}],
+     sugg:['开始识别候选算子','查看 BoostKit 算子库']}
   ],
   tune:[
     {key:'diagnose',label:'自动配置诊断',status:'done',file:'app-prod.yml',code:false,
      goal:'kspect 场景化扫描 BIOS/内存/网卡/OS 参数，比对推荐值并给出可一键应用的修改建议',
      plan:[{t:'扫描 4 类参数',d:'bios · memory · nic · os',s:'done'},{t:'比对推荐值',d:'6 项 · 3 项待应用',s:'done'},
-       {t:'生成修改前备份',d:'resource/backups/',s:'done'},{t:'待用户确认应用',d:'',s:'done'}]},
+       {t:'生成修改前备份',d:'resource/backups/',s:'done'},{t:'待用户确认应用',d:'',s:'done'}],
+     sugg:['一键应用 3 项建议','导出扫描报告','回滚到备份配置']},
     {key:'bottleneck',label:'快速定界性能瓶颈',status:'doing',file:'crypto.c',code:true,
      goal:'采集热点调用栈与火焰图，AI 定位根因',
      plan:[{t:'采集热点调用栈',d:'Top 13',s:'done'},{t:'生成火焰图',d:'',s:'done'},
-       {t:'AI 定位根因',d:'置信度计算中',s:'doing'}]},
+       {t:'AI 定位根因',d:'置信度计算中',s:'doing'}],
+     sugg:['查看完整火焰图','导出 Topdown 分析','对比历史性能基线']},
     {key:'auto-param',label:'参数自动迭代优化',status:'doing',file:'app-prod.yml',code:true,
      goal:'一键开启参数自动迭代优化',
      plan:[{t:'Round 1',d:'3.2k → 3.9k',s:'done'},{t:'Round 2',d:'3.9k → 4.6k',s:'done'},
-       {t:'Round 3',d:'方案 A/B 对照',s:'doing'}]}
+       {t:'Round 3',d:'方案 A/B 对照',s:'doing'}],
+     sugg:['应用 best 方案参数','继续 Round 3 压测','导出调优报告']}
   ]
 };
 const lastScenario={migrate:'src-migrate',develop:'vectorize',tune:'diagnose'};
@@ -1113,6 +1122,13 @@ function renderAIPlan(agentKey,scenarioKey){
       <span class="lb">${p.t}</span>${p.d?`<span class="d">${p.d}</span>`:''}</div>`).join('');
 }
 
+/* 建议操作：根据当前对话/场景内容变化，而不是固定不变 */
+function renderSuggestions(agentKey,scenarioKey){
+  const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
+  document.getElementById('biActions').innerHTML=(meta&&meta.sugg||[]).map(s=>
+    `<button class="bi-btn">${s}</button>`).join('');
+}
+
 function selectScenario(agentKey,scenarioKey){
   curAgent=agentKey;
   lastScenario[agentKey]=scenarioKey;
@@ -1127,6 +1143,7 @@ function selectScenario(agentKey,scenarioKey){
   document.querySelectorAll('#sidebar .sd-node[data-file]').forEach(el=>
     el.classList.toggle('active',!!meta && el.dataset.file===meta.file));
   renderAIPlan(agentKey,scenarioKey);
+  renderSuggestions(agentKey,scenarioKey);
   const hasCode=!!meta&&meta.code;
   document.getElementById('workspace').classList.toggle('foldcode',!hasCode);
   document.getElementById('cfoldBtn').classList.toggle('on',hasCode);
