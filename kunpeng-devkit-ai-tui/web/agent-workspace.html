@@ -23,6 +23,7 @@
   --panel-bg:rgba(15,16,26,.94); --panel-bd:rgba(52,94,231,.10); --panel-bd2:rgba(52,94,231,.08);
   --input-bg:rgba(16,17,24,.8); --input-bd:rgba(52,94,231,.12);
   --surf-1:rgba(0,0,0,.5); --surf-2:rgba(0,0,0,.44); --surf-3:rgba(0,0,0,.34); --surf-4:rgba(0,0,0,.28);
+  --ap-bg:rgb(32,36,56);
   --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
   --sans:'Inter','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
   --fs-xs:12px; --fs-sm:12px; --fs-base:12.5px; --fs-md:13px;
@@ -152,7 +153,7 @@ body>*{position:relative;z-index:1}
 .conv-title .ct-text{flex:1;min-width:0}
 
 /* AI PLAN：钉在 nav-bar 下方、main-area 上方，跟随当前 Agent、可收起 */
-.ai-plan{flex:none;background:var(--s1);border-bottom:1px solid var(--bd1);overflow:hidden}
+.ai-plan{flex:none;background:var(--ap-bg);border-bottom:1px solid var(--bd2);overflow:hidden}
 .ap-head{display:flex;align-items:center;gap:8px;padding:6px var(--sp-lg);cursor:pointer;
   font-family:var(--mono)}
 .ap-arrow{font-size:12px;color:var(--fg4);transition:transform .15s;flex:none}
@@ -228,7 +229,7 @@ body>*{position:relative;z-index:1}
 
 /* Checklist（诊断项，取自 .rl 左边框日志行）*/
 .chk{display:flex;align-items:baseline;gap:9px;padding:4px 10px;
-  margin:2px 0;font-size:12px;border-radius:4px;background:var(--surf-3)}
+  margin:2px 0;font-size:12px;border-radius:6px;background:var(--surf-3)}
 .chk .ic{flex:none;font-weight:700;font-size:12px;width:12px;text-align:center}
 .chk .ic.ok{color:var(--ok)} .chk .ic.warn{color:var(--warn)}
 .chk .lb{flex:none;color:var(--fg);min-width:120px}
@@ -248,19 +249,17 @@ table.rpt-tb td.mu{color:var(--fg4)}
 /* 对话区域：会话开场的用户自然语言输入，区分于 Agent 输出的样式 */
 .usr-msg{display:flex;align-items:flex-start;gap:7px;padding:8px 12px;margin:14px 0;
   background:linear-gradient(90deg,rgba(52,94,231,.13),rgba(52,94,231,.03));font-size:12px;
-  color:var(--fg);line-height:1.5;border-radius:0;
-  box-shadow:inset 3px 0 0 var(--pri)}
+  color:var(--fg);line-height:1.5;border-radius:0}
 .usr-msg:first-child{margin-top:0}
 .usr-msg .p{color:var(--pri-h);font-weight:700;flex:none}
 /* AI 回复消息 */
 .ai-msg{padding:8px 12px;margin:14px 0;font-size:12px;color:var(--fg2);line-height:1.65;
-  background:rgba(224,175,104,.04);border-radius:0;
-  box-shadow:inset 3px 0 0 rgba(224,175,104,.35)}
+  background:rgba(224,175,104,.04);border-radius:0}
 .ai-msg:first-child{margin-top:0}
 .ai-msg b{color:var(--fg);font-weight:600}
 
 /* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
-.tc-collapse{margin:18px 0;border-radius:8px;overflow:hidden;background:var(--surf-4)}
+.tc-collapse{margin:14px 0;border-radius:8px;overflow:hidden;background:var(--surf-4)}
 .tc-chead{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;background:var(--surf-2)}
 .tc-chead:hover{background:var(--s2)}
 .tc-car{font-family:var(--mono);font-size:12px;color:var(--fg4);flex:none;transition:transform .15s}
@@ -277,8 +276,8 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .rpt-banner.warn{color:var(--warn);background:rgba(224,175,104,.10)}
 
 /* 阻断点提示卡：把"停在哪、为什么、要什么、下一步"从散落的日志里摘出来单独呈现 */
-.blocker{margin:14px 0;padding:10px 12px;border-radius:6px;
-  background:rgba(224,175,104,.07);box-shadow:inset 3px 0 0 var(--warn)}
+.blocker{margin:14px 0;padding:8px 12px;border-radius:8px;
+  background:rgba(224,175,104,.07)}
 .blocker .bt{font-size:12px;font-weight:700;color:var(--warn);
   display:flex;align-items:center;gap:6px;margin-bottom:6px}
 .blocker .bl{font-size:12px;color:var(--fg2);line-height:1.7;padding:1px 0}
@@ -306,8 +305,8 @@ table.rpt-tb td.mu{color:var(--fg4)}
 
 /* Chips / 标签（取自 .tagf .tg）*/
 .chipf{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
-.chip{display:inline-flex;align-items:baseline;gap:5px;font-family:var(--mono);font-size:12px;
-  border:1px solid var(--bd2);padding:2px 8px;color:var(--fg2)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;
+  border:1px solid var(--bd2);border-radius:6px;padding:3px 8px;color:var(--fg2);white-space:nowrap;line-height:1.4}
 .chip.on{border-color:var(--ok);color:var(--ok)}
 .chip b{font-weight:700}
 
@@ -340,8 +339,8 @@ td.fnname{color:var(--fg2)}
 .ai-note .conf{color:var(--fg4);font-size:12px;margin-top:2px}
 
 /* Agent Console（取自 .rl 日志行 + s1 容器）*/
-.console{background:var(--surf-2);padding:8px 10px;
-  display:flex;flex-direction:column;gap:1px;font-size:12px;margin:12px 0;border-radius:6px}
+.console{background:var(--surf-2);padding:8px 12px;
+  display:flex;flex-direction:column;gap:1px;font-size:12px;margin:14px 0;border-radius:8px}
 .console .ln{display:flex;gap:7px;align-items:baseline;color:var(--fg2);padding:1.5px 0}
 
 /* 场景 section 显隐 */
@@ -396,8 +395,6 @@ td.fnname{color:var(--fg2)}
 .sd-sec .h::before{content:'├ ';color:var(--bd3);font-weight:400;letter-spacing:normal;text-transform:none}
 .sd-sec:first-child .h::before{content:'╭ '}
 .sd-sec:last-child .h::before{content:'╰ '}
-.conv-title::before{content:'│ ';color:var(--bd3);flex:none}
-.console{border-left:2px solid var(--bd2)}
 .rpt-banner::before{content:'├─ ';color:rgba(158,206,106,.4)}
 .stab .st.doing{animation:sdpulse 1.3s ease-in-out infinite}
 .status-bar .keys span:not(:first-child)::before{content:'│';color:var(--bd2);margin-right:6px}
@@ -438,6 +435,7 @@ html[data-theme="light"]{
   --panel-bg:rgba(255,255,255,.85); --panel-bd:rgba(52,94,231,.18); --panel-bd2:rgba(52,94,231,.16);
   --input-bg:rgba(255,255,255,.92); --input-bd:rgba(52,94,231,.24);
   --surf-1:rgba(52,94,231,.06); --surf-2:rgba(52,94,231,.05); --surf-3:rgba(52,94,231,.045); --surf-4:rgba(52,94,231,.04);
+  --ap-bg:rgba(52,94,231,.07);
 }
 html[data-theme="light"] body::before{
   background:
@@ -517,7 +515,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
     </div>
     <div class="sd-sec">
       <div class="h">Settings</div>
-      <div class="sd-node"><span class="ic">◇</span><span class="lb">Model · qwen</span></div>
+      <div class="sd-node"><span class="ic">◇</span><span class="lb">Model · pangu</span></div>
       <div class="sd-node"><span class="ic">◇</span><span class="lb">Server · Kunpeng920 remote</span></div>
     </div>
   </aside>
