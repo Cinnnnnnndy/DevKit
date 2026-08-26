@@ -20,6 +20,9 @@
   --g8:#4d6a1a;--g6:#73a839;--g4:#9ece6a;--g3:#b5db8a;
   --a8:#6e4f1e;--a6:#c4a03e;--a4:#e0af68;
   --sel:#283457;
+  --panel-bg:rgba(26,28,44,.92); --panel-bd:rgba(52,94,231,.10); --panel-bd2:rgba(52,94,231,.08);
+  --input-bg:rgba(16,17,24,.8); --input-bd:rgba(52,94,231,.12);
+  --surf-1:rgba(12,12,20,.6); --surf-2:rgba(12,12,20,.55); --surf-3:rgba(12,12,20,.4); --surf-4:rgba(12,12,20,.35);
   --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
   --sans:'Inter','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
   --fs-xs:9.5px; --fs-sm:11px; --fs-base:12.5px; --fs-md:13px;
@@ -94,22 +97,22 @@ body>*{position:relative;z-index:1}
 /* ══ Workspace（侧栏 + 主内容 + 代码列） ══ */
 .workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0 8px;background:transparent}
 .main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;position:relative;
-  margin:8px 0;border:1px solid rgba(52,94,231,.10);border-radius:0;overflow:hidden;
-  background:rgba(26,28,44,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  margin:8px 0;border:1px solid var(--panel-bd);border-radius:0;overflow:hidden;
+  background:var(--panel-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 /* 代码列：workspace 级别的独立面板，在 main-col 右侧展开 */
 .code-col{flex:0 0 0;min-width:0;display:flex;flex-direction:column;
   margin:8px 0;border-radius:0;overflow:hidden;
-  background:rgba(26,28,44,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  background:var(--panel-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
   transition:flex-basis .18s ease,border .18s ease}
-.workspace:not(.foldcode) .code-col{flex-basis:28%;border:1px solid rgba(52,94,231,.10)}
+.workspace:not(.foldcode) .code-col{flex-basis:28%;border:1px solid var(--panel-bd)}
 .workspace.foldcode .code-col{flex-basis:0;border:none}
 .code-scene{display:none;flex-direction:column;flex:1;min-height:0}
 .code-scene.on{display:flex}
 
 /* 侧栏是一整块从上到下的圆角卡片，四个分组靠内部分隔线区分，而不是各自独立的卡片 */
 .sidebar{width:220px;flex:none;overflow-y:auto;
-  margin:8px 0;border:1px solid rgba(52,94,231,.10);border-radius:0;
-  background:rgba(26,28,44,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  margin:8px 0;border:1px solid var(--panel-bd);border-radius:0;
+  background:var(--panel-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .sd-sec{padding:6px 4px;border-bottom:1px solid var(--bd1)}
 .sd-sec:last-child{border-bottom:none}
 .sd-sec .h{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
@@ -220,7 +223,7 @@ body>*{position:relative;z-index:1}
 
 /* Checklist（诊断项，取自 .rl 左边框日志行）*/
 .chk{display:flex;align-items:baseline;gap:9px;padding:4px 10px;
-  margin:2px 0;font-size:11.5px;border-radius:4px;background:rgba(12,12,20,.4)}
+  margin:2px 0;font-size:11.5px;border-radius:4px;background:var(--surf-3)}
 .chk .ic{flex:none;font-weight:700;font-size:9px;width:12px;text-align:center}
 .chk .ic.ok{color:var(--ok)} .chk .ic.warn{color:var(--warn)}
 .chk .lb{flex:none;color:var(--fg);min-width:120px}
@@ -252,8 +255,8 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .ai-msg b{color:var(--fg);font-weight:600}
 
 /* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
-.tc-collapse{margin:18px 0;border-radius:8px;overflow:hidden;background:rgba(12,12,20,.35)}
-.tc-chead{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;background:rgba(12,12,20,.55)}
+.tc-collapse{margin:18px 0;border-radius:8px;overflow:hidden;background:var(--surf-4)}
+.tc-chead{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;background:var(--surf-2)}
 .tc-chead:hover{background:var(--s2)}
 .tc-car{font-family:var(--mono);font-size:9px;color:var(--fg4);flex:none;transition:transform .15s}
 .tc-collapse:not(.open) .tc-car{transform:rotate(-90deg)}
@@ -267,7 +270,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
   background:rgba(158,206,106,.08);padding:8px 12px;margin:14px 0;
   border-radius:8px}
 .stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
-.stat-card{background:rgba(12,12,20,.6);padding:9px 10px;border-radius:6px;border:1px solid rgba(52,94,231,.08)}
+.stat-card{background:var(--surf-1);padding:9px 10px;border-radius:6px;border:1px solid var(--panel-bd2)}
 .stat-card .sc-lb{font-size:9px;letter-spacing:.1em;color:var(--fg4);text-transform:uppercase}
 .stat-card .sc-big{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--fg);margin:3px 0 1px}
 .stat-card .sc-sub{font-size:10px;color:var(--fg4)}
@@ -321,7 +324,7 @@ td.fnname{color:var(--fg2)}
 .ai-note .conf{color:var(--fg4);font-size:10px;margin-top:2px}
 
 /* Agent Console（取自 .rl 日志行 + s1 容器）*/
-.console{background:rgba(12,12,20,.55);padding:8px 10px;
+.console{background:var(--surf-2);padding:8px 10px;
   display:flex;flex-direction:column;gap:1px;font-size:11px;margin:12px 0;border-radius:6px}
 .console .ln{display:flex;gap:7px;align-items:baseline;color:var(--fg2);padding:1.5px 0}
 
@@ -331,8 +334,8 @@ td.fnname{color:var(--fg2)}
 
 /* ══ Bottom Input（取自 .inp .box）══ */
 .bottom-input{flex:none;background:transparent;border-top:none;padding:10px var(--sp-lg)}
-.bi-row{display:flex;align-items:center;gap:9px;background:rgba(16,17,24,.8);
-  border:1px solid rgba(52,94,231,.12);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+.bi-row{display:flex;align-items:center;gap:9px;background:var(--input-bg);
+  border:1px solid var(--input-bd);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-radius:0;padding:6px 12px;font-size:var(--fs-md)}
 .bi-row:focus-within{border-color:rgba(52,94,231,.45)}
 .bi-row .p{color:var(--pri-h);font-weight:700}
@@ -397,6 +400,46 @@ td.fnname{color:var(--fg2)}
   box-shadow:0 0 22px rgba(30,80,220,.5),inset 0 1px 0 rgba(255,255,255,.18)}
 .bi-btn:active{filter:brightness(.92)}
 
+/* ══ Skin switcher（右上角皮肤切换：深色 / 浅色 / 无圆角）══ */
+.skin-switch{margin-left:auto;display:flex;align-items:center;gap:7px;flex:none}
+.skin-switch .ss-lb{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.18em;color:var(--fg4)}
+.ss-group{display:flex}
+.ss-btn{font-family:var(--mono);font-size:10px;color:var(--fg3);background:transparent;
+  border:1px solid var(--bd2);border-left:none;padding:4px 10px;cursor:pointer;
+  transition:background .12s ease,color .12s ease,border-color .12s ease}
+.ss-group .ss-btn:first-child{border-left:1px solid var(--bd2)}
+.ss-btn:hover{color:var(--fg2);background:var(--s2)}
+.ss-btn.on{color:#fff;background:rgba(52,94,231,.4);border-color:rgba(52,94,231,.5)}
+
+/* ══ 浅色皮肤 ══ */
+html[data-theme="light"]{
+  --bg:#eef0f5; --app:#e6e9f0; --elev:#ffffff;
+  --s1:#ffffff; --s2:#f2f4f9; --s3:#e8ebf3; --s4:#dde1ec;
+  --fg:#1b1e2b; --fg2:#3c4054; --fg3:#5c6178; --fg4:#7d8298;
+  --bd1:#dde1ec; --bd2:#c7cce0; --bd3:#a9aec9;
+  --sel:#dbe4ff;
+  --panel-bg:rgba(255,255,255,.85); --panel-bd:rgba(52,94,231,.18); --panel-bd2:rgba(52,94,231,.16);
+  --input-bg:rgba(255,255,255,.92); --input-bd:rgba(52,94,231,.24);
+  --surf-1:rgba(52,94,231,.06); --surf-2:rgba(52,94,231,.05); --surf-3:rgba(52,94,231,.045); --surf-4:rgba(52,94,231,.04);
+}
+html[data-theme="light"] body::before{
+  background:
+    radial-gradient(ellipse 120% 90% at 0% 100%,rgba(52,94,231,.13) 0%,rgba(52,94,231,.04) 30%,transparent 60%),
+    radial-gradient(ellipse 100% 80% at 95% 90%,rgba(102,206,250,.08) 0%,transparent 55%),
+    radial-gradient(ellipse 90% 70% at 50% 95%,rgba(52,94,231,.06) 0%,transparent 55%),
+    radial-gradient(ellipse 80% 60% at 8% 12%,rgba(187,154,247,.06) 0%,transparent 60%),
+    radial-gradient(ellipse 70% 50% at 92% 8%,rgba(52,94,231,.04) 0%,transparent 55%)}
+html[data-theme="light"] .scan{background:repeating-linear-gradient(180deg,rgba(20,25,45,.02) 0 1px,transparent 1px 3px)}
+html[data-theme="light"] .particles{opacity:.5}
+html[data-theme="light"] .tk.d{background:#fbdde5;color:#c23054}
+html[data-theme="light"] .tk.a{background:#dcf3d4;color:#3a7a2a}
+html[data-theme="light"] .cline.del{background:rgba(247,118,142,.12)}
+html[data-theme="light"] .cline.add{background:rgba(60,150,60,.1)}
+html[data-theme="light"] .bi-btn{color:#fff}
+
+/* ══ 无圆角皮肤：保留深色配色，全站直角化 ══ */
+html[data-theme="sharp"] *{border-radius:0 !important}
+
 /* ══ 响应式：整页自适应，不是固定画布 ══ */
 @media (max-width:980px){
   .sidebar{width:180px}
@@ -417,6 +460,14 @@ td.fnname{color:var(--fg2)}
 
 <div class="topbar">
   <span class="blogo"><img class="kpi" alt="Kunpeng" src="data:image/png;base64,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"><span class="g2">KUNPENG</span><span class="g1">DEVKIT AI</span></span>
+  <div class="skin-switch" id="skinSwitch">
+    <span class="ss-lb">SKIN</span>
+    <div class="ss-group">
+      <button class="ss-btn" data-theme="dark">深色</button>
+      <button class="ss-btn" data-theme="light">浅色</button>
+      <button class="ss-btn" data-theme="sharp">无圆角</button>
+    </div>
+  </div>
 </div>
 
 <div class="workspace foldcode" id="workspace">
@@ -1132,6 +1183,17 @@ document.getElementById('scrollBtm').addEventListener('click',()=>{
 
 renderSessionList('migrate','src-migrate');
 selectScenario('migrate','src-migrate');
+
+/* ══ 皮肤切换：深色 / 浅色 / 无圆角 ══ */
+function setTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  document.querySelectorAll('.ss-btn').forEach(b=>b.classList.toggle('on',b.dataset.theme===theme));
+  try{localStorage.setItem('kdt-theme',theme)}catch(e){}
+}
+document.querySelectorAll('.ss-btn').forEach(b=>b.addEventListener('click',()=>setTheme(b.dataset.theme)));
+let savedTheme='dark';
+try{savedTheme=localStorage.getItem('kdt-theme')||'dark'}catch(e){}
+setTheme(savedTheme);
 </script>
 </body>
 </html>
