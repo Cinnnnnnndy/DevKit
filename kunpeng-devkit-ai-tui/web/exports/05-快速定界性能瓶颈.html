@@ -349,9 +349,9 @@ td.fnname{color:var(--fg2)}
 
 /* ══ Bottom Input（取自 .inp .box）══ */
 .bottom-input{flex:none;background:transparent;border-top:none;padding:10px var(--sp-lg)}
-.bi-row{display:flex;align-items:center;gap:9px;background:var(--input-bg);
+.bi-row{display:flex;align-items:flex-start;gap:9px;background:var(--input-bg);
   border:1px solid var(--input-bd);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border-radius:8px;padding:6px 12px;font-size:var(--fs-md);position:relative;overflow:hidden;
+  border-radius:8px;padding:8px 12px;font-size:var(--fs-md);position:relative;overflow:hidden;
   box-shadow:0 0 16px rgba(52,94,231,.18),inset 0 1px 0 rgba(255,255,255,.06);
   transition:box-shadow .15s,border-color .15s}
 .bi-row:focus-within{border-color:rgba(52,94,231,.65);
@@ -360,11 +360,12 @@ td.fnname{color:var(--fg2)}
 .bi-row::before{content:'';position:absolute;top:-8px;left:-8px;width:36px;height:30px;
   background:radial-gradient(ellipse at center,rgba(255,255,255,.3) 0%,rgba(255,255,255,.08) 50%,transparent 75%);
   filter:blur(1.5px);pointer-events:none}
-.bi-row .p{color:var(--pri-h);font-weight:700;position:relative}
-.bi-row input{flex:1;background:transparent;border:0;outline:0;color:var(--fg);font-family:var(--mono);
-  font-size:var(--fs-md)}
-.bi-row input::placeholder{color:var(--fg4)}
-.bi-cur{width:6px;height:14px;background:var(--pri-h);display:inline-block;animation:bl 1s steps(1) infinite}
+.bi-row .p{color:var(--pri-h);font-weight:700;position:relative;margin-top:2px}
+.bi-row textarea{flex:1;background:transparent;border:0;outline:0;resize:none;color:var(--fg);
+  font-family:var(--mono);font-size:var(--fs-md);line-height:1.5;height:calc(1.5em*3)}
+.bi-row textarea::placeholder{color:var(--fg4)}
+.bi-cur{width:6px;height:14px;background:var(--pri-h);display:inline-block;margin-top:2px;
+  animation:bl 1s steps(1) infinite}
 @keyframes bl{50%{opacity:0}}
 
 /* ══ Status Bar ══ */
@@ -964,7 +965,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
     <div class="bi-row">
       <span class="p">&gt;</span>
       <span class="bi-cur"></span>
-      <input type="text" placeholder="描述你想让 Agent 做什么...">
+      <textarea rows="3" placeholder="描述你想让 Agent 做什么..."></textarea>
     </div>
   </div>
   </div>
@@ -1015,17 +1016,40 @@ html[data-theme="light"] .bi-btn{color:#fff}
     <div class="code-scene" data-agent="develop" data-scenario="vectorize">
       <div class="panel-head"><span class="crumb"><span class="m">[M]</span> settlement_kernel.c &gt; settlement &gt; <span class="fn">calc_batch():104</span></span></div>
       <div class="panel-body">
-        <div class="cline"><span class="no">102</span><span class="pfx"></span><span class="cmt">// 天秤扫描：x86 AVX2 intrinsics，--simd-target=sve</span></div>
-        <div class="cline del"><span class="no">103</span><span class="pfx del">-</span><span class="tk d">__m256 va=_mm256_loadu_ps(&amp;amount[i]);</span></div>
-        <div class="cline del"><span class="no">104</span><span class="pfx del">-</span><span class="tk d">__m256 vr=_mm256_loadu_ps(&amp;rate[i]);</span></div>
-        <div class="cline del"><span class="no">105</span><span class="pfx del">-</span><span class="tk d">__m256 vt=_mm256_fmadd_ps(va,vr,vf);</span></div>
-        <div class="cline del"><span class="no">106</span><span class="pfx del">-</span><span class="tk d">_mm256_storeu_ps(&amp;total[i],vt);</span></div>
-        <div class="cline add hl"><span class="no">103</span><span class="pfx add">+</span><span class="tk a">svbool_t pg=svwhilelt_b32(i,n);</span></div>
-        <div class="cline add hl"><span class="no">104</span><span class="pfx add">+</span><span class="tk a">svfloat32_t va=svld1_f32(pg,&amp;amount[i]);</span></div>
-        <div class="cline add hl"><span class="no">105</span><span class="pfx add">+</span><span class="tk a">svfloat32_t vt=svmad_f32_z(pg,va,vr,vf);</span></div>
-        <div class="cline add hl"><span class="no">106</span><span class="pfx add">+</span><span class="tk a">svst1_f32(pg,&amp;total[i],vt);</span></div>
-        <div class="cline"><span class="no">107</span><span class="pfx"></span></div>
-        <div class="cline"><span class="no">108</span><span class="pfx"></span><span class="cmt">// SVE 谓词寄存器按剩余元素数收尾，免去标量 tail loop</span></div>
+        <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt">// settlement_kernel.c —— 结算批处理核心计算，鲲鹏 SVE 向量化版本</span></div>
+        <div class="cline"><span class="no">2</span><span class="pfx"></span><span class="kw">#include</span> &lt;arm_sve.h&gt;</div>
+        <div class="cline"><span class="no">3</span><span class="pfx"></span><span class="kw">#include</span> &lt;stdint.h&gt;</div>
+        <div class="cline"><span class="no">4</span><span class="pfx"></span><span class="kw">#include</span> "settlement_types.h"</div>
+        <div class="cline"><span class="no">5</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">6</span><span class="pfx"></span><span class="kw">typedef struct</span> {</div>
+        <div class="cline"><span class="no">7</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">const float</span> *amount;</div>
+        <div class="cline"><span class="no">8</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">const float</span> *rate;</div>
+        <div class="cline"><span class="no">9</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">float</span> *total;</div>
+        <div class="cline"><span class="no">10</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">int</span> n;</div>
+        <div class="cline"><span class="no">11</span><span class="pfx"></span>} <span class="ty">settle_ctx_t</span>;</div>
+        <div class="cline"><span class="no">12</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">13</span><span class="pfx"></span><span class="kw">static inline float</span> <span class="fn">clamp_rate</span>(<span class="kw">float</span> r) {</div>
+        <div class="cline"><span class="no">14</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">return</span> r &lt; 0.f ? 0.f : (r &gt; 1.f ? 1.f : r);</div>
+        <div class="cline"><span class="no">15</span><span class="pfx"></span>}</div>
+        <div class="cline"><span class="no">16</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">99</span><span class="pfx"></span><span class="cmt">// 天秤扫描定位的热点循环 · 已完成 SVE 向量化改造</span></div>
+        <div class="cline"><span class="no">100</span><span class="pfx"></span><span class="kw">void</span> <span class="fn">calc_batch</span>(<span class="ty">settle_ctx_t</span> *ctx) {</div>
+        <div class="cline"><span class="no">101</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">const float</span> *amount = ctx-&gt;amount, *rate = ctx-&gt;rate;</div>
+        <div class="cline"><span class="no">102</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">float</span> *total = ctx-&gt;total;</div>
+        <div class="cline hl"><span class="no">103</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; ctx-&gt;n; i += svcntw()) {</div>
+        <div class="cline add"><span class="no">104</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;svbool_t pg = svwhilelt_b32(i, ctx-&gt;n);</div>
+        <div class="cline add"><span class="no">105</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;svfloat32_t va = svld1_f32(pg, &amp;amount[i]);</div>
+        <div class="cline add"><span class="no">106</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;svfloat32_t vr = svld1_f32(pg, &amp;rate[i]);</div>
+        <div class="cline add"><span class="no">107</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;svfloat32_t vt = svmad_f32_z(pg, va, vr, svdup_f32(1.0f));</div>
+        <div class="cline add"><span class="no">108</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;svst1_f32(pg, &amp;total[i], vt);</div>
+        <div class="cline"><span class="no">109</span><span class="pfx"></span>&nbsp;&nbsp;}</div>
+        <div class="cline"><span class="no">110</span><span class="pfx"></span>}</div>
+        <div class="cline"><span class="no">111</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">112</span><span class="pfx"></span><span class="cmt">// x86 标量兜底路径，非 aarch64 构建时启用</span></div>
+        <div class="cline"><span class="no">113</span><span class="pfx"></span><span class="kw">void</span> <span class="fn">calc_batch_scalar_fallback</span>(<span class="ty">settle_ctx_t</span> *ctx) {</div>
+        <div class="cline"><span class="no">114</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; ctx-&gt;n; i++)</div>
+        <div class="cline"><span class="no">115</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;ctx-&gt;total[i] = ctx-&gt;amount[i] * <span class="fn">clamp_rate</span>(ctx-&gt;rate[i]);</div>
+        <div class="cline"><span class="no">116</span><span class="pfx"></span>}</div>
       </div>
     </div>
     <div class="code-scene" data-agent="develop" data-scenario="op-gen">
