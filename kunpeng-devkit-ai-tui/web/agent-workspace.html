@@ -21,7 +21,7 @@
   --a8:#6e4f1e;--a6:#c4a03e;--a4:#e0af68;
   --sel:#283457;
   --panel-bg:rgba(15,16,26,.94); --panel-bd:rgba(52,94,231,.10); --panel-bd2:rgba(52,94,231,.08);
-  --input-bg:rgba(16,17,24,.8); --input-bd:rgba(52,94,231,.12);
+  --input-bg:rgba(28,31,48,.92); --input-bd:rgba(52,94,231,.32);
   --surf-1:rgba(0,0,0,.5); --surf-2:rgba(0,0,0,.44); --surf-3:rgba(0,0,0,.34); --surf-4:rgba(0,0,0,.28);
   --ap-bg:rgb(32,36,56);
   --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
@@ -351,8 +351,11 @@ td.fnname{color:var(--fg2)}
 .bottom-input{flex:none;background:transparent;border-top:none;padding:10px var(--sp-lg)}
 .bi-row{display:flex;align-items:center;gap:9px;background:var(--input-bg);
   border:1px solid var(--input-bd);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border-radius:8px;padding:6px 12px;font-size:var(--fs-md)}
-.bi-row:focus-within{border-color:rgba(52,94,231,.45)}
+  border-radius:8px;padding:6px 12px;font-size:var(--fs-md);
+  box-shadow:0 0 16px rgba(52,94,231,.18),inset 0 1px 0 rgba(255,255,255,.06);
+  transition:box-shadow .15s,border-color .15s}
+.bi-row:focus-within{border-color:rgba(52,94,231,.65);
+  box-shadow:0 0 24px rgba(52,94,231,.32),inset 0 1px 0 rgba(255,255,255,.1)}
 .bi-row .p{color:var(--pri-h);font-weight:700}
 .bi-row input{flex:1;background:transparent;border:0;outline:0;color:var(--fg);font-family:var(--mono);
   font-size:var(--fs-md)}
@@ -433,7 +436,7 @@ html[data-theme="light"]{
   --bd1:#dde1ec; --bd2:#c7cce0; --bd3:#a9aec9;
   --sel:#dbe4ff;
   --panel-bg:rgba(255,255,255,.85); --panel-bd:rgba(52,94,231,.18); --panel-bd2:rgba(52,94,231,.16);
-  --input-bg:rgba(255,255,255,.92); --input-bd:rgba(52,94,231,.24);
+  --input-bg:rgba(225,232,250,.95); --input-bd:rgba(52,94,231,.35);
   --surf-1:rgba(52,94,231,.06); --surf-2:rgba(52,94,231,.05); --surf-3:rgba(52,94,231,.045); --surf-4:rgba(52,94,231,.04);
   --ap-bg:rgba(52,94,231,.07);
 }
