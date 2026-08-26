@@ -102,11 +102,11 @@ body>*{position:relative;z-index:1}
 /* ══ Workspace（侧栏 + 主内容 + 代码列） ══ */
 .workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0 8px;background:transparent}
 .main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;position:relative;
-  margin:8px 0;border:1px solid var(--panel-bd);border-radius:0;overflow:hidden;
+  margin:8px 0;border:1px solid var(--panel-bd);border-radius:12px;overflow:hidden;
   background:var(--panel-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 /* 代码列：workspace 级别的独立面板，在 main-col 右侧展开 */
 .code-col{flex:0 0 0;min-width:0;display:flex;flex-direction:column;
-  margin:8px 0;border-radius:0;overflow:hidden;
+  margin:8px 0;border-radius:12px;overflow:hidden;
   background:var(--panel-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
   transition:flex-basis .18s ease,border .18s ease}
 .workspace:not(.foldcode) .code-col{flex-basis:28%;border:1px solid var(--panel-bd)}
@@ -116,7 +116,7 @@ body>*{position:relative;z-index:1}
 
 /* 侧栏是一整块从上到下的圆角卡片，四个分组靠内部分隔线区分，而不是各自独立的卡片 */
 .sidebar{width:220px;flex:none;overflow-y:auto;
-  margin:8px 0;border:1px solid var(--panel-bd);border-radius:0;
+  margin:8px 0;border:1px solid var(--panel-bd);border-radius:12px;
   background:var(--panel-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .sd-sec{padding:6px 4px;border-bottom:1px solid var(--bd1)}
 .sd-sec:last-child{border-bottom:none}
@@ -643,7 +643,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
           <div class="mrow"><span class="ic wn">●</span><span class="lb">Tomcat 8.0.53</span><span class="ar">→</span><span class="tg">东方通 TongWeb 7.0.4.9_M3</span><span class="rbadge warn">license 缺失</span></div>
 
           <div class="blocker">
-            <div class="bt">⛔ 中间件阶段阻断 · TongWeb license 缺失</div>
+            <div class="bt">✕ 中间件阶段阻断 · TongWeb license 缺失</div>
             <div class="bl">已在 <code>packages/</code>、<code>packages/middleware/</code>、<code>packages/tongweb/</code> 及官方镜像源中查找，未找到 <b>License.dat / *.lic</b>。按规则禁止静默降级为 Apache Tomcat（<code>fallback_to_apache_tomcat: false</code>）。</div>
             <div class="bl">影响范围：TongWeb 未安装 → <b>order-api 应用未部署</b>（依赖 TongWeb 容器运行）</div>
             <div class="bl">下一步（二选一）：① 补充 License.dat 到 <code>packages/tongweb/</code>；② 显式设置 <code>fallback_to_apache_tomcat: true</code> 并确认降级为 Tomcat ARM</div>
