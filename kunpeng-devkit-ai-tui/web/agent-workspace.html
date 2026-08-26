@@ -94,11 +94,11 @@ body>*{position:relative;z-index:1}
 /* ══ Workspace（侧栏 + 主内容 + 代码列） ══ */
 .workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0 8px;background:transparent}
 .main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;position:relative;
-  margin:8px 0;border:1px solid rgba(52,94,231,.10);border-radius:12px;overflow:hidden;
+  margin:8px 0;border:1px solid rgba(52,94,231,.10);border-radius:0;overflow:hidden;
   background:rgba(26,28,44,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 /* 代码列：workspace 级别的独立面板，在 main-col 右侧展开 */
 .code-col{flex:0 0 0;min-width:0;display:flex;flex-direction:column;
-  margin:8px 0;border-radius:12px;overflow:hidden;
+  margin:8px 0;border-radius:0;overflow:hidden;
   background:rgba(26,28,44,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
   transition:flex-basis .18s ease,border .18s ease}
 .workspace:not(.foldcode) .code-col{flex-basis:28%;border:1px solid rgba(52,94,231,.10)}
