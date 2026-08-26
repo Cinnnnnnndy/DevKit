@@ -411,7 +411,9 @@ td.fnname{color:var(--fg2)}
 /* ══ Action buttons（蓝色渐变建议按钮）══ */
 .bi-actions{display:flex;gap:6px;padding:0 0 7px;flex-wrap:wrap}
 .bi-btn{font-family:var(--mono);font-size:12px;color:#fff;font-weight:600;
-  background:linear-gradient(180deg,rgba(52,94,231,.94) 0%,rgba(42,77,196,.94) 50%,rgba(36,67,159,.94) 100%);
+  background:
+    repeating-conic-gradient(rgba(255,255,255,.06) 0% 25%,transparent 0% 50%) 0 0/6px 6px,
+    linear-gradient(180deg,rgba(52,94,231,.96) 0%,rgba(52,94,231,.96) 55%,rgba(42,75,196,.96) 100%);
   border:1px solid rgba(100,160,255,.28);border-radius:8px;-webkit-appearance:none;appearance:none;
   padding:5px 14px;cursor:pointer;white-space:nowrap;letter-spacing:.01em;
   box-shadow:0 0 9px rgba(52,94,231,.3),inset 0 1px 0 rgba(255,255,255,.1);
