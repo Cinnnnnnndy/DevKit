@@ -1276,16 +1276,14 @@ document.getElementById('scrollBtm').addEventListener('click',()=>{
 renderSessionList('migrate','src-migrate');
 selectScenario('migrate','src-migrate');
 
-/* ══ 皮肤切换：深色 / 浅色 / 无圆角 ══ */
+/* ══ 皮肤切换：深色 / 浅色 / 无圆角（每次打开页面都从深色开始，不做持久化，
+   避免"无圆角"被记住后下次打开还以为是圆角样式出了问题）══ */
 function setTheme(theme){
   document.documentElement.setAttribute('data-theme',theme);
   document.querySelectorAll('.ss-btn').forEach(b=>b.classList.toggle('on',b.dataset.theme===theme));
-  try{localStorage.setItem('kdt-theme',theme)}catch(e){}
 }
 document.querySelectorAll('.ss-btn').forEach(b=>b.addEventListener('click',()=>setTheme(b.dataset.theme)));
-let savedTheme='dark';
-try{savedTheme=localStorage.getItem('kdt-theme')||'dark'}catch(e){}
-setTheme(savedTheme);
+setTheme('dark');
 </script>
 </body>
 </html>
