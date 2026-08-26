@@ -357,9 +357,9 @@ td.fnname{color:var(--fg2)}
 .bi-row:focus-within{border-color:rgba(52,94,231,.65);
   box-shadow:0 0 24px rgba(52,94,231,.32),inset 0 1px 0 rgba(255,255,255,.1)}
 /* 玻璃质感高光：模拟左上角一处光斑 */
-.bi-row::before{content:'';position:absolute;top:-16px;left:6px;width:46px;height:34px;
-  background:radial-gradient(ellipse at center,rgba(255,255,255,.4) 0%,rgba(255,255,255,.1) 45%,transparent 72%);
-  pointer-events:none}
+.bi-row::before{content:'';position:absolute;top:-8px;left:-8px;width:36px;height:30px;
+  background:radial-gradient(ellipse at center,rgba(255,255,255,.3) 0%,rgba(255,255,255,.08) 50%,transparent 75%);
+  filter:blur(1.5px);pointer-events:none}
 .bi-row .p{color:var(--pri-h);font-weight:700;position:relative}
 .bi-row input{flex:1;background:transparent;border:0;outline:0;color:var(--fg);font-family:var(--mono);
   font-size:var(--fs-md)}
