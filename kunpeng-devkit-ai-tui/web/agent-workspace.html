@@ -150,11 +150,11 @@ body>*{position:relative;z-index:1}
 /* ══ Conversation title ══ */
 .conv-title{flex:none;display:flex;align-items:center;gap:8px;padding:8px var(--sp-lg) 4px;font-family:var(--mono);font-size:13px;
   font-weight:700;color:var(--fg);letter-spacing:.02em}
-.conv-title::before{content:'╭─';color:var(--bd3);font-size:11px;opacity:.45;flex:none}
+.conv-title::before{content:'▎';color:var(--pri-h);font-size:14px;flex:none;opacity:.7}
 .conv-title .ct-text{flex:1;min-width:0}
 
 /* AI PLAN：钉在 nav-bar 下方、main-area 上方，跟随当前 Agent、可收起 */
-.ai-plan{flex:none;background:var(--ap-bg);border-bottom:1px solid var(--bd2);overflow:hidden}
+.ai-plan{flex:none;background:var(--ap-bg);border-bottom:1px solid var(--bd2);border-left:3px solid var(--pri-h);overflow:hidden}
 .ap-head{display:flex;align-items:center;gap:8px;padding:6px var(--sp-lg);cursor:pointer;
   font-family:var(--mono)}
 .ap-arrow{font-size:12px;color:var(--fg4);transition:transform .15s;flex:none}
@@ -181,7 +181,7 @@ body>*{position:relative;z-index:1}
 .cfold.on{color:var(--pri-h);background:var(--s3)}
 .panel-head{flex:none;display:flex;align-items:center;gap:8px;padding:8px var(--sp-lg);
   border-bottom:1px solid var(--bd1);font-family:var(--mono)}
-.panel-head::before{content:'├─';color:var(--bd3);font-size:12px;flex:none}
+.panel-head::before{content:'├──';color:var(--bd3);font-size:12px;flex:none}
 .panel-head .t{font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--fg2)}
 .panel-head .crumb{font-size:12px;color:var(--fg3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .panel-head .crumb .m{color:var(--o3);font-weight:700}
@@ -342,10 +342,7 @@ td.fnname{color:var(--fg2)}
 /* Agent Console（取自 .rl 日志行 + s1 容器）*/
 .console{background:var(--surf-2);padding:8px 12px;
   display:flex;flex-direction:column;gap:1px;font-size:14px;margin:14px 0;border-radius:8px}
-.console::before{content:'╭─ console';font-family:var(--mono);font-size:10px;color:var(--bd3);opacity:.4;margin-bottom:2px}
-.console::after{content:'╰─';font-family:var(--mono);font-size:10px;color:var(--bd3);opacity:.4;margin-top:2px}
 .console .ln{display:flex;gap:7px;align-items:baseline;color:var(--fg2);padding:1.5px 0}
-.console .ln::before{content:'│';color:var(--bd2);font-size:11px;flex:none}
 
 /* 场景 section 显隐 */
 .scene{display:none}
@@ -395,48 +392,54 @@ td.fnname{color:var(--fg2)}
 .workspace::before{top:4px;left:4px;border-top:1px solid var(--pri-h);border-left:1px solid var(--pri-h)}
 .workspace::after{bottom:4px;right:4px;border-bottom:1px solid var(--pri-h);border-right:1px solid var(--pri-h)}
 
-/* ── TUI 线框 box-drawing：面板角标、管道标记、分隔线 ── */
-.main-col::before,.main-col::after,
-.code-col::before,.code-col::after,
-.sidebar::before,.sidebar::after{
-  position:absolute;font-family:var(--mono);color:var(--bd3);pointer-events:none;z-index:2;font-size:11px;line-height:1;opacity:.55}
+/* ── TUI 线框 box-drawing：角框、管道标记、分隔线 ── */
 .main-col,.code-col,.sidebar{position:relative}
-.main-col::before{content:'╭';top:2px;left:4px}
-.main-col::after{content:'╯';bottom:2px;right:4px}
-.sidebar::before{content:'╭';top:2px;left:4px}
-.sidebar::after{content:'╰';bottom:2px;left:4px}
-.code-col::before{content:'╮';top:2px;right:4px}
-.code-col::after{content:'╯';bottom:2px;right:4px}
 
-/* 消息左管道线 */
-.usr-msg{border-left:2px solid rgba(52,94,231,.35)}
-.ai-msg{border-left:2px solid rgba(224,175,104,.18)}
-.console{border-left:2px solid var(--bd2)}
+/* 面板角框：用 CSS border 画 L 形，比单字符更醒目 */
+.main-col::before,.main-col::after,
+.sidebar::before,.sidebar::after{
+  content:'';position:absolute;width:16px;height:16px;pointer-events:none;z-index:2}
+.main-col::before{top:0;left:0;border-top:2px solid var(--bd3);border-left:2px solid var(--bd3)}
+.main-col::after{bottom:0;right:0;border-bottom:2px solid var(--bd3);border-right:2px solid var(--bd3)}
+.sidebar::before{top:0;left:0;border-top:2px solid var(--bd3);border-left:2px solid var(--bd3)}
+.sidebar::after{bottom:0;left:0;border-bottom:2px solid var(--bd3);border-left:2px solid var(--bd3)}
 
-/* checklist 行前缀 */
-.chk::before{content:'├';color:var(--bd3);font-size:12px;flex:none;margin-right:-3px}
-.chk:last-child::before{content:'╰'}
+/* 消息左管道线：用 3px 实色块字符风格 */
+.usr-msg{border-left:3px solid rgba(52,94,231,.5)}
+.ai-msg{border-left:3px solid rgba(224,175,104,.25)}
 
-/* 报告 banner 和 blocker 前缀线 */
-.blocker{border-left:2px solid var(--warn)}
+/* checklist 行前缀 + 块字符左标 */
+.chk{border-left:3px solid var(--bd3);padding-left:12px}
+.chk .ic.ok~.lb{} /* 保持原结构 */
 
-/* stat-card 角标 */
+/* console 块字符边框 */
+.console{border-left:3px solid var(--bd2)}
+
+/* 报告 banner 和 blocker 块字符边框 */
+.blocker{border-left:3px solid var(--warn)}
+.rpt-banner{border-left:3px solid var(--ok)}
+
+/* stat-card 角框 */
 .stat-card{position:relative}
-.stat-card::before{content:'┌';position:absolute;top:1px;left:3px;color:var(--bd3);font-size:10px;opacity:.45;font-family:var(--mono)}
-.stat-card::after{content:'┘';position:absolute;bottom:1px;right:3px;color:var(--bd3);font-size:10px;opacity:.45;font-family:var(--mono)}
+.stat-card::before,.stat-card::after{
+  content:'';position:absolute;width:10px;height:10px;pointer-events:none}
+.stat-card::before{top:-1px;left:-1px;border-top:2px solid var(--bd3);border-left:2px solid var(--bd3)}
+.stat-card::after{bottom:-1px;right:-1px;border-bottom:2px solid var(--bd3);border-right:2px solid var(--bd3)}
 
-/* 折叠区管道线 */
-.tc-collapse{border-left:2px solid var(--bd2)}
+/* 折叠区块字符边框 */
+.tc-collapse{border-left:3px solid var(--bd2)}
 
-/* 步骤列表管道线 */
-.steps{border-left:2px solid var(--bd1);margin-left:6px;padding-left:10px}
-.step::before{content:'─';color:var(--bd2);flex:none;font-size:11px;margin-top:3px;margin-left:-12px;margin-right:3px}
+/* 步骤列表管道线：加粗 */
+.steps{border-left:3px solid var(--bd2);margin-left:6px;padding-left:10px}
+.step::before{content:'─';color:var(--bd3);flex:none;font-size:12px;margin-top:2px;margin-left:-13px;margin-right:2px}
 
-/* 对比表左管道 */
-table.cmp{border-left:2px solid var(--bd1)}
+/* 对比表块字符左边框 */
+table.cmp{border-left:3px solid var(--bd2)}
 
-/* 底部输入管道装饰 */
-.bottom-input::before{content:'╰─ input';font-family:var(--mono);font-size:10px;color:var(--bd3);opacity:.35;display:block;margin-bottom:3px;padding-left:2px}
+/* 底部输入区 ── 上方分割线 */
+.bottom-input::before{content:'────────────────────────────────────────';
+  font-family:var(--mono);font-size:9px;color:var(--bd2);display:block;
+  margin-bottom:6px;overflow:hidden;white-space:nowrap;letter-spacing:-.5px;line-height:1}
 .scroll-btm{position:absolute;bottom:56px;right:14px;width:28px;height:28px;
   border-radius:50%;background:var(--s3);color:var(--fg3);border:none;cursor:pointer;
   display:none;align-items:center;justify-content:center;z-index:10;
@@ -446,15 +449,17 @@ table.cmp{border-left:2px solid var(--bd1)}
 .scroll-btm:hover{background:var(--pri);color:#fff}
 
 /* ══ TUI box-drawing accents ══ */
-.sub-h::before{content:'├─ ';color:var(--bd3);font-weight:400;letter-spacing:normal;text-transform:none}
-.sd-sec .h::before{content:'├ ';color:var(--bd3);font-weight:400;letter-spacing:normal;text-transform:none}
-.sd-sec:first-child .h::before{content:'╭ '}
-.sd-sec:last-child .h::before{content:'╰ '}
-.rpt-banner::before{content:'├─ ';color:rgba(158,206,106,.4)}
+.sub-h::before{content:'├── ';color:var(--bd3);font-weight:400;letter-spacing:normal;text-transform:none}
+.sd-sec .h{border-bottom:1px solid var(--bd1);padding-bottom:5px;margin-bottom:2px}
+.sd-sec .h::before{content:'▎';color:var(--pri-h);font-weight:400;letter-spacing:normal;text-transform:none;margin-right:4px;opacity:.7}
+.sd-sec:first-child .h::before{content:'▎'}
+.sd-sec:last-child .h::before{content:'▎'}
+.rpt-banner::before{content:'├── ';color:rgba(158,206,106,.5)}
 .stab .st.doing{animation:sdpulse 1.3s ease-in-out infinite}
 .status-bar .keys span:not(:first-child)::before{content:'│';color:var(--bd2);margin-right:6px}
-.status-bar::before{content:'╰─ status';color:var(--bd3);display:flex;align-items:center;
-  padding:0 8px 0 var(--sp-lg);flex:none;font-size:10px;opacity:.5}
+.status-bar{border-top:1px solid var(--bd1)}
+.status-bar::before{content:'╰─';color:var(--bd3);display:flex;align-items:center;
+  padding:0 8px 0 var(--sp-lg);flex:none;font-size:12px}
 
 /* ══ Action buttons（蓝色渐变建议按钮）══ */
 .bi-actions{display:flex;gap:6px;padding:0 0 7px;flex-wrap:wrap}
