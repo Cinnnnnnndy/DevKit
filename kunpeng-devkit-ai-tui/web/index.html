@@ -1046,32 +1046,38 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td>输入框</td><td>全部产品固定底部 · OpenCode 用示例问题做 placeholder · Gemini CLI 提示 <code>@</code> 语法</td><td>底部固定，placeholder 嵌入常见任务示例（吸收 OpenCode）——比独立帮助文案省一次视觉跳转</td></tr>
 </table>
 
-<div class="sublabel">行级样本 —— 逐条对照真实渲染</div>
+<div class="sublabel">样式画廊 —— 逐个单独渲染，画法对照 <a href="#primlib">图表单元</a> 的排版方式</div>
+<p class="desc">下面每个元件都单独成卡：标题即元件名，卡内是它<strong>默认状态下唯一的样子</strong>——不叠加折叠态、审批态等其它 pattern 才会触发的变体。按"谁在说话 / 在干什么 / 接下来怎样 / 打断了没"四组分类，和 <a href="#primlib">图表单元</a> 按"回答什么问题"分组是同一个思路。</p>
 
-<div class="fig"><span class="fig-t">用户消息 · AI 文本 · 过程性旁白</span>
-<pre class="dense"><span class="pr">❯</span> <span class="t"><span class="fw">把</span> BRPC <span class="fw">迁移到鲲鹏架构，不兼容的地方直接改</span></span>
-
-<span class="fw">好的，先扫一遍依赖库的</span> ARM <span class="fw">兼容性。</span>
-
-<span class="as"><span class="fw">　再搜宽一点，</span>snappy <span class="fw">那个头文件不太对…</span></span>
-
-<span class="fw">发现</span> 3 <span class="fw">处</span> x86 <span class="fw">专属指令，生成</span> Plan<span class="fw">。</span></pre>
+<h3>消息类 <span class="badge p">T0</span> <span class="chipm">谁在说话</span></h3>
+<div class="fig"><span class="fig-t">User Message</span>
+<pre class="dense"><span class="pr">❯</span> <span class="t"><span class="fw">把</span> BRPC <span class="fw">迁移到鲲鹏架构，不兼容的地方直接改</span></span></pre>
 </div>
-<p class="rule">三行三种字色，但<strong>没有一行加背景色</strong>：❯ 行靠字重、旁白行靠斜体+透明度、AI 行靠"什么都不加"互相区分——形状/字重优先于色相与背景色，这条原则在这里再用一次。</p>
-
-<div class="fig"><span class="fig-t">工具调用三态 —— ∗ 搜索 / → 读取 / $ 执行</span>
-<pre class="dense"><span class="ac">∗</span> <span class="fw">搜索</span> "SSE4.2 rapidjson macro" · knowledge_base · 12 hits
-<span class="ac">→</span> <span class="fw">读取</span> snappy-stubs-internal.h:140-160
-<span class="ac">$</span> bisheng-g++ -c context.cpp -o context.o          <span class="cm">0.8s</span></pre>
+<div class="fig"><span class="fig-t">AI Text</span>
+<pre class="dense"><span class="fw">好的，先扫一遍依赖库的</span> ARM <span class="fw">兼容性。</span></pre>
 </div>
-<p class="rule">三个符号同为 accent 色——<strong>只换字形不换色相</strong>，与 <a href="#color">Colors</a> 一节"语义色只上字符与短文本"的形状优先原则一致。真正的风险分级不在这里：折叠态明暗看 <a href="#p2">P18 Output Collapsing</a>，需要审批时的三色分级看 <a href="#p2">P19 Permission Tiers</a>——本节定的只是"这一行默认长什么样、一眼认出是哪种调用"，是那两个 pattern 共用的底层字形，不是替代它们。</p>
-
-<div class="fig"><span class="fig-t">等待/澄清 ~ —— 唯一要求立即响应的状态</span>
+<div class="fig"><span class="fig-t">Aside</span>
+<pre class="dense"><span class="as"><span class="fw">　再搜宽一点，</span>snappy <span class="fw">那个头文件不太对…</span></span></pre>
+</div>
+<div class="fig"><span class="fig-t">Clarify ~</span>
 <pre class="dense"><span class="wn">~</span> <span class="wn"><span class="fw">需要确认：</span>3 <span class="fw">个文件都有</span> SSE <span class="fw">宏，全部按方案</span> A <span class="fw">处理，还是逐个确认？</span></span></pre>
 </div>
-<p class="rule"><code>~</code> 只用于<strong>一句话能问清楚</strong>的场景，出现一次、答完即随对话流滚走，不常驻。字段明确、需要结构化输入（工具链路径、口令、并行度）时仍走 <a href="#jscreen">P27 配置补齐</a> 弹层——不要为一句话弹整套表单，也不要把该弹表单的场景硬塞进一行里问。与 <code>⏸</code> 的区别：<code>⏸</code> 标在任务列表里，表示"这个任务卡住了，直到被处理都常驻"；<code>~</code> 标在对话流里，表示"AI 现在问你一句话"——一个是任务级状态，一个是消息级事件。也别与 <a href="#p2">P16 /btw</a> 混淆——/btw 是用户主动插话，<code>~</code> 是 AI 主动发问，方向相反。</p>
+<p class="rule">四张卡四种字色，<strong>没有一张加背景色</strong>：User 靠 ❯ + 字重、Aside 靠斜体+透明度、Clarify 靠警示黄、AI 靠"什么都不加"——形状/字重优先于背景色。<code>~</code> 只用于一句话能问清楚的场景，字段明确需要结构化输入时走 <a href="#jscreen">P27 配置补齐</a> 弹层；与任务列表里常驻的 <code>⏸</code> 不同——<code>~</code> 答完即随对话流滚走；也别与 <a href="#p2">P16 /btw</a>（用户主动插话，方向相反）混淆。</p>
 
-<div class="fig"><span class="fig-t">Plan Card —— 唯一允许描边的类型</span>
+<h3>工具调用类 <span class="badge p">T0</span> <span class="chipm">在干什么</span></h3>
+<div class="fig"><span class="fig-t">Search ∗</span>
+<pre class="dense"><span class="ac">∗</span> <span class="fw">搜索</span> "SSE4.2 rapidjson macro" · knowledge_base · 12 hits</pre>
+</div>
+<div class="fig"><span class="fig-t">Read →</span>
+<pre class="dense"><span class="ac">→</span> <span class="fw">读取</span> snappy-stubs-internal.h:140-160</pre>
+</div>
+<div class="fig"><span class="fig-t">Exec $</span>
+<pre class="dense"><span class="ac">$</span> bisheng-g++ -c context.cpp -o context.o          <span class="cm">0.8s</span></pre>
+</div>
+<p class="rule">三张卡同为 accent 色——<strong>只换字形不换色相</strong>，与 <a href="#color">Colors</a> 一节"语义色只上字符与短文本"的形状优先原则一致。真正的风险分级不在这里：折叠态明暗看 <a href="#p2">P18 Output Collapsing</a>，需要审批时的三色分级看 <a href="#p2">P19 Permission Tiers</a>——这三张卡定的只是"默认长什么样、一眼认出是哪种调用"，是那两个 pattern 共用的底层字形，不是替代它们。</p>
+
+<h3>结构类 <span class="badge p">T0</span> <span class="chipm">接下来怎样</span></h3>
+<div class="fig"><span class="fig-t">Plan Card</span>
 <div class="plan-card">
   <div class="pc-h">PLAN · 迁移 BRPC → Kunpeng ARM64</div>
   <div class="pc-row"><span class="pc-c done">✓</span>环境检测</div>
@@ -1081,30 +1087,32 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
   <div class="pc-row"><span class="pc-c">□</span>迁移总结报告</div>
 </div>
 </div>
-<p class="rule">复用既有 <a href="#p1">P02 AI Plan</a> 的信息结构，本节只补两处渲染细节：<strong>加边框</strong>（对话流里唯一一处）、<strong>当前项用 <code>state-selected</code> 背景高亮</strong>——都是已有 token，没有引入新色。信息密度最高的内容值得这一处例外，其余元件仍然"不加边框"。</p>
-
-<div class="fig"><span class="fig-t">进度指示器 —— spinner + 当前步 + 下一步预告</span>
+<p class="rule">复用既有 <a href="#p1">P02 AI Plan</a> 的信息结构，本卡只补两处渲染细节：<strong>加边框</strong>（对话流里唯一一处）、<strong>当前项用 <code>state-selected</code> 背景高亮</strong>——都是已有 token，没有引入新色。</p>
+<div class="fig"><span class="fig-t">Progress</span>
 <pre class="dense"><span class="pr"><span class="fw">⠹</span></span> <span class="fw">生成</span> crypto.c <span class="fw">补丁</span> (2/6)
   <span class="cm"><span class="fw">下一步：编译验证</span></span></pre>
 </div>
-<p class="rule">复用 <a href="#p1">P01</a>/<a href="#p1">P11</a> 已有的 <code>⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏</code> spinner，只新增"下一步"这一行——吸收 Claude Code 的设计，是缓解等待焦虑最直接的细节，成本只是一行文字。</p>
-
-<div class="fig"><span class="fig-t">阶段标记 —— 分隔线 + 居中弱化小字</span>
+<p class="rule">复用 <a href="#p1">P01</a>/<a href="#p1">P11</a> 已有的 <code>⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏</code> spinner，只新增"下一步"这一行——吸收 Claude Code 的设计，成本只是一行文字。</p>
+<div class="fig"><span class="fig-t">Phase Divider</span>
 <pre class="dense"><span class="cm">──────────────────── <span class="fw">已探索</span> 6 <span class="fw">个文件</span> ────────────────────</span></pre>
 </div>
 <p class="rule">全部用 comment 灰阶，字号不升级——阶段切换是<strong>导航信息</strong>，AI 意图声明才是<strong>内容信息</strong>，视觉层级不能反过来。</p>
 
-<div class="fig"><span class="fig-t">系统提示 —— 仅会话开场一次</span>
+<h3>系统与容器类 <span class="badge p">T0</span> <span class="chipm">打断了没</span></h3>
+<div class="fig"><span class="fig-t">System Tip</span>
 <pre class="dense"><span class="cm">Tip: <span class="fw">按</span> <span class="t">Ctrl+P</span> <span class="fw">唤出命令面板 ·</span> <span class="fw">本提示本次会话只显示一次</span></span></pre>
 </div>
-
-<div class="fig"><span class="fig-t">Diff 渲染 —— 默认 unified，<kbd>Ctrl+D</kbd> 内 [V] 切 split</span>
+<div class="fig"><span class="fig-t">Diff · unified 默认，<kbd>Ctrl+D</kbd> 内 [V] 切 split</span>
 <pre class="dense">src/memory.c        <span class="cm">(2/12 files)</span>
 <span class="er">- _mm_pause();</span>
 <span class="ok">+ asm volatile("yield");</span>
 <span class="pr">[A]ccept</span>  [E]dit  [R]eject  <span class="pr">[V] Split</span>  <span class="cm">[Space] next file</span></pre>
 </div>
-<p class="rule">默认 unified 信息密度最低、适合快速扫视全部改动；<code>[V]</code> 展开为并排双栏只在需要逐字比对时用——扩展自既有 <a href="#p1">P05 Diff Review</a>，不是新 pattern。</p>
+<div class="fig"><span class="fig-t">Status Bar + Input</span>
+<pre class="dense"><span class="cm">[mode:auto] [model:pangu] [ctx: <span class="wn">72%</span>] [tasks: 1 <span class="hw">⏸</span>]</span>
+<span class="pr">❯</span> <span class="cm"><span class="fw">试试</span> "<span class="fw">帮我把</span> nginx <span class="fw">迁移到鲲鹏</span>" <span class="fw">或</span> "<span class="fw">这段代码为什么在</span> ARM <span class="fw">上崩了</span>"</span>▌</pre>
+</div>
+<p class="rule">这三张都不属于对话流本身——System Tip 只在会话开场出现一次；Diff 的 <code>[V]</code> 是既有 <a href="#p1">P05 Diff Review</a> 的扩展，不是新 pattern；Status Bar 见 <a href="#frame">#frame</a>，永远在底部、永远不滚动，Input 的 placeholder 直接给可以照抄的真实任务。三者的共同点：<strong>都不该打断正在滚动的那条对话流</strong>。</p>
 
 <div class="sublabel">拼起来 —— 多条决策落进同一条对话流</div>
 <div class="fig"><span class="fig-t">migrate 场景 · 从输入到收尾（节选）</span>
@@ -1125,11 +1133,6 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
   <span class="cm"><span class="fw">下一步：编译验证</span></span></pre>
 </div>
 <p class="rule">这条流里没有一处边框（Plan Card 图中未展开），没有一处整行背景色，状态与提示都不在这条流里——它们在底栏。<strong>这正是本节全部决策要一起达成的效果：一条能快速纵向扫视、不被自身装饰打断的对话流</strong>。</p>
-
-<div class="sublabel">底部常驻 —— 状态栏与输入框</div>
-<pre class="dense"><span class="cm">[mode:auto] [model:pangu] [ctx: <span class="wn">72%</span>] [tasks: 1 <span class="hw">⏸</span>]</span>          <span class="cm"><span class="fw">状态栏 · 见</span> #frame</span>
-<span class="pr">❯</span> <span class="cm"><span class="fw">试试</span> "<span class="fw">帮我把</span> nginx <span class="fw">迁移到鲲鹏</span>" <span class="fw">或</span> "<span class="fw">这段代码为什么在</span> ARM <span class="fw">上崩了</span>"</span>▌</pre>
-<p class="rule">状态栏永远在底部、永远不滚动；输入框永远在最下方一行，placeholder 直接给两条可以照抄的真实任务——用户第一次打开不需要先读一遍帮助文档才知道能问什么。</p>
 
 <div class="sublabel">元件台账 —— 归入 <a href="#comp">#comp 组件清单</a></div>
 <table>
