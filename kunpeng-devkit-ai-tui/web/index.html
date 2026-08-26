@@ -374,6 +374,102 @@ td.mono,th.mono{font-family:var(--font-mono)}
 .cv-inputbar .cur{width:6px;height:14px;background:var(--primary-hover);display:inline-block;
   margin-left:2px;animation:cvcur 1s steps(1) infinite}
 @keyframes cvcur{50%{opacity:0}}
+
+/* sub-header —— 阶段/小节标题，左对齐树形前缀，对应实现里的 .sub-h */
+.cv-subh{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--foreground-muted)}
+.cv-subh::before{content:'├─ ';color:var(--border-strong);font-weight:400;letter-spacing:normal}
+
+/* inline steps list —— 消息体内联的阶段清单，别于常驻的 Plan Card */
+.cv-steps{display:flex;flex-direction:column;gap:2px}
+.cv-step{display:flex;align-items:flex-start;gap:var(--space-2);padding:3px 0}
+.cv-step .c{width:14px;flex:none;text-align:center;font-size:12px;font-weight:700;
+  margin-top:2px;color:var(--foreground-muted)}
+.cv-step .c.done{color:var(--success)}
+.cv-step .c.doing{color:var(--primary-hover)}
+.cv-step .c.wait{color:var(--warning)}
+.cv-step b{display:block;font-size:13px;font-weight:600;color:var(--foreground)}
+.cv-step span{display:block;font-size:12px;color:var(--foreground-muted);margin-top:1px}
+
+/* checklist row —— 配置确认/环境校验，图标 + 定宽标签 + 值 */
+.cv-chk{display:flex;align-items:baseline;gap:var(--space-2);padding:5px 10px;margin:2px 0;
+  font-size:13px;border-radius:var(--radius-sm);background:var(--surface-1)}
+.cv-chk .ic{flex:none;font-weight:700;color:var(--success)}
+.cv-chk .ic.warn{color:var(--warning)}
+.cv-chk .lb{flex:none;color:var(--foreground);min-width:96px}
+.cv-chk .v{color:var(--foreground-secondary)}
+
+/* console —— 工具调用背后的原始日志行 */
+.cv-console{background:var(--surface-1);border-radius:var(--radius-md);padding:8px 12px;
+  font-family:var(--font-mono);font-size:12.5px;color:var(--foreground-secondary);
+  display:flex;flex-direction:column;gap:3px}
+.cv-console .ok{color:var(--success)} .cv-console .wn{color:var(--warning)} .cv-console .mu{color:var(--foreground-muted)}
+
+/* migration row —— 组件替换：源 → 目标 + 状态徽标 */
+.cv-mrow{display:flex;align-items:center;gap:var(--space-2);padding:3px 0;font-size:13px}
+.cv-mrow .ic{flex:none;font-weight:700}
+.cv-mrow .ic.ok{color:var(--success)} .cv-mrow .ic.warn{color:var(--warning)}
+.cv-mrow .ar{color:var(--foreground-muted)}
+.cv-mrow .tg{flex:1;color:var(--foreground-secondary)}
+.cv-mrow .badge{font-size:11px;font-weight:600;padding:1px 8px;border-radius:var(--radius-pill);flex:none}
+.cv-mrow .badge.ok{color:var(--success);background:rgba(4,215,147,.14)}
+.cv-mrow .badge.warn{color:var(--warning);background:var(--tone-warning-bg)}
+
+/* tag chips */
+.cv-chips{display:flex;flex-wrap:wrap;gap:6px}
+.cv-chip{display:inline-flex;align-items:center;font-size:12px;border:1px solid var(--border-default);
+  border-radius:var(--radius-sm);padding:2px 9px;color:var(--foreground-secondary)}
+.cv-chip.on{border-color:var(--success);color:var(--success)}
+
+/* 折叠式卡片外壳 —— Diff Card / Report Card 共用，对应实现里的 .tc-collapse */
+.cv-toolcard{background:var(--surface-1);border-radius:var(--radius-md);overflow:hidden}
+.cv-tc-head{display:flex;align-items:center;gap:var(--space-2);padding:8px 12px;
+  background:var(--surface-2);font-size:13px;color:var(--foreground)}
+.cv-tc-head .car{color:var(--foreground-muted);font-size:11px;flex:none}
+.cv-tc-head .lb{font-weight:600;flex:none;white-space:nowrap}
+.cv-tc-head .sum{color:var(--foreground-muted);font-size:12px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.cv-tc-body{padding:12px}
+
+/* report banner + 统计卡 + 精简报表 */
+.cv-rptbanner{display:flex;align-items:baseline;gap:6px;font-size:13px;color:var(--success);
+  background:rgba(4,215,147,.08);padding:8px 12px;border-radius:var(--radius-md);margin-bottom:var(--space-3)}
+.cv-rptbanner.warn{color:var(--warning);background:var(--tone-warning-bg)}
+.cv-stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2);margin-bottom:var(--space-3)}
+.cv-stat{background:var(--surface-2);border-radius:var(--radius-sm);padding:7px 10px}
+.cv-stat .lb{display:block;font-size:10px;letter-spacing:.08em;color:var(--foreground-muted);text-transform:uppercase}
+.cv-stat .v{display:block;font-size:15px;font-weight:600;color:var(--foreground);margin-top:2px}
+.cv-stat .sub{display:block;font-size:11px;color:var(--foreground-muted);margin-top:1px}
+.cv-stat .sub b{color:var(--warning);font-weight:600}
+.cv-rpttable{width:100%;border-collapse:collapse;font-size:12px}
+.cv-rpttable th{text-align:left;color:var(--foreground-muted);font-weight:500;padding:4px 8px;
+  border-bottom:1px solid var(--border-subtle)}
+.cv-rpttable td{padding:4px 8px;border-bottom:1px solid var(--border-subtle);color:var(--foreground-secondary)}
+.cv-rpttable td:first-child{color:var(--foreground)}
+
+/* 真实代码 diff 面板 —— 行号 + 语法色 + 逐 token 高亮，不是纯文本 +/- */
+.cv-code{background:var(--ark-neutral-0);border-radius:var(--radius-md);overflow:hidden;
+  font-family:var(--font-mono);font-size:12.5px}
+.cv-code .path{padding:6px 12px;color:var(--foreground-muted);font-size:11px;
+  border-bottom:1px solid var(--border-subtle)}
+.cv-code .cl{display:flex;padding:1px 12px;white-space:pre}
+.cv-code .cl.del{background:rgba(255,75,123,.08)}
+.cv-code .cl.add{background:rgba(4,215,147,.08)}
+.cv-code .no{width:28px;flex:none;text-align:right;padding-right:8px;color:var(--foreground-disabled)}
+.cv-code .pfx{width:10px;flex:none;text-align:center}
+.cv-code .pfx.del{color:var(--danger)} .cv-code .pfx.add{color:var(--success)}
+.cv-code .tk-d{background:rgba(255,75,123,.22);color:var(--danger);border-radius:2px}
+.cv-code .tk-a{background:rgba(4,215,147,.22);color:var(--success);border-radius:2px}
+.cv-code .cmt{color:var(--foreground-muted)}
+.cv-code .actions{padding:8px 12px;font-size:12px;color:var(--foreground-muted);
+  border-top:1px solid var(--border-subtle)}
+.cv-code .actions b{color:var(--primary-hover);font-weight:600}
+
+/* 输入框上方的推荐操作按钮组 */
+.cv-actions{display:flex;flex-wrap:wrap;gap:6px}
+.cv-actbtn{font-family:var(--font-mono);font-size:12px;font-weight:600;color:#fff;
+  background:linear-gradient(180deg,rgba(0,119,255,.96),rgba(0,104,223,.96));
+  border:1px solid rgba(0,119,255,.45);border-radius:var(--radius-md);padding:5px 12px;cursor:pointer}
 .rule{font-size:var(--fs-body-sm);color:var(--foreground-secondary);
   border-left:2px solid var(--border-strong);padding-left:var(--space-3);margin:var(--space-3) 0}
 .note{background:var(--tone-info-bg);border:1px solid rgba(0,119,255,.28);border-radius:var(--radius-lg);
@@ -1152,28 +1248,92 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-progress"><span class="sp">⠹</span> 生成 crypto.c 补丁 (2/6) <span class="next">下一步：编译验证</span></div>
 </div>
 <p class="rule">复用 <a href="#p1">P01</a>/<a href="#p1">P11</a> 已有的 <code>⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏</code> spinner，只新增"下一步"这一行——吸收 Claude Code 的设计，成本只是一行文字。两个面共用同一组 spinner 字符，Workspace 面外面多包一层卡片底。</p>
-<div class="cv-fig"><span class="fig-t">Phase Divider</span>
-<div class="cv-divider">已探索 6 个文件</div>
+<div class="cv-fig"><span class="fig-t">Sub Header</span>
+<div class="cv-subh">阶段2 · 依赖分析</div>
 </div>
-<p class="rule">左右两条线 + 居中弱化小字，字号不升级——阶段切换是<strong>导航信息</strong>，AI 意图声明才是<strong>内容信息</strong>，视觉层级不能反过来。TUI 面用 <code>────</code> 字符画同样的两条线。</p>
+<p class="rule">对应实现里的 <code>.sub-h</code>——树形前缀 + 大写字母间距 + comment 灰阶，<strong>左对齐而不是居中</strong>，标的是"下面这段内容属于哪个小节"。用得比 Progress、Plan Card 都频繁——阶段级、甚至"关键修改文件"这种子块标题都用它，是这一屏最基础的分节手段。</p>
+<div class="cv-fig"><span class="fig-t">Steps List</span>
+<div class="cv-steps">
+<div class="cv-step"><span class="c done">✓</span><div><b>阶段1 · 环境检测</b><span>识别构建系统、工具链版本、目标环境</span></div></div>
+<div class="cv-step"><span class="c doing">▶</span><div><b>阶段2 · 依赖分析</b><span>扫描依赖库 ARM 兼容性，标记 x86 专属指令</span></div></div>
+<div class="cv-step"><span class="c wait">!</span><div><b>阶段3 · 编译验证</b><span>需要人工确认后继续</span></div></div>
+</div>
+</div>
+<p class="rule">内嵌在 AI 消息体里的阶段清单，和常驻顶部的 Plan Card（<a href="#p1">P02</a>）是<strong>同一份数据的两种呈现</strong>：Plan Card 是"任务开始前的全貌"，Steps List 是"回答过程中随时报告到哪一步了"——两者共用同一套状态字形（✓ 完成 · ▶ 进行中 · ! 待处理），不重新发明一套。</p>
+<div class="cv-fig"><span class="fig-t">Checklist Row</span>
+<div class="cv-chk"><span class="ic">✓</span><span class="lb">构建系统</span><span class="v">CMake 3.22 + Make / Bazel 6.0</span></div>
+<div class="cv-chk"><span class="ic">✓</span><span class="lb">编译器</span><span class="v">BiSheng Compiler 2.5.0（GCC 10.3 兼容）</span></div>
+<div class="cv-chk"><span class="ic warn">!</span><span class="lb">NPU 驱动</span><span class="v">未检测到 ≥ 23.0 版本，[F] 修复</span></div>
+</div>
+<p class="rule">环境检测、配置确认类信息统一走这个形状——图标 + 定宽标签 + 值。<strong>不用表格</strong>：表格是给可排序/可筛选的数据用的（见 <a href="#comp">Sortable Table</a>），这里只是逐项核对，一行一项就够。</p>
+
+<h3>结果类 <span class="badge p">T0</span> <span class="chipm">做完了没</span></h3>
+<div class="cv-fig"><span class="fig-t">Diff Card</span>
+<div class="cv-toolcard">
+  <div class="cv-tc-head"><span class="car">▾</span><span class="lb">Edit settlement_kernel.c</span><span class="sum">_mm256_loadu_ps(...) → svld1_f32(...) · 共 4 处改动</span></div>
+  <div class="cv-tc-body">
+    <div class="cv-code">
+      <div class="path">settlement_kernel.c</div>
+      <div class="cl"><span class="no">102</span><span class="pfx"></span><span class="cmt">// 天秤扫描：x86 AVX2 intrinsics</span></div>
+      <div class="cl del"><span class="no">103</span><span class="pfx del">-</span><span class="tk-d">__m256 va = _mm256_loadu_ps(&amp;amount[i]);</span></div>
+      <div class="cl add"><span class="no">103</span><span class="pfx add">+</span><span class="tk-a">svfloat32_t va = svld1_f32(pg, &amp;amount[i]);</span></div>
+      <div class="actions"><b>[A]ccept</b> &nbsp; [E]dit &nbsp; [R]eject &nbsp; <b>[V] Split</b> &nbsp; [Space] next file</div>
+    </div>
+  </div>
+</div>
+</div>
+<div class="cv-fig"><span class="fig-t">Report Card</span>
+<div class="cv-toolcard">
+  <div class="cv-tc-head"><span class="car">▾</span><span class="lb">迁移总结报告</span><span class="sum">10 文件修改 · 111 行新增 · 7 行删除 · 编译成功</span></div>
+  <div class="cv-tc-body">
+    <div class="cv-rptbanner">✓ BRPC 鲲鹏架构迁移完成 · 六阶段流水线全部完成 · 编译成功</div>
+    <div class="cv-stat3">
+      <div class="cv-stat"><span class="lb">编译状态</span><span class="v">PASS</span><span class="sub">第 3 轮编译成功 · 0 错误</span></div>
+      <div class="cv-stat"><span class="lb">修改文件</span><span class="v">10</span><span class="sub"><b>6 源码</b> · 4 构建配置</span></div>
+      <div class="cv-stat"><span class="lb">代码变更</span><span class="v">+111/-7</span><span class="sub">新增 111 行 · 删除 7 行</span></div>
+    </div>
+    <table class="cv-rpttable">
+      <tr><th>文件</th><th>路径</th><th>修改说明</th></tr>
+      <tr><td>context.cpp</td><td>src/bthread/</td><td>新增 aarch64 jump/make_fcontext 汇编</td></tr>
+      <tr><td>snappy-stubs-internal.h</td><td>src/butil/…/snappy/</td><td>修复 uint64_t 空格缺失</td></tr>
+    </table>
+  </div>
+</div>
+</div>
+<p class="rule">两张卡共用同一个折叠外壳——真实实现里，编辑摘要和会话总结走的是同一个折叠容器，区别只是 body 里塞什么：Diff Card 塞代码 diff（<a href="#p1">P05</a>），Report Card 塞横幅 + 统计 + 表格（<a href="#p1">P12 Session Summary</a>）。header 里的摘要行折叠后仍然可见，折叠/展开不改变这行文字——这正是 <a href="#p2">P18 Output Collapsing</a> 说的"信噪比管理"。Diff Card 的代码块按语法上色、逐 token 标出改动（<code>tk-d</code>/<code>tk-a</code>），而不是整行文本 +/-：改的是一个变量名还是一整行逻辑，读一眼就知道。</p>
+<div class="cv-fig"><span class="fig-t">Migration Row</span>
+<div class="cv-mrow"><span class="ic ok">✓</span><span>OpenJDK 1.8（x86）</span><span class="ar">→</span><span class="tg">OpenJDK ARM 1.8.0（毕昇）</span><span class="badge ok">已就绪</span></div>
+<div class="cv-mrow"><span class="ic warn">●</span><span>Tomcat 8.0.53</span><span class="ar">→</span><span class="tg">东方通 TongWeb 7.0</span><span class="badge warn">license 缺失</span></div>
+</div>
+<p class="rule">端到端迁移场景里，一个组件的新旧对照用这一行——<strong>不是 Diff</strong>（Diff 是同一份代码改了什么），是<strong>替换关系</strong>（这个组件被换成了那个组件），徽标只给最终状态。</p>
+<div class="cv-fig"><span class="fig-t">Tag Chips</span>
+<div class="cv-chips">
+<span class="cv-chip on">LIMIT 分页</span><span class="cv-chip on">IFNULL</span><span class="cv-chip on">DATE_FORMAT</span><span class="cv-chip">AUTO_INCREMENT</span>
+</div>
+</div>
+<p class="rule">批量枚举同类项时用——SQL 语法适配项、候选算子列表。<code>on</code> 态表示已处理，不加额外图标，只靠边框颜色区分，省一个字符宽度。</p>
 
 <h3>系统与容器类 <span class="badge p">T0</span> <span class="chipm">打断了没</span></h3>
 <div class="cv-fig"><span class="fig-t">System Tip</span>
 <div class="cv-tip">Tip: 按 <b>Ctrl+P</b> 唤出命令面板 · 本提示本次会话只显示一次</div>
 </div>
-<div class="cv-fig"><span class="fig-t">Diff · unified 默认，<kbd>Ctrl+D</kbd> 内 [V] 切 split</span>
-<div class="cv-diff">
-<div class="fn">src/memory.c &nbsp;(2/12 files)</div>
-<div class="ln del">- _mm_pause();</div>
-<div class="ln add">+ asm volatile("yield");</div>
-<div class="actions"><b>[A]ccept</b> &nbsp; [E]dit &nbsp; [R]eject &nbsp; <b>[V] Split</b> &nbsp; [Space] next file</div>
+<div class="cv-fig"><span class="fig-t">Console Log</span>
+<div class="cv-console">
+<div><span class="ok">✓</span> 扫描 32 个依赖库 · ARM 兼容性检测</div>
+<div><span class="wn">!</span> snappy-stubs-internal.h:144-158 · aarch64 路径空格缺失（源码 bug）</div>
+<div><span class="mu">○</span> rapidjson SSE 宏 · BRPC 未定义，ARM 安全</div>
+</div>
+</div>
+<div class="cv-fig"><span class="fig-t">Suggested Actions</span>
+<div class="cv-actions">
+<button class="cv-actbtn">看诊断报告</button><button class="cv-actbtn">跑性能基线</button><button class="cv-actbtn">继续下一个文件</button>
 </div>
 </div>
 <div class="cv-fig"><span class="fig-t">Status Bar + Input</span>
 <div class="cv-statusbar">[mode:auto] [model:pangu] [ctx: <b>72%</b>] [tasks: 1 ⏸]</div>
 <div class="cv-inputbar"><b>❯</b> 试试 "帮我把 nginx 迁移到鲲鹏" 或 "这段代码为什么在 ARM 上崩了"<span class="cur"></span></div>
 </div>
-<p class="rule">这三张都不属于对话流本身——System Tip 只在会话开场出现一次；Diff 的 <code>[V]</code> 是既有 <a href="#p1">P05 Diff Review</a> 的扩展，不是新 pattern；Status Bar 见 <a href="#frame">#frame</a>，永远在底部、永远不滚动，Input 的 placeholder 直接给可以照抄的真实任务。三者的共同点：<strong>都不该打断正在滚动的那条对话流</strong>。</p>
+<p class="rule">这五张都不属于对话流本身——System Tip 只在会话开场出现一次；Console Log 是工具调用背后的原始输出，比 Tool Call Line 更细粒度，通常被 Diff/Report Card 的折叠态盖住；Suggested Actions 复用既有 <a href="#jscreen">P28 下一步引导</a>，随结果状态变化，不是固定菜单；Status Bar 见 <a href="#frame">#frame</a>，永远在底部、永远不滚动，Input 的 placeholder 直接给可以照抄的真实任务。共同点：<strong>都不该打断正在滚动的那条对话流</strong>。</p>
 
 <div class="sublabel">拼起来 —— 多条决策落进同一条对话流</div>
 <div class="cv-fig"><span class="fig-t">migrate 场景 · 从输入到收尾（节选，Agent Workspace 真实渲染）</span>
@@ -1200,8 +1360,16 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td>Clarify Line</td><td>~ 轻量澄清</td><td>T0</td><td>P27 配置补齐（重量级）</td></tr>
 <tr><td>Plan Card</td><td>任务规划，唯一带边框</td><td>T0</td><td>P02</td></tr>
 <tr><td>Progress Line</td><td>spinner + 下一步</td><td>T0</td><td>P01 · P11</td></tr>
-<tr><td>Phase Divider</td><td>阶段分段</td><td>T0</td><td>—</td></tr>
+<tr><td>Sub Header</td><td>阶段/小节标题</td><td>T0</td><td>—</td></tr>
+<tr><td>Steps List</td><td>消息体内联阶段清单</td><td>T0</td><td>P02（同数据不同呈现）</td></tr>
+<tr><td>Checklist Row</td><td>配置/环境逐项核对</td><td>T0</td><td>—</td></tr>
+<tr><td>Diff Card</td><td>代码 diff，逐 token 高亮</td><td>T0</td><td>P05 · P18 折叠外壳</td></tr>
+<tr><td>Report Card</td><td>横幅 + 统计 + 报表</td><td>T0</td><td>P12 · P18 折叠外壳</td></tr>
+<tr><td>Migration Row</td><td>组件替换：源 → 目标</td><td>T0</td><td>—</td></tr>
+<tr><td>Tag Chips</td><td>批量枚举同类项</td><td>T0</td><td>—</td></tr>
 <tr><td>System Tip Line</td><td>一次性提示</td><td>T0</td><td>—</td></tr>
+<tr><td>Console Log</td><td>工具调用原始输出</td><td>T0</td><td>P11</td></tr>
+<tr><td>Suggested Actions</td><td>输入框上方推荐操作</td><td>T0</td><td>P28</td></tr>
 <tr><td>Diff Split Toggle</td><td>unified/split 切换</td><td>T0</td><td>P05</td></tr>
 </table>
 <div class="note"><b>组件评审门槛同样适用：</b>新增对话流元件前先查这张台账与上面 13 类决策——多数"新想法"其实是已有元件的变体，只是符号或颜色选错了。真正的新增，做完补进 <a href="#comp">组件清单</a> 与 <code>theme.ts</code>。</div>
