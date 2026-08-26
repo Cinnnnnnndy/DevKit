@@ -708,7 +708,7 @@ const TABS=(list,right)=>`<div class="tabs">${(list||[{t:'order-center',on:true,
 
 const STAT=(segs)=>`<div class="stat">${(segs||[
   {t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class="ok">auto</span>'},
-  {t:'model qwen'},{sp:1},{t:'ctx <span class="ok">18%</span>'},{t:'12:04'}])
+  {t:'model pangu'},{sp:1},{t:'ctx <span class="ok">18%</span>'},{t:'12:04'}])
   .map(x=>x.sp?'<div class="sp"></div>':`<div class="sg ${x.a?'acc':''}">${x.t}</div>`).join('')}</div>`;
 
 const INP=(t,cur=true)=>`<div class="inp"><div class="box"><span class="pr">❯</span>
@@ -807,7 +807,7 @@ MySQL 8.0       <span class="pr">→ Vastbase 2.2</span></pre>
    <div class="rl"><span class="sb wn">RUNNING</span><span class="tx">系统迁移 — SQL 智能转换中 <span class="spin">⠹</span></span></div>
    <div class="rl in"><span class="sb in">QUEUED</span><span class="tx">容器迁移 — 等待系统迁移完成</span></div>`,
   input:ty,
-  stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">24%</span>  12:04'}]})},
+  stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model pangu'},{sp:1},{t:'ctx <span class="ok">24%</span>  12:04'}]})},
 
 {n:'②',t:'开发Agent',
  title:'看得见的向量化，说得清的算子',
@@ -853,7 +853,7 @@ MySQL 8.0       <span class="pr">→ Vastbase 2.2</span></pre>
    <div class="rl"><span class="sb wn">RUNNING</span><span class="tx">源码向量化改造 — 12 处候选，已完成 5 处</span></div>
    <div class="rl in"><span class="sb in">QUEUED</span><span class="tx">通算算子智能生成 — 等待向量化改造收尾</span></div>`,
   input:'', cursor:false,
-  stat:[{t:'<span class="cm">[F2]</span> Develop',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">44%</span>  12:18'}]})},
+  stat:[{t:'<span class="cm">[F2]</span> Develop',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model pangu'},{sp:1},{t:'ctx <span class="wn">44%</span>  12:18'}]})},
 
 {n:'③',t:'调优Agent',
  title:'自动定界瓶颈，一键收敛最优参数',
@@ -907,7 +907,7 @@ CPU   <span style="color:var(--g4)">████</span><span style="color:var(--
    <div class="insr"><span class="sev" style="background:rgba(4,215,147,.16);color:var(--ok)">DONE</span>
    <span class="tx">应用迁移 · 系统迁移 · 容器迁移 · 源码向量化改造 · 参数自动调优 — order-center 已全量迁移并调优上鲲鹏</span></div></div>`,
   input:'', cursor:false,
-  stat:[{t:'<span class="cm">[F3]</span> Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">58%</span>  12:36'}]})}
+  stat:[{t:'<span class="cm">[F3]</span> Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model pangu'},{sp:1},{t:'ctx <span class="wn">58%</span>  12:36'}]})}
 ];
 
 

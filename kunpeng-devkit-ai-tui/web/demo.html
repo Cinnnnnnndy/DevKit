@@ -708,7 +708,7 @@ const TABS=(list,right)=>`<div class="tabs">${(list||[{t:'migrate nginx',on:true
 
 const STAT=(segs)=>`<div class="stat">${(segs||[
   {t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class="ok">auto</span>'},
-  {t:'model qwen'},{sp:1},{t:'ctx <span class="ok">18%</span>'},{t:'12:04'}])
+  {t:'model pangu'},{sp:1},{t:'ctx <span class="ok">18%</span>'},{t:'12:04'}])
   .map(x=>x.sp?'<div class="sp"></div>':`<div class="sg ${x.a?'acc':''}">${x.t}</div>`).join('')}</div>`;
 
 const INP=(t,cur=true)=>`<div class="inp"><div class="box"><span class="pr">❯</span>
@@ -809,7 +809,7 @@ const ACTS=[
    <div style="margin-top:10px;font-size:12px"><span class="pr b">[E] Execute</span> &nbsp;&nbsp;<span class="d2">[M] Modify Plan</span> &nbsp;&nbsp;<span class="d2">[C] Cancel</span></div></div>`,
   console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span></div><div class="d2" style="margin-top:3px">
    <span class="ok">●</span> Understand request &nbsp;<span class="cm">意图已解析：迁移任务</span></div>`,
-  input:ty, stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">6%</span>  12:04'}]})},
+  input:ty, stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model pangu'},{sp:1},{t:'ctx <span class="ok">6%</span>  12:04'}]})},
 
 {n:'③',t:'补配置',
  title:'要用到才问，且说明为什么',
@@ -829,7 +829,7 @@ const ACTS=[
  <span class="wn"><span class="hw">⏸</span></span> Build verify —— <span class="wn"><span class="fw">需要补充</span> 3 <span class="fw">项配置才能继续</span></span>
  <span class="cm">○</span> Benchmark</pre>`,
   input:'', cursor:false,
-  stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">22%</span>  <span class="wn">⏸ 1 任务待配置</span>'}],
+  stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model pangu'},{sp:1},{t:'ctx <span class="ok">22%</span>  <span class="wn">⏸ 1 任务待配置</span>'}],
   overlay:`<div class="t">补充配置</div>
    <div class="w">为什么需要：未探测到 aarch64 交叉编译工具链</div>
    <div class="fld"><span class="l">工具链路径</span><span class="v">/usr/bin/aarch64-linux-gnu-<span class="cur"></span></span></div>
@@ -874,7 +874,7 @@ Issues
   console:`<div style="margin-bottom:4px"><span class="ivl">Agent&nbsp;Console</span></div><pre>
  <span class="ok">●</span> Build verify &nbsp;<span class="cm"><span class="fw">配置已补齐，从暂停处继续</span></span>
  <span class="pr">▶</span> Generating report <span class="spin"><span class="fw">⠹</span></span></pre>`,
-  input:'', cursor:false, stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">31%</span>  12:07'}]})},
+  input:'', cursor:false, stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model pangu'},{sp:1},{t:'ctx <span class="ok">31%</span>  12:07'}]})},
 
 {n:'⑤',t:'审改动',
  title:'每条改动都有证据可溯源',
@@ -916,7 +916,7 @@ Issues
  <span class="cm">▸ read &nbsp;src/http.c</span>
  <span class="wn">▾ write src/crypto.c &nbsp;[WRITE]</span>
  <span class="cm">▸ read &nbsp;conf/nginx.conf</span></pre>`,
-  input:'', cursor:false, stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="ok">38%</span>  12:09'}]})},
+  input:'', cursor:false, stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model pangu'},{sp:1},{t:'ctx <span class="ok">38%</span>  12:09'}]})},
 
 {n:'⑥',t:'编译翻车',
  title:'失败是分支，不是死路',
@@ -959,7 +959,7 @@ Confidence <span class="d2">█████████</span><span class="cm">�
    <div class="rl in"><span class="sb in">AUTO</span><span class="tx">转入诊断，无需用户操作 <span class="cm">tool:diagnoser</span></span></div>
    <div class="rl"><span class="sb wn">RUNNING</span><span class="tx">Root cause located <span class="spin">⠹</span> <span class="cm">置信度计算中</span></span></div>`,
   input:'', cursor:false,
-  stat:[{t:'<span class="cm">[F2]</span>Diagnose',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">47%</span>  12:13'}]})},
+  stat:[{t:'<span class="cm">[F2]</span>Diagnose',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model pangu'},{sp:1},{t:'ctx <span class="wn">47%</span>  12:13'}]})},
 
 {n:'⑦',t:'看性能',
  title:'并置才看得出的结论',
@@ -994,7 +994,7 @@ memcpy      <span style="color:var(--o7)">████</span>      20%</pre></di
        <div class="t1 d2">换个工程继续迁移</div></span></div>
    </div>`,
   input:'', cursor:false,
-  stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">58%</span>  12:16'}]})},
+  stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model pangu'},{sp:1},{t:'ctx <span class="wn">58%</span>  12:16'}]})},
 
 {n:'⑧',t:'调参数',
  title:'给方案对比，不给单一建议',
@@ -1021,7 +1021,7 @@ memcpy      <span style="color:var(--o7)">████</span>      20%</pre></di
  <span class="ok">●</span> NUMA <span class="fw">亲和性分析</span> &nbsp;<span class="cm">core 34-38 <span class="fw">跨节点访问已定位</span></span>
  <span class="pr">▶</span> <span class="fw">生成方案对比</span> <span class="spin"><span class="fw">⠹</span></span></pre>`,
   input:'', cursor:false,
-  stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">66%</span>  12:24'}]})},
+  stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model pangu'},{sp:1},{t:'ctx <span class="wn">66%</span>  12:24'}]})},
 
 {n:'⑨',t:'场景化',
  title:'调优按业务场景分档',
@@ -1058,7 +1058,7 @@ NUMA &nbsp;<span class="fw">跨节点访问</span> <span class="er">18%</span> �
  <span class="d2">&nbsp;&nbsp; [2] <span class="fw">导出本轮调优报告</span></span>
  <span class="d2">&nbsp;&nbsp; [3] <span class="fw">处理剩下</span> 2 <span class="fw">处人工确认项</span></span></pre>`,
   input:'', cursor:false,
-  stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">71%</span>  12:31'}]})},
+  stat:[{t:'<span class="cm">[F3]</span>Optimize',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model pangu'},{sp:1},{t:'ctx <span class="wn">71%</span>  12:31'}]})},
 
 {n:'⑩',t:'收尾',
  title:'全程可追溯，一份报告交差',
@@ -1095,7 +1095,7 @@ NUMA &nbsp;<span class="fw">跨节点访问</span> <span class="er">18%</span> �
  <span class="d2">&nbsp;&nbsp; [3] <span class="fw">把本轮参数固化成场景</span> profile</span>
  <span class="pr">❯</span> <span class="fw">或直接说你想干什么</span><span class="cur"></span></pre>`,
   input:'', cursor:false,
-  stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model qwen'},{sp:1},{t:'ctx <span class="wn">74%</span>  12:31'}]})}
+  stat:[{t:'<span class="cm">[F1]</span> Migrate',a:1},{t:'mode <span class=\"ok\">auto</span>'},{t:'model pangu'},{sp:1},{t:'ctx <span class="wn">74%</span>  12:31'}]})}
 ];
 
 
