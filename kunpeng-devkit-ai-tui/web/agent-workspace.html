@@ -417,8 +417,8 @@ td.fnname{color:var(--fg2)}
   box-shadow:0 0 14px rgba(30,80,220,.45),inset 0 1px 0 rgba(255,255,255,.18)}
 .bi-btn:active{filter:brightness(.92)}
 
-/* ══ Skin switcher（右上角皮肤切换：深色 / 浅色 / 无圆角）══ */
-.skin-switch{margin-left:auto;display:flex;align-items:center;gap:7px;flex:none}
+/* ══ Skin switcher（右上角皮肤切换：深色/浅色 二选一分组 + 无圆角独立开关）══ */
+.skin-switch{margin-left:auto;display:flex;align-items:center;gap:10px;flex:none}
 .skin-switch .ss-lb{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.18em;color:var(--fg4)}
 .ss-group{display:flex}
 .ss-btn{font-family:var(--mono);font-size:10px;color:var(--fg3);background:transparent;
@@ -428,6 +428,17 @@ td.fnname{color:var(--fg2)}
 .ss-group .ss-btn:first-child{border-left:1px solid var(--bd2)}
 .ss-btn:hover{color:var(--fg2);background:var(--s2)}
 .ss-btn.on{color:#fff;background:rgba(52,94,231,.4);border-color:rgba(52,94,231,.5)}
+
+/* 无圆角：独立开关，和深色/浅色分组用竖线隔开，不是三选一 */
+.ss-sep{width:1px;align-self:stretch;background:var(--bd2)}
+.ss-toggle{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--fg3);
+  background:transparent;border:1px solid var(--bd2);border-radius:0!important;padding:4px 10px 4px 8px;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  transition:background .12s ease,color .12s ease,border-color .12s ease}
+.ss-toggle:hover{color:var(--fg2);background:var(--s2)}
+.ss-toggle .dot{width:6px;height:6px;border-radius:50%;background:var(--bd3);flex:none;transition:background .12s ease,box-shadow .12s ease}
+.ss-toggle.on{color:#fff;border-color:rgba(52,94,231,.5)}
+.ss-toggle.on .dot{background:var(--pri-h);box-shadow:0 0 6px rgba(52,94,231,.7)}
 
 /* ══ 浅色皮肤 ══ */
 html[data-theme="light"]{
@@ -455,8 +466,8 @@ html[data-theme="light"] .cline.del{background:rgba(247,118,142,.12)}
 html[data-theme="light"] .cline.add{background:rgba(60,150,60,.1)}
 html[data-theme="light"] .bi-btn{color:#fff}
 
-/* ══ 无圆角皮肤：保留深色配色，全站直角化 ══ */
-html[data-theme="sharp"] *{border-radius:0 !important}
+/* ══ 无圆角：独立开关，叠加在深色/浅色任一配色之上，全站直角化 ══ */
+html[data-sharp] *{border-radius:0 !important}
 
 /* ══ 响应式：整页自适应，不是固定画布 ══ */
 @media (max-width:980px){
@@ -481,10 +492,11 @@ html[data-theme="sharp"] *{border-radius:0 !important}
   <div class="skin-switch" id="skinSwitch">
     <span class="ss-lb">SKIN</span>
     <div class="ss-group">
-      <button class="ss-btn" data-theme="dark">深色</button>
-      <button class="ss-btn" data-theme="light">浅色</button>
-      <button class="ss-btn" data-theme="sharp">无圆角</button>
+      <button class="ss-btn" data-color="dark">深色</button>
+      <button class="ss-btn" data-color="light">浅色</button>
     </div>
+    <span class="ss-sep"></span>
+    <button class="ss-toggle" id="sharpToggle"><span class="dot"></span>无圆角</button>
   </div>
 </div>
 
@@ -1276,14 +1288,21 @@ document.getElementById('scrollBtm').addEventListener('click',()=>{
 renderSessionList('migrate','src-migrate');
 selectScenario('migrate','src-migrate');
 
-/* ══ 皮肤切换：深色 / 浅色 / 无圆角（每次打开页面都从深色开始，不做持久化，
-   避免"无圆角"被记住后下次打开还以为是圆角样式出了问题）══ */
-function setTheme(theme){
+/* ══ 皮肤切换：深色/浅色二选一配色 + 无圆角独立开关（可叠加在任一配色上）
+   每次打开页面都从"深色 + 圆角"开始，不做持久化 ══ */
+function setColorTheme(theme){
   document.documentElement.setAttribute('data-theme',theme);
-  document.querySelectorAll('.ss-btn').forEach(b=>b.classList.toggle('on',b.dataset.theme===theme));
+  document.querySelectorAll('.ss-group .ss-btn').forEach(b=>b.classList.toggle('on',b.dataset.color===theme));
 }
-document.querySelectorAll('.ss-btn').forEach(b=>b.addEventListener('click',()=>setTheme(b.dataset.theme)));
-setTheme('dark');
+function setSharp(on){
+  document.documentElement.toggleAttribute('data-sharp',on);
+  document.getElementById('sharpToggle').classList.toggle('on',on);
+}
+document.querySelectorAll('.ss-group .ss-btn').forEach(b=>b.addEventListener('click',()=>setColorTheme(b.dataset.color)));
+document.getElementById('sharpToggle').addEventListener('click',()=>
+  setSharp(!document.getElementById('sharpToggle').classList.contains('on')));
+setColorTheme('dark');
+setSharp(false);
 </script>
 </body>
 </html>
