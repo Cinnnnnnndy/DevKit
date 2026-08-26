@@ -162,7 +162,7 @@ body>*{position:relative;z-index:1}
 .ap-step{display:flex;align-items:baseline;gap:7px;flex:none;padding:3px 12px 3px 0}
 .ap-step .n{font-family:var(--mono);font-size:10px;color:var(--fg4);flex:none}
 .ap-step .c{width:5px;height:5px;flex:none;border-radius:1px;align-self:center}
-.ap-step .c.done{background:var(--ok)} .ap-step .c.doing{background:var(--pri-h)} .ap-step .c.todo{background:var(--fg4)}
+.ap-step .c.done{background:var(--ok)} .ap-step .c.doing{background:var(--pri-h)} .ap-step .c.todo{background:var(--fg4)} .ap-step .c.wait{background:var(--warn)}
 .ap-step .lb{font-size:11px;color:var(--fg2);white-space:nowrap}
 .ap-step .d{font-size:10px;color:var(--fg4);white-space:nowrap}
 .ap-step:not(:last-child)::after{content:'→';color:var(--bd3);margin-left:9px;font-size:10px}
@@ -216,6 +216,7 @@ body>*{position:relative;z-index:1}
 .step .c.done{color:var(--ok)}
 .step .c.doing{color:var(--pri-h);text-shadow:0 0 8px rgba(0,119,255,.5)}
 .step .c.pending{color:var(--fg4)}
+.step .c.wait{color:var(--warn)}
 .step .bd{flex:1;min-width:0}
 .step .t1{font-size:11.5px;color:var(--fg)}
 .step .t2{font-size:10px;color:var(--fg4);margin-top:1px}
@@ -269,6 +270,17 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .rpt-banner{display:flex;align-items:baseline;gap:7px;font-size:11.5px;color:var(--ok);
   background:rgba(158,206,106,.08);padding:8px 12px;margin:14px 0;
   border-radius:8px}
+.rpt-banner.warn{color:var(--warn);background:rgba(224,175,104,.10)}
+
+/* 阻断点提示卡：把"停在哪、为什么、要什么、下一步"从散落的日志里摘出来单独呈现 */
+.blocker{margin:14px 0;padding:10px 12px;border-radius:6px;
+  background:rgba(224,175,104,.07);box-shadow:inset 3px 0 0 var(--warn)}
+.blocker .bt{font-size:11.5px;font-weight:700;color:var(--warn);
+  display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.blocker .bl{font-size:11px;color:var(--fg2);line-height:1.7;padding:1px 0}
+.blocker .bl b{color:var(--fg);font-weight:600}
+.blocker code{font-family:var(--mono);font-size:10.5px;background:var(--surf-1);
+  padding:1px 5px;color:var(--pri-h)}
 .stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
 .stat-card{background:var(--surf-1);padding:9px 10px;border-radius:6px;border:1px solid var(--panel-bd2)}
 .stat-card .sc-lb{font-size:9px;letter-spacing:.1em;color:var(--fg4);text-transform:uppercase}
@@ -392,7 +404,7 @@ td.fnname{color:var(--fg2)}
 .bi-actions{display:flex;gap:8px;padding:0 0 8px;flex-wrap:wrap}
 .bi-btn{font-family:var(--mono);font-size:var(--fs-base);color:#fff;font-weight:600;
   background:linear-gradient(180deg,rgba(77,142,255,.92) 0%,rgba(45,108,229,.92) 50%,rgba(27,90,208,.92) 100%);
-  border:1px solid rgba(100,160,255,.28);border-radius:0;
+  border:1px solid rgba(100,160,255,.28);border-radius:0!important;-webkit-appearance:none;appearance:none;
   padding:8px 22px;cursor:pointer;white-space:nowrap;letter-spacing:.02em;
   box-shadow:0 0 14px rgba(30,80,220,.35),inset 0 1px 0 rgba(255,255,255,.1);
   transition:box-shadow .15s,filter .15s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
@@ -405,7 +417,8 @@ td.fnname{color:var(--fg2)}
 .skin-switch .ss-lb{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.18em;color:var(--fg4)}
 .ss-group{display:flex}
 .ss-btn{font-family:var(--mono);font-size:10px;color:var(--fg3);background:transparent;
-  border:1px solid var(--bd2);border-left:none;padding:4px 10px;cursor:pointer;
+  border:1px solid var(--bd2);border-left:none;border-radius:0!important;padding:4px 10px;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
   transition:background .12s ease,color .12s ease,border-color .12s ease}
 .ss-group .ss-btn:first-child{border-left:1px solid var(--bd2)}
 .ss-btn:hover{color:var(--fg2);background:var(--s2)}
@@ -600,34 +613,92 @@ html[data-theme="sharp"] *{border-radius:0 !important}
       </section>
     </div>
 
-    <div class="scene" data-agent="migrate" data-scenario="sys-migrate">
+    <div class="scene" data-agent="migrate" data-scenario="e2e-migrate">
       <section class="right-panel">
         <div class="panel-body">
-          <div class="usr-msg"><span class="p">&gt;</span> 帮我把 order-center 的数据库、中间件和应用一起迁移到鲲鹏</div>
-          <div class="ai-msg">好的，我来创建系统迁移工程。已识别到项目的基础设施组件，确认以下迁移配置：</div>
-          <div class="sub-h">工程配置</div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">迁移工程名称</span><span class="v">order-center-sysmig</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">成分选型表</span><span class="v">数据库 1 · 中间件 3 · 应用 2</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">预计迁移时长</span><span class="v">5 分钟</span></div>
-          <div class="ai-msg">配置已确认，开始执行系统迁移 ——</div>
-          <div class="sub-h">数据库迁移 <span class="cm">全部 1 · 已迁移 0 · 待迁移 1</span></div>
-          <div class="mrow"><span class="ic wn">●</span><span class="lb">MySQL 8.0</span><span class="ar">→</span><span class="tg">Vastbase G100 V2.2</span>
-            <span class="rbadge warn">SQL 智能转换中 62%</span></div>
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我把 order-center 的数据库、中间件和应用一起端到端迁移到鲲鹏，数据库改造为达梦 DM，中间件走默认国产化路线</div>
+          <div class="ai-msg">好的，我来创建端到端迁移工程。已识别 <b>Java 应用</b> + <b>MySQL</b> 源库 + Tomcat/Redis/Nginx 中间件，按默认国产化路线生成迁移方案 ——</div>
+          <div class="sub-h">迁移工程配置</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">工程名称</span><span class="v">order-center-e2emig</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">迁移路线</span><span class="v">MySQL → 达梦 DM8 · Tomcat → 东方通 TongWeb · JDK → OpenJDK ARM · Nginx/Redis → ARM 原生</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">目标环境</span><span class="v">openEuler 24.03 · Kunpeng 920 · aarch64</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">源端预检</span><span class="v">MySQL 8.0 · 20 张表 · Java 应用包（WAR）已识别</span></div>
+          <div class="ai-msg">配置已确认，开始按六阶段执行端到端迁移，严格遵循 <b>「无静默降级」</b> 策略 ——</div>
 
-          <div class="sub-h">中间件迁移 <span class="cm">全部 3 · 已迁移 3 · 待迁移 0</span></div>
-          <div class="mrow"><span class="ic ok">✓</span><span class="lb">Redis 6.2</span><span class="ar">→</span><span class="tg">Redis 6.2</span><span class="rbadge ok">已迁移</span></div>
-          <div class="mrow"><span class="ic ok">✓</span><span class="lb">RabbitMQ 3.11</span><span class="ar">→</span><span class="tg">RabbitMQ 3.11</span><span class="rbadge ok">已迁移</span></div>
-          <div class="mrow"><span class="ic ok">✓</span><span class="lb">Tomcat 9.0</span><span class="ar">→</span><span class="tg">东方通 TongWeb 7.0.4.9_M3</span><span class="rbadge ok">已迁移</span></div>
-
-          <div class="sub-h">应用迁移 <span class="cm">全部 2 · 已完成 1 · 进行中 1</span></div>
+          <div class="sub-h">端到端迁移流水线</div>
           <div class="steps">
-            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">迁移成分分析 + 应用包二进制转换</div></span></div>
-            <div class="step"><span class="c doing">▶</span><span class="bd"><div class="t1">自动部署 3 个微服务</div><div class="t2">order-api · settlement · gateway</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段1 · 预检查与安装包解析</div><div class="t2">源端连通性 · TongWeb/DM8/OpenJDK/Nginx/Redis 安装包定位</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段2 · 源端扫描与路线生成</div><div class="t2">组件清单 · 文件映射 · 默认国产化路线</div></span></div>
+            <div class="step"><span class="c wait">!</span><span class="bd"><div class="t1">阶段3 · 中间件迁移</div><div class="t2">TongWeb license 缺失，已停止 · 未降级为 Tomcat</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段4 · 数据库迁移 MySQL → DM</div><div class="t2">SSH 隧道导出 · 20 表导入 · 19/20 一致</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段5 · 应用与 SQL 改造</div><div class="t2">JDBC 驱动/URL/方言切换 · WAR 重打包</div></span></div>
+            <div class="step"><span class="c wait">!</span><span class="bd"><div class="t1">阶段6 · 部署验证</div><div class="t2">DM/Nginx/Redis/JDK 就绪 · TongWeb + 应用待续</div></span></div>
           </div>
-          <div class="console">
-            <div class="ln"><span style="color:var(--pri-h)">▶</span> 系统成分分析 · 中间件 3/3 已迁移</div>
-            <div class="ln"><span style="color:var(--pri-h)">▶</span> SQL 智能转换 · 12/19 张表已转换</div>
+
+          <div class="sub-h">中间件迁移状态 <span class="cm">全部 4 · 已就绪 3 · 阻断 1</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">OpenJDK 1.8（x86）</span><span class="ar">→</span><span class="tg">OpenJDK ARM 1.8.0_472（毕昇）</span><span class="rbadge ok">已就绪</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">Nginx 1.24</span><span class="ar">→</span><span class="tg">Nginx 1.24 ARM</span><span class="rbadge ok">已就绪</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">Redis 6.2</span><span class="ar">→</span><span class="tg">Redis 7.2 ARM</span><span class="rbadge ok">已就绪</span></div>
+          <div class="mrow"><span class="ic wn">●</span><span class="lb">Tomcat 8.0.53</span><span class="ar">→</span><span class="tg">东方通 TongWeb 7.0.4.9_M3</span><span class="rbadge warn">license 缺失</span></div>
+
+          <div class="blocker">
+            <div class="bt">⛔ 中间件阶段阻断 · TongWeb license 缺失</div>
+            <div class="bl">已在 <code>packages/</code>、<code>packages/middleware/</code>、<code>packages/tongweb/</code> 及官方镜像源中查找，未找到 <b>License.dat / *.lic</b>。按规则禁止静默降级为 Apache Tomcat（<code>fallback_to_apache_tomcat: false</code>）。</div>
+            <div class="bl">影响范围：TongWeb 未安装 → <b>order-api 应用未部署</b>（依赖 TongWeb 容器运行）</div>
+            <div class="bl">下一步（二选一）：① 补充 License.dat 到 <code>packages/tongweb/</code>；② 显式设置 <code>fallback_to_apache_tomcat: true</code> 并确认降级为 Tomcat ARM</div>
           </div>
+
+          <div class="sub-h">数据库迁移 · MySQL → 达梦 DM8</div>
+          <div class="stat3">
+            <div class="stat-card"><div class="sc-lb">迁移表数</div><div class="sc-big">20/20</div><div class="sc-sub">全部表已导入</div></div>
+            <div class="stat-card"><div class="sc-lb">数据一致</div><div class="sc-big">19/20</div><div class="sc-sub"><span class="wn">sys_job 3 条待补录</span></div></div>
+            <div class="stat-card"><div class="sc-lb">兼容模式</div><div class="sc-big">DM8</div><div class="sc-sub">COMPATIBLE_MODE=4（MySQL 兼容）</div></div>
+          </div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">导出方式</span><span class="v">源库直连被拒（1130）→ 自动改用 SSH 隧道，未修改源库授权</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">DM 实例</span><span class="v">/opt/dmdbms · 端口 5236 · systemd 已注册并启动</span></div>
+
+          <div class="sub-h">应用与 SQL 改造 <span class="cm">已处理 10/10 项</span></div>
+          <div class="chipf">
+            <span class="chip on">LIMIT 分页</span><span class="chip on">IFNULL</span><span class="chip on">DATE_FORMAT</span>
+            <span class="chip on">NOW/CURRENT_TIMESTAMP</span><span class="chip on">CONCAT</span><span class="chip on">AUTO_INCREMENT</span>
+            <span class="chip on">反引号标识符</span><span class="chip on">tinyint(1)</span><span class="chip on">unsigned</span><span class="chip on">MyBatis 动态 SQL</span>
+          </div>
+
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">端到端迁移总结报告</span>
+              <span class="tc-csum">6 阶段 · 4 完成 · 2 阻断/部分完成 · 数据库迁移成功</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="rpt-banner warn">△ 端到端迁移部分完成 · 数据库/JDK/Nginx/Redis 就绪 · TongWeb 与应用待补充 license 后继续</div>
+
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">阶段完成度</div><div class="sc-big">4/6</div><div class="sc-sub"><span class="wn">2 项待处理</span></div></div>
+                <div class="stat-card"><div class="sc-lb">数据一致性</div><div class="sc-big">19/20</div><div class="sc-sub">张表 · 3 条记录待补录</div></div>
+                <div class="stat-card"><div class="sc-lb">阻断项</div><div class="sc-big">1</div><div class="sc-sub"><span class="wn">TongWeb license</span></div></div>
+              </div>
+
+              <div class="sub-h">产物验证</div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">DM8 数据库</span><span class="v">active · systemd enabled · 端口 5236</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">OpenJDK / Nginx / Redis</span><span class="v">全部 ARM 就绪并启动</span></div>
+              <div class="chk"><span class="ic warn">!</span><span class="lb">TongWeb</span><span class="v">未安装 · license 缺失阻断，未降级到 Apache Tomcat</span></div>
+              <div class="chk"><span class="ic warn">!</span><span class="lb">应用（order-api）</span><span class="v">未部署 · 依赖 TongWeb</span></div>
+
+              <div class="sub-h">产物清单</div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>产物</th><th>路径</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td>迁移报告</td><td class="mu">workspace/reports/</td><td>migration-report.md / .json</td></tr>
+                  <tr><td>兼容 SQL</td><td class="mu">workspace/db_migration/</td><td>MySQL → DM 达梦兼容改造后 SQL</td></tr>
+                  <tr><td>改造后 WAR</td><td class="mu">workspace/app_transform/</td><td>order-api.war（驱动/URL/方言已切换）</td></tr>
+                  <tr><td>路线计划</td><td class="mu">config/</td><td>route_plan.yaml</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="console"><div class="ln"><span style="color:var(--warn)">■</span> 等待补充 TongWeb license · 继续命令：<b style="color:var(--pri-h)">devkit sys-mig phase middleware --execute</b></div></div>
         </div>
       </section>
     </div>
@@ -880,13 +951,16 @@ html[data-theme="sharp"] *{border-radius:0 !important}
         <div class="cline"><span class="no">157</span><span class="pfx"></span>}</div>
       </div>
     </div>
-    <div class="code-scene" data-agent="migrate" data-scenario="sys-migrate">
-      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> order_item.sql &gt; sql &gt; <span class="fn">order_item.sql</span></span></div>
+    <div class="code-scene" data-agent="migrate" data-scenario="e2e-migrate">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> order_item.sql &gt; sql &gt; <span class="fn">MySQL → 达梦 DM</span></span></div>
       <div class="panel-body">
-        <div class="cline del"><span class="no">1</span><span class="pfx del">-</span>INSERT INTO <span class="tk d">`order_item`</span> (<span class="tk d">`order_id`,`sku`,`qty`</span>)</div>
+        <div class="cline del"><span class="no">1</span><span class="pfx del">-</span>INSERT INTO <span class="tk d">`order_item`</span> (<span class="tk d">`order_id`,`sku`,`qty`</span>) VALUES (?,?,?)</div>
         <div class="cline del"><span class="no">2</span><span class="pfx del">-</span><span class="tk d">ON DUPLICATE KEY UPDATE `qty` = `qty` + VALUES(`qty`)</span>;</div>
-        <div class="cline add"><span class="no">1</span><span class="pfx add">+</span>INSERT INTO <span class="tk a">"order_item"</span> (<span class="tk a">"order_id","sku","qty"</span>)</div>
-        <div class="cline add hl"><span class="no">2</span><span class="pfx add">+</span><span class="tk a">ON CONFLICT ("order_id","sku") DO UPDATE SET "qty"=...</span></div>
+        <div class="cline add hl"><span class="no">1</span><span class="pfx add">+</span><span class="tk a">MERGE INTO</span> "order_item" T</div>
+        <div class="cline add hl"><span class="no">2</span><span class="pfx add">+</span><span class="tk a">USING</span> (SELECT ? "order_id", ? "sku", ? "qty" FROM DUAL) S</div>
+        <div class="cline add"><span class="no">3</span><span class="pfx add">+</span><span class="kw">ON</span> (T."order_id"=S."order_id" <span class="kw">AND</span> T."sku"=S."sku")</div>
+        <div class="cline add hl"><span class="no">4</span><span class="pfx add">+</span><span class="tk a">WHEN MATCHED THEN UPDATE</span> <span class="kw">SET</span> T."qty"=T."qty"+S."qty"</div>
+        <div class="cline add hl"><span class="no">5</span><span class="pfx add">+</span><span class="tk a">WHEN NOT MATCHED THEN INSERT</span> ("order_id","sku","qty") <span class="kw">VALUES</span> (S."order_id",S."sku",S."qty");</div>
       </div>
     </div>
     <div class="code-scene" data-agent="migrate" data-scenario="container-migrate">
@@ -983,10 +1057,11 @@ const SCENARIOS={
      plan:[{t:'环境检测',d:'CMake + BiSheng',s:'done'},{t:'依赖分析',d:'32 libs · SSE/snappy',s:'done'},
        {t:'待确认项',d:'rapidjson 保持现状',s:'done'},{t:'源码适配',d:'10 files',s:'done'},
        {t:'编译验证',d:'第 3 轮成功',s:'done'},{t:'迁移报告',d:'libbrpc.so aarch64',s:'done'}]},
-    {key:'sys-migrate',label:'系统迁移',status:'doing',file:'order_item.sql',code:true,
-     goal:'中间件、数据库智能替换，配置/SQL 智能转换，自动部署并启动验证',
-     plan:[{t:'系统成分分析',d:'中间件 2/2 兼容',s:'done'},{t:'SQL 智能转换',d:'12/19 张表',s:'doing'},
-       {t:'自动部署 3 个微服务',d:'',s:'doing'},{t:'启动验证',d:'/actuator/health 2/3',s:'todo'}]},
+    {key:'e2e-migrate',label:'端到端迁移',status:'wait',file:'order_item.sql',code:true,
+     goal:'六阶段流水线：预检+解析 → 源端扫描+路线 → 中间件 → 数据库 MySQL→DM → 应用/SQL 改造 → 部署验证',
+     plan:[{t:'预检+安装包解析',d:'TongWeb/DM8/JDK/Nginx/Redis',s:'done'},{t:'源端扫描+路线生成',d:'',s:'done'},
+       {t:'中间件迁移',d:'TongWeb license 缺失',s:'wait'},{t:'数据库迁移',d:'MySQL→DM · 19/20 一致',s:'done'},
+       {t:'应用+SQL 改造',d:'WAR 重打包',s:'done'},{t:'部署验证',d:'TongWeb+应用待续',s:'wait'}]},
     {key:'container-migrate',label:'容器迁移',status:'wait',file:'Dockerfile',code:true,
      goal:'devkit sys-mig -c container_mig 分析 x86 镜像与 Dockerfile，生成鲲鹏版 Dockerfile 与双语迁移报告',
      plan:[{t:'识别分类镜像',d:'基础镜像 / 业务镜像',s:'todo'},{t:'基础镜像重建',d:'',s:'todo'},
