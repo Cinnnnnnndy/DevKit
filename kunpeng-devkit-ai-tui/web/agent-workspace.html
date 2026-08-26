@@ -78,7 +78,7 @@ body>*{position:relative;z-index:1}
 .scenario-bar::-webkit-scrollbar{display:none}
 .stab{font-family:var(--mono);font-size:11px;color:var(--fg3);
   padding:0 4px 0 9px;height:25px;cursor:pointer;white-space:nowrap;
-  border:1px solid transparent;border-radius:6px;
+  border:1px solid transparent;border-radius:0;
   flex:none;display:flex;align-items:center;gap:5px;background:transparent;
   transition:background .12s ease,color .12s ease,border-color .12s ease}
 .stab:hover{color:var(--fg2);background:rgba(41,46,66,.7);border-color:rgba(255,255,255,.06)}
@@ -89,7 +89,7 @@ body>*{position:relative;z-index:1}
 .stab .st.wait{background:var(--warn)}
 .stab .st.todo{background:var(--fg4)}
 .stab .tc{width:18px;height:18px;display:flex;align-items:center;justify-content:center;
-  border:none;background:transparent;color:var(--fg4);border-radius:3px;cursor:pointer;
+  border:none;background:transparent;color:var(--fg4);border-radius:0;cursor:pointer;
   font-size:14px;line-height:1;opacity:0;transition:opacity .1s,background .1s}
 .stab:hover .tc,.stab.on .tc{opacity:.55}
 .stab .tc:hover{opacity:1;background:var(--s4);color:var(--fg)}
@@ -120,7 +120,7 @@ body>*{position:relative;z-index:1}
 .sd-node{display:flex;align-items:center;gap:7px;padding:5px var(--sp-lg);margin:1px 5px;
   cursor:default;color:var(--fg2);min-width:0;position:relative}
 .sd-node:hover{background:var(--s2)}
-.sd-node.active{background:rgba(52,94,231,.16);border-radius:6px;color:#fff;font-weight:700;
+.sd-node.active{background:rgba(52,94,231,.16);border-radius:0;color:#fff;font-weight:700;
   box-shadow:inset 2px 0 0 var(--pri)}
 .sd-node.active::before{display:none}
 .sd-node .ic{width:12px;flex:none;text-align:center;font-size:10px}
@@ -168,7 +168,7 @@ body>*{position:relative;z-index:1}
 .ap-step:not(:last-child)::after{content:'→';color:var(--bd3);margin-left:9px;font-size:10px}
 
 .cfold{margin-left:auto;color:var(--fg4);
-  background:transparent;border:none;border-radius:5px;
+  background:transparent;border:none;border-radius:0;
   padding:4px 6px;cursor:pointer;flex:none;display:flex;align-items:center;
   transition:background .12s ease,color .12s ease}
 .cfold:hover{color:var(--fg2);background:var(--s3)}
@@ -224,7 +224,7 @@ body>*{position:relative;z-index:1}
 
 /* Checklist（诊断项，取自 .rl 左边框日志行）*/
 .chk{display:flex;align-items:baseline;gap:9px;padding:4px 10px;
-  margin:2px 0;font-size:11.5px;border-radius:4px;background:var(--surf-3)}
+  margin:2px 0;font-size:11.5px;border-radius:0;background:var(--surf-3)}
 .chk .ic{flex:none;font-weight:700;font-size:9px;width:12px;text-align:center}
 .chk .ic.ok{color:var(--ok)} .chk .ic.warn{color:var(--warn)}
 .chk .lb{flex:none;color:var(--fg);min-width:120px}
@@ -256,7 +256,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .ai-msg b{color:var(--fg);font-weight:600}
 
 /* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
-.tc-collapse{margin:18px 0;border-radius:8px;overflow:hidden;background:var(--surf-4)}
+.tc-collapse{margin:18px 0;border-radius:0;overflow:hidden;background:var(--surf-4)}
 .tc-chead{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;background:var(--surf-2)}
 .tc-chead:hover{background:var(--s2)}
 .tc-car{font-family:var(--mono);font-size:9px;color:var(--fg4);flex:none;transition:transform .15s}
@@ -269,11 +269,11 @@ table.rpt-tb td.mu{color:var(--fg4)}
 /* 报告横幅 · 统计卡片（对齐 Porting Advisor 迁移报告结构）*/
 .rpt-banner{display:flex;align-items:baseline;gap:7px;font-size:11.5px;color:var(--ok);
   background:rgba(158,206,106,.08);padding:8px 12px;margin:14px 0;
-  border-radius:8px}
+  border-radius:0}
 .rpt-banner.warn{color:var(--warn);background:rgba(224,175,104,.10)}
 
 /* 阻断点提示卡：把"停在哪、为什么、要什么、下一步"从散落的日志里摘出来单独呈现 */
-.blocker{margin:14px 0;padding:10px 12px;border-radius:6px;
+.blocker{margin:14px 0;padding:10px 12px;border-radius:0;
   background:rgba(224,175,104,.07);box-shadow:inset 3px 0 0 var(--warn)}
 .blocker .bt{font-size:11.5px;font-weight:700;color:var(--warn);
   display:flex;align-items:center;gap:6px;margin-bottom:6px}
@@ -282,7 +282,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .blocker code{font-family:var(--mono);font-size:10.5px;background:var(--surf-1);
   padding:1px 5px;color:var(--pri-h)}
 .stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
-.stat-card{background:var(--surf-1);padding:9px 10px;border-radius:6px;border:1px solid var(--panel-bd2)}
+.stat-card{background:var(--surf-1);padding:9px 10px;border-radius:0;border:1px solid var(--panel-bd2)}
 .stat-card .sc-lb{font-size:9px;letter-spacing:.1em;color:var(--fg4);text-transform:uppercase}
 .stat-card .sc-big{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--fg);margin:3px 0 1px}
 .stat-card .sc-sub{font-size:10px;color:var(--fg4)}
@@ -337,7 +337,7 @@ td.fnname{color:var(--fg2)}
 
 /* Agent Console（取自 .rl 日志行 + s1 容器）*/
 .console{background:var(--surf-2);padding:8px 10px;
-  display:flex;flex-direction:column;gap:1px;font-size:11px;margin:12px 0;border-radius:6px}
+  display:flex;flex-direction:column;gap:1px;font-size:11px;margin:12px 0;border-radius:0}
 .console .ln{display:flex;gap:7px;align-items:baseline;color:var(--fg2);padding:1.5px 0}
 
 /* 场景 section 显隐 */
