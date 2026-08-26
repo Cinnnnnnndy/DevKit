@@ -402,9 +402,11 @@ td.fnname{color:var(--fg2)}
     </div>
     <div class="sd-sec">
       <div class="h">Project</div>
-      <div class="sd-node lv1"><span class="ic">▾</span><span class="lb">nginx-gateway/</span></div>
-      <div class="sd-node lv2" data-file="crypto.c"><span class="ic">≡</span><span class="lb">src/crypto.c</span><span class="m">M</span></div>
-      <div class="sd-node lv2" data-file="nginx.conf"><span class="ic">≡</span><span class="lb">conf/nginx.conf</span><span class="m">M</span></div>
+      <div class="sd-node lv1"><span class="ic">▾</span><span class="lb">brpc/</span></div>
+      <div class="sd-node lv2" data-file="context.cpp"><span class="ic">≡</span><span class="lb">src/bthread/context.cpp</span><span class="m">M</span></div>
+      <div class="sd-node lv2" data-file="snappy"><span class="ic">≡</span><span class="lb">src/butil/.../snappy-stubs-internal.h</span><span class="m">M</span></div>
+      <div class="sd-node lv2" data-file="CMakeLists"><span class="ic">≡</span><span class="lb">CMakeLists.txt</span><span class="m">M</span></div>
+      <div class="sd-node lv2" data-file="Makefile"><span class="ic">≡</span><span class="lb">Makefile</span><span class="m">M</span></div>
       <div class="sd-node lv1"><span class="ic">▾</span><span class="lb">order-api/</span></div>
       <div class="sd-node lv2" data-file="Settlement"><span class="ic">≡</span><span class="lb">SettlementCalculator.java</span><span class="m">M</span></div>
       <div class="sd-node lv2" data-file="kernel"><span class="ic">≡</span><span class="lb">settlement_kernel.c</span><span class="m">M</span></div>
@@ -442,61 +444,80 @@ td.fnname{color:var(--fg2)}
 
   <div class="main-area" id="mainArea">
     <!-- ═══ 迁移 Agent ═══ -->
-    <div class="scene on" data-agent="migrate" data-scenario="app-migrate">
+    <div class="scene on" data-agent="migrate" data-scenario="src-migrate">
       <section class="right-panel">
         <div class="panel-body">
-          <div class="usr-msg"><span class="p">&gt;</span> 帮我看看 order-center 这个 C++ 项目能不能迁到鲲鹏架构，不兼容的地方直接改</div>
-          <div class="ai-msg">好的，我来分析一下 <b>order-center</b> 项目。已识别到项目信息，确认以下迁移配置：</div>
-          <div class="sub-h">任务配置</div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">任务名称</span><span class="v">Code_Porting_order-center</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">源码类型 / 迁移服务</span><span class="v">C/C++/ASM · 架构源码迁移</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">目标环境</span><span class="v">openEuler 22.03 · kernel 5.10.0 · BiSheng Compiler 2.5.0.1</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">构建工具 / 编译命令</span><span class="v">make / make</span></div>
-          <div class="ai-msg">配置确认完毕，开始执行源码迁移分析 ——</div>
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我把 BRPC 这个 C++ 项目迁移到鲲鹏架构，不兼容的地方直接改</div>
+          <div class="ai-msg">好的，我来分析 <b>BRPC</b> 项目（apache/brpc）。启动六阶段迁移流水线 ——</div>
+          <div class="sub-h">迁移流水线</div>
+          <div class="steps">
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段1 · 环境检测</div><div class="t2">识别构建系统、工具链版本、目标环境</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段2 · 依赖分析</div><div class="t2">扫描依赖库 ARM 兼容性，标记 x86 专属指令</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段3 · 汇总待确认项</div><div class="t2">SSE 宏处理策略、snappy 源码 bug 确认</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段4 · DevKit 扫描与源码适配</div><div class="t2">6 源码文件 + 4 构建配置 · 111 行新增 7 行删除</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段5 · 编译验证循环</div><div class="t2">第 3 轮编译成功 · 0 错误</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段6 · 迁移总结报告</div><div class="t2">libbrpc.so/a ELF 64-bit ARM aarch64</div></span></div>
+          </div>
 
+          <div class="sub-h">阶段1 · 环境检测</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">构建系统</span><span class="v">CMake 3.22 + Make / Bazel 6.0</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">编译器</span><span class="v">BiSheng Compiler 2.5.0 (GCC 10.3 兼容)</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">目标环境</span><span class="v">openEuler 22.03 · Kunpeng 920 · aarch64</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">Protobuf</span><span class="v">protoc 3.21.12 · aarch64 已安装</span></div>
+
+          <div class="sub-h">阶段2 · 依赖分析</div>
           <div class="console">
-            <div class="ln"><span style="color:var(--ok)">✓</span> Analyze dependency · 18 libs</div>
-            <div class="ln"><span style="color:var(--ok)">✓</span> Find incompatible API · 知识库命中 3 处</div>
-            <div class="ln"><span style="color:var(--ok)">✓</span> Generate patches · 25 files</div>
-            <div class="ln"><span style="color:var(--ok)">✓</span> Build verify · aarch64 制品已产出</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> 扫描 32 个依赖库 · ARM 兼容性检测</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> 识别 x86 专属指令 · SSE4/SSE4.2/AVX2</div>
+            <div class="ln"><span style="color:var(--warn)">!</span> snappy-stubs-internal.h:144-158 · aarch64 路径空格缺失（源码 bug）</div>
+            <div class="ln"><span style="color:var(--fg4)">○</span> rapidjson SSE 宏 · BRPC 未定义 RAPIDJSON_SSE42/SSE2，ARM 安全</div>
+          </div>
+
+          <div class="sub-h">阶段3 · 待确认项</div>
+          <div class="ai-msg"><b>rapidjson SSE 宏处理</b>：reader.h:31,33 通过 <b>#ifdef RAPIDJSON_SSE42</b> 条件 include SSE 头文件。BRPC 未定义这些宏，ARM64 不会命中 SSE 路径 → <b style="color:var(--ok)">保持现状（推荐）</b></div>
+          <div class="ai-msg"><b>snappy 源码 bug</b>：snappy-stubs-internal.h 中 <b>uint64_tUNALIGNED_LOAD64</b> 缺少空格，x86 走宏定义路径不会命中，aarch64 上才暴露 → <b style="color:var(--ok)">已自动修复</b></div>
+
+          <div class="sub-h">阶段4-5 · 源码适配与编译验证</div>
+          <div class="console">
+            <div class="ln"><span style="color:var(--ok)">✓</span> context.cpp · 新增 aarch64 bthread_jump/make_fcontext 汇编</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> CMakeLists.txt · -msse4 -msse4.2 按架构条件化</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> snappy-stubs-internal.h · 修复 uint64_t 空格缺失</div>
+            <div class="ln"><span style="color:var(--warn)">!</span> 第 1 轮编译 · 2 error（context.cpp 汇编语法）</div>
+            <div class="ln"><span style="color:var(--warn)">!</span> 第 2 轮编译 · 1 error（Makefile flag 残留）</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> 第 3 轮编译成功 · 0 error · libbrpc.so 产出</div>
           </div>
 
           <div class="tc-collapse open">
             <div class="tc-chead">
               <span class="tc-car">▾</span>
-              <span class="tc-clb">迁移分析报告</span>
-              <span class="tc-csum">25 文件 · 依赖 2（可兼容 1 · 待确认 1）· 需修改 23 文件 / 1734 行</span>
+              <span class="tc-clb">迁移总结报告</span>
+              <span class="tc-csum">10 文件修改 · 111 行新增 · 7 行删除 · 编译成功</span>
             </div>
             <div class="tc-cbody">
-              <div class="rpt-banner">✓ 源码迁移分析成功，可根据建议完成源码包迁移，重新编译或执行以验证迁移结果</div>
+              <div class="rpt-banner">✓ BRPC 鲲鹏架构迁移完成 · 六阶段流水线全部完成 · 编译成功</div>
 
               <div class="stat3">
-                <div class="stat-card"><div class="sc-lb">扫描文件统计</div><div class="sc-big">25</div><div class="sc-sub">文件总数</div></div>
-                <div class="stat-card"><div class="sc-lb">依赖文件统计</div><div class="sc-big">2</div>
-                  <div class="sc-sub">文件总数 · <span class="wn">可兼容 1</span> · <span class="mu">待确认 1</span></div></div>
-                <div class="stat-card"><div class="sc-lb">源码文件统计</div><div class="sc-big">23</div><div class="sc-sub">需修改文件 · 1734 行</div></div>
+                <div class="stat-card"><div class="sc-lb">编译状态</div><div class="sc-big">PASS</div><div class="sc-sub">第 3 轮编译成功 · 0 错误</div></div>
+                <div class="stat-card"><div class="sc-lb">修改文件</div><div class="sc-big">10</div>
+                  <div class="sc-sub"><span class="wn">6 源码</span> · <span class="mu">4 构建配置</span></div></div>
+                <div class="stat-card"><div class="sc-lb">代码变更</div><div class="sc-big">+111/-7</div><div class="sc-sub">新增 111 行 · 删除 7 行</div></div>
               </div>
 
-              <div class="sub-h">与架构相关的依赖文件</div>
+              <div class="sub-h">关键修改文件</div>
               <table class="cmp rpt-tb">
-                <thead><tr><th>依赖文件名</th><th>类型</th><th>待下载软件包</th><th>分析结果</th></tr></thead>
+                <thead><tr><th>文件名</th><th>存放路径</th><th>修改说明</th></tr></thead>
                 <tbody>
-                  <tr><td>libz.so.1</td><td>动态库</td><td>zlib-1.2.11-20.oe1.aarch64.rpm</td><td><span class="rbadge warn">可兼容</span></td></tr>
-                  <tr><td>libstdlib.so</td><td>动态库</td><td>--</td><td><span class="rbadge muted">待确认</span></td></tr>
+                  <tr><td>context.cpp</td><td class="mu">src/bthread/</td><td>新增 aarch64 jump/make_fcontext 汇编</td></tr>
+                  <tr><td>snappy-stubs-internal.h</td><td class="mu">src/butil/third_party/snappy/</td><td>修复 uint64_t 空格缺失</td></tr>
+                  <tr><td>CMakeLists.txt</td><td class="mu">./</td><td>-msse4 按架构条件化</td></tr>
+                  <tr><td>Makefile</td><td class="mu">./</td><td>-msse4.2 按架构条件化</td></tr>
+                  <tr><td>test/CMakeLists.txt</td><td class="mu">test/</td><td>测试编译 flag 适配</td></tr>
                 </tbody>
               </table>
 
-              <div class="sub-h">需要迁移的源码文件 <span class="cm">共 15 个 · 需修改 1726 行</span></div>
-              <table class="cmp rpt-tb">
-                <thead><tr><th>文件名</th><th>存放路径</th><th>需修改代码行</th></tr></thead>
-                <tbody>
-                  <tr><td>top13.c</td><td class="mu">c_code/test/</td><td>892</td></tr>
-                  <tr><td>top13-330chu.c</td><td class="mu">c_code/test/</td><td>331</td></tr>
-                  <tr><td>suggestion_type_600_multiple.c</td><td class="mu">c_code/test/</td><td>22</td></tr>
-                  <tr><td>ksw.h</td><td class="mu">cgo_code/</td><td>2</td></tr>
-                  <tr><td>file_lock.c</td><td class="mu">cgo_code/</td><td>1</td></tr>
-                </tbody>
-              </table>
+              <div class="sub-h">产物验证</div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">产物架构</span><span class="v">libbrpc.so/a · ELF 64-bit LSB · ARM aarch64</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">总耗时</span><span class="v">约 35 分钟（阶段 1-6）</span></div>
             </div>
           </div>
         </div>
@@ -759,18 +780,23 @@ td.fnname{color:var(--fg2)}
   </div>
 
   <div class="code-col" id="codeCol">
-    <div class="code-scene on" data-agent="migrate" data-scenario="app-migrate">
-      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> crypto.c &gt; nginx-gateway &gt; src &gt; crypto.c &gt; <span class="fn">ngx_crypto_spin_wait()</span></span></div>
+    <div class="code-scene on" data-agent="migrate" data-scenario="src-migrate">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> snappy-stubs-internal.h &gt; src/butil/third_party/snappy &gt; <span class="fn">UNALIGNED_LOAD64()</span></span></div>
       <div class="panel-body">
-        <div class="cline"><span class="no">84</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">while</span> (*lock) {</div>
-        <div class="cline"><span class="no">86</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (spin--) {</div>
-        <div class="cline del"><span class="no">87</span><span class="pfx del">-</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk d">_mm_pause()</span>;</div>
-        <div class="cline add hl"><span class="no">87</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tk a">asm volatile("yield")</span>;</div>
-        <div class="cline"><span class="no">88</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
-        <div class="cline"><span class="no">89</span><span class="pfx"></span>&nbsp;&nbsp;}</div>
-        <div class="cline"><span class="no">90</span><span class="pfx"></span>}</div>
-        <div class="cline"><span class="no">91</span><span class="pfx"></span></div>
-        <div class="cline"><span class="no">92</span><span class="pfx"></span><span class="cmt">// ARM 手册 §B2.5：YIELD 是自旋场景下的等价替换，语义不变</span></div>
+        <div class="cline"><span class="no">142</span><span class="pfx"></span>}</div>
+        <div class="cline"><span class="no">143</span><span class="pfx"></span></div>
+        <div class="cline del"><span class="no">144</span><span class="pfx del">-</span><span class="kw">inline</span> <span class="tk d">uint64_tUNALIGNED_LOAD64</span>(<span class="kw">const void</span> *p) {</div>
+        <div class="cline del"><span class="no">145</span><span class="pfx del">-</span>&nbsp;&nbsp;<span class="tk d">uint64_tt</span>;</div>
+        <div class="cline add hl"><span class="no">144</span><span class="pfx add">+</span><span class="kw">inline</span> <span class="tk a">uint64_t UNALIGNED_LOAD64</span>(<span class="kw">const void</span> *p) {</div>
+        <div class="cline add hl"><span class="no">145</span><span class="pfx add">+</span>&nbsp;&nbsp;<span class="tk a">uint64_t t</span>;</div>
+        <div class="cline"><span class="no">146</span><span class="pfx"></span>&nbsp;&nbsp;memcpy(&amp;t, p, <span class="kw">sizeof</span> t);</div>
+        <div class="cline"><span class="no">147</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">return</span> t;</div>
+        <div class="cline"><span class="no">148</span><span class="pfx"></span>}</div>
+        <div class="cline"><span class="no">149</span><span class="pfx"></span></div>
+        <div class="cline del"><span class="no">155</span><span class="pfx del">-</span><span class="kw">inline void</span> UNALIGNED_STORE64(<span class="kw">void</span> *p, <span class="tk d">uint64_tv</span>) {</div>
+        <div class="cline add hl"><span class="no">155</span><span class="pfx add">+</span><span class="kw">inline void</span> UNALIGNED_STORE64(<span class="kw">void</span> *p, <span class="tk a">uint64_t v</span>) {</div>
+        <div class="cline"><span class="no">156</span><span class="pfx"></span>&nbsp;&nbsp;memcpy(p, &amp;v, <span class="kw">sizeof</span> v);</div>
+        <div class="cline"><span class="no">157</span><span class="pfx"></span>}</div>
       </div>
     </div>
     <div class="code-scene" data-agent="migrate" data-scenario="sys-migrate">
@@ -871,10 +897,11 @@ td.fnname{color:var(--fg2)}
 /* ══ 场景元数据：驱动二级 tab 生成 + 侧栏文件联动 ══ */
 const SCENARIOS={
   migrate:[
-    {key:'app-migrate',label:'应用迁移',status:'done',file:'crypto.c',code:true,
-     goal:'分析不兼容源码与依赖，智能改写并编译构建出包',
-     plan:[{t:'Analyze dependency',d:'18 libs',s:'done'},{t:'Find incompatible API',d:'知识库命中 3 处',s:'done'},
-       {t:'Generate patches',d:'25 files',s:'done'},{t:'Build verify',d:'aarch64 制品已产出',s:'done'}]},
+    {key:'src-migrate',label:'源码迁移',status:'done',file:'context.cpp',code:true,
+     goal:'六阶段流水线：环境检测 → 依赖分析 → 确认 → DevKit 扫描适配 → 编译验证 → 报告',
+     plan:[{t:'环境检测',d:'CMake + BiSheng',s:'done'},{t:'依赖分析',d:'32 libs · SSE/snappy',s:'done'},
+       {t:'待确认项',d:'rapidjson 保持现状',s:'done'},{t:'源码适配',d:'10 files',s:'done'},
+       {t:'编译验证',d:'第 3 轮成功',s:'done'},{t:'迁移报告',d:'libbrpc.so aarch64',s:'done'}]},
     {key:'sys-migrate',label:'系统迁移',status:'doing',file:'order_item.sql',code:true,
      goal:'中间件、数据库智能替换，配置/SQL 智能转换，自动部署并启动验证',
      plan:[{t:'系统成分分析',d:'中间件 2/2 兼容',s:'done'},{t:'SQL 智能转换',d:'12/19 张表',s:'doing'},
@@ -908,7 +935,7 @@ const SCENARIOS={
        {t:'Round 3',d:'方案 A/B 对照',s:'doing'}]}
   ]
 };
-const lastScenario={migrate:'app-migrate',develop:'vectorize',tune:'diagnose'};
+const lastScenario={migrate:'src-migrate',develop:'vectorize',tune:'diagnose'};
 let curAgent='migrate';
 
 function renderSessionList(activeAgent,activeScenario){
@@ -1073,8 +1100,8 @@ document.getElementById('scrollBtm').addEventListener('click',()=>{
   if(pb)pb.scrollTo({top:pb.scrollHeight,behavior:'smooth'});
 });
 
-renderSessionList('migrate','app-migrate');
-selectScenario('migrate','app-migrate');
+renderSessionList('migrate','src-migrate');
+selectScenario('migrate','src-migrate');
 </script>
 </body>
 </html>
