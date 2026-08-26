@@ -349,9 +349,9 @@ td.fnname{color:var(--fg2)}
 
 /* ══ Bottom Input（取自 .inp .box）══ */
 .bottom-input{flex:none;background:transparent;border-top:none;padding:10px var(--sp-lg)}
-.bi-row{display:flex;align-items:center;gap:9px;background:var(--input-bg);
+.bi-row{display:flex;align-items:flex-start;gap:9px;background:var(--input-bg);
   border:1px solid var(--input-bd);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border-radius:8px;padding:6px 12px;font-size:var(--fs-md);position:relative;overflow:hidden;
+  border-radius:8px;padding:8px 12px;font-size:var(--fs-md);position:relative;overflow:hidden;
   box-shadow:0 0 16px rgba(52,94,231,.18),inset 0 1px 0 rgba(255,255,255,.06);
   transition:box-shadow .15s,border-color .15s}
 .bi-row:focus-within{border-color:rgba(52,94,231,.65);
@@ -360,11 +360,12 @@ td.fnname{color:var(--fg2)}
 .bi-row::before{content:'';position:absolute;top:-8px;left:-8px;width:36px;height:30px;
   background:radial-gradient(ellipse at center,rgba(255,255,255,.3) 0%,rgba(255,255,255,.08) 50%,transparent 75%);
   filter:blur(1.5px);pointer-events:none}
-.bi-row .p{color:var(--pri-h);font-weight:700;position:relative}
-.bi-row input{flex:1;background:transparent;border:0;outline:0;color:var(--fg);font-family:var(--mono);
-  font-size:var(--fs-md)}
-.bi-row input::placeholder{color:var(--fg4)}
-.bi-cur{width:6px;height:14px;background:var(--pri-h);display:inline-block;animation:bl 1s steps(1) infinite}
+.bi-row .p{color:var(--pri-h);font-weight:700;position:relative;margin-top:2px}
+.bi-row textarea{flex:1;background:transparent;border:0;outline:0;resize:none;color:var(--fg);
+  font-family:var(--mono);font-size:var(--fs-md);line-height:1.5;height:calc(1.5em*3)}
+.bi-row textarea::placeholder{color:var(--fg4)}
+.bi-cur{width:6px;height:14px;background:var(--pri-h);display:inline-block;margin-top:2px;
+  animation:bl 1s steps(1) infinite}
 @keyframes bl{50%{opacity:0}}
 
 /* ══ Status Bar ══ */
@@ -964,7 +965,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
     <div class="bi-row">
       <span class="p">&gt;</span>
       <span class="bi-cur"></span>
-      <input type="text" placeholder="描述你想让 Agent 做什么...">
+      <textarea rows="3" placeholder="描述你想让 Agent 做什么..."></textarea>
     </div>
   </div>
   </div>
