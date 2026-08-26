@@ -261,7 +261,12 @@ pre .as{font-style:italic;opacity:.6}   /* 过程性旁白 —— 斜体 + 降�
   background:var(--background);font-size:11px;color:var(--foreground-secondary);
   line-height:1;z-index:1;white-space:nowrap}
 .fig pre.dense{margin:0}
-.fig>*:first-child{margin-top:0}
+
+/* ═══ 对话流画廊卡片 —— 标题在卡片上方，不叠在描边上（不同于 .fig 的缺口标签）═══ */
+.cv-fig{margin:var(--space-4) 0}
+.cv-fig .fig-t{position:static;display:block;background:none;padding:0;
+  margin-bottom:var(--space-2);font-size:11px;color:var(--foreground-secondary)}
+.cv-fig>*:first-child{margin-top:0}
 .stat{background:var(--surface-1);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:var(--space-4)}
 .stat b{display:block;font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
 .stat span{font-size:var(--fs-body-sm);color:var(--foreground-muted)}
@@ -1105,34 +1110,34 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <p class="desc">下面每张卡都是真实 HTML/CSS，和 <a href="./agent-workspace.html">agent-workspace.html</a> 用的是同一套圆角、渐变、背景色——<strong>不是终端字符画</strong>。标题即元件名，卡内是它默认状态下唯一的样子，不叠加折叠态、审批态等其它 pattern 才会触发的变体。按"谁在说话 / 在干什么 / 接下来怎样 / 打断了没"四组分类，和 <a href="#primlib">图表单元</a> 按"回答什么问题"分组是同一个思路。</p>
 
 <h3>消息类 <span class="badge p">T0</span> <span class="chipm">谁在说话</span></h3>
-<div class="fig"><span class="fig-t">User Message</span>
+<div class="cv-fig"><span class="fig-t">User Message</span>
 <div class="cv-msg cv-user"><b>❯</b> 把 BRPC 迁移到鲲鹏架构，不兼容的地方直接改</div>
 </div>
-<div class="fig"><span class="fig-t">AI Text</span>
+<div class="cv-fig"><span class="fig-t">AI Text</span>
 <div class="cv-msg cv-ai">好的，先扫一遍依赖库的 ARM 兼容性。</div>
 </div>
-<div class="fig"><span class="fig-t">Aside</span>
+<div class="cv-fig"><span class="fig-t">Aside</span>
 <div class="cv-aside">再搜宽一点，snappy 那个头文件不太对…</div>
 </div>
-<div class="fig"><span class="fig-t">Clarify ~</span>
+<div class="cv-fig"><span class="fig-t">Clarify ~</span>
 <div class="cv-msg cv-clarify"><b>~</b> 需要确认：3 个文件都有 SSE 宏，全部按方案 A 处理，还是逐个确认？</div>
 </div>
 <p class="rule">User 靠蓝色渐变卡片 + <code>❯</code>、Clarify 靠警示黄卡片 + <code>~</code>、Aside 靠斜体+透明度、AI 靠中性卡片"什么都不额外加"——四种卡片形状/底色互相区分。<strong>TUI 面退回</strong>纯字符：卡片背景全部去掉，只剩 <code>❯</code> 加粗白字、斜体旁白、<code>~</code> 警示黄前缀——终端背景色对比度不稳定，退回时靠字重和字色，不靠底色。<code>~</code> 只用于一句话能问清楚的场景，字段明确需要结构化输入时走 <a href="#jscreen">P27 配置补齐</a> 弹层；与任务列表里常驻的 <code>⏸</code> 不同——<code>~</code> 答完即随对话流滚走；也别与 <a href="#p2">P16 /btw</a>（用户主动插话，方向相反）混淆。</p>
 
 <h3>工具调用类 <span class="badge p">T0</span> <span class="chipm">在干什么</span></h3>
-<div class="fig"><span class="fig-t">Search ∗</span>
+<div class="cv-fig"><span class="fig-t">Search ∗</span>
 <div class="cv-tool"><span class="g">∗</span> 搜索 "SSE4.2 rapidjson macro" <span class="meta">knowledge_base · 12 hits</span></div>
 </div>
-<div class="fig"><span class="fig-t">Read →</span>
+<div class="cv-fig"><span class="fig-t">Read →</span>
 <div class="cv-tool"><span class="g">→</span> 读取 snappy-stubs-internal.h:140-160</div>
 </div>
-<div class="fig"><span class="fig-t">Exec $</span>
+<div class="cv-fig"><span class="fig-t">Exec $</span>
 <div class="cv-tool"><span class="g">$</span> bisheng-g++ -c context.cpp -o context.o <span class="meta">0.8s</span></div>
 </div>
 <p class="rule">三张卡同一块中性卡底，符号同为 accent 色——<strong>只换字形不换色相</strong>，与 <a href="#color">Colors</a> 一节"语义色只上字符与短文本"的形状优先原则一致。真正的风险分级不在这里：折叠态明暗看 <a href="#p2">P18 Output Collapsing</a>，需要审批时的三色分级看 <a href="#p2">P19 Permission Tiers</a>——这三张卡定的只是"默认长什么样、一眼认出是哪种调用"，是那两个 pattern 共用的底层字形，不是替代它们。TUI 面退回纯文本行，卡片去掉，符号与颜色不变。</p>
 
 <h3>结构类 <span class="badge p">T0</span> <span class="chipm">接下来怎样</span></h3>
-<div class="fig"><span class="fig-t">Plan Card</span>
+<div class="cv-fig"><span class="fig-t">Plan Card</span>
 <div class="plan-card">
   <div class="pc-h">PLAN · 迁移 BRPC → Kunpeng ARM64</div>
   <div class="pc-row"><span class="pc-c done">✓</span>环境检测</div>
@@ -1143,20 +1148,20 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 </div>
 </div>
 <p class="rule">复用既有 <a href="#p1">P02 AI Plan</a> 的信息结构，本卡只补两处渲染细节：<strong>加边框</strong>（对话流里唯一一处）、<strong>当前项用 <code>state-selected</code> 背景高亮</strong>——都是已有 token，没有引入新色，两个面都是这个样子（TUI 用 box-drawing 画边框，形状不变）。</p>
-<div class="fig"><span class="fig-t">Progress</span>
+<div class="cv-fig"><span class="fig-t">Progress</span>
 <div class="cv-progress"><span class="sp">⠹</span> 生成 crypto.c 补丁 (2/6) <span class="next">下一步：编译验证</span></div>
 </div>
 <p class="rule">复用 <a href="#p1">P01</a>/<a href="#p1">P11</a> 已有的 <code>⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏</code> spinner，只新增"下一步"这一行——吸收 Claude Code 的设计，成本只是一行文字。两个面共用同一组 spinner 字符，Workspace 面外面多包一层卡片底。</p>
-<div class="fig"><span class="fig-t">Phase Divider</span>
+<div class="cv-fig"><span class="fig-t">Phase Divider</span>
 <div class="cv-divider">已探索 6 个文件</div>
 </div>
 <p class="rule">左右两条线 + 居中弱化小字，字号不升级——阶段切换是<strong>导航信息</strong>，AI 意图声明才是<strong>内容信息</strong>，视觉层级不能反过来。TUI 面用 <code>────</code> 字符画同样的两条线。</p>
 
 <h3>系统与容器类 <span class="badge p">T0</span> <span class="chipm">打断了没</span></h3>
-<div class="fig"><span class="fig-t">System Tip</span>
+<div class="cv-fig"><span class="fig-t">System Tip</span>
 <div class="cv-tip">Tip: 按 <b>Ctrl+P</b> 唤出命令面板 · 本提示本次会话只显示一次</div>
 </div>
-<div class="fig"><span class="fig-t">Diff · unified 默认，<kbd>Ctrl+D</kbd> 内 [V] 切 split</span>
+<div class="cv-fig"><span class="fig-t">Diff · unified 默认，<kbd>Ctrl+D</kbd> 内 [V] 切 split</span>
 <div class="cv-diff">
 <div class="fn">src/memory.c &nbsp;(2/12 files)</div>
 <div class="ln del">- _mm_pause();</div>
@@ -1164,14 +1169,14 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="actions"><b>[A]ccept</b> &nbsp; [E]dit &nbsp; [R]eject &nbsp; <b>[V] Split</b> &nbsp; [Space] next file</div>
 </div>
 </div>
-<div class="fig"><span class="fig-t">Status Bar + Input</span>
+<div class="cv-fig"><span class="fig-t">Status Bar + Input</span>
 <div class="cv-statusbar">[mode:auto] [model:pangu] [ctx: <b>72%</b>] [tasks: 1 ⏸]</div>
 <div class="cv-inputbar"><b>❯</b> 试试 "帮我把 nginx 迁移到鲲鹏" 或 "这段代码为什么在 ARM 上崩了"<span class="cur"></span></div>
 </div>
 <p class="rule">这三张都不属于对话流本身——System Tip 只在会话开场出现一次；Diff 的 <code>[V]</code> 是既有 <a href="#p1">P05 Diff Review</a> 的扩展，不是新 pattern；Status Bar 见 <a href="#frame">#frame</a>，永远在底部、永远不滚动，Input 的 placeholder 直接给可以照抄的真实任务。三者的共同点：<strong>都不该打断正在滚动的那条对话流</strong>。</p>
 
 <div class="sublabel">拼起来 —— 多条决策落进同一条对话流</div>
-<div class="fig"><span class="fig-t">migrate 场景 · 从输入到收尾（节选，Agent Workspace 真实渲染）</span>
+<div class="cv-fig"><span class="fig-t">migrate 场景 · 从输入到收尾（节选，Agent Workspace 真实渲染）</span>
 <div class="cv-msg cv-user"><b>❯</b> 把 BRPC 迁移到鲲鹏架构，不兼容的地方直接改</div>
 <div class="cv-msg cv-ai">好的，我来分析 BRPC，启动六阶段迁移流水线。</div>
 <div class="cv-divider">阶段 1 · 环境检测</div>
