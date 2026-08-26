@@ -223,20 +223,20 @@ body>*{position:relative;z-index:1}
 .step .c.pending{color:var(--fg4)}
 .step .c.wait{color:var(--warn)}
 .step .bd{flex:1;min-width:0}
-.step .t1{font-size:12px;color:var(--fg)}
-.step .t2{font-size:12px;color:var(--fg4);margin-top:1px}
+.step .t1{font-size:14px;color:var(--fg)}
+.step .t2{font-size:14px;color:var(--fg4);margin-top:1px}
 .step .est{color:var(--fg4);margin-left:6px}
 
 /* Checklist（诊断项，取自 .rl 左边框日志行）*/
 .chk{display:flex;align-items:baseline;gap:9px;padding:4px 10px;
-  margin:2px 0;font-size:12px;border-radius:6px;background:var(--surf-3)}
+  margin:2px 0;font-size:14px;border-radius:6px;background:var(--surf-3)}
 .chk .ic{flex:none;font-weight:700;font-size:12px;width:12px;text-align:center}
 .chk .ic.ok{color:var(--ok)} .chk .ic.warn{color:var(--warn)}
 .chk .lb{flex:none;color:var(--fg);min-width:120px}
 .chk .v{color:var(--fg3)} .chk .v b{color:var(--warn);font-weight:600}
 
 /* 对比表 */
-table.cmp{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono)}
+table.cmp{width:100%;border-collapse:collapse;font-size:14px;font-family:var(--mono)}
 table.cmp th{text-align:left;font-size:12px;letter-spacing:.1em;color:var(--fg4);font-weight:700;
   padding:5px 8px;border-bottom:1px solid var(--bd1);text-transform:uppercase}
 table.cmp td{padding:5px 8px;border-bottom:1px solid var(--bd1);color:var(--fg3)}
@@ -248,12 +248,12 @@ table.rpt-tb td.mu{color:var(--fg4)}
 
 /* 对话区域：会话开场的用户自然语言输入，区分于 Agent 输出的样式 */
 .usr-msg{display:flex;align-items:flex-start;gap:7px;padding:8px 12px;margin:14px 0;
-  background:linear-gradient(90deg,rgba(52,94,231,.13),rgba(52,94,231,.03));font-size:12px;
+  background:linear-gradient(90deg,rgba(52,94,231,.13),rgba(52,94,231,.03));font-size:14px;
   color:var(--fg);line-height:1.5;border-radius:8px}
 .usr-msg:first-child{margin-top:0}
 .usr-msg .p{color:var(--pri-h);font-weight:700;flex:none}
 /* AI 回复消息 */
-.ai-msg{padding:8px 12px;margin:14px 0;font-size:12px;color:var(--fg2);line-height:1.65;
+.ai-msg{padding:8px 12px;margin:14px 0;font-size:14px;color:var(--fg2);line-height:1.65;
   background:rgba(224,175,104,.04);border-radius:8px}
 .ai-msg:first-child{margin-top:0}
 .ai-msg b{color:var(--fg);font-weight:600}
@@ -280,7 +280,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
   background:rgba(224,175,104,.07)}
 .blocker .bt{font-size:12px;font-weight:700;color:var(--warn);
   display:flex;align-items:center;gap:6px;margin-bottom:6px}
-.blocker .bl{font-size:12px;color:var(--fg2);line-height:1.7;padding:1px 0}
+.blocker .bl{font-size:14px;color:var(--fg2);line-height:1.7;padding:1px 0}
 .blocker .bl b{color:var(--fg);font-weight:600}
 .blocker code{font-family:var(--mono);font-size:12px;background:var(--surf-1);
   padding:1px 5px;color:var(--pri-h)}
@@ -296,7 +296,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .rbadge.muted{color:var(--fg3);background:var(--s4)}
 
 /* 迁移成分行：源 → 目标 + 状态徽标（系统迁移场景）*/
-.mrow{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:12px}
+.mrow{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:14px}
 .mrow .ic{flex:none;font-weight:700}
 .mrow .ic.ok{color:var(--ok)} .mrow .ic.wn{color:var(--warn)}
 .mrow .lb{color:var(--fg)}
@@ -305,7 +305,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
 
 /* Chips / 标签（取自 .tagf .tg）*/
 .chipf{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
-.chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:14px;
   border:1px solid var(--bd2);border-radius:6px;padding:3px 8px;color:var(--fg2);white-space:nowrap;line-height:1.4}
 .chip.on{border-color:var(--ok);color:var(--ok)}
 .chip b{font-weight:700}
@@ -319,7 +319,7 @@ table.hotspot th:nth-child(1){width:150px} table.hotspot th:nth-child(2){width:7
 table.hotspot tbody tr{cursor:pointer}
 table.hotspot tbody tr:hover td{background:var(--s2)}
 table.hotspot tbody tr.highlighted td{background:var(--sel)}
-table.hotspot td{padding:3.5px 8px;font-size:12px;border-bottom:1px solid var(--bd1);
+table.hotspot td{padding:3.5px 8px;font-size:14px;border-bottom:1px solid var(--bd1);
   color:var(--fg3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ht-pct{display:flex;align-items:center;gap:7px;height:16px}
 .ht-bar{height:10px;min-width:4px}
@@ -335,12 +335,12 @@ td.fnname{color:var(--fg2)}
   transition:filter .1s;font-family:var(--mono);border-right:1px solid var(--app)}
 .flame-block:hover{filter:brightness(1.25)}
 .flame-block.active{outline:2px solid var(--pri-h);outline-offset:-2px}
-.ai-note{margin-top:9px;font-size:12px;color:var(--dgr);display:flex;gap:6px;align-items:flex-start}
+.ai-note{margin-top:9px;font-size:14px;color:var(--dgr);display:flex;gap:6px;align-items:flex-start}
 .ai-note .conf{color:var(--fg4);font-size:12px;margin-top:2px}
 
 /* Agent Console（取自 .rl 日志行 + s1 容器）*/
 .console{background:var(--surf-2);padding:8px 12px;
-  display:flex;flex-direction:column;gap:1px;font-size:12px;margin:14px 0;border-radius:8px}
+  display:flex;flex-direction:column;gap:1px;font-size:14px;margin:14px 0;border-radius:8px}
 .console .ln{display:flex;gap:7px;align-items:baseline;color:var(--fg2);padding:1.5px 0}
 
 /* 场景 section 显隐 */
@@ -411,13 +411,13 @@ td.fnname{color:var(--fg2)}
 /* ══ Action buttons（蓝色渐变建议按钮）══ */
 .bi-actions{display:flex;gap:6px;padding:0 0 7px;flex-wrap:wrap}
 .bi-btn{font-family:var(--mono);font-size:12px;color:#fff;font-weight:600;
-  background:linear-gradient(180deg,rgba(35,95,205,.94) 0%,rgba(24,80,190,.94) 50%,rgba(15,65,170,.94) 100%);
+  background:linear-gradient(180deg,rgba(52,94,231,.94) 0%,rgba(42,77,196,.94) 50%,rgba(36,67,159,.94) 100%);
   border:1px solid rgba(100,160,255,.28);border-radius:8px;-webkit-appearance:none;appearance:none;
   padding:5px 14px;cursor:pointer;white-space:nowrap;letter-spacing:.01em;
-  box-shadow:0 0 9px rgba(30,80,220,.3),inset 0 1px 0 rgba(255,255,255,.1);
+  box-shadow:0 0 9px rgba(52,94,231,.3),inset 0 1px 0 rgba(255,255,255,.1);
   transition:box-shadow .15s,filter .15s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .bi-btn:hover{filter:brightness(1.12);
-  box-shadow:0 0 14px rgba(30,80,220,.45),inset 0 1px 0 rgba(255,255,255,.18)}
+  box-shadow:0 0 14px rgba(52,94,231,.45),inset 0 1px 0 rgba(255,255,255,.18)}
 .bi-btn:active{filter:brightness(.92)}
 
 /* ══ Skin switcher（右上角皮肤切换：深色/浅色 二选一分组 + 无圆角独立开关）══ */
@@ -773,17 +773,36 @@ html[data-theme="light"] .bi-btn{color:#fff}
             </div>
           </div>
 
-          <div class="stat3">
-            <div class="stat-card"><div class="sc-lb">需修改文件数</div><div class="sc-big">4</div><div class="sc-sub">天秤扫描</div></div>
-            <div class="stat-card"><div class="sc-lb">建议项总数</div><div class="sc-big">12</div><div class="sc-sub">已完成 <span class="wn">5</span></div></div>
-            <div class="stat-card"><div class="sc-lb">需修改代码行</div><div class="sc-big">86</div><div class="sc-sub">AVX2 → SVE</div></div>
-          </div>
-          <div class="sub-h">实测收益</div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">结算批处理热点循环</span><span class="v">342ms → <b style="color:var(--accent-green)">96ms</b> · 3.6x</span></div>
-          <div class="sub-h">下一处候选</div>
-          <div class="chipf">
-            <span class="chip">risk_score.c · _mm256_mul_ps</span>
-            <span class="chip">reconcile.c · _mm256_cmp_ps</span>
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">向量化改造报告</span>
+              <span class="tc-csum">3 文件待改造 · 12 处建议 · 已完成 5 · 实测 3.6x</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="rpt-banner">✓ 向量化检查成功，请根据下面建议的信息修改后重试</div>
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">需修改文件数</div><div class="sc-big">3</div><div class="sc-sub">天秤扫描</div></div>
+                <div class="stat-card"><div class="sc-lb">建议项总数</div><div class="sc-big">12</div><div class="sc-sub">已完成 <span class="wn">5</span></div></div>
+                <div class="stat-card"><div class="sc-lb">需修改代码行</div><div class="sc-big">86</div><div class="sc-sub">AVX2 → SVE</div></div>
+              </div>
+              <div class="sub-h">需修改的源码文件</div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>序号</th><th>文件名</th><th>服务端源码存放路径</th><th>建议项数量</th><th>处理建议</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td>risk_score.c</td><td class="mu">/order-center/settlement/src/</td><td>3</td><td><span style="color:var(--pri-h);cursor:pointer">查看建议源码</span></td></tr>
+                  <tr><td>2</td><td>reconcile.c</td><td class="mu">/order-center/settlement/src/</td><td>2</td><td><span style="color:var(--pri-h);cursor:pointer">查看建议源码</span></td></tr>
+                  <tr><td>3</td><td>settlement_report.c</td><td class="mu">/order-center/settlement/src/</td><td>2</td><td><span style="color:var(--pri-h);cursor:pointer">查看建议源码</span></td></tr>
+                </tbody>
+              </table>
+              <div class="sub-h">实测收益</div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">结算批处理热点循环</span><span class="v">342ms → <b style="color:var(--accent-green)">96ms</b> · 3.6x</span></div>
+              <div class="sub-h">下一处候选</div>
+              <div class="chipf">
+                <span class="chip">risk_score.c · _mm256_mul_ps</span>
+                <span class="chip">reconcile.c · _mm256_cmp_ps</span>
+              </div>
+            </div>
           </div>
           <div class="console">
             <div class="ln"><span style="color:var(--pri-h)">▶</span> 源码向量化改造 — 12 处候选，已完成 5 处</div>
@@ -852,30 +871,39 @@ html[data-theme="light"] .bi-btn{color:#fff}
           <div class="console">
             <div class="ln"><span style="color:var(--pri-h)">▶</span> ./ksys collect -d 10 -i 1 -o /home/order-center/ && ./ksys diff -i baseline.json now.json -o ./diff-out</div>
           </div>
-          <div class="sub-h">ksys diff · Topdown 分析</div>
-          <div class="stat3">
-            <div class="stat-card"><div class="sc-lb">IPC</div><div class="sc-big">0.86</div><div class="sc-sub">基线 1.42 · <span class="wn">-39.4%</span></div></div>
-            <div class="stat-card"><div class="sc-lb">Backend Bound</div><div class="sc-big">61%</div><div class="sc-sub">Topdown 主导瓶颈</div></div>
-            <div class="stat-card"><div class="sc-lb">L1D MPKI</div><div class="sc-big">24.1</div><div class="sc-sub">基线 6.3 · <span class="wn">+282%</span></div></div>
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">性能瓶颈定位报告</span>
+              <span class="tc-csum">IPC 0.86（-39.4%）· Backend Bound 61% · TOP10 热点 + 火焰图 · AI 定位置信度 88%</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="sub-h">ksys diff · Topdown 分析</div>
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">IPC</div><div class="sc-big">0.86</div><div class="sc-sub">基线 1.42 · <span class="wn">-39.4%</span></div></div>
+                <div class="stat-card"><div class="sc-lb">Backend Bound</div><div class="sc-big">61%</div><div class="sc-sub">Topdown 主导瓶颈</div></div>
+                <div class="stat-card"><div class="sc-lb">L1D MPKI</div><div class="sc-big">24.1</div><div class="sc-sub">基线 6.3 · <span class="wn">+282%</span></div></div>
+              </div>
+              <div class="sub-h">TOP 10 · 热点调用栈</div>
+              <table class="hotspot" id="hotspotTable">
+                <thead><tr><th>周期数占比</th><th>周期数</th><th>进程名</th><th>共享库/文件</th></tr></thead>
+                <tbody id="hotspotBody"></tbody>
+              </table>
+              <div class="sub-h">FLAME GRAPH</div>
+              <div class="fg-legend">
+                <span><i style="background:var(--tn-gold)"></i>18%</span>
+                <span><i style="background:var(--tn-red)"></i>~12%</span>
+                <span><i style="background:var(--tn-orange)"></i>~10%</span>
+                <span><i style="background:var(--tn-blue)"></i>3–8%</span>
+                <span><i style="background:var(--tn-green)"></i>6–10%</span>
+                <span><i style="background:var(--tn-teal)"></i>~5%</span>
+                <span><i style="background:var(--tn-purple)"></i>~4%</span>
+                <span><i style="background:var(--tn-cyan)"></i>~4%</span>
+              </div>
+              <div class="flame" id="flameGraph"></div>
+              <div class="ai-note"><span>⚠</span><div><div>AI: DB IO 等待占比 61%，与 ngx_crypto_spin_wait 自旋叠加，集中在结算批处理窗口 → I/O + spin-lock 双重瓶颈</div><div class="conf">置信度 88%</div></div></div>
+            </div>
           </div>
-          <div class="sub-h">TOP 10 · 热点调用栈</div>
-          <table class="hotspot" id="hotspotTable">
-            <thead><tr><th>周期数占比</th><th>周期数</th><th>进程名</th><th>共享库/文件</th></tr></thead>
-            <tbody id="hotspotBody"></tbody>
-          </table>
-          <div class="sub-h">FLAME GRAPH</div>
-          <div class="fg-legend">
-            <span><i style="background:var(--tn-gold)"></i>18%</span>
-            <span><i style="background:var(--tn-red)"></i>~12%</span>
-            <span><i style="background:var(--tn-orange)"></i>~10%</span>
-            <span><i style="background:var(--tn-blue)"></i>3–8%</span>
-            <span><i style="background:var(--tn-green)"></i>6–10%</span>
-            <span><i style="background:var(--tn-teal)"></i>~5%</span>
-            <span><i style="background:var(--tn-purple)"></i>~4%</span>
-            <span><i style="background:var(--tn-cyan)"></i>~4%</span>
-          </div>
-          <div class="flame" id="flameGraph"></div>
-          <div class="ai-note"><span>⚠</span><div><div>AI: DB IO 等待占比 61%，与 ngx_crypto_spin_wait 自旋叠加，集中在结算批处理窗口 → I/O + spin-lock 双重瓶颈</div><div class="conf">置信度 88%</div></div></div>
           <div class="console"><div class="ln"><span style="color:var(--pri-h)">▶</span> Root cause located · 置信度计算中</div></div>
         </div>
       </section>
