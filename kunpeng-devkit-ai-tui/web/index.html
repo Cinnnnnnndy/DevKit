@@ -470,6 +470,36 @@ td.mono,th.mono{font-family:var(--font-mono)}
 .cv-actbtn{font-family:var(--font-mono);font-size:12px;font-weight:600;color:#fff;
   background:linear-gradient(180deg,rgba(0,119,255,.96),rgba(0,104,223,.96));
   border:1px solid rgba(0,119,255,.45);border-radius:var(--radius-md);padding:5px 12px;cursor:pointer}
+
+/* 系统维护类确定进度条 —— 压缩上下文/重建索引，区别于工具调用的不确定 spinner */
+.cv-sysprog{display:flex;align-items:center;gap:var(--space-3);background:var(--surface-1);
+  border-radius:var(--radius-md);padding:10px 14px}
+.cv-sysprog .ic{flex:none;color:var(--accent);font-size:16px;animation:cvspin 1.2s linear infinite}
+.cv-sysprog .body{flex:1;min-width:0}
+.cv-sysprog .msg{font-size:13px;color:var(--foreground)}
+.cv-sysprog .bar{display:flex;align-items:center;gap:8px;margin-top:6px}
+.cv-sysprog .track{flex:1;height:4px;background:var(--surface-3);border-radius:2px;overflow:hidden}
+.cv-sysprog .fill{height:100%;background:var(--foreground-secondary);border-radius:2px}
+.cv-sysprog .pct{font-size:12px;color:var(--foreground-muted);flex:none}
+
+/* thinking block —— 折叠的推理过程，区别于最终的 AI Text */
+.cv-think{background:var(--surface-1);border-radius:var(--radius-md);padding:8px 12px;font-size:12.5px}
+.cv-think-h{display:flex;align-items:center;gap:6px;color:var(--foreground-muted);font-weight:500}
+.cv-think-h .car{font-size:11px}
+.cv-think-h .dur{margin-left:auto;font-family:var(--font-mono);font-size:11px}
+.cv-think-b{margin-top:6px;padding-left:17px;font-style:italic;opacity:.62;
+  color:var(--foreground-secondary);line-height:1.5}
+
+/* approval bar —— 批量/高风险动作的阻断式确认，别于 Diff Card 自带的逐文件 accept/reject */
+.cv-approve{background:var(--tone-warning-bg);border-radius:var(--radius-md);padding:10px 14px}
+.cv-approve .msg{font-size:13px;color:var(--foreground)}
+.cv-approve .risk{margin-left:8px;color:var(--warning);font-size:12px}
+.cv-approve .btns{display:flex;gap:8px;margin-top:8px}
+.cv-approve button{font-family:var(--font-mono);font-size:12px;font-weight:600;border-radius:var(--radius-sm);
+  padding:4px 10px;border:1px solid transparent;cursor:pointer}
+.cv-approve .y{background:var(--primary);color:#fff}
+.cv-approve .r{background:var(--surface-2);color:var(--foreground);border-color:var(--border-default)}
+.cv-approve .n{background:transparent;color:var(--foreground-muted);border-color:var(--border-default)}
 .rule{font-size:var(--fs-body-sm);color:var(--foreground-secondary);
   border-left:2px solid var(--border-strong);padding-left:var(--space-3);margin:var(--space-3) 0}
 .note{background:var(--tone-info-bg);border:1px solid rgba(0,119,255,.28);border-radius:var(--radius-lg);
@@ -1209,6 +1239,12 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-fig"><span class="fig-t">User Message</span>
 <div class="cv-msg cv-user"><b>❯</b> 把 BRPC 迁移到鲲鹏架构，不兼容的地方直接改</div>
 </div>
+<div class="cv-fig"><span class="fig-t">Thinking Block</span>
+<div class="cv-think">
+  <div class="cv-think-h"><span class="car">▾</span>Thinking<span class="dur">12s</span></div>
+  <div class="cv-think-b">这处 SSE 宏在 BRPC 里从未被定义，说明原作者本来就没启用 x86 专属路径……不需要额外兼容处理，重点在 snappy 那处真正的源码 bug。</div>
+</div>
+</div>
 <div class="cv-fig"><span class="fig-t">AI Text</span>
 <div class="cv-msg cv-ai">好的，先扫一遍依赖库的 ARM 兼容性。</div>
 </div>
@@ -1218,7 +1254,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-fig"><span class="fig-t">Clarify ~</span>
 <div class="cv-msg cv-clarify"><b>~</b> 需要确认：3 个文件都有 SSE 宏，全部按方案 A 处理，还是逐个确认？</div>
 </div>
-<p class="rule">User 靠蓝色渐变卡片 + <code>❯</code>、Clarify 靠警示黄卡片 + <code>~</code>、Aside 靠斜体+透明度、AI 靠中性卡片"什么都不额外加"——四种卡片形状/底色互相区分。<strong>TUI 面退回</strong>纯字符：卡片背景全部去掉，只剩 <code>❯</code> 加粗白字、斜体旁白、<code>~</code> 警示黄前缀——终端背景色对比度不稳定，退回时靠字重和字色，不靠底色。<code>~</code> 只用于一句话能问清楚的场景，字段明确需要结构化输入时走 <a href="#jscreen">P27 配置补齐</a> 弹层；与任务列表里常驻的 <code>⏸</code> 不同——<code>~</code> 答完即随对话流滚走；也别与 <a href="#p2">P16 /btw</a>（用户主动插话，方向相反）混淆。</p>
+<p class="rule">User 靠蓝色渐变卡片 + <code>❯</code>、Clarify 靠警示黄卡片 + <code>~</code>、Aside 靠斜体+透明度、AI 靠中性卡片"什么都不额外加"——四种卡片形状/底色互相区分。<strong>TUI 面退回</strong>纯字符：卡片背景全部去掉，只剩 <code>❯</code> 加粗白字、斜体旁白、<code>~</code> 警示黄前缀——终端背景色对比度不稳定，退回时靠字重和字色，不靠底色。<code>~</code> 只用于一句话能问清楚的场景，字段明确需要结构化输入时走 <a href="#jscreen">P27 配置补齐</a> 弹层；与任务列表里常驻的 <code>⏸</code> 不同——<code>~</code> 答完即随对话流滚走；也别与 <a href="#p2">P16 /btw</a>（用户主动插话，方向相反）混淆。<strong>Thinking Block</strong> 默认折叠、标题只给耗时，展开才显示推理过程——它和 Aside 都是"辅助文本"，区别是 Aside 面向用户讲人话（"再搜宽一点"），Thinking 是模型内部推理的原始记录，通常更长、更技术化，所以默认收起；Kiro／Goose／Claude 系 CLI 都是这个"默认折叠 + 展开看细节"的处理方式，不是哪家独创。</p>
 
 <h3>工具调用类 <span class="badge p">T0</span> <span class="chipm">在干什么</span></h3>
 <div class="cv-fig"><span class="fig-t">Search ∗</span>
@@ -1244,6 +1280,13 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 </div>
 </div>
 <p class="rule">复用既有 <a href="#p1">P02 AI Plan</a> 的信息结构，本卡只补两处渲染细节：<strong>加边框</strong>（对话流里唯一一处）、<strong>当前项用 <code>state-selected</code> 背景高亮</strong>——都是已有 token，没有引入新色，两个面都是这个样子（TUI 用 box-drawing 画边框，形状不变）。</p>
+<div class="cv-fig"><span class="fig-t">Approval Bar</span>
+<div class="cv-approve">
+  <div class="msg">AI 想要：修改 12 个文件<span class="risk">风险 ▮▮▮ 中</span></div>
+  <div class="btns"><button class="y">[Y] Apply</button><button class="r">[R] Review each</button><button class="n">[N] Cancel</button></div>
+</div>
+</div>
+<p class="rule">复用既有 <a href="#p1">P10 Approval</a>，是<strong>批量/高风险动作的阻断式确认</strong>——区别于 Diff Card 自带的逐文件 <code>[A]ccept/[R]eject</code>：那是"这一个改动要不要收"，这是"这一整批动作要不要放行"，触发条件按 <a href="#p2">P19 Permission Tiers</a> 的风险分级（Low 可配置自动放行 · Medium 默认走这里 · High 强制逐项 Review）。几乎所有 agent CLI 都有这一档确认——只是文案不同（Kiro 叫 Yes/Trust/No，这里叫 Apply/Review/Cancel），形状是共识。</p>
 <div class="cv-fig"><span class="fig-t">Progress</span>
 <div class="cv-progress"><span class="sp">⠹</span> 生成 crypto.c 补丁 (2/6) <span class="next">下一步：编译验证</span></div>
 </div>
@@ -1329,11 +1372,20 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <button class="cv-actbtn">看诊断报告</button><button class="cv-actbtn">跑性能基线</button><button class="cv-actbtn">继续下一个文件</button>
 </div>
 </div>
+<div class="cv-fig"><span class="fig-t">Compact Progress</span>
+<div class="cv-sysprog">
+  <span class="ic">✦</span>
+  <div class="body">
+    <div class="msg">正在压缩对话历史，以便继续聊下去…</div>
+    <div class="bar"><div class="track"><div class="fill" style="width:31%"></div></div><span class="pct">31%</span></div>
+  </div>
+</div>
+</div>
 <div class="cv-fig"><span class="fig-t">Status Bar + Input</span>
 <div class="cv-statusbar">[mode:auto] [model:pangu] [ctx: <b>72%</b>] [tasks: 1 ⏸]</div>
 <div class="cv-inputbar"><b>❯</b> 试试 "帮我把 nginx 迁移到鲲鹏" 或 "这段代码为什么在 ARM 上崩了"<span class="cur"></span></div>
 </div>
-<p class="rule">这五张都不属于对话流本身——System Tip 只在会话开场出现一次；Console Log 是工具调用背后的原始输出，比 Tool Call Line 更细粒度，通常被 Diff/Report Card 的折叠态盖住；Suggested Actions 复用既有 <a href="#jscreen">P28 下一步引导</a>，随结果状态变化，不是固定菜单；Status Bar 见 <a href="#frame">#frame</a>，永远在底部、永远不滚动，Input 的 placeholder 直接给可以照抄的真实任务。共同点：<strong>都不该打断正在滚动的那条对话流</strong>。</p>
+<p class="rule">这六张都不属于对话流本身——System Tip 只在会话开场出现一次；Console Log 是工具调用背后的原始输出，比 Tool Call Line 更细粒度，通常被 Diff/Report Card 的折叠态盖住；Suggested Actions 复用既有 <a href="#jscreen">P28 下一步引导</a>，随结果状态变化，不是固定菜单；<strong>Compact Progress 用确定进度条而不是不确定 spinner</strong>——压缩上下文/重建索引这类系统维护操作算得出百分比，就必须给百分比，复用 <a href="#p2">P20 Context Management</a> 的量表语义而不是新发明一套，操作期间对话流照常滚动、不阻塞输入（压缩是读，不是写）；Status Bar 见 <a href="#frame">#frame</a>，永远在底部、永远不滚动，Input 的 placeholder 直接给可以照抄的真实任务。共同点：<strong>都不该打断正在滚动的那条对话流</strong>。</p>
 
 <div class="sublabel">拼起来 —— 多条决策落进同一条对话流</div>
 <div class="cv-fig"><span class="fig-t">migrate 场景 · 从输入到收尾（节选，Agent Workspace 真实渲染）</span>
@@ -1356,9 +1408,11 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td>User Message Line</td><td>用户消息回显</td><td>T0</td><td>—</td></tr>
 <tr><td>AI Text Line</td><td>AI 默认文本</td><td>T0</td><td>—</td></tr>
 <tr><td>Aside Line</td><td>过程性旁白</td><td>T0</td><td>—</td></tr>
+<tr><td>Thinking Block</td><td>折叠的模型推理过程</td><td>T0</td><td>—</td></tr>
 <tr><td>Tool Call Line</td><td>搜索/读取/执行摘要</td><td>T0</td><td>P18 折叠 · P19 风险色</td></tr>
 <tr><td>Clarify Line</td><td>~ 轻量澄清</td><td>T0</td><td>P27 配置补齐（重量级）</td></tr>
 <tr><td>Plan Card</td><td>任务规划，唯一带边框</td><td>T0</td><td>P02</td></tr>
+<tr><td>Approval Bar</td><td>批量/高风险动作确认</td><td>T0</td><td>P10 · P19</td></tr>
 <tr><td>Progress Line</td><td>spinner + 下一步</td><td>T0</td><td>P01 · P11</td></tr>
 <tr><td>Sub Header</td><td>阶段/小节标题</td><td>T0</td><td>—</td></tr>
 <tr><td>Steps List</td><td>消息体内联阶段清单</td><td>T0</td><td>P02（同数据不同呈现）</td></tr>
@@ -1370,6 +1424,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td>System Tip Line</td><td>一次性提示</td><td>T0</td><td>—</td></tr>
 <tr><td>Console Log</td><td>工具调用原始输出</td><td>T0</td><td>P11</td></tr>
 <tr><td>Suggested Actions</td><td>输入框上方推荐操作</td><td>T0</td><td>P28</td></tr>
+<tr><td>Compact Progress</td><td>压缩上下文等系统维护进度</td><td>T0</td><td>P20</td></tr>
 <tr><td>Diff Split Toggle</td><td>unified/split 切换</td><td>T0</td><td>P05</td></tr>
 </table>
 <div class="note"><b>组件评审门槛同样适用：</b>新增对话流元件前先查这张台账与上面 13 类决策——多数"新想法"其实是已有元件的变体，只是符号或颜色选错了。真正的新增，做完补进 <a href="#comp">组件清单</a> 与 <code>theme.ts</code>。</div>
