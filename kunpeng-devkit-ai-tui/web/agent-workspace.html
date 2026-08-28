@@ -27,6 +27,8 @@
   --msg-usr-bg:rgba(255,255,255,.2);
   /* stat-card 三卡片改为暖色调叠加（呼应参考图的琥珀色卡片），跟蓝色系的 panel/surf 区分开 */
   --card-bg:rgba(224,175,104,.08); --card-bd:rgba(224,175,104,.22);
+  /* 代码区纯黑，对齐设计稿实测值，跟左侧半透明玻璃卡片的 main-col/sidebar 区分开 */
+  --code-bg:#000000;
   --surf-1:rgb(30,34,52); --surf-2:rgb(27,30,46); --surf-3:rgb(24,27,42); --surf-4:rgb(21,24,38);
   --ap-bg:rgb(32,36,56); --sel-fg:#fff;
   --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
@@ -114,7 +116,7 @@ html[data-theme="light"] .main-col{border:1px solid var(--bd1)}
 /* 代码列：workspace 级别的独立面板，在 main-col 右侧展开 */
 .code-col{flex:0 0 0;min-width:0;display:flex;flex-direction:column;
   margin:8px 0;border-radius:12px;overflow:hidden;
-  background:var(--panel-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  background:var(--code-bg);
   transition:flex-basis .18s ease,border .18s ease}
 .workspace:not(.foldcode) .code-col{flex-basis:28%;border:1px solid var(--panel-bd)}
 .workspace.foldcode .code-col{flex-basis:0;border:none}
@@ -513,6 +515,11 @@ table.cmp{border-left:2px solid var(--bd1)}
 .bi-btn:hover{filter:brightness(1.15);
   box-shadow:0 0 26px rgba(0,119,255,.7),0 0 6px rgba(0,119,255,.8),inset 0 1px 0 rgba(255,255,255,.22)}
 .bi-btn:active{filter:brightness(.92)}
+/* 次要建议按钮：只有第一个建议是主操作，其余降低视觉权重 */
+.bi-btn.secondary{background:var(--s3);color:var(--fg2);border:1px solid var(--bd2);
+  box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.bi-btn.secondary:hover{filter:none;background:var(--s4);box-shadow:none}
+.bi-btn.secondary:active{filter:brightness(.95)}
 
 /* ══ Skin switcher（右上角皮肤切换：深色/浅色 二选一分组 + 无圆角独立开关）══ */
 .skin-switch{margin-left:auto;display:flex;align-items:center;gap:7px;flex:none}
@@ -575,6 +582,7 @@ html[data-theme="light"] .tk.a{background:#dcf3d4;color:#3a7a2a}
 html[data-theme="light"] .cline.del{background:rgba(247,118,142,.12)}
 html[data-theme="light"] .cline.add{background:rgba(60,150,60,.1)}
 html[data-theme="light"] .bi-btn{color:#fff}
+html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
 
 
 /* ══ 响应式：整页自适应，不是固定画布 ══ */
@@ -1612,8 +1620,8 @@ function renderAIPlan(agentKey,scenarioKey){
 /* 建议操作：根据当前对话/场景内容变化，而不是固定不变 */
 function renderSuggestions(agentKey,scenarioKey){
   const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
-  document.getElementById('biActions').innerHTML=(meta&&meta.sugg||[]).map(s=>
-    `<button class="bi-btn">${s}</button>`).join('');
+  document.getElementById('biActions').innerHTML=(meta&&meta.sugg||[]).map((s,i)=>
+    `<button class="bi-btn${i===0?'':' secondary'}">${s}</button>`).join('');
 }
 
 function selectScenario(agentKey,scenarioKey){
