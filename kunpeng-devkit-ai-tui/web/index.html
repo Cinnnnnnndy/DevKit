@@ -1939,6 +1939,29 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 </table>
 <div class="note"><b><code>⇄ 跟随</code>——借自 MobaXterm SFTP 面板跟随当前目录。</b><strong>Agent 改到哪个文件，左侧工程树就高亮定位到哪个文件，风险热力同步更新</strong>，用户不用在"AI 说它改了 crypto.c"和"我去树里找"之间做翻译。是 P22 Linked Drill-down 在框架层的常驻体现——联动不止发生在点击时，也发生在 Agent 行动时。</div>
 
+<div class="sublabel">工程树深层嵌套 —— 超过 3 层怎么办</div>
+<p class="desc">PROJECT 面板只有 18–28 列（见上方「区域规格」），工程树缩进却没有深度上限——真实仓库里 <code>src/core/modules/http/</code> 这种 5 层嵌套很常见。逐层缩进画到第 5 层，树线本身就吃掉小半个面板宽度，文件名没地方待——这和 <a href="#primlib">图表单元</a> 那条"画不下的东西要显式说，不能悄悄省略"的纪律撞在一起：工程树画不下深层结构时，也不能悄悄截断文件名了事。</p>
+<div class="fig"><span class="fig-t">朴素展开 —— 5 层直接缩进，18 列很快撑爆</span>
+<pre class="dense">nginx/
+├ src/
+│ ├ core/
+│ │ ├ modules/
+│ │ │ ├ http/
+│ │ │ │  <span class="sel">ngx_http.c</span> <span class="wn">⚠</span>
+│ │ │ └ event/
+│ │ └ os/
+│ └ misc/
+└ conf/</pre>
+</div>
+<div class="fig"><span class="fig-t">中间路径省略 —— 只留根与当前活跃文件的直系祖先，其余折成一个可展开的 …</span>
+<pre class="dense">nginx/
+├ <span class="cm">… <span class="fw">3 层已折叠</span> · <span class="fw">[↵]</span> <span class="fw">展开</span></span>
+│ └ http/
+│    <span class="sel">ngx_http.c</span> <span class="wn">⚠</span>
+└ conf/</pre>
+</div>
+<p class="rule"><code>…</code> 不是省略号装饰，是<strong>可交互节点</strong>——<kbd>Enter</kbd> 就地展开成完整中间层，信息不丢，只是先收起来；和 <a href="#primlib">Ranking 的 "… N more"</a>、火焰图的"N 帧过窄未显示"是同一条纪律：画不下就显式说画不下，不能悄悄吞掉。折叠边界跟 <code>⇄ 跟随</code> 联动——Agent 当前在改的文件，它那条祖先路径<strong>自动展开到底</strong>；不在这条活跃路径上的深层子树才折叠成 <code>…</code>，用户不用先手动点开五层才看到 Agent 正在碰哪个文件。超过 3 层祖先触发折叠——3 是这里的阈值，不是 5：5 层只是"深层嵌套经常发生"的举例，不是要等用户撑到 5 层折叠才生效。</p>
+
 <div class="sublabel">折叠降级链</div>
 <pre>≥160col  Dock + Canvas×3 + Inspector          <span class="cm"><span class="fw">全展开</span></span>
 140-159  Dock + Canvas×2 + Inspector <span class="fw">条</span>        <span class="cm">Inspector <span class="fw">收成</span> 1 <span class="fw">列</span></span>
