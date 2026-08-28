@@ -25,6 +25,8 @@
   /* 对齐 Pixso 设计稿：main-col / sidebar 是纯色深色卡片，跟带蓝色描边的 code-col 区分开 */
   --col-solid:rgb(22,23,30);
   --msg-usr-bg:rgba(255,255,255,.2);
+  /* stat-card 三卡片改为暖色调叠加（呼应参考图的琥珀色卡片），跟蓝色系的 panel/surf 区分开 */
+  --card-bg:rgba(224,175,104,.08); --card-bd:rgba(224,175,104,.22);
   --surf-1:rgb(30,34,52); --surf-2:rgb(27,30,46); --surf-3:rgb(24,27,42); --surf-4:rgb(21,24,38);
   --ap-bg:rgb(32,36,56); --sel-fg:#fff;
   --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
@@ -223,11 +225,15 @@ html[data-theme="light"] .sidebar{border:1px solid var(--bd1)}
 /* Plan / Checklist / Pipeline steps（复用 .slist/.srow 结构）*/
 .steps{display:flex;flex-direction:column;gap:2px;margin:8px 0}
 .step{display:flex;align-items:flex-start;gap:9px;padding:4px 0}
-.step .c{width:13px;flex:none;text-align:center;font-size:14px;font-weight:700;margin-top:2px;color:var(--fg4)}
-.step .c.done{color:var(--ok)}
-.step .c.doing{color:var(--pri-h);text-shadow:0 0 8px rgba(0,119,255,.5)}
-.step .c.pending{color:var(--fg4)}
-.step .c.wait{color:var(--warn)}
+.step .c{width:16px;height:16px;flex:none;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;font-family:var(--mono);margin-top:1px;border-radius:3px;
+  background:var(--s3);color:var(--fg4);border:1px solid var(--bd2);box-sizing:border-box}
+.step .c.done{background:var(--ok);color:#0d2410;border-color:var(--ok)}
+.step .c.doing{background:var(--pri-h);color:#04162e;border-color:var(--pri-h);
+  box-shadow:0 0 8px rgba(61,152,255,.55)}
+.step .c.pending{background:var(--s3);color:var(--fg4);border-color:var(--bd2)}
+.step .c.wait{background:var(--warn);color:#2b1a03;border-color:var(--warn)}
+html[data-sharp] .step .c{border-radius:0}
 .step .bd{flex:1;min-width:0}
 .step .t1{font-size:14px;color:var(--fg)}
 .step .t2{font-size:14px;color:var(--fg4);margin-top:1px}
@@ -300,7 +306,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .blocker code{font-family:var(--mono);font-size:14px;background:var(--surf-1);
   padding:1px 5px;color:var(--pri-h)}
 .stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
-.stat-card{background:var(--surf-1);padding:9px 10px;border-radius:6px;border:1px solid var(--panel-bd2)}
+.stat-card{background:var(--card-bg);padding:9px 10px;border-radius:6px;border:1px solid var(--card-bd)}
 .stat-card .sc-lb{font-size:14px;letter-spacing:.1em;color:var(--fg4);text-transform:uppercase}
 .stat-card .sc-big{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--fg);margin:3px 0 1px}
 .stat-card .sc-sub{font-size:14px;color:var(--fg4)}
@@ -543,6 +549,8 @@ html[data-theme="light"]{
   /* main-col/sidebar 纯色卡片 + user 消息底色，浅色主题换成白底 + 淡蓝叠加（白色叠加在浅色背景上会看不见） */
   --col-solid:#ffffff;
   --msg-usr-bg:rgba(13,95,214,.08);
+  /* stat-card 暖色叠加在浅色底上要提高浓度才能跟白底卡片拉开层次 */
+  --card-bg:rgba(224,175,104,.16); --card-bd:rgba(146,96,10,.35);
 }
 html[data-theme="light"] body::before{
   background:
@@ -665,8 +673,8 @@ html[data-theme="light"] .bi-btn{color:#fff}
           <div class="console">
             <div class="ln"><span style="color:var(--ok)">✓</span> 扫描 32 个依赖库 · ARM 兼容性检测</div>
             <div class="ln"><span style="color:var(--ok)">✓</span> 识别 x86 专属指令 · SSE4/SSE4.2/AVX2</div>
-            <div class="ln"><span style="color:var(--warn)">!</span> snappy-stubs-internal.h:144-158 · aarch64 路径空格缺失（源码 bug）</div>
-            <div class="ln"><span style="color:var(--fg4)">○</span> rapidjson SSE 宏 · BRPC 未定义 RAPIDJSON_SSE42/SSE2，ARM 安全</div>
+            <div class="ln"><span style="color:var(--warn)">!</span> <b class="hl-code">snappy-stubs-internal.h</b>:144-158 · aarch64 路径空格缺失（源码 bug）</div>
+            <div class="ln"><span style="color:var(--fg4)">○</span> rapidjson SSE 宏 · BRPC 未定义 <b class="hl-code">RAPIDJSON_SSE42</b>/SSE2，ARM 安全</div>
           </div>
 
           <div class="sub-h">阶段3 · 待确认项</div>
@@ -675,12 +683,12 @@ html[data-theme="light"] .bi-btn{color:#fff}
 
           <div class="sub-h">阶段4-5 · 源码适配与编译验证</div>
           <div class="console">
-            <div class="ln"><span style="color:var(--ok)">✓</span> context.cpp · 新增 aarch64 bthread_jump/make_fcontext 汇编</div>
-            <div class="ln"><span style="color:var(--ok)">✓</span> CMakeLists.txt · -msse4 -msse4.2 按架构条件化</div>
-            <div class="ln"><span style="color:var(--ok)">✓</span> snappy-stubs-internal.h · 修复 uint64_t 空格缺失</div>
-            <div class="ln"><span style="color:var(--warn)">!</span> 第 1 轮编译 · 2 error（context.cpp 汇编语法）</div>
-            <div class="ln"><span style="color:var(--warn)">!</span> 第 2 轮编译 · 1 error（Makefile flag 残留）</div>
-            <div class="ln"><span style="color:var(--ok)">✓</span> 第 3 轮编译成功 · 0 error · libbrpc.so 产出</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> <b class="hl-code">context.cpp</b> · 新增 aarch64 bthread_jump/make_fcontext 汇编</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> <b class="hl-code">CMakeLists.txt</b> · -msse4 -msse4.2 按架构条件化</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> <b class="hl-code">snappy-stubs-internal.h</b> · 修复 uint64_t 空格缺失</div>
+            <div class="ln"><span style="color:var(--warn)">!</span> 第 1 轮编译 · <b class="hl-metric">2 error</b>（context.cpp 汇编语法）</div>
+            <div class="ln"><span style="color:var(--warn)">!</span> 第 2 轮编译 · <b class="hl-metric">1 error</b>（Makefile flag 残留）</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> 第 3 轮编译成功 · 0 error · <b class="hl-code">libbrpc.so</b> 产出</div>
           </div>
 
           <div class="tc-collapse open">
@@ -703,11 +711,11 @@ html[data-theme="light"] .bi-btn{color:#fff}
               <table class="cmp rpt-tb">
                 <thead><tr><th>文件名</th><th>存放路径</th><th>修改说明</th></tr></thead>
                 <tbody>
-                  <tr><td>context.cpp</td><td class="mu">src/bthread/</td><td>新增 aarch64 jump/make_fcontext 汇编</td></tr>
-                  <tr><td>snappy-stubs-internal.h</td><td class="mu">src/butil/third_party/snappy/</td><td>修复 uint64_t 空格缺失</td></tr>
-                  <tr><td>CMakeLists.txt</td><td class="mu">./</td><td>-msse4 按架构条件化</td></tr>
-                  <tr><td>Makefile</td><td class="mu">./</td><td>-msse4.2 按架构条件化</td></tr>
-                  <tr><td>test/CMakeLists.txt</td><td class="mu">test/</td><td>测试编译 flag 适配</td></tr>
+                  <tr><td class="hl-code">context.cpp</td><td class="mu hl-file">src/bthread/</td><td>新增 aarch64 jump/make_fcontext 汇编</td></tr>
+                  <tr><td class="hl-code">snappy-stubs-internal.h</td><td class="mu hl-file">src/butil/third_party/snappy/</td><td>修复 uint64_t 空格缺失</td></tr>
+                  <tr><td class="hl-code">CMakeLists.txt</td><td class="mu hl-file">./</td><td>-msse4 按架构条件化</td></tr>
+                  <tr><td class="hl-code">Makefile</td><td class="mu hl-file">./</td><td>-msse4.2 按架构条件化</td></tr>
+                  <tr><td class="hl-code">test/CMakeLists.txt</td><td class="mu hl-file">test/</td><td>测试编译 flag 适配</td></tr>
                 </tbody>
               </table>
 
@@ -730,7 +738,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
           <div class="chk"><span class="ic ok">✓</span><span class="lb">迁移路线</span><span class="v">MySQL → 达梦 DM8 · Tomcat → 东方通 TongWeb · JDK → OpenJDK ARM · Nginx/Redis → ARM 原生</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">目标环境</span><span class="v">openEuler 24.03 · Kunpeng 920 · aarch64</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">源端预检</span><span class="v">MySQL 8.0 · 20 张表 · Java 应用包（WAR）已识别</span></div>
-          <div class="ai-msg">配置已确认，开始按六阶段执行端到端迁移，严格遵循 <b>「无静默降级」</b> 策略 ——</div>
+          <div class="ai-msg">配置已确认，开始按六阶段执行端到端迁移，严格遵循 <b class="hl-metric">「无静默降级」</b> 策略 ——</div>
 
           <div class="sub-h">端到端迁移流水线</div>
           <div class="steps">
@@ -751,7 +759,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
           <div class="blocker">
             <div class="bt">✕ 中间件阶段阻断 · TongWeb license 缺失</div>
             <div class="bl">已在 <code>packages/</code>、<code>packages/middleware/</code>、<code>packages/tongweb/</code> 及官方镜像源中查找，未找到 <b class="hl-file">License.dat / *.lic</b>。按规则禁止静默降级为 Apache Tomcat（<code>fallback_to_apache_tomcat: false</code>）。</div>
-            <div class="bl">影响范围：TongWeb 未安装 → <b>order-api 应用未部署</b>（依赖 TongWeb 容器运行）</div>
+            <div class="bl">影响范围：TongWeb 未安装 → <b style="color:var(--warn)">order-api 应用未部署</b>（依赖 TongWeb 容器运行）</div>
             <div class="bl">下一步（二选一）：① 补充 License.dat 到 <code>packages/tongweb/</code>；② 显式设置 <code>fallback_to_apache_tomcat: true</code> 并确认降级为 Tomcat ARM</div>
           </div>
 
@@ -1256,7 +1264,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我调优本机Redis</div>
-          <div class="ai-msg">我是鲲鹏性能参数调优助手，可以为数据库/大数据等应用在鲲鹏服务器上完成系统/软件参数调优。识别到调优（tune）意图，命中 <b>perf-params-tuner-agent</b> 技能，将执行端到端流水线：生成模板 → 执行调优 → 生成报告。</div>
+          <div class="ai-msg">我是鲲鹏性能参数调优助手，可以为数据库/大数据等应用在鲲鹏服务器上完成系统/软件参数调优。识别到调优（tune）意图，命中 <b class="hl-tool">perf-params-tuner-agent</b> 技能，将执行端到端流水线：生成模板 → 执行调优 → 生成报告。</div>
           <div class="steps">
             <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段1 · 收集调优场景</div><div class="t2">应用 Redis · 节点 本机</div></span></div>
             <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段2 · 生成任务模板</div><div class="t2">缓存场景 · 吞吐量/性能方向</div></span></div>
@@ -1276,11 +1284,11 @@ html[data-theme="light"] .bi-btn{color:#fff}
           <div class="chk"><span class="ic ok">✓</span><span class="lb">OS / CPU</span><span class="v">openEuler 22.03 LTS-SP3 (aarch64) · HUAWEI Kunpeng 920 · 128 核 · 2 NUMA 节点</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">内存</span><span class="v">250Gi</span></div>
 
-          <div class="ai-msg">阶段2 加载 <b>task-design</b> 子技能，命中 Redis 场景配置。阶段3 加载 <b>params-design</b> 子技能，先做场景确认 ——</div>
+          <div class="ai-msg">阶段2 加载 <b class="hl-tool">task-design</b> 子技能，命中 Redis 场景配置。阶段3 加载 <b class="hl-tool">params-design</b> 子技能，先做场景确认 ——</div>
           <div class="blocker">
             <div class="bt">? Redis 场景确认</div>
-            <div class="bl">Redis 主要用于什么场景？不同场景的参数调优方向差异较大 → 用户选择 <b>缓存 Cache（推荐）</b></div>
-            <div class="bl">调优方向期望是什么？可多选 → 用户选择 <b>吞吐量/性能（推荐）</b></div>
+            <div class="bl">Redis 主要用于什么场景？不同场景的参数调优方向差异较大 → 用户选择 <b class="hl-metric">缓存 Cache（推荐）</b></div>
+            <div class="bl">调优方向期望是什么？可多选 → 用户选择 <b class="hl-metric">吞吐量/性能（推荐）</b></div>
           </div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">验证通过</span><span class="v">45 个参数（System 15 + Redis 30），immutable 11 个，所有约束满足</span></div>
 
