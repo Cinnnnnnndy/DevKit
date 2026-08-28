@@ -225,14 +225,16 @@ html[data-theme="light"] .sidebar{border:1px solid var(--bd1)}
 /* Plan / Checklist / Pipeline steps（复用 .slist/.srow 结构）*/
 .steps{display:flex;flex-direction:column;gap:2px;margin:8px 0}
 .step{display:flex;align-items:flex-start;gap:9px;padding:4px 0}
-.step .c{width:16px;height:16px;flex:none;display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:700;font-family:var(--mono);margin-top:1px;border-radius:3px;
-  background:var(--s3);color:var(--fg4);border:1px solid var(--bd2);box-sizing:border-box}
-.step .c.done{background:var(--ok);color:#0d2410;border-color:var(--ok)}
-.step .c.doing{background:var(--pri-h);color:#04162e;border-color:var(--pri-h);
-  box-shadow:0 0 8px rgba(61,152,255,.55)}
-.step .c.pending{background:var(--s3);color:var(--fg4);border-color:var(--bd2)}
-.step .c.wait{background:var(--warn);color:#2b1a03;border-color:var(--warn)}
+/* 阶段图标：不放字符（对勾/数字），纯色块表达三种状态——
+   完成=实心填色，进行中=实心+呼吸动效，待进行=空心描边 */
+.step .c{width:9px;height:9px;flex:none;margin-top:5px;border-radius:2px;
+  font-size:0;color:transparent;box-sizing:border-box;
+  background:transparent;border:1.5px solid var(--bd2)}
+.step .c.done{background:var(--ok);border-color:var(--ok)}
+.step .c.doing{background:var(--pri-h);border-color:var(--pri-h);
+  box-shadow:0 0 6px rgba(61,152,255,.6);animation:sdpulse 1.3s ease-in-out infinite}
+.step .c.pending{background:transparent;border-color:var(--bd2)}
+.step .c.wait{background:var(--warn);border-color:var(--warn)}
 html[data-sharp] .step .c{border-radius:0}
 .step .bd{flex:1;min-width:0}
 .step .t1{font-size:14px;color:var(--fg)}
@@ -240,10 +242,13 @@ html[data-sharp] .step .c{border-radius:0}
 .step .est{color:var(--fg4);margin-left:6px}
 
 /* Checklist（诊断项，取自 .rl 左边框日志行）*/
-.chk{display:flex;align-items:baseline;gap:9px;padding:4px 10px;
+.chk{display:flex;align-items:center;gap:9px;padding:4px 10px;
   margin:2px 0;font-size:14px;border-radius:6px;background:var(--surf-3)}
-.chk .ic{flex:none;font-weight:700;font-size:14px;width:12px;text-align:center}
-.chk .ic.ok{color:var(--ok)} .chk .ic.warn{color:var(--warn)}
+/* 跟 .step .c 同一套方块语言：ok=实心绿，warn=实心金，不放字符 */
+.chk .ic{flex:none;width:9px;height:9px;border-radius:2px;font-size:0;color:transparent;
+  box-sizing:border-box;background:transparent;border:1.5px solid var(--bd2)}
+.chk .ic.ok{background:var(--ok);border-color:var(--ok)}
+.chk .ic.warn{background:var(--warn);border-color:var(--warn)}
 .chk .lb{flex:none;color:var(--fg);min-width:120px}
 .chk .v{color:var(--fg3)} .chk .v b{color:var(--warn);font-weight:600}
 
