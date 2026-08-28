@@ -1336,14 +1336,14 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
   <div class="cv-tc-body" style="padding:0">
     <div class="cv-code">
       <div class="path">sve_kernel_utils.h<span class="newbadge">NEW</span></div>
-      <div class="cl add"><span class="no">1</span><span class="pfx add">+</span><span class="tk-a">#pragma once</span></div>
-      <div class="cl add"><span class="no">2</span><span class="pfx add">+</span><span class="tk-a">#include &lt;arm_sve.h&gt;</span></div>
-      <div class="cl add"><span class="no">3</span><span class="pfx add">+</span><span class="tk-a">inline svfloat32_t safe_load(const float* p, size_t n);</span></div>
+      <div class="cl"><span class="no">1</span><span class="pfx"></span>#pragma once</div>
+      <div class="cl"><span class="no">2</span><span class="pfx"></span>#include &lt;arm_sve.h&gt;</div>
+      <div class="cl"><span class="no">3</span><span class="pfx"></span>inline svfloat32_t safe_load(const float* p, size_t n);</div>
     </div>
   </div>
 </div>
 </div>
-<p class="rule">Diff Card 改左右分栏——同一行在改动前后分列左右，比上下堆叠更容易对上号，尤其是"只改了一个变量名"这类小改动。这里只演示<strong>纯内容渲染</strong>，不带 Accept/Reject 这层交互——操作项属于完整的 <a href="#p1">P05 Diff Review</a> 流程，在真正的确认场景里才出现（走 Approval Bar 或逐文件按钮），不是这张卡自己的职责。<strong>New File Card</strong> 和 Diff Card 是两种不同的"做完了没"：新建文件没有 Before 可比，全部是 add 行，不需要分栏，单栏 unified 就够；标题动词从 Edit 换成 Create，摘要给"新建文件 · N 行"而不是"共 N 处改动"——一眼分清这是全新产物还是对已有代码的修改，改坏一个新建文件和改坏一个被到处引用的旧文件，影响面完全不同。</p>
+<p class="rule">Diff Card 改左右分栏——同一行在改动前后分列左右，比上下堆叠更容易对上号，尤其是"只改了一个变量名"这类小改动。这里只演示<strong>纯内容渲染</strong>，不带 Accept/Reject 这层交互——操作项属于完整的 <a href="#p1">P05 Diff Review</a> 流程，在真正的确认场景里才出现（走 Approval Bar 或逐文件按钮），不是这张卡自己的职责。<strong>New File Card 不整屏刷绿</strong>——新建文件里的每一行都不是"变化"，没有 Before 可对照，刷成 add 底色反而让色彩失去意义（Diff Card 的红绿之所以有信息量，是因为红绿之间有对比；这里全部一个色，等于没有信息）。直接展示生成内容，和普通代码块一样，唯一的标记留给 header 的 <code>NEW</code> 徽标和 <code>Create</code> 动词——这才是真正携带"这是新文件"这条信息的地方，行级色块不需要重复它。</p>
 <div class="cv-fig"><span class="fig-t">Report Card</span>
 <div class="cv-toolcard">
   <div class="cv-tc-head"><span class="car">▾</span><span class="lb">迁移总结报告</span><span class="sum">10 文件修改 · 111 行新增 · 7 行删除 · 编译成功</span></div>
@@ -1427,7 +1427,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td>Sub Header</td><td>阶段/小节标题</td><td>T0</td><td>—</td></tr>
 <tr><td>Checklist Row</td><td>配置/环境逐项核对</td><td>T0</td><td>—</td></tr>
 <tr><td>Diff Card</td><td>代码 diff，左右分栏，逐 token 高亮</td><td>T0</td><td>P05 · P18 折叠外壳</td></tr>
-<tr><td>New File Card</td><td>新建文件，单栏全增量</td><td>T0</td><td>P18 折叠外壳</td></tr>
+<tr><td>New File Card</td><td>新建文件，单栏纯内容不刷色</td><td>T0</td><td>P18 折叠外壳</td></tr>
 <tr><td>Report Card</td><td>横幅 + 统计 + 报表</td><td>T0</td><td>P12 · P18 折叠外壳</td></tr>
 <tr><td>Migration Row</td><td>组件替换：源 → 目标</td><td>T0</td><td>—</td></tr>
 <tr><td>Tag Chips</td><td>批量枚举同类项</td><td>T0</td><td>—</td></tr>
