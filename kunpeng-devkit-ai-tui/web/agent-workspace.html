@@ -867,6 +867,92 @@ html[data-theme="light"] .bi-btn{color:#fff}
           <div class="console">
             <div class="ln"><span style="color:var(--pri-h)">▶</span> 源码向量化改造 — 12 处候选，已完成 5 处</div>
           </div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 请帮我优化 /home/faiss-1.7.4 项目中的 /home/faiss-1.7.4/faiss/utils/distances_simd.cpp 文件</div>
+          <div class="ai-msg">好的，这是 C/C++ 源码向量化请求，命中 <b>vectorization-optimization</b> 技能。先读取技能说明与目标文件，确认参数后再执行工作流 ——</div>
+          <div class="console">
+            <div class="ln"><span style="color:var(--fg4)">○</span> read_file /home/skills/vectorization-optimization/SKILL.md</div>
+            <div class="ln"><span style="color:var(--fg4)">○</span> read_file /home/faiss-1.7.4/faiss/utils/distances_simd.cpp</div>
+            <div class="ln"><span style="color:var(--fg4)">○</span> read_file references/examples.md · assets/command-checklist.md</div>
+          </div>
+          <div class="sub-h">参数解析 <span class="cm">对照示例 13 · 项目根目录层级可推断</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">--project-dir</span><span class="v">/home/faiss-1.7.4（用户明确给出）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">--file-path</span><span class="v">faiss/utils/distances_simd.cpp（用户明确给出）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">--simd-target</span><span class="v">neon（用户未指定指令集，按默认规则填充）</span></div>
+          <div class="ai-msg">校验通过，启动 <b>vectorization_workflow</b> ——</div>
+          <div class="console">
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> ./devkitai vectorization_workflow --project-dir /home/faiss-1.7.4 --file-path .../distances_simd.cpp --simd-target neon</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> Phase1 预检查 · aarch64 · NEON(ASIMD) 支持 · tiancheng 已安装</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> Phase2 向量化分析 · 工具补丁 11 · AI 候选补丁 4 · 共 15</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> Phase3 工具补丁并行验证 · 10/11 通过 · 1 回退 AI（[66-69] 工具无法判定，转交 AI 改写）</div>
+            <div class="ln"><span style="color:var(--warn)">!</span> Phase4 AI 补丁并行改写 · 3/5 通过 · 2 处功能验证失败已跳过</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> Phase5 补丁应用 · 13/13 写入 · 自动补充 #include &lt;arm_neon.h&gt;</div>
+          </div>
+
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">distances_simd.cpp 向量化优化任务报告</span>
+              <span class="tc-csum">16 补丁 · 通过 13 · 失败/回退 3 · 总耗时 524.43s</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="rpt-banner">✓ 工具补丁 + AI 补丁双通道验证完成 · 13 处优化已写入源码</div>
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">工具补丁</div><div class="sc-big">10/11</div><div class="sc-sub">通过 · <span class="wn">1 回退 AI</span></div></div>
+                <div class="stat-card"><div class="sc-lb">AI 补丁</div><div class="sc-big">3/5</div><div class="sc-sub">通过（含接管的回退项）· <span class="wn">2 失败</span></div></div>
+                <div class="stat-card"><div class="sc-lb">最高性能提升</div><div class="sc-big">+338.9%</div><div class="sc-sub">[103-105] speedup 4.39x</div></div>
+              </div>
+              <div class="sub-h">工具补丁 · 逐处 NEON 改写（按提升排序）</div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>补丁</th><th>代码行</th><th>性能提升</th><th>speedup</th></tr></thead>
+                <tbody>
+                  <tr><td>#1</td><td class="mu">103-105</td><td>+338.9%</td><td>4.39x</td></tr>
+                  <tr><td>#3</td><td class="mu">205-207</td><td>+334.4%</td><td>4.34x</td></tr>
+                  <tr><td>#2</td><td class="mu">192-194</td><td>+326.4%</td><td>4.26x</td></tr>
+                  <tr><td>#5</td><td class="mu">1502-1503</td><td>+318.6%</td><td>4.19x</td></tr>
+                  <tr><td>#4</td><td class="mu">218-221</td><td>+312.4%</td><td>4.12x</td></tr>
+                  <tr><td>#7</td><td class="mu">1822-1824</td><td>+309.1%</td><td>4.09x</td></tr>
+                  <tr><td>#10</td><td class="mu">1929-1931</td><td>+294.2%</td><td>3.94x</td></tr>
+                  <tr><td>#8</td><td class="mu">1899-1901</td><td>+291.1%</td><td>3.91x</td></tr>
+                  <tr><td>#6</td><td class="mu">1606-1607</td><td>+288.9%</td><td>3.89x</td></tr>
+                  <tr><td>#9</td><td class="mu">1914-1916</td><td>+170.2%</td><td>2.70x</td></tr>
+                  <tr class="reco"><td>#0 →AI</td><td class="mu">66-69</td><td colspan="2">工具无法判定，回退 AI 改写</td></tr>
+                </tbody>
+              </table>
+              <div class="sub-h">AI 补丁 · 改写 + 验证</div>
+              <div class="mrow"><span class="ic ok">✓</span><span class="lb">#4 [66-69]</span><span class="tg">接管工具回退项 · 改写 1 次</span><span class="rbadge ok">+2.0%</span></div>
+              <div class="mrow"><span class="ic ok">✓</span><span class="lb">#1 [152-157]</span><span class="tg">改写 2 次</span><span class="rbadge ok">+28.6%</span></div>
+              <div class="mrow"><span class="ic ok">✓</span><span class="lb">#0 [128-133]</span><span class="tg">改写 2 次 · 测试迭代 3</span><span class="rbadge ok">+35.1%</span></div>
+              <div class="mrow"><span class="ic wn">●</span><span class="lb">#3 [1744-1750]</span><span class="tg">改写 4 次仍未通过</span><span class="rbadge warn">验证失败</span></div>
+              <div class="mrow"><span class="ic wn">●</span><span class="lb">#2 [1627-1633]</span><span class="tg">改写 4 次仍未通过</span><span class="rbadge warn">验证失败</span></div>
+              <div class="sub-h">产物</div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">优化源码</span><span class="v">faiss-1.7.4_0ef9/result/faiss/utils/distances_simd.cpp</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">HTML 报告</span><span class="v">Vectorization_Patch_Result_20260827_100423.html</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">git patch</span><span class="v">devkit-vectorization.patch（8168 bytes）</span></div>
+            </div>
+          </div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 你清理一下优化痕迹，我一会重新来过</div>
+          <div class="ai-msg">我来清理工作区目录，先确认一下有哪些需要清理的痕迹 ——</div>
+          <div class="console">
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> ls -d /home/faiss-1.7.4_*</div>
+            <div class="ln"><span style="color:var(--fg4)">○</span> 9 个历史工作区目录，本次优化产生的是 faiss-1.7.4_0ef9</div>
+          </div>
+          <div class="blocker">
+            <div class="bt">? 需要确认清理范围</div>
+            <div class="bl">原始项目 <code>/home/faiss-1.7.4</code> 本身未被修改（优化结果写在工作区 <code>result/</code> 目录），无需恢复源码。</div>
+            <div class="bl">① 只清理本次产生的 <b>faiss-1.7.4_0ef9</b>；② 清理全部 <b>9 个</b> 历史工作区目录。你要清理哪个范围？</div>
+          </div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 你现在有哪些能用的skill</div>
+          <div class="ai-msg">目前可用的 Skill 只有一个：</div>
+          <div class="chipf">
+            <span class="chip on"><b>vectorization-optimization</b></span>
+          </div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">用途</span><span class="v">C/C++ 源码 SVE/NEON 向量化优化</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">触发词</span><span class="v">向量化 · 天秤 · SVE · NEON · ARM优化 · 鲲鹏优化 · 性能优化 · 指令集优化</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">适用范围</span><span class="v">C/C++ 项目 + ARM 指令集，不适用于 AVX 等 x86 专属指令集</span></div>
+          <div class="ai-msg">如果需要其他方面能力（代码审查、研究分析、文件操作等），我也可以直接用通用工具完成，不一定需要专门的 Skill。还有其他需要帮助的吗？</div>
         </div>
       </section>
     </div>
@@ -1192,7 +1278,7 @@ const SCENARIOS={
      goal:'识别 x86 SIMD intrinsics，自动改写为鲲鹏 NEON/SVE 向量化实现',
      plan:[{t:'火焰图扫描定位热点',d:'--simd-target=sve',s:'done'},{t:'识别候选 intrinsics',d:'12 处候选',s:'done'},
        {t:'生成 SVE 向量化实现',d:'已完成 5 处',s:'doing'},{t:'实测收益验证',d:'342ms → 96ms',s:'doing'}],
-     sugg:['继续改造下一处候选','运行 SVE 性能基准测试','导出改造前后对比']},
+     sugg:['只清理本次工作区','应用 git patch 到 faiss 项目','继续改造下一处候选']},
     {key:'op-gen',label:'通算算子智能生成',status:'wait',file:'Settlement',code:false,
      goal:'识别计算密集算子，自动生成鲲鹏亲和实现',
      plan:[{t:'识别候选算子',d:'',s:'doing'},{t:'生成鲲鹏适配实现',d:'',s:'todo'},{t:'正确性 + 性能双重验证',d:'',s:'todo'}],
