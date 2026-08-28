@@ -22,6 +22,9 @@
   --sel:#283457;
   --panel-bg:rgba(15,16,26,.94); --panel-bd:rgba(52,94,231,.10); --panel-bd2:rgba(52,94,231,.08);
   --input-bg:rgba(28,31,48,.92); --input-bd:rgba(52,94,231,.32);
+  /* 对齐 Pixso 设计稿：main-col / sidebar 是纯色深色卡片，跟带蓝色描边的 code-col 区分开 */
+  --col-solid:rgb(22,23,30);
+  --msg-usr-bg:rgba(255,255,255,.2);
   --surf-1:rgb(30,34,52); --surf-2:rgb(27,30,46); --surf-3:rgb(24,27,42); --surf-4:rgb(21,24,38);
   --ap-bg:rgb(32,36,56); --sel-fg:#fff;
   --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
@@ -103,8 +106,9 @@ body>*{position:relative;z-index:1}
 /* ══ Workspace（侧栏 + 主内容 + 代码列） ══ */
 .workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0 8px;background:transparent}
 .main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;position:relative;
-  margin:8px 0;border:1px solid var(--panel-bd);border-radius:12px;overflow:hidden;
-  background:var(--panel-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  margin:8px 0;border:none;border-radius:8px;overflow:hidden;
+  background:var(--col-solid)}
+html[data-theme="light"] .main-col{border:1px solid var(--bd1)}
 /* 代码列：workspace 级别的独立面板，在 main-col 右侧展开 */
 .code-col{flex:0 0 0;min-width:0;display:flex;flex-direction:column;
   margin:8px 0;border-radius:12px;overflow:hidden;
@@ -117,8 +121,9 @@ body>*{position:relative;z-index:1}
 
 /* 侧栏是一整块从上到下的圆角卡片，四个分组靠内部分隔线区分，而不是各自独立的卡片 */
 .sidebar{width:220px;flex:none;overflow-y:auto;
-  margin:8px 0;border:1px solid var(--panel-bd);border-radius:12px;
-  background:var(--panel-bg);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  margin:8px 0;border:none;border-radius:8px;
+  background:var(--col-solid)}
+html[data-theme="light"] .sidebar{border:1px solid var(--bd1)}
 .sd-sec{padding:6px 4px;border-bottom:1px solid var(--bd1)}
 .sd-sec:last-child{border-bottom:none}
 .sd-sec .h{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
@@ -210,7 +215,7 @@ body>*{position:relative;z-index:1}
 .tk.a{background:#283d3a;color:#9ece6a}
 
 /* 通用小标题 */
-.sub-h{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
+.sub-h{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
   text-transform:uppercase;margin:18px 0 8px}
 .sub-h:first-child{margin-top:0}
 .sub-h .cm{font-weight:400;letter-spacing:normal;text-transform:none}
@@ -218,7 +223,7 @@ body>*{position:relative;z-index:1}
 /* Plan / Checklist / Pipeline steps（复用 .slist/.srow 结构）*/
 .steps{display:flex;flex-direction:column;gap:2px;margin:8px 0}
 .step{display:flex;align-items:flex-start;gap:9px;padding:4px 0}
-.step .c{width:13px;flex:none;text-align:center;font-size:12px;font-weight:700;margin-top:2px;color:var(--fg4)}
+.step .c{width:13px;flex:none;text-align:center;font-size:14px;font-weight:700;margin-top:2px;color:var(--fg4)}
 .step .c.done{color:var(--ok)}
 .step .c.doing{color:var(--pri-h);text-shadow:0 0 8px rgba(0,119,255,.5)}
 .step .c.pending{color:var(--fg4)}
@@ -231,14 +236,14 @@ body>*{position:relative;z-index:1}
 /* Checklist（诊断项，取自 .rl 左边框日志行）*/
 .chk{display:flex;align-items:baseline;gap:9px;padding:4px 10px;
   margin:2px 0;font-size:14px;border-radius:6px;background:var(--surf-3)}
-.chk .ic{flex:none;font-weight:700;font-size:12px;width:12px;text-align:center}
+.chk .ic{flex:none;font-weight:700;font-size:14px;width:12px;text-align:center}
 .chk .ic.ok{color:var(--ok)} .chk .ic.warn{color:var(--warn)}
 .chk .lb{flex:none;color:var(--fg);min-width:120px}
 .chk .v{color:var(--fg3)} .chk .v b{color:var(--warn);font-weight:600}
 
 /* 对比表 */
 table.cmp{width:100%;border-collapse:collapse;font-size:14px;font-family:var(--mono)}
-table.cmp th{text-align:left;font-size:12px;letter-spacing:.1em;color:var(--fg4);font-weight:700;
+table.cmp th{text-align:left;font-size:14px;letter-spacing:.1em;color:var(--fg4);font-weight:700;
   padding:5px 8px;border-bottom:1px solid var(--bd1);text-transform:uppercase}
 table.cmp td{padding:5px 8px;border-bottom:1px solid var(--bd1);color:var(--fg3)}
 table.cmp tr.reco td{color:var(--fg)}
@@ -249,12 +254,12 @@ table.rpt-tb td.mu{color:var(--fg4)}
 
 /* 对话区域：会话开场的用户自然语言输入，区分于 Agent 输出的样式 */
 .usr-msg{display:flex;align-items:flex-start;gap:7px;padding:8px 12px;margin:14px 0;
-  background:linear-gradient(90deg,rgba(52,94,231,.13),rgba(52,94,231,.03));font-size:14px;
+  background:var(--msg-usr-bg);font-size:14px;font-style:italic;
   color:var(--fg);line-height:1.5;border-radius:8px}
 .usr-msg:first-child{margin-top:0}
-.usr-msg .p{color:var(--pri-h);font-weight:700;flex:none}
+.usr-msg .p{color:var(--pri);font-weight:700;font-style:normal;flex:none}
 /* AI 回复消息 */
-.ai-msg{padding:8px 12px;margin:14px 0;font-size:14px;color:var(--fg2);line-height:1.65;
+.ai-msg{padding:8px 12px;margin:14px 0;font-size:14px;color:var(--fg2);line-height:1.65;font-style:italic;
   background:rgba(224,175,104,.04);border-radius:8px}
 .ai-msg:first-child{margin-top:0}
 .ai-msg b{color:var(--fg);font-weight:600}
@@ -269,15 +274,15 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .tc-collapse{margin:14px 0;border-radius:8px;overflow:hidden;background:var(--surf-4)}
 .tc-chead{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;background:var(--surf-2)}
 .tc-chead:hover{background:var(--s2)}
-.tc-car{font-family:var(--mono);font-size:12px;color:var(--fg4);flex:none;transition:transform .15s}
+.tc-car{font-family:var(--mono);font-size:14px;color:var(--fg4);flex:none;transition:transform .15s}
 .tc-collapse:not(.open) .tc-car{transform:rotate(-90deg)}
-.tc-clb{font-family:var(--mono);font-size:12px;color:var(--fg2);flex:none}
-.tc-csum{font-size:12px;color:var(--fg4);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-clb{font-family:var(--mono);font-size:14px;color:var(--fg2);flex:none}
+.tc-csum{font-size:14px;color:var(--fg4);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tc-cbody{padding:12px 10px 2px}
 .tc-collapse:not(.open) .tc-cbody{display:none}
 
 /* 报告横幅 · 统计卡片（对齐 Porting Advisor 迁移报告结构）*/
-.rpt-banner{display:flex;align-items:baseline;gap:7px;font-size:12px;color:var(--ok);
+.rpt-banner{display:flex;align-items:baseline;gap:7px;font-size:14px;color:var(--ok);
   background:rgba(158,206,106,.08);padding:8px 12px;margin:14px 0;
   border-radius:8px}
 .rpt-banner.warn{color:var(--warn);background:rgba(224,175,104,.10)}
@@ -285,19 +290,19 @@ table.rpt-tb td.mu{color:var(--fg4)}
 /* 阻断点提示卡：把"停在哪、为什么、要什么、下一步"从散落的日志里摘出来单独呈现 */
 .blocker{margin:14px 0;padding:8px 12px;border-radius:8px;
   background:rgba(224,175,104,.07)}
-.blocker .bt{font-size:12px;font-weight:700;color:var(--warn);
+.blocker .bt{font-size:14px;font-weight:700;color:var(--warn);
   display:flex;align-items:center;gap:6px;margin-bottom:6px}
 .blocker .bl{font-size:14px;color:var(--fg2);line-height:1.7;padding:1px 0}
 .blocker .bl b{color:var(--fg);font-weight:600}
-.blocker code{font-family:var(--mono);font-size:12px;background:var(--surf-1);
+.blocker code{font-family:var(--mono);font-size:14px;background:var(--surf-1);
   padding:1px 5px;color:var(--pri-h)}
 .stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
 .stat-card{background:var(--surf-1);padding:9px 10px;border-radius:6px;border:1px solid var(--panel-bd2)}
-.stat-card .sc-lb{font-size:12px;letter-spacing:.1em;color:var(--fg4);text-transform:uppercase}
-.stat-card .sc-big{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--fg);margin:3px 0 1px}
-.stat-card .sc-sub{font-size:12px;color:var(--fg4)}
+.stat-card .sc-lb{font-size:14px;letter-spacing:.1em;color:var(--fg4);text-transform:uppercase}
+.stat-card .sc-big{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--fg);margin:3px 0 1px}
+.stat-card .sc-sub{font-size:14px;color:var(--fg4)}
 .stat-card .sc-sub .wn{color:var(--warn)} .stat-card .sc-sub .mu{color:var(--fg4)}
-.rbadge{font-family:var(--mono);font-size:12px;font-weight:700;padding:0 6px;letter-spacing:.02em}
+.rbadge{font-family:var(--mono);font-size:14px;font-weight:700;padding:0 6px;letter-spacing:.02em}
 .rbadge.warn{color:#2b1a03;background:var(--warn)}
 .rbadge.ok{color:#04231a;background:var(--ok)}
 .rbadge.muted{color:var(--fg3);background:var(--s4)}
@@ -320,7 +325,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
 /* Hotspot Table + Flame Graph（调优 · 瓶颈定界场景，颜色改用 PTO 的 o/v/g/a 色阶循环）*/
 table.hotspot{width:100%;border-collapse:collapse;font-family:var(--mono)}
 table.hotspot thead th{position:sticky;top:0;background:var(--s1);z-index:2;
-  text-align:left;font-size:12px;letter-spacing:.08em;color:var(--fg4);font-weight:700;
+  text-align:left;font-size:14px;letter-spacing:.08em;color:var(--fg4);font-weight:700;
   padding:5px 8px;border-bottom:1px solid var(--bd1);text-transform:uppercase}
 table.hotspot th:nth-child(1){width:150px} table.hotspot th:nth-child(2){width:76px}
 table.hotspot tbody tr{cursor:pointer}
@@ -330,9 +335,9 @@ table.hotspot td{padding:3.5px 8px;font-size:14px;border-bottom:1px solid var(--
   color:var(--fg3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ht-pct{display:flex;align-items:center;gap:7px;height:16px}
 .ht-bar{height:10px;min-width:4px}
-.ht-pct .v{font-weight:700;font-size:12px;flex:none}
+.ht-pct .v{font-weight:700;font-size:14px;flex:none}
 td.fnname{color:var(--fg2)}
-.fg-legend{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:7px;font-size:12px;color:var(--fg4)}
+.fg-legend{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:7px;font-size:14px;color:var(--fg4)}
 .fg-legend i{display:inline-block;width:7px;height:7px;margin-right:4px;vertical-align:-1px}
 .flame{display:flex;flex-direction:column;gap:1px;background:var(--app)}
 .flame-row{display:flex;height:20px}
@@ -343,7 +348,7 @@ td.fnname{color:var(--fg2)}
 .flame-block:hover{filter:brightness(1.25)}
 .flame-block.active{outline:2px solid var(--pri-h);outline-offset:-2px}
 .ai-note{margin-top:9px;font-size:14px;color:var(--dgr);display:flex;gap:6px;align-items:flex-start}
-.ai-note .conf{color:var(--fg4);font-size:12px;margin-top:2px}
+.ai-note .conf{color:var(--fg4);font-size:14px;margin-top:2px}
 
 /* Agent Console（取自 .rl 日志行 + s1 容器）*/
 .console{background:var(--surf-2);padding:8px 12px;
@@ -387,7 +392,7 @@ td.fnname{color:var(--fg2)}
 .bi-row::before{content:'';position:absolute;top:-14px;left:-14px;width:64px;height:56px;
   background:radial-gradient(ellipse at center,rgba(255,255,255,.3) 0%,rgba(255,255,255,.08) 50%,transparent 75%);
   filter:blur(2.5px);pointer-events:none}
-.bi-row .p{color:var(--pri-h);font-weight:700;position:relative;margin-top:2px}
+.bi-row .p{color:var(--pri);font-weight:700;position:relative;margin-top:2px}
 .bi-row textarea{flex:1;background:transparent;border:0;outline:0;resize:none;color:var(--fg);
   font-family:var(--mono);font-size:var(--fs-md);line-height:1.5;height:calc(1.5em*3)}
 .bi-row textarea::placeholder{color:var(--fg4)}
@@ -532,6 +537,9 @@ html[data-theme="light"]{
   /* 同理，对话正文里的 Tokyo Night 高亮色（.hl-tool/.hl-file/.hl-proj/.hl-metric）
      在深色背景上是柔和糖果色，浅色背景下需要更深更饱和才够对比度 */
   --tn-purple:#7c3aed; --tn-cyan:#0e7fb0; --tn-teal:#0f766e; --tn-gold:#92600a;
+  /* main-col/sidebar 纯色卡片 + user 消息底色，浅色主题换成白底 + 淡蓝叠加（白色叠加在浅色背景上会看不见） */
+  --col-solid:#ffffff;
+  --msg-usr-bg:rgba(13,95,214,.08);
 }
 html[data-theme="light"] body::before{
   background:
