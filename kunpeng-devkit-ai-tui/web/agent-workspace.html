@@ -131,7 +131,7 @@ body>*{position:relative;z-index:1}
 .sd-node .ic{width:12px;flex:none;text-align:center;font-size:12px}
 .sd-node .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
 .sd-node .dot{width:5px;height:5px;border-radius:50%;flex:none}
-.sd-node .dot.working{background:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
+.sd-node .dot.doing{background:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
 .sd-node .dot.wait{background:var(--warn)}
 .sd-node .dot.done{background:var(--ok)}
 .sd-node .dot.idle{background:var(--fg4)}
@@ -258,6 +258,12 @@ table.rpt-tb td.mu{color:var(--fg4)}
   background:rgba(224,175,104,.04);border-radius:8px}
 .ai-msg:first-child{margin-top:0}
 .ai-msg b{color:var(--fg);font-weight:600}
+/* 对话正文彩色高亮（Tokyo Night 色阶）—— 品牌蓝只用于按钮，正文关键词按语义分色，
+   参考 opencode 等 TUI 的多彩输出：工具/技能名紫、文件与命令青、结果指标金、项目/组件名蓝绿 */
+.hl-tool{color:var(--tn-purple)}
+.hl-file{color:var(--tn-cyan)}
+.hl-metric{color:var(--tn-gold)}
+.hl-proj{color:var(--tn-teal)}
 
 /* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
 .tc-collapse{margin:14px 0;border-radius:8px;overflow:hidden;background:var(--surf-4)}
@@ -352,7 +358,24 @@ td.fnname{color:var(--fg2)}
 .scene.on{display:flex;flex:1;min-width:0}
 
 /* ══ Bottom Input（取自 .inp .box）══ */
-.bottom-input{flex:none;background:transparent;border-top:none;padding:10px var(--sp-lg)}
+.bottom-input{flex:none;background:transparent;border-top:none;padding:10px var(--sp-lg);position:relative}
+/* ══ 斜杠命令联想菜单 ══ */
+.slash-menu{position:absolute;left:var(--sp-lg);right:var(--sp-lg);bottom:100%;margin-bottom:8px;
+  background:var(--panel-bg);border:1px solid var(--panel-bd);border-radius:10px;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 10px 28px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);
+  overflow:hidden;display:none;z-index:30}
+.slash-menu.show{display:block}
+.sm-list{max-height:220px;overflow-y:auto;padding:4px}
+.sm-item{display:flex;align-items:baseline;gap:10px;padding:6px 9px;border-radius:6px;cursor:pointer;
+  font-family:var(--mono);transition:background .1s ease}
+.sm-item:hover{background:var(--s2)}
+.sm-item.sel{background:rgba(52,94,231,.22)}
+.sm-item .cmd{color:var(--pri-h);font-weight:700;font-size:12.5px;flex:none;min-width:172px}
+.sm-item .desc{color:var(--fg3);font-size:12px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sm-empty{padding:10px 12px;font-size:12px;color:var(--fg4)}
+.sm-hint{display:flex;gap:10px;padding:6px 12px;border-top:1px solid var(--bd1);font-size:11px;color:var(--fg4)}
+.sm-hint b{background:var(--s4);color:var(--fg2);font-weight:500;padding:0 5px;border-radius:3px}
 .bi-row{display:flex;align-items:flex-start;gap:9px;background:var(--input-bg);
   border:1px solid var(--input-bd);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-radius:8px;padding:8px 12px;font-size:var(--fs-md);position:relative;overflow:hidden;
@@ -506,6 +529,9 @@ html[data-theme="light"]{
      反白/低对比度，这里单独给浅色主题定义更深、更饱和的版本 */
   --pri-h:#0d5fd6; --pri:#0058c9; --ok:#1f7a2b; --warn:#8f5c08; --dgr:#c23054;
   --sel-fg:#1b1e2b;
+  /* 同理，对话正文里的 Tokyo Night 高亮色（.hl-tool/.hl-file/.hl-proj/.hl-metric）
+     在深色背景上是柔和糖果色，浅色背景下需要更深更饱和才够对比度 */
+  --tn-purple:#7c3aed; --tn-cyan:#0e7fb0; --tn-teal:#0f766e; --tn-gold:#92600a;
 }
 html[data-theme="light"] body::before{
   background:
@@ -607,7 +633,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我把 BRPC 这个 C++ 项目迁移到鲲鹏架构，不兼容的地方直接改</div>
-          <div class="ai-msg">好的，我来分析 <b>BRPC</b> 项目（apache/brpc）。启动六阶段迁移流水线 ——</div>
+          <div class="ai-msg">好的，我来分析 <b class="hl-proj">BRPC</b> 项目（apache/brpc）。启动六阶段迁移流水线 ——</div>
           <div class="sub-h">迁移流水线</div>
           <div class="steps">
             <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段1 · 环境检测</div><div class="t2">识别构建系统、工具链版本、目标环境</div></span></div>
@@ -633,8 +659,8 @@ html[data-theme="light"] .bi-btn{color:#fff}
           </div>
 
           <div class="sub-h">阶段3 · 待确认项</div>
-          <div class="ai-msg"><b>rapidjson SSE 宏处理</b>：reader.h:31,33 通过 <b>#ifdef RAPIDJSON_SSE42</b> 条件 include SSE 头文件。BRPC 未定义这些宏，ARM64 不会命中 SSE 路径 → <b style="color:var(--ok)">保持现状（推荐）</b></div>
-          <div class="ai-msg"><b>snappy 源码 bug</b>：snappy-stubs-internal.h 中 <b>uint64_tUNALIGNED_LOAD64</b> 缺少空格，x86 走宏定义路径不会命中，aarch64 上才暴露 → <b style="color:var(--ok)">已自动修复</b></div>
+          <div class="ai-msg"><b>rapidjson SSE 宏处理</b>：reader.h:31,33 通过 <b class="hl-file">#ifdef RAPIDJSON_SSE42</b> 条件 include SSE 头文件。BRPC 未定义这些宏，ARM64 不会命中 SSE 路径 → <b style="color:var(--ok)">保持现状（推荐）</b></div>
+          <div class="ai-msg"><b>snappy 源码 bug</b>：snappy-stubs-internal.h 中 <b class="hl-file">uint64_tUNALIGNED_LOAD64</b> 缺少空格，x86 走宏定义路径不会命中，aarch64 上才暴露 → <b style="color:var(--ok)">已自动修复</b></div>
 
           <div class="sub-h">阶段4-5 · 源码适配与编译验证</div>
           <div class="console">
@@ -687,7 +713,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我把 order-center 的数据库、中间件和应用一起端到端迁移到鲲鹏，数据库改造为达梦 DM，中间件走默认国产化路线</div>
-          <div class="ai-msg">好的，我来创建端到端迁移工程。已识别 <b>Java 应用</b> + <b>MySQL</b> 源库 + Tomcat/Redis/Nginx 中间件，按默认国产化路线生成迁移方案 ——</div>
+          <div class="ai-msg">好的，我来创建端到端迁移工程。已识别 <b class="hl-proj">Java 应用</b> + <b class="hl-proj">MySQL</b> 源库 + Tomcat/Redis/Nginx 中间件，按默认国产化路线生成迁移方案 ——</div>
           <div class="sub-h">迁移工程配置</div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">工程名称</span><span class="v">order-center-e2emig</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">迁移路线</span><span class="v">MySQL → 达梦 DM8 · Tomcat → 东方通 TongWeb · JDK → OpenJDK ARM · Nginx/Redis → ARM 原生</span></div>
@@ -713,7 +739,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
 
           <div class="blocker">
             <div class="bt">✕ 中间件阶段阻断 · TongWeb license 缺失</div>
-            <div class="bl">已在 <code>packages/</code>、<code>packages/middleware/</code>、<code>packages/tongweb/</code> 及官方镜像源中查找，未找到 <b>License.dat / *.lic</b>。按规则禁止静默降级为 Apache Tomcat（<code>fallback_to_apache_tomcat: false</code>）。</div>
+            <div class="bl">已在 <code>packages/</code>、<code>packages/middleware/</code>、<code>packages/tongweb/</code> 及官方镜像源中查找，未找到 <b class="hl-file">License.dat / *.lic</b>。按规则禁止静默降级为 Apache Tomcat（<code>fallback_to_apache_tomcat: false</code>）。</div>
             <div class="bl">影响范围：TongWeb 未安装 → <b>order-api 应用未部署</b>（依赖 TongWeb 容器运行）</div>
             <div class="bl">下一步（二选一）：① 补充 License.dat 到 <code>packages/tongweb/</code>；② 显式设置 <code>fallback_to_apache_tomcat: true</code> 并确认降级为 Tomcat ARM</div>
           </div>
@@ -768,7 +794,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
             </div>
           </div>
 
-          <div class="console"><div class="ln"><span style="color:var(--warn)">■</span> 等待补充 TongWeb license · 继续命令：<b style="color:var(--pri-h)">devkit sys-mig phase middleware --execute</b></div></div>
+          <div class="console"><div class="ln"><span style="color:var(--warn)">■</span> 等待补充 TongWeb license · 继续命令：<b class="hl-file">devkit sys-mig phase middleware --execute</b></div></div>
         </div>
       </section>
     </div>
@@ -777,7 +803,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我把 order-gateway 的容器镜像迁移到鲲鹏架构</div>
-          <div class="ai-msg">好的，我来分析 <b>order-gateway</b> 的容器镜像。正在解析镜像层和 Dockerfile ——</div>
+          <div class="ai-msg">好的，我来分析 <b class="hl-proj">order-gateway</b> 的容器镜像。正在解析镜像层和 Dockerfile ——</div>
           <div class="console">
             <div class="ln"><span style="color:var(--fg4)">○</span> devkit sys-mig -c container_mig -i order-gateway.tar -dockerfile Dockerfile</div>
           </div>
@@ -804,7 +830,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我把 settlement_kernel.c 里的 AVX2 向量化代码改成鲲鹏 SVE 实现</div>
-          <div class="ai-msg">好的，我来用天秤扫描工具分析 <b>settlement_kernel.c</b>。先确认扫描配置：</div>
+          <div class="ai-msg">好的，我来用天秤扫描工具分析 <b class="hl-file">settlement_kernel.c</b>。先确认扫描配置：</div>
           <div class="sub-h">扫描配置</div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">扫描模式</span><span class="v">火焰图扫描（推荐）</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">SIMD 目标</span><span class="v">--simd-target=<b style="color:var(--accent-green)">sve</b></span></div>
@@ -869,7 +895,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
           </div>
 
           <div class="usr-msg"><span class="p">&gt;</span> 请帮我优化 /home/faiss-1.7.4 项目中的 /home/faiss-1.7.4/faiss/utils/distances_simd.cpp 文件</div>
-          <div class="ai-msg">好的，这是 C/C++ 源码向量化请求，命中 <b>vectorization-optimization</b> 技能。先读取技能说明与目标文件，确认参数后再执行工作流 ——</div>
+          <div class="ai-msg">好的，这是 C/C++ 源码向量化请求，命中 <b class="hl-tool">vectorization-optimization</b> 技能。先读取技能说明与目标文件，确认参数后再执行工作流 ——</div>
           <div class="console">
             <div class="ln"><span style="color:var(--fg4)">○</span> read_file /home/skills/vectorization-optimization/SKILL.md</div>
             <div class="ln"><span style="color:var(--fg4)">○</span> read_file /home/faiss-1.7.4/faiss/utils/distances_simd.cpp</div>
@@ -879,7 +905,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
           <div class="chk"><span class="ic ok">✓</span><span class="lb">--project-dir</span><span class="v">/home/faiss-1.7.4（用户明确给出）</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">--file-path</span><span class="v">faiss/utils/distances_simd.cpp（用户明确给出）</span></div>
           <div class="chk"><span class="ic ok">✓</span><span class="lb">--simd-target</span><span class="v">neon（用户未指定指令集，按默认规则填充）</span></div>
-          <div class="ai-msg">校验通过，启动 <b>vectorization_workflow</b> ——</div>
+          <div class="ai-msg">校验通过，启动 <b class="hl-tool">vectorization_workflow</b> ——</div>
           <div class="console">
             <div class="ln"><span style="color:var(--pri-h)">▶</span> ./devkitai vectorization_workflow --project-dir /home/faiss-1.7.4 --file-path .../distances_simd.cpp --simd-target neon</div>
             <div class="ln"><span style="color:var(--ok)">✓</span> Phase1 预检查 · aarch64 · NEON(ASIMD) 支持 · tiancheng 已安装</div>
@@ -916,7 +942,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
                   <tr><td>#8</td><td class="mu">1899-1901</td><td>+291.1%</td><td>3.91x</td></tr>
                   <tr><td>#6</td><td class="mu">1606-1607</td><td>+288.9%</td><td>3.89x</td></tr>
                   <tr><td>#9</td><td class="mu">1914-1916</td><td>+170.2%</td><td>2.70x</td></tr>
-                  <tr class="reco"><td>#0 →AI</td><td class="mu">66-69</td><td colspan="2">工具无法判定，回退 AI 改写</td></tr>
+                  <tr><td>#0 <span class="rbadge muted">→AI</span></td><td class="mu">66-69</td><td colspan="2" class="mu">工具无法判定，回退 AI 改写（AI 补丁 #4 已接管，+2.0%）</td></tr>
                 </tbody>
               </table>
               <div class="sub-h">AI 补丁 · 改写 + 验证</div>
@@ -941,7 +967,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
           <div class="blocker">
             <div class="bt">? 需要确认清理范围</div>
             <div class="bl">原始项目 <code>/home/faiss-1.7.4</code> 本身未被修改（优化结果写在工作区 <code>result/</code> 目录），无需恢复源码。</div>
-            <div class="bl">① 只清理本次产生的 <b>faiss-1.7.4_0ef9</b>；② 清理全部 <b>9 个</b> 历史工作区目录。你要清理哪个范围？</div>
+            <div class="bl">① 只清理本次产生的 <b class="hl-file">faiss-1.7.4_0ef9</b>；② 清理全部 <b class="hl-metric">9 个</b> 历史工作区目录。你要清理哪个范围？</div>
           </div>
 
           <div class="usr-msg"><span class="p">&gt;</span> 你现在有哪些能用的skill</div>
@@ -961,7 +987,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我看看结算矩阵计算能不能用鲲鹏亲和库加速一下</div>
-          <div class="ai-msg">好的，我来扫描项目中的计算密集算子，匹配 <b>BoostKit</b> 算子库看看哪些可以加速。</div>
+          <div class="ai-msg">好的，我来扫描项目中的计算密集算子，匹配 <b class="hl-tool">BoostKit</b> 算子库看看哪些可以加速。</div>
           <div class="sub-h">识别计算密集算子，自动生成鲲鹏亲和实现</div>
           <div class="steps">
             <div class="step"><span class="c doing">▶</span><span class="bd"><div class="t1">识别候选算子</div><div class="t2">结算矩阵化计算 · 风控评分模型</div></span></div>
@@ -974,6 +1000,120 @@ html[data-theme="light"] .bi-btn{color:#fff}
             <span class="chip">风控评分模型</span>
           </div>
           <div class="console"><div class="ln"><span style="color:var(--fg4)">○</span> 等待源码向量化改造收尾后启动</div></div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 你现在有哪些能用的skill</div>
+          <div class="ai-msg">当前可用的 Skills 如下：</div>
+          <div class="chipf">
+            <span class="chip on"><b>tiancheng</b></span>
+            <span class="chip"><b>cpp-kunpeng-migration</b></span>
+          </div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">tiancheng</span><span class="v">天秤源码性能调优 · 直接改写算法/数据结构/循环/内存访问/缓存/分支/并行/SIMD 源码，热点诊断+策略匹配+等价性验证+Benchmark 度量+逐点 patch 交付</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">cpp-kunpeng-migration</span><span class="v">C/C++ 项目 x86→ARM 迁移，六阶段自动化流程，双架构兼容编译</span></div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 按照Tiancheng SKILL，对服务器上的 rocksdb 做源码性能优化，源码目录:/home/DevKit_AI/rocksdb，策略库在 /home/DevKit_AI/Tiancheng-OptStrategy 目录下。编译命令:make -j$(nproc) static_lib db_bench。benchmark 命令:numactl -C 0-15 -m 0 ./db_bench --benchmarks=readseq --use_existing_db=true --threads=1 --num=10000000 --compression_type=none --db=/data/rocksdb_test。过程中禁止使用交互式命令，避免卡住。perf 使用 F99，避免耗时过长</div>
+          <div class="ai-msg">好的，我先阅读 Tiancheng Skill 完整说明，确认脚本与策略库路径是否存在 ——</div>
+          <div class="console">
+            <div class="ln"><span style="color:var(--fg4)">○</span> read_file /home/skills/DevkitAI/Tiancheng-Opt-Skill/SKILL.md</div>
+            <div class="ln"><span style="color:var(--warn)">!</span> 用户给出的策略库路径不存在，改用技能自带策略库 /home/skills/DevkitAI/Tiancheng-OptStrategy（结构校验通过）</div>
+          </div>
+          <div class="sub-h">任务参数确认</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">项目位置</span><span class="v">/home/DevKit_AI/rocksdb（用户提供）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">编译指令</span><span class="v">make -j$(nproc) static_lib db_bench（用户提供）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">性能 Benchmark</span><span class="v">db_bench --benchmarks=readseq（用户提供）</span></div>
+          <div class="chk"><span class="ic warn">!</span><span class="lb">功能测试指令</span><span class="v">未提供，将复用仓库可发现测试或建立等价性验证</span></div>
+          <div class="chk"><span class="ic warn">!</span><span class="lb">改动约束</span><span class="v">是否换算法/加依赖/浮点精度均未提供，默认：保持行为等价、不增加运行时依赖、要求位精确</span></div>
+          <div class="ai-msg">以上未提供项将按默认约束执行，回复任意内容继续，也可一次性补充或更正。</div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 吞吐提升2%-3%即可，其它已确认，请继续</div>
+          <div class="ai-msg">好的，目标调整为吞吐提升 2%-3%，其余按默认约束确认。开始按 8 步流程推进 ——</div>
+          <div class="steps">
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.1 环境检查</div><div class="t2">依赖齐备</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.2 读取策略库</div><div class="t2">20523 案例 · 27 类别</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.3 诊断</div><div class="t2">构建 + perf 采样热点 + 策略匹配</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.4 改写</div><div class="t2">逐点改写，一个优化点一个 commit</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.5 验证</div><div class="t2">等价性测试证明行为一致</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.6 度量</div><div class="t2">benchmark 基线 vs 优化</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.7 交付</div><div class="t2">逐点 patch + 优化报告</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.8 回馈</div><div class="t2">全部命中已有策略，无需回馈知识库</div></span></div>
+          </div>
+
+          <div class="sub-h">策略库 · 按案例数排序（节选）</div>
+          <table class="cmp rpt-tb">
+            <thead><tr><th>类别</th><th>案例数</th><th>核心模式</th></tr></thead>
+            <tbody>
+              <tr><td>内存优化</td><td>5641</td><td class="mu">引用替代拷贝 · 移动语义 · 容器预分配 · 延迟初始化</td></tr>
+              <tr><td>循环优化</td><td>2032</td><td class="mu">循环不变量外提 · 循环展开 · 提前退出 · 循环合并</td></tr>
+              <tr><td>提前返回优化</td><td>1809</td><td class="mu">空值检查提前返回 · 边界条件提前返回</td></tr>
+              <tr><td>快速路径优化</td><td>1580</td><td class="mu">空集合快速路径 · 已知结果快速路径</td></tr>
+              <tr><td>条件分支优化</td><td>1431</td><td class="mu">likely/unlikely 分支提示 · 分支消除与合并</td></tr>
+              <tr><td>算法优化</td><td>1191</td><td class="mu">哈希查找替代线性搜索 · 复杂度降低</td></tr>
+              <tr><td>数学运算优化</td><td>1108</td><td class="mu">位运算替代算术 · SIMD 向量化 · 常量折叠</td></tr>
+              <tr><td>缓存优化</td><td>1153</td><td class="mu">结果缓存复用 · 数据预取 · 缓存行对齐</td></tr>
+            </tbody>
+          </table>
+
+          <div class="console">
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> cd /home/DevKit_AI/rocksdb && make -j$(nproc) static_lib db_bench</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> 构建成功 · librocksdb.a + db_bench</div>
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> perf record -F 99 -g -- numactl -C 0-15 -m 0 ./db_bench --benchmarks=readseq,readseq,readseq,readseq,readseq ...</div>
+            <div class="ln"><span style="color:var(--fg4)">○</span> 委派 general-purpose 子 Agent · 交叉检索策略库匹配案例</div>
+          </div>
+
+          <div class="sub-h">TOP 10 · 热点函数（perf -F99）</div>
+          <table class="hotspot">
+            <thead><tr><th>占比</th><th>热点函数</th><th>可用策略</th></tr></thead>
+            <tbody>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:31px;background:var(--tn-gold)"></div><span class="v" style="color:var(--tn-gold)">7.72%</span></div></td><td class="fnname">DBIter::FindNextUserEntryInternal</td><td class="mu">循环不变量外提 · 分支提示 · 提前返回</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:18px;background:var(--tn-red)"></div><span class="v" style="color:var(--tn-red)">4.37%</span></div></td><td class="fnname">BlockBasedTableIterator::NextAndGetResult</td><td class="mu">调用链内联 · 分支提示</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:14px;background:var(--tn-orange)"></div><span class="v" style="color:var(--tn-orange)">3.59%</span></div></td><td class="fnname">BinaryHeap::downheap</td><td class="mu">冗余调用消除 · 比较函数内联</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:14px;background:var(--fg4)"></div><span class="v">3.52%</span></div></td><td class="fnname">DataBlockIter::ParseNextDataKey</td><td class="mu">分支提示 · Varint 解码优化</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:13px;background:var(--fg4)"></div><span class="v">3.14%</span></div></td><td class="fnname">MergingIterator::NextAndGetResult</td><td class="mu">虚函数去虚拟化 · 调用链内联</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:12px;background:var(--fg4)"></div><span class="v">2.98%</span></div></td><td class="fnname">crc32c_arm64</td><td class="mu">运行时分支提示</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:11px;background:var(--fg4)"></div><span class="v">2.78%</span></div></td><td class="fnname">BytewiseComparatorImpl::Compare</td><td class="mu">虚函数去虚拟化 · memcmp 内联化</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:10px;background:var(--fg4)"></div><span class="v">2.39%</span></div></td><td class="fnname">Slice::compare (memcmp)</td><td class="mu">短 key 内联比较 · SIMD 优化</td></tr>
+            </tbody>
+          </table>
+          <div class="ai-msg">共性方向：虚函数去虚拟化（Comparator/Iterator 系列开销最大）、分支提示（热点函数普遍缺 ROCKSDB_LIKELY/UNLIKELY）、调用链内联、冗余调用消除、memcmp 短路径优化。</div>
+
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">rocksdb readseq 优化报告</span>
+              <span class="tc-csum">保留 7 项 · 回退 4 项 · 5,982,743 → 6,132,868 ops/sec · +2.51%</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="rpt-banner">✓ 等价性验证通过 · 性能提升 +2.51%（n=15，标准差带不重叠，统计显著）· 达成 2-3% 目标</div>
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">基线</div><div class="sc-big">5.98M</div><div class="sc-sub">ops/sec</div></div>
+                <div class="stat-card"><div class="sc-lb">优化后</div><div class="sc-big">6.13M</div><div class="sc-sub">ops/sec</div></div>
+                <div class="stat-card"><div class="sc-lb">提升</div><div class="sc-big">+2.51%</div><div class="sc-sub">目标 2-3% · 已达成</div></div>
+              </div>
+              <div class="sub-h">保留的 7 个优化点（均已合入 git）</div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>优化点</th><th>文件</th><th>策略</th><th>收益</th></tr></thead>
+                <tbody>
+                  <tr><td>opt-dbiter2</td><td class="mu">db/db_iter.cc</td><td class="mu">FindNextUserEntryInternal · UNLIKELY 罕见路径</td><td>+1.73%</td></tr>
+                  <tr><td>opt-finished</td><td class="mu">tools/db_bench_tool.cc</td><td class="mu">Stats::FinishedOps · UNLIKELY 罕见路径</td><td>+1.96%</td></tr>
+                  <tr><td>opt-bbt</td><td class="mu">table/block_based_table_iterator.cc</td><td class="mu">UNLIKELY 分支提示</td><td>+1.18%</td></tr>
+                  <tr><td>opt-value-fastpath</td><td class="mu">db/db_iter.h</td><td class="mu">DBIter::value() 快速路径重排</td><td>+0.88%</td></tr>
+                  <tr><td>opt-key-next</td><td class="mu">db/db_iter.h · .cc</td><td class="mu">UNLIKELY + ts_sz==0 快速路径</td><td>+0.20%</td></tr>
+                  <tr><td>opt-1</td><td class="mu">util/heap.h</td><td class="mu">BinaryHeap::downheap 消除冗余 get_left</td><td>+0.13%</td></tr>
+                  <tr><td>opt-2</td><td class="mu">table/merging_iterator.cc</td><td class="mu">MergingIterator::Next · UNLIKELY 分支提示</td><td>持平</td></tr>
+                </tbody>
+              </table>
+              <div class="sub-h">回退的 4 个有害改动（已还原，不合入）</div>
+              <div class="mrow"><span class="ic wn">●</span><span class="lb">builtin memcmp</span><span class="tg">替换 glibc memcmp，aarch64 上反而更慢</span><span class="rbadge warn">-1.68%</span></div>
+              <div class="mrow"><span class="ic wn">●</span><span class="lb">LRU 预取 prefetch</span><span class="tg">哈希链短时增加指令开销</span><span class="rbadge warn">-0.54%</span></div>
+              <div class="mrow"><span class="ic wn">●</span><span class="lb">map 查找去重</span><span class="tg">find+operator[] 比 find+insert 更快</span><span class="rbadge warn">-0.71%</span></div>
+              <div class="mrow"><span class="ic wn">●</span><span class="lb">LIKELY upper_bound</span><span class="tg">方向搞反，readseq 无 upper_bound</span><span class="rbadge warn">-1.01%</span></div>
+              <div class="sub-h">产物</div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">合并 patch</span><span class="v">rocksdb_opt_output/all_source_changes.patch</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">优化报告</span><span class="v">rocksdb_opt_output/optimization_report.md</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">逐点 patch</span><span class="v">rocksdb_opt_output/patches/（7 个文件）</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">进度日志</span><span class="v">rocksdb.perflog/PROGRESS.md</span></div>
+            </div>
+          </div>
+          <div class="ai-msg">所有优化策略均来自策略库直接匹配（条件分支优化、快速路径优化、循环优化），无需回馈入库。是否还需要其他帮助？</div>
         </div>
       </section>
     </div>
@@ -1013,7 +1153,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我定位一下结算服务最近变慢的原因</div>
-          <div class="ai-msg">好的，我来用 <b>ksys</b> 采集性能数据并与基线对比，定位瓶颈根因 ——</div>
+          <div class="ai-msg">好的，我来用 <b class="hl-tool">ksys</b> 采集性能数据并与基线对比，定位瓶颈根因 ——</div>
           <div class="console">
             <div class="ln"><span style="color:var(--pri-h)">▶</span> ./ksys collect -d 10 -i 1 -o /home/order-center/ && ./ksys diff -i baseline.json now.json -o ./diff-out</div>
           </div>
@@ -1059,7 +1199,7 @@ html[data-theme="light"] .bi-btn{color:#fff}
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 帮我把订单服务的 JVM 和连接池参数调到最优</div>
-          <div class="ai-msg">好的，我来用 <b>kat</b> 自动调参工具进行迭代优化。使用 HPO 算法搜索最优参数组合 ——</div>
+          <div class="ai-msg">好的，我来用 <b class="hl-tool">kat</b> 自动调参工具进行迭代优化。使用 HPO 算法搜索最优参数组合 ——</div>
           <div class="console">
             <div class="ln"><span style="color:var(--pri-h)">▶</span> devkit kat train -t order-center-task.cfg -p jvm-param.cfg -o ./train-out</div>
           </div>
@@ -1097,16 +1237,103 @@ html[data-theme="light"] .bi-btn{color:#fff}
         </div>
       </section>
     </div>
+
+    <div class="scene" data-agent="tune" data-scenario="redis-tune">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我调优本机Redis</div>
+          <div class="ai-msg">我是鲲鹏性能参数调优助手，可以为数据库/大数据等应用在鲲鹏服务器上完成系统/软件参数调优。识别到调优（tune）意图，命中 <b>perf-params-tuner-agent</b> 技能，将执行端到端流水线：生成模板 → 执行调优 → 生成报告。</div>
+          <div class="steps">
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段1 · 收集调优场景</div><div class="t2">应用 Redis · 节点 本机</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段2 · 生成任务模板</div><div class="t2">缓存场景 · 吞吐量/性能方向</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段3 · 生成参数模板</div><div class="t2">45 个参数 · System 15 + Redis 30</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段4 · 执行参数调优</div><div class="t2">HPO 30 轮 · 0 失败</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段5 · 生成调优报告</div><div class="t2">+20.78%（Round 9）</div></span></div>
+          </div>
+
+          <div class="console">
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> redis-cli ping · redis-server --version · 环境探测（OS / CPU / NUMA / 内存）</div>
+            <div class="ln"><span style="color:var(--warn)">!</span> Redis 服务未运行，进一步确认是否已安装</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> 找到 redis-server / redis-cli / redis-benchmark · /root/software/redis-6.0.20/bin</div>
+          </div>
+          <div class="sub-h">阶段1 · 环境信息</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">应用</span><span class="v">Redis 6.0.20 · /root/software/redis-6.0.20/</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">节点</span><span class="v">本机 · root · 单节点部署，无需配置免密互联</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">OS / CPU</span><span class="v">openEuler 22.03 LTS-SP3 (aarch64) · HUAWEI Kunpeng 920 · 128 核 · 2 NUMA 节点</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">内存</span><span class="v">250Gi</span></div>
+
+          <div class="ai-msg">阶段2 加载 <b>task-design</b> 子技能，命中 Redis 场景配置。阶段3 加载 <b>params-design</b> 子技能，先做场景确认 ——</div>
+          <div class="blocker">
+            <div class="bt">? Redis 场景确认</div>
+            <div class="bl">Redis 主要用于什么场景？不同场景的参数调优方向差异较大 → 用户选择 <b>缓存 Cache（推荐）</b></div>
+            <div class="bl">调优方向期望是什么？可多选 → 用户选择 <b>吞吐量/性能（推荐）</b></div>
+          </div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">验证通过</span><span class="v">45 个参数（System 15 + Redis 30），immutable 11 个，所有约束满足</span></div>
+
+          <div class="sub-h">调优方案</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">压测工具</span><span class="v">redis-benchmark -p 6379 -C 50 -n 100000 -t set,get -q</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">指标</span><span class="v">requests per second（吞吐量，越高越好）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">配置</span><span class="v">直接生成正式调优配置 · 30 轮（HPO 算法）</span></div>
+          <div class="chipf">
+            <span class="chip on">maxmemory</span><span class="chip on">maxmemory-policy</span><span class="chip on">tcp-backlog</span>
+            <span class="chip on">io-threads</span><span class="chip on">hz</span><span class="chip">maxmemory-samples</span>
+            <span class="chip">lazyfree-*</span><span class="chip">save</span><span class="chip">···共 15+ 参数</span>
+          </div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 可以</div>
+          <div class="ai-msg">已确认，生成任务/参数配置文件，自动进入执行阶段 ——</div>
+          <div class="console">
+            <div class="ln"><span style="color:var(--ok)">✓</span> 任务文件 task_Redis_System.yaml · 数据目录 /tmp/redis-data 已创建</div>
+            <div class="ln"><span style="color:var(--pri-h)">▶</span> nohup kat_monitor.py train_result task_Redis_System.yaml param_Redis_System.yaml</div>
+            <div class="ln"><span style="color:var(--ok)">✓</span> devkit 已探测到 · 后台启动 KAT 训练，实时监控进度</div>
+          </div>
+
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">Redis 调优完成 · 最终总结</span>
+              <span class="tc-csum">HPO 30 轮 · 0 失败 · 64,433 → 77,821 req/s · +20.78%</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="rpt-banner">✓ 报告校验通过，AI 分析已注入 · 端到端调优流水线全部完成</div>
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">总轮次</div><div class="sc-big">30</div><div class="sc-sub">失败 0</div></div>
+                <div class="stat-card"><div class="sc-lb">基线 → 最优</div><div class="sc-big">+20.78%</div><div class="sc-sub">64,433 → <span class="wn">77,821</span> req/s</div></div>
+                <div class="stat-card"><div class="sc-lb">最优轮次</div><div class="sc-big">Round 9</div><div class="sc-sub">最差 Round 18 · -18.32%</div></div>
+              </div>
+              <div class="sub-h">Top 5 关键参数（按重要性排序）</div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>参数</th><th>baseline</th><th>best</th><th>重要性</th></tr></thead>
+                <tbody>
+                  <tr class="reco"><td>tcp-backlog</td><td>23256</td><td>47821</td><td>23.37%</td></tr>
+                  <tr><td>tcp-keepalive</td><td>88</td><td>123</td><td>14.45%</td></tr>
+                  <tr><td>hash-max-ziplist-entries</td><td>380</td><td>1010</td><td>6.53%</td></tr>
+                  <tr><td>zset-max-ziplist-value</td><td>160</td><td>425</td><td>6.11%</td></tr>
+                  <tr><td>lazyfree-lazy-eviction</td><td>no</td><td>yes</td><td>6.04%</td></tr>
+                </tbody>
+              </table>
+              <div class="sub-h">产物</div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">任务/参数模板</span><span class="v">task_Redis_System.yaml · param_Redis_System.yaml</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">训练结果</span><span class="v">train_result/（train.db + 日志）</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">可视化报告</span><span class="v">train_result/kat_report.html（含图表 + AI 分析）</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">AI 分析</span><span class="v">train_result/analysis.md（趋势解读与建议）</span></div>
+            </div>
+          </div>
+          <div class="ai-msg">应用最优配置：<code style="font-family:var(--mono);background:var(--surf-1);padding:1px 5px;color:var(--pri-h)">devkit kat use -i train_result</code>。也可继续深度调优：增加轮数至 50-80、引入 System 网络栈参数、扩大 tcp-backlog 范围。</div>
+        </div>
+      </section>
+    </div>
   </div>
 
   <button class="scroll-btm" id="scrollBtm" title="回到底部">↓</button>
 
   <div class="bottom-input">
     <div class="bi-actions" id="biActions"></div>
+    <div class="slash-menu" id="slashMenu"></div>
     <div class="bi-row">
       <span class="p">&gt;</span>
       <span class="bi-cur"></span>
-      <textarea rows="3" placeholder="描述你想让 Agent 做什么..."></textarea>
+      <textarea id="biInput" rows="3" placeholder="描述你想让 Agent 做什么，输入 / 唤出命令..."></textarea>
     </div>
   </div>
   </div>
@@ -1194,12 +1421,18 @@ html[data-theme="light"] .bi-btn{color:#fff}
       </div>
     </div>
     <div class="code-scene" data-agent="develop" data-scenario="op-gen">
-      <div class="panel-head"><span class="crumb">settlement &gt; <span class="fn">MatrixSettle.java</span></span></div>
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> db_iter.cc &gt; rocksdb/db &gt; <span class="fn">DBIter::FindNextUserEntryInternal()</span></span></div>
       <div class="panel-body">
-        <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt">// 候选算子：结算矩阵化计算 —— 识别中，暂无改动</span></div>
-        <div class="cline"><span class="no">2</span><span class="pfx"></span><span class="ty">double</span>[][] <span class="fn">settle</span>(<span class="ty">double</span>[][] a, <span class="ty">double</span>[][] b) {</div>
-        <div class="cline"><span class="no">3</span><span class="pfx"></span>&nbsp;&nbsp;<span class="cmt">// 三重循环矩阵乘，等待生成鲲鹏亲和实现</span></div>
-        <div class="cline"><span class="no">4</span><span class="pfx"></span>}</div>
+        <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt">// opt-dbiter2 · 策略：条件分支优化 → likely/unlikely 分支提示</span></div>
+        <div class="cline del"><span class="no">2</span><span class="pfx del">-</span>&nbsp;&nbsp;<span class="kw">if</span> (<span class="tk d">ts_sz_ > 0 && !timestamp_lb_</span>) {</div>
+        <div class="cline add hl"><span class="no">2</span><span class="pfx add">+</span>&nbsp;&nbsp;<span class="kw">if</span> (<span class="tk a">ROCKSDB_UNLIKELY(ts_sz_ > 0 && !timestamp_lb_)</span>) {</div>
+        <div class="cline"><span class="no">3</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt">// 罕见路径：仅在启用 user-defined timestamp 且无下界时命中</span></div>
+        <div class="cline"><span class="no">4</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">continue</span>;</div>
+        <div class="cline"><span class="no">5</span><span class="pfx"></span>&nbsp;&nbsp;}</div>
+        <div class="cline"><span class="no">6</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">7</span><span class="pfx"></span><span class="cmt">// opt-value-fastpath · 策略：快速路径优化 → 常见条件快捷处理（db_iter.h）</span></div>
+        <div class="cline del"><span class="no">8</span><span class="pfx del">-</span>&nbsp;&nbsp;<span class="ty">Slice</span> <span class="fn">value</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="tk d">is_blob_ ? ResolveBlobValue() : value_</span>; }</div>
+        <div class="cline add hl"><span class="no">8</span><span class="pfx add">+</span>&nbsp;&nbsp;<span class="ty">Slice</span> <span class="fn">value</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="tk a">ROCKSDB_LIKELY(!is_blob_) ? value_ : ResolveBlobValue()</span>; }</div>
       </div>
     </div>
     <div class="code-scene" data-agent="tune" data-scenario="diagnose">
@@ -1236,6 +1469,21 @@ html[data-theme="light"] .bi-btn{color:#fff}
         <div class="cline add hl"><span class="no">8</span><span class="pfx add">+</span><span class="tk a">-Xmx6g -XX:+UseZGC</span></div>
         <div class="cline del"><span class="no">9</span><span class="pfx del">-</span>server.tomcat.max-connections=<span class="tk d">1024</span></div>
         <div class="cline add hl"><span class="no">9</span><span class="pfx add">+</span>server.tomcat.max-connections=<span class="tk a">4096</span></div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="tune" data-scenario="redis-tune">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> redis.conf &gt; redis-6.0.20 &gt; <span class="fn">best 方案</span></span></div>
+      <div class="panel-body">
+        <div class="cline del"><span class="no">1</span><span class="pfx del">-</span>tcp-backlog <span class="tk d">23256</span></div>
+        <div class="cline add hl"><span class="no">1</span><span class="pfx add">+</span>tcp-backlog <span class="tk a">47821</span> <span class="cmt">← 重要性 23.37%</span></div>
+        <div class="cline del"><span class="no">2</span><span class="pfx del">-</span>tcp-keepalive <span class="tk d">88</span></div>
+        <div class="cline add hl"><span class="no">2</span><span class="pfx add">+</span>tcp-keepalive <span class="tk a">123</span></div>
+        <div class="cline del"><span class="no">3</span><span class="pfx del">-</span>hash-max-ziplist-entries <span class="tk d">380</span></div>
+        <div class="cline add hl"><span class="no">3</span><span class="pfx add">+</span>hash-max-ziplist-entries <span class="tk a">1010</span></div>
+        <div class="cline del"><span class="no">4</span><span class="pfx del">-</span>zset-max-ziplist-value <span class="tk d">160</span></div>
+        <div class="cline add hl"><span class="no">4</span><span class="pfx add">+</span>zset-max-ziplist-value <span class="tk a">425</span></div>
+        <div class="cline del"><span class="no">5</span><span class="pfx del">-</span>lazyfree-lazy-eviction <span class="tk d">no</span></div>
+        <div class="cline add hl"><span class="no">5</span><span class="pfx add">+</span>lazyfree-lazy-eviction <span class="tk a">yes</span></div>
       </div>
     </div>
   </div>
@@ -1279,10 +1527,11 @@ const SCENARIOS={
      plan:[{t:'火焰图扫描定位热点',d:'--simd-target=sve',s:'done'},{t:'识别候选 intrinsics',d:'12 处候选',s:'done'},
        {t:'生成 SVE 向量化实现',d:'已完成 5 处',s:'doing'},{t:'实测收益验证',d:'342ms → 96ms',s:'doing'}],
      sugg:['只清理本次工作区','应用 git patch 到 faiss 项目','继续改造下一处候选']},
-    {key:'op-gen',label:'通算算子智能生成',status:'wait',file:'Settlement',code:false,
-     goal:'识别计算密集算子，自动生成鲲鹏亲和实现',
-     plan:[{t:'识别候选算子',d:'',s:'doing'},{t:'生成鲲鹏适配实现',d:'',s:'todo'},{t:'正确性 + 性能双重验证',d:'',s:'todo'}],
-     sugg:['开始识别候选算子','查看 BoostKit 算子库']}
+    {key:'op-gen',label:'通算算子智能生成',status:'done',file:'Settlement',code:true,
+     goal:'天秤（Tiancheng）源码性能调优：热点诊断 → 策略库匹配 → 逐点改写 → 等价性验证 → Benchmark 度量 → patch 交付',
+     plan:[{t:'识别候选算子',d:'结算矩阵化计算 · 风控评分模型',s:'done'},{t:'热点诊断 + 策略匹配',d:'rocksdb readseq · 20523 案例策略库',s:'done'},
+       {t:'逐点改写 + 等价性验证',d:'7 项保留 · 4 项回退',s:'done'},{t:'Benchmark 度量',d:'+2.51%（目标 2-3%）',s:'done'}],
+     sugg:['应用 patch 到 rocksdb 主干','继续识别结算矩阵候选算子','查看完整优化报告']}
   ],
   tune:[
     {key:'diagnose',label:'自动配置诊断',status:'done',file:'app-prod.yml',code:false,
@@ -1299,7 +1548,12 @@ const SCENARIOS={
      goal:'一键开启参数自动迭代优化',
      plan:[{t:'Round 1',d:'3.2k → 3.9k',s:'done'},{t:'Round 2',d:'3.9k → 4.6k',s:'done'},
        {t:'Round 3',d:'方案 A/B 对照',s:'doing'}],
-     sugg:['应用 best 方案参数','继续 Round 3 压测','导出调优报告']}
+     sugg:['应用 best 方案参数','继续 Round 3 压测','导出调优报告']},
+    {key:'redis-tune',label:'参数调优',status:'done',file:'redis.conf',code:true,
+     goal:'perf-params-tuner-agent 五阶段流水线：收集调优场景 → 生成任务模板 → 生成参数模板 → 执行参数调优 → 生成调优报告',
+     plan:[{t:'收集调优场景',d:'Redis 6.0.20 · 缓存场景',s:'done'},{t:'生成任务/参数模板',d:'45 个参数（System 15 + Redis 30）',s:'done'},
+       {t:'执行参数调优',d:'HPO 30 轮 · 0 失败',s:'done'},{t:'生成调优报告',d:'+20.78%（Round 9）',s:'done'}],
+     sugg:['应用最优配置到 Redis','增大轮数至 50-80 深度调优','导出可视化报告']}
   ]
 };
 const lastScenario={migrate:'src-migrate',develop:'vectorize',tune:'diagnose'};
@@ -1474,6 +1728,84 @@ document.getElementById('scrollBtm').addEventListener('click',()=>{
   const pb=document.querySelector('.scene.on .panel-body');
   if(pb)pb.scrollTo({top:pb.scrollHeight,behavior:'smooth'});
 });
+
+/* ══ 输入框「/」斜杠命令联想 ══ */
+const SLASH_COMMANDS=[
+  {cmd:'/help',desc:'显示帮助信息'},
+  {cmd:'/quit',desc:'退出程序（同 /exit）'},
+  {cmd:'/config',desc:'查看 / 修改配置信息'},
+  {cmd:'/skills',desc:'管理 Agent 已启用的技能'},
+  {cmd:'/session',desc:'会话管理 · list / delete'},
+  {cmd:'/resume',desc:'恢复历史会话，例如 /resume <task_id>'},
+  {cmd:'/porting_workflow',desc:'执行迁移工作流任务'},
+  {cmd:'/vectorization_workflow',desc:'执行向量化优化工作流任务'},
+  {cmd:'/prompt',desc:'非交互式执行 Agent'},
+  {cmd:'/embedding',desc:'文档存入向量数据库'},
+  {cmd:'/encrypt',desc:'密文加密功能'},
+  {cmd:'/server',desc:'启动 server'},
+  {cmd:'/clear',desc:'清空当前对话上下文'},
+  {cmd:'/theme',desc:'切换深色 / 浅色皮肤'}
+];
+const biInput=document.getElementById('biInput');
+const slashMenu=document.getElementById('slashMenu');
+let smMatches=[],smSel=-1;
+
+function slashQuery(){
+  const pos=biInput.selectionStart;
+  const before=biInput.value.slice(0,pos);
+  const m=before.match(/(?:^|\n)\/([a-zA-Z_]*)$/);
+  return m?m[1]:null;
+}
+function paintSlashMenu(){
+  slashMenu.innerHTML='<div class="sm-list">'+smMatches.map((c,i)=>
+    `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="cmd">${c.cmd}</span><span class="desc">${c.desc}</span></div>`
+  ).join('')+'</div><div class="sm-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 补全</span><span><b>Esc</b> 关闭</span></div>';
+}
+function closeSlashMenu(){
+  slashMenu.classList.remove('show');
+  slashMenu.innerHTML='';
+  smMatches=[];smSel=-1;
+}
+function renderSlashMenu(){
+  const q=slashQuery();
+  if(q===null){ closeSlashMenu(); return; }
+  smMatches=SLASH_COMMANDS.filter(c=>c.cmd.slice(1).toLowerCase().startsWith(q.toLowerCase()));
+  if(!smMatches.length){
+    slashMenu.innerHTML='<div class="sm-empty">没有匹配的命令</div>';
+    slashMenu.classList.add('show');
+    smSel=-1;
+    return;
+  }
+  smSel=0;
+  paintSlashMenu();
+  slashMenu.classList.add('show');
+}
+function applySlash(i){
+  const c=smMatches[i]; if(!c) return;
+  const pos=biInput.selectionStart;
+  const before=biInput.value.slice(0,pos),after=biInput.value.slice(pos);
+  const newBefore=before.replace(/\/([a-zA-Z_]*)$/,c.cmd+' ');
+  biInput.value=newBefore+after;
+  const cursor=newBefore.length;
+  biInput.setSelectionRange(cursor,cursor);
+  closeSlashMenu();
+  biInput.focus();
+}
+biInput.addEventListener('input',renderSlashMenu);
+biInput.addEventListener('click',renderSlashMenu);
+biInput.addEventListener('keydown',e=>{
+  if(!slashMenu.classList.contains('show'))return;
+  if(e.key==='ArrowDown'){ e.preventDefault(); if(smMatches.length){smSel=(smSel+1)%smMatches.length;paintSlashMenu();} }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); if(smMatches.length){smSel=(smSel-1+smMatches.length)%smMatches.length;paintSlashMenu();} }
+  else if(e.key==='Tab'||e.key==='Enter'){ if(smMatches.length){e.preventDefault();applySlash(smSel);} }
+  else if(e.key==='Escape'){ e.preventDefault(); closeSlashMenu(); }
+});
+slashMenu.addEventListener('mousedown',e=>{
+  const item=e.target.closest('.sm-item'); if(!item)return;
+  e.preventDefault();
+  applySlash(Number(item.dataset.i));
+});
+biInput.addEventListener('blur',()=>setTimeout(closeSlashMenu,120));
 
 renderSessionList('migrate','src-migrate');
 selectScenario('migrate','src-migrate');
