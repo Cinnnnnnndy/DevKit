@@ -215,7 +215,7 @@ html[data-theme="light"] .sidebar{border:1px solid var(--bd1)}
 .tk.a{background:#283d3a;color:#9ece6a}
 
 /* 通用小标题 */
-.sub-h{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
+.sub-h{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.18em;color:var(--tn-purple);
   text-transform:uppercase;margin:18px 0 8px}
 .sub-h:first-child{margin-top:0}
 .sub-h .cm{font-weight:400;letter-spacing:normal;text-transform:none}
@@ -243,7 +243,7 @@ html[data-theme="light"] .sidebar{border:1px solid var(--bd1)}
 
 /* 对比表 */
 table.cmp{width:100%;border-collapse:collapse;font-size:14px;font-family:var(--mono)}
-table.cmp th{text-align:left;font-size:14px;letter-spacing:.1em;color:var(--fg4);font-weight:700;
+table.cmp th{text-align:left;font-size:14px;letter-spacing:.1em;color:var(--tn-purple);font-weight:700;
   padding:5px 8px;border-bottom:1px solid var(--bd1);text-transform:uppercase}
 table.cmp td{padding:5px 8px;border-bottom:1px solid var(--bd1);color:var(--fg3)}
 table.cmp tr.reco td{color:var(--fg)}
@@ -265,10 +265,13 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .ai-msg b{color:var(--fg);font-weight:600}
 /* 对话正文彩色高亮（Tokyo Night 色阶）—— 品牌蓝只用于按钮，正文关键词按语义分色，
    参考 opencode 等 TUI 的多彩输出：工具/技能名紫、文件与命令青、结果指标金、项目/组件名蓝绿 */
-.hl-tool{color:var(--tn-purple)}
-.hl-file{color:var(--tn-cyan)}
-.hl-metric{color:var(--tn-gold)}
-.hl-proj{color:var(--tn-teal)}
+/* !important：这几个是跨容器复用的工具类（ai-msg b / chk .lb 等父级选择器优先级更高，
+   不加 !important 会被 .ai-msg b、.chk .lb 的默认文字色覆盖，颜色实际不生效） */
+.hl-tool{color:var(--tn-purple)!important}
+.hl-file{color:var(--tn-cyan)!important}
+.hl-metric{color:var(--tn-gold)!important}
+.hl-proj{color:var(--tn-teal)!important}
+.hl-code{color:var(--ok)!important}
 
 /* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
 .tc-collapse{margin:14px 0;border-radius:8px;overflow:hidden;background:var(--surf-4)}
@@ -325,7 +328,7 @@ table.rpt-tb td.mu{color:var(--fg4)}
 /* Hotspot Table + Flame Graph（调优 · 瓶颈定界场景，颜色改用 PTO 的 o/v/g/a 色阶循环）*/
 table.hotspot{width:100%;border-collapse:collapse;font-family:var(--mono)}
 table.hotspot thead th{position:sticky;top:0;background:var(--s1);z-index:2;
-  text-align:left;font-size:14px;letter-spacing:.08em;color:var(--fg4);font-weight:700;
+  text-align:left;font-size:14px;letter-spacing:.08em;color:var(--tn-purple);font-weight:700;
   padding:5px 8px;border-bottom:1px solid var(--bd1);text-transform:uppercase}
 table.hotspot th:nth-child(1){width:150px} table.hotspot th:nth-child(2){width:76px}
 table.hotspot tbody tr{cursor:pointer}
@@ -336,7 +339,7 @@ table.hotspot td{padding:3.5px 8px;font-size:14px;border-bottom:1px solid var(--
 .ht-pct{display:flex;align-items:center;gap:7px;height:16px}
 .ht-bar{height:10px;min-width:4px}
 .ht-pct .v{font-weight:700;font-size:14px;flex:none}
-td.fnname{color:var(--fg2)}
+td.fnname{color:var(--ok)}
 .fg-legend{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:7px;font-size:14px;color:var(--fg4)}
 .fg-legend i{display:inline-block;width:7px;height:7px;margin-right:4px;vertical-align:-1px}
 .flame{display:flex;flex-direction:column;gap:1px;background:var(--app)}
@@ -1015,8 +1018,8 @@ html[data-theme="light"] .bi-btn{color:#fff}
             <span class="chip on"><b>tiancheng</b></span>
             <span class="chip"><b>cpp-kunpeng-migration</b></span>
           </div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">tiancheng</span><span class="v">天秤源码性能调优 · 直接改写算法/数据结构/循环/内存访问/缓存/分支/并行/SIMD 源码，热点诊断+策略匹配+等价性验证+Benchmark 度量+逐点 patch 交付</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">cpp-kunpeng-migration</span><span class="v">C/C++ 项目 x86→ARM 迁移，六阶段自动化流程，双架构兼容编译</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb hl-tool">tiancheng</span><span class="v">天秤源码性能调优 · 直接改写算法/数据结构/循环/内存访问/缓存/分支/并行/SIMD 源码，热点诊断+策略匹配+等价性验证+Benchmark 度量+逐点 patch 交付</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb hl-tool">cpp-kunpeng-migration</span><span class="v">C/C++ 项目 x86→ARM 迁移，六阶段自动化流程，双架构兼容编译</span></div>
 
           <div class="usr-msg"><span class="p">&gt;</span> 按照Tiancheng SKILL，对服务器上的 rocksdb 做源码性能优化，源码目录:/home/DevKit_AI/rocksdb，策略库在 /home/DevKit_AI/Tiancheng-OptStrategy 目录下。编译命令:make -j$(nproc) static_lib db_bench。benchmark 命令:numactl -C 0-15 -m 0 ./db_bench --benchmarks=readseq --use_existing_db=true --threads=1 --num=10000000 --compression_type=none --db=/data/rocksdb_test。过程中禁止使用交互式命令，避免卡住。perf 使用 F99，避免耗时过长</div>
           <div class="ai-msg">好的，我先阅读 Tiancheng Skill 完整说明，确认脚本与策略库路径是否存在 ——</div>
