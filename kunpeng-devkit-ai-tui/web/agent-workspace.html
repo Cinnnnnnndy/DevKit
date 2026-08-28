@@ -283,6 +283,8 @@ table.rpt-tb td.mu{color:var(--fg4)}
 .hl-metric{color:var(--tn-gold)!important}
 .hl-proj{color:var(--tn-teal)!important}
 .hl-code{color:var(--ok)!important}
+/* 可点击的部分（文件名链接等）统一用品牌蓝，跟按钮同一套"这是可交互"的语义 */
+.hl-link{color:var(--pri-h)!important;cursor:pointer}
 
 /* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
 .tc-collapse{margin:14px 0;border-radius:8px;overflow:hidden;background:var(--surf-4)}
@@ -716,11 +718,11 @@ html[data-theme="light"] .bi-btn{color:#fff}
               <table class="cmp rpt-tb">
                 <thead><tr><th>文件名</th><th>存放路径</th><th>修改说明</th></tr></thead>
                 <tbody>
-                  <tr><td class="hl-code">context.cpp</td><td class="mu hl-file">src/bthread/</td><td>新增 aarch64 jump/make_fcontext 汇编</td></tr>
-                  <tr><td class="hl-code">snappy-stubs-internal.h</td><td class="mu hl-file">src/butil/third_party/snappy/</td><td>修复 uint64_t 空格缺失</td></tr>
-                  <tr><td class="hl-code">CMakeLists.txt</td><td class="mu hl-file">./</td><td>-msse4 按架构条件化</td></tr>
-                  <tr><td class="hl-code">Makefile</td><td class="mu hl-file">./</td><td>-msse4.2 按架构条件化</td></tr>
-                  <tr><td class="hl-code">test/CMakeLists.txt</td><td class="mu hl-file">test/</td><td>测试编译 flag 适配</td></tr>
+                  <tr><td class="hl-link">context.cpp</td><td class="mu hl-file">src/bthread/</td><td>新增 aarch64 jump/make_fcontext 汇编</td></tr>
+                  <tr><td class="hl-link">snappy-stubs-internal.h</td><td class="mu hl-file">src/butil/third_party/snappy/</td><td>修复 uint64_t 空格缺失</td></tr>
+                  <tr><td class="hl-link">CMakeLists.txt</td><td class="mu hl-file">./</td><td>-msse4 按架构条件化</td></tr>
+                  <tr><td class="hl-link">Makefile</td><td class="mu hl-file">./</td><td>-msse4.2 按架构条件化</td></tr>
+                  <tr><td class="hl-link">test/CMakeLists.txt</td><td class="mu hl-file">test/</td><td>测试编译 flag 适配</td></tr>
                 </tbody>
               </table>
 
@@ -809,10 +811,10 @@ html[data-theme="light"] .bi-btn{color:#fff}
               <table class="cmp rpt-tb">
                 <thead><tr><th>产物</th><th>路径</th><th>说明</th></tr></thead>
                 <tbody>
-                  <tr><td>迁移报告</td><td class="mu">workspace/reports/</td><td>migration-report.md / .json</td></tr>
-                  <tr><td>兼容 SQL</td><td class="mu">workspace/db_migration/</td><td>MySQL → DM 达梦兼容改造后 SQL</td></tr>
-                  <tr><td>改造后 WAR</td><td class="mu">workspace/app_transform/</td><td>order-api.war（驱动/URL/方言已切换）</td></tr>
-                  <tr><td>路线计划</td><td class="mu">config/</td><td>route_plan.yaml</td></tr>
+                  <tr><td class="hl-link">迁移报告</td><td class="mu">workspace/reports/</td><td>migration-report.md / .json</td></tr>
+                  <tr><td class="hl-link">兼容 SQL</td><td class="mu">workspace/db_migration/</td><td>MySQL → DM 达梦兼容改造后 SQL</td></tr>
+                  <tr><td class="hl-link">改造后 WAR</td><td class="mu">workspace/app_transform/</td><td>order-api.war（驱动/URL/方言已切换）</td></tr>
+                  <tr><td class="hl-link">路线计划</td><td class="mu">config/</td><td>route_plan.yaml</td></tr>
                 </tbody>
               </table>
             </div>
@@ -900,9 +902,9 @@ html[data-theme="light"] .bi-btn{color:#fff}
               <table class="cmp rpt-tb">
                 <thead><tr><th>序号</th><th>文件名</th><th>服务端源码存放路径</th><th>建议项数量</th><th>处理建议</th></tr></thead>
                 <tbody>
-                  <tr><td>1</td><td>risk_score.c</td><td class="mu">/order-center/settlement/src/</td><td>3</td><td><span style="color:var(--pri-h);cursor:pointer">查看建议源码</span></td></tr>
-                  <tr><td>2</td><td>reconcile.c</td><td class="mu">/order-center/settlement/src/</td><td>2</td><td><span style="color:var(--pri-h);cursor:pointer">查看建议源码</span></td></tr>
-                  <tr><td>3</td><td>settlement_report.c</td><td class="mu">/order-center/settlement/src/</td><td>2</td><td><span style="color:var(--pri-h);cursor:pointer">查看建议源码</span></td></tr>
+                  <tr><td>1</td><td class="hl-link">risk_score.c</td><td class="mu">/order-center/settlement/src/</td><td>3</td><td><span class="hl-link">查看建议源码</span></td></tr>
+                  <tr><td>2</td><td class="hl-link">reconcile.c</td><td class="mu">/order-center/settlement/src/</td><td>2</td><td><span class="hl-link">查看建议源码</span></td></tr>
+                  <tr><td>3</td><td class="hl-link">settlement_report.c</td><td class="mu">/order-center/settlement/src/</td><td>2</td><td><span class="hl-link">查看建议源码</span></td></tr>
                 </tbody>
               </table>
               <div class="sub-h">实测收益</div>
@@ -1118,13 +1120,13 @@ html[data-theme="light"] .bi-btn{color:#fff}
               <table class="cmp rpt-tb">
                 <thead><tr><th>优化点</th><th>文件</th><th>策略</th><th>收益</th></tr></thead>
                 <tbody>
-                  <tr><td>opt-dbiter2</td><td class="mu">db/db_iter.cc</td><td class="mu">FindNextUserEntryInternal · UNLIKELY 罕见路径</td><td>+1.73%</td></tr>
-                  <tr><td>opt-finished</td><td class="mu">tools/db_bench_tool.cc</td><td class="mu">Stats::FinishedOps · UNLIKELY 罕见路径</td><td>+1.96%</td></tr>
-                  <tr><td>opt-bbt</td><td class="mu">table/block_based_table_iterator.cc</td><td class="mu">UNLIKELY 分支提示</td><td>+1.18%</td></tr>
-                  <tr><td>opt-value-fastpath</td><td class="mu">db/db_iter.h</td><td class="mu">DBIter::value() 快速路径重排</td><td>+0.88%</td></tr>
-                  <tr><td>opt-key-next</td><td class="mu">db/db_iter.h · .cc</td><td class="mu">UNLIKELY + ts_sz==0 快速路径</td><td>+0.20%</td></tr>
-                  <tr><td>opt-1</td><td class="mu">util/heap.h</td><td class="mu">BinaryHeap::downheap 消除冗余 get_left</td><td>+0.13%</td></tr>
-                  <tr><td>opt-2</td><td class="mu">table/merging_iterator.cc</td><td class="mu">MergingIterator::Next · UNLIKELY 分支提示</td><td>持平</td></tr>
+                  <tr><td>opt-dbiter2</td><td class="hl-link">db/db_iter.cc</td><td class="mu">FindNextUserEntryInternal · UNLIKELY 罕见路径</td><td>+1.73%</td></tr>
+                  <tr><td>opt-finished</td><td class="hl-link">tools/db_bench_tool.cc</td><td class="mu">Stats::FinishedOps · UNLIKELY 罕见路径</td><td>+1.96%</td></tr>
+                  <tr><td>opt-bbt</td><td class="hl-link">table/block_based_table_iterator.cc</td><td class="mu">UNLIKELY 分支提示</td><td>+1.18%</td></tr>
+                  <tr><td>opt-value-fastpath</td><td class="hl-link">db/db_iter.h</td><td class="mu">DBIter::value() 快速路径重排</td><td>+0.88%</td></tr>
+                  <tr><td>opt-key-next</td><td class="hl-link">db/db_iter.h · .cc</td><td class="mu">UNLIKELY + ts_sz==0 快速路径</td><td>+0.20%</td></tr>
+                  <tr><td>opt-1</td><td class="hl-link">util/heap.h</td><td class="mu">BinaryHeap::downheap 消除冗余 get_left</td><td>+0.13%</td></tr>
+                  <tr><td>opt-2</td><td class="hl-link">table/merging_iterator.cc</td><td class="mu">MergingIterator::Next · UNLIKELY 分支提示</td><td>持平</td></tr>
                 </tbody>
               </table>
               <div class="sub-h">回退的 4 个有害改动（已还原，不合入）</div>
