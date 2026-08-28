@@ -150,7 +150,12 @@ html[data-theme="light"] .sidebar{border:1px solid var(--bd1)}
 
 /* 会话列表：auto-follow + 手动脱离 + 一键回底 */
 .sess-scroll{max-height:none;overflow-y:visible;position:relative}
-.sd-node.lv1{padding-left:24px} .sd-node.lv2{padding-left:35px}
+.sd-node.lv1{padding-left:24px} .sd-node.lv2{padding-left:35px} .sd-node.lv3{padding-left:46px}
+/* 折叠的中间路径链——深层嵌套不逐层画缩进，收成一行，Enter/点击展开；见 index.html #frame 工程树深层嵌套一节的决策 */
+.sd-node.collapsed{color:var(--fg4);cursor:pointer}
+.sd-node.collapsed .ic{color:var(--bd3)}
+.sd-node.collapsed .lb{font-style:italic}
+.sd-node.collapsed:hover{color:var(--fg2)}
 
 .main-area{flex:1;min-width:0;min-height:0;display:flex;gap:0;padding:8px}
 .right-panel{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
@@ -624,11 +629,14 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
     <div class="sd-sec">
       <div class="h">Project</div>
       <div class="sd-node lv1"><span class="ic">▾</span><span class="lb">brpc/</span></div>
-      <div class="sd-node lv2" data-file="context.cpp"><span class="ic">≡</span><span class="lb">src/bthread/context.cpp</span><span class="m">M</span></div>
-      <div class="sd-node lv2" data-file="snappy"><span class="ic">≡</span><span class="lb">src/butil/.../snappy-stubs-internal.h</span><span class="m">M</span></div>
+      <div class="sd-node lv2 collapsed" title="src/bthread/"><span class="ic">…</span><span class="lb">src/bthread/</span></div>
+      <div class="sd-node lv2" data-file="context.cpp"><span class="ic">≡</span><span class="lb">context.cpp</span><span class="m">M</span></div>
+      <div class="sd-node lv2 collapsed" title="src/butil/third_party/snappy/"><span class="ic">…</span><span class="lb">src/butil/third_party/snappy/</span></div>
+      <div class="sd-node lv2" data-file="snappy"><span class="ic">≡</span><span class="lb">snappy-stubs-internal.h</span><span class="m">M</span></div>
       <div class="sd-node lv2" data-file="CMakeLists"><span class="ic">≡</span><span class="lb">CMakeLists.txt</span><span class="m">M</span></div>
       <div class="sd-node lv2" data-file="Makefile"><span class="ic">≡</span><span class="lb">Makefile</span><span class="m">M</span></div>
       <div class="sd-node lv1"><span class="ic">▾</span><span class="lb">order-api/</span></div>
+      <div class="sd-node lv2 collapsed" title="src/main/java/com/settlement/"><span class="ic">…</span><span class="lb">src/main/java/com/settlement/</span></div>
       <div class="sd-node lv2" data-file="Settlement"><span class="ic">≡</span><span class="lb">SettlementCalculator.java</span><span class="m">M</span></div>
       <div class="sd-node lv2" data-file="kernel"><span class="ic">≡</span><span class="lb">settlement_kernel.c</span><span class="m">M</span></div>
       <div class="sd-node lv2" data-file="RiskScore"><span class="ic">≡</span><span class="lb">RiskScoreEngine.java</span></div>
