@@ -139,11 +139,11 @@ html[data-theme="light"] .sidebar{border:1px solid var(--bd1)}
 .sd-node.active::before{display:none}
 .sd-node .ic{width:12px;flex:none;text-align:center;font-size:12px}
 .sd-node .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
-.sd-node .dot{width:5px;height:5px;border-radius:50%;flex:none}
-.sd-node .dot.doing{background:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
-.sd-node .dot.wait{background:var(--warn)}
-.sd-node .dot.done{background:var(--ok)}
-.sd-node .dot.idle{background:var(--fg4)}
+.sd-node .dot,.sm-item .dot{width:5px;height:5px;border-radius:50%;flex:none;align-self:center}
+.sd-node .dot.doing,.sm-item .dot.doing{background:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
+.sd-node .dot.wait,.sm-item .dot.wait{background:var(--warn)}
+.sd-node .dot.done,.sm-item .dot.done{background:var(--ok)}
+.sd-node .dot.idle,.sm-item .dot.idle{background:var(--fg4)}
 @keyframes sdpulse{50%{opacity:.35}}
 .sd-node .m{color:var(--o3);font-weight:700;flex:none;font-size:12px}
 .sd-node .a{color:var(--ok);font-weight:700;flex:none;font-size:12px}
@@ -1782,8 +1782,8 @@ const SLASH_COMMANDS=[
   {cmd:'/quit',desc:'退出程序（同 /exit）'},
   {cmd:'/config',desc:'查看 / 修改配置信息'},
   {cmd:'/skills',desc:'管理 Agent 已启用的技能'},
-  {cmd:'/session',desc:'会话管理 · list / delete'},
-  {cmd:'/resume',desc:'恢复历史会话，例如 /resume <task_id>'},
+  {cmd:'/session',desc:'会话管理 · list / delete',picker:true},
+  {cmd:'/resume',desc:'恢复历史会话，例如 /resume <task_id>',picker:true},
   {cmd:'/porting_workflow',desc:'执行迁移工作流任务'},
   {cmd:'/vectorization_workflow',desc:'执行向量化优化工作流任务'},
   {cmd:'/prompt',desc:'非交互式执行 Agent'},
@@ -1793,29 +1793,71 @@ const SLASH_COMMANDS=[
   {cmd:'/clear',desc:'清空当前对话上下文'},
   {cmd:'/theme',desc:'切换深色 / 浅色皮肤'}
 ];
+const AGENT_LABEL={migrate:'迁移',develop:'开发',tune:'调优'};
+const STATUS_LABEL={done:'已完成',doing:'进行中',wait:'待处理'};
 const biInput=document.getElementById('biInput');
 const slashMenu=document.getElementById('slashMenu');
-let smMatches=[],smSel=-1;
+let smMatches=[],smSel=-1,smMode='cmd';
 
+function flatSessions(){
+  const out=[];
+  Object.keys(SCENARIOS).forEach(agentKey=>{
+    SCENARIOS[agentKey].filter(s=>!s.hidden).forEach(s=>
+      out.push({agentKey,scenarioKey:s.key,label:s.label,status:s.status}));
+  });
+  return out;
+}
 function slashQuery(){
   const pos=biInput.selectionStart;
   const before=biInput.value.slice(0,pos);
   const m=before.match(/(?:^|\n)\/([a-zA-Z_]*)$/);
   return m?m[1]:null;
 }
+/* /session、/resume 补全后——「/」联想不关闭，换成会话选择器接力，见 index.html #comp 的 P13 Selector Popup 决策 */
+function sessionQuery(){
+  const pos=biInput.selectionStart;
+  const before=biInput.value.slice(0,pos);
+  const m=before.match(/(?:^|\n)\/(?:session|resume)[ \t]+([^\n]*)$/i);
+  return m?m[1]:null;
+}
 function paintSlashMenu(){
-  slashMenu.innerHTML='<div class="sm-list">'+smMatches.map((c,i)=>
-    `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="cmd">${c.cmd}</span><span class="desc">${c.desc}</span></div>`
-  ).join('')+'</div><div class="sm-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 补全</span><span><b>Esc</b> 关闭</span></div>';
+  const rows=smMode==='session'
+    ? smMatches.map((s,i)=>
+        `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="dot ${s.status}"></span><span class="cmd">${s.label}</span><span class="desc">${AGENT_LABEL[s.agentKey]} · ${STATUS_LABEL[s.status]}</span></div>`
+      ).join('')
+    : smMatches.map((c,i)=>
+        `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="cmd">${c.cmd}</span><span class="desc">${c.desc}</span></div>`
+      ).join('');
+  const hint=smMode==='session'
+    ? '<div class="sm-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 切换会话</span><span><b>Esc</b> 关闭</span></div>'
+    : '<div class="sm-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 补全</span><span><b>Esc</b> 关闭</span></div>';
+  slashMenu.innerHTML='<div class="sm-list">'+rows+'</div>'+hint;
 }
 function closeSlashMenu(){
   slashMenu.classList.remove('show');
   slashMenu.innerHTML='';
-  smMatches=[];smSel=-1;
+  smMatches=[];smSel=-1;smMode='cmd';
 }
 function renderSlashMenu(){
+  const sq=sessionQuery();
+  if(sq!==null){
+    smMode='session';
+    const all=flatSessions(),q=sq.trim().toLowerCase();
+    smMatches=q?all.filter(s=>s.label.toLowerCase().includes(q)):all;
+    if(!smMatches.length){
+      slashMenu.innerHTML='<div class="sm-empty">没有匹配的会话</div>';
+      slashMenu.classList.add('show');
+      smSel=-1;
+      return;
+    }
+    smSel=0;
+    paintSlashMenu();
+    slashMenu.classList.add('show');
+    return;
+  }
   const q=slashQuery();
   if(q===null){ closeSlashMenu(); return; }
+  smMode='cmd';
   smMatches=SLASH_COMMANDS.filter(c=>c.cmd.slice(1).toLowerCase().startsWith(q.toLowerCase()));
   if(!smMatches.length){
     slashMenu.innerHTML='<div class="sm-empty">没有匹配的命令</div>';
@@ -1828,6 +1870,14 @@ function renderSlashMenu(){
   slashMenu.classList.add('show');
 }
 function applySlash(i){
+  if(smMode==='session'){
+    const s=smMatches[i]; if(!s) return;
+    selectScenario(s.agentKey,s.scenarioKey);
+    biInput.value='';
+    closeSlashMenu();
+    biInput.focus();
+    return;
+  }
   const c=smMatches[i]; if(!c) return;
   const pos=biInput.selectionStart;
   const before=biInput.value.slice(0,pos),after=biInput.value.slice(pos);
@@ -1835,8 +1885,8 @@ function applySlash(i){
   biInput.value=newBefore+after;
   const cursor=newBefore.length;
   biInput.setSelectionRange(cursor,cursor);
-  closeSlashMenu();
   biInput.focus();
+  if(c.picker) renderSlashMenu(); else closeSlashMenu();
 }
 biInput.addEventListener('input',renderSlashMenu);
 biInput.addEventListener('click',renderSlashMenu);
