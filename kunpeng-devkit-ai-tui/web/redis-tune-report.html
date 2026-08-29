@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>参数调优报告 · Kunpeng DevKit AI</title>
+<style>
+/* 视觉体系沿用 demo.html / demo-v2.html 的 PTO token —— 1px 描边、字符网格；
+   结构性区块（侧栏分组、导航/AI Plan/主内容）改为圆角矩形卡片浮在页面
+   背景上，去掉贴边分隔线与状态栏底色。布局仍是响应式三栏 workspace。 */
+:root{
+  --bg:#13141f; --app:#101118; --elev:#1a1c2c;
+  --s1:#1a1c2c; --s2:#1f2234; --s3:#252840; --s4:#2f3350;
+  --fg:#e8e8e8; --fg2:#b8bcc8; --fg3:#9ea3b4; --fg4:#858b9d;
+  --bd1:#252840; --bd2:#2e3456; --bd3:#3a4068;
+  --pri:#0077ff; --pri-h:#3d98ff; --acc:#7c8db8;
+  --ok:#9ece6a; --warn:#e0af68; --dgr:#f7768e;
+  --o8:#6e4a2e;--o7:#99603a;--o6:#c77840;--o5:#ff9e64;--o4:#ffb07a;--o3:#ffc799;
+  --v8:#4a2d6e;--v6:#7b4fb8;--v4:#bb9af7;--v3:#d0b4f8;
+  --g8:#4d6a1a;--g6:#73a839;--g4:#9ece6a;--g3:#b5db8a;
+  --a8:#6e4f1e;--a6:#c4a03e;--a4:#e0af68;
+  --sel:#283457;
+  --panel-bg:rgba(15,16,26,.94); --panel-bd:rgba(52,94,231,.10); --panel-bd2:rgba(52,94,231,.08);
+  --input-bg:rgba(28,31,48,.92); --input-bd:rgba(52,94,231,.32);
+  --col-solid:rgb(22,23,30);
+  --msg-usr-bg:rgba(255,255,255,.2);
+  --card-bg:rgba(224,175,104,.08); --card-bd:rgba(224,175,104,.22);
+  --code-bg:#000000;
+  --surf-1:rgb(30,34,52); --surf-2:rgb(27,30,46); --surf-3:rgb(24,27,42); --surf-4:rgb(21,24,38);
+  --ap-bg:rgb(32,36,56); --sel-fg:#fff;
+  --mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
+  --sans:'Inter','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
+  --fs-xs:12px; --fs-sm:12px; --fs-base:12.5px; --fs-md:13px;
+  --sp-xs:2px; --sp-sm:4px; --sp-md:8px; --sp-lg:12px; --sp-xl:16px;
+  --tn-gold:var(--a4); --tn-red:var(--dgr); --tn-orange:var(--o5); --tn-blue:var(--pri-h);
+  --tn-green:var(--g4); --tn-teal:#2ac3de; --tn-purple:var(--v4); --tn-cyan:#7dcfff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(--fs-base);
+  -webkit-font-smoothing:antialiased;position:relative;
+  overflow-y:auto;overflow-x:hidden;display:block;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 120% 90% at 0% 100%,rgba(52,94,231,.26) 0%,rgba(52,94,231,.09) 30%,transparent 60%),
+    radial-gradient(ellipse 100% 80% at 95% 90%,rgba(102,206,250,.14) 0%,rgba(102,206,250,.04) 30%,transparent 55%),
+    radial-gradient(ellipse 90% 70% at 50% 95%,rgba(52,94,231,.11) 0%,rgba(102,206,250,.03) 30%,transparent 55%),
+    radial-gradient(ellipse 80% 60% at 8% 12%,rgba(187,154,247,.10) 0%,rgba(123,79,184,.03) 35%,transparent 60%),
+    radial-gradient(ellipse 70% 50% at 92% 8%,rgba(52,94,231,.07) 0%,rgba(187,154,247,.03) 35%,transparent 55%),
+    radial-gradient(ellipse 60% 40% at 50% 50%,rgba(52,94,231,.05) 0%,transparent 50%);
+  background-attachment:fixed}
+body>*{position:relative;z-index:1}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd3);border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:rgba(52,94,231,.5)}
+*{scrollbar-width:thin;scrollbar-color:var(--bd3) transparent}
+
+/* ══ 报告页壳：单列居中卡片，取代原 workspace 三栏布局 ══ */
+.report-wrap{max-width:860px;margin:0 auto;padding:32px 20px 60px}
+.report-hd{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.report-hd .rt-title{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--fg);letter-spacing:.02em}
+.report-hd .rt-meta{font-family:var(--mono);font-size:12px;color:var(--fg4)}
+.report-card{background:var(--col-solid);border-radius:8px;margin-top:14px;overflow:hidden}
+.report-card .panel-body{padding:14px 18px 6px}
+
+/* AI PLAN */
+.ai-plan{background:var(--ap-bg);overflow:hidden}
+.ap-head{display:flex;align-items:center;gap:8px;padding:9px var(--sp-lg);cursor:pointer;font-family:var(--mono)}
+.ap-arrow{font-size:12px;color:var(--fg4);transition:transform .15s;flex:none}
+.ai-plan.collapsed .ap-arrow{transform:rotate(-90deg)}
+.ap-t{font-size:12px;font-weight:700;letter-spacing:.2em;color:var(--pri-h)}
+.ap-goal{font-size:12px;color:var(--fg4)}
+.ap-goal b{color:var(--fg2);font-weight:700}
+.ap-body{max-height:120px;overflow:hidden;transition:max-height .18s ease}
+.ai-plan.collapsed .ap-body{max-height:0}
+.ap-steps{display:flex;flex-wrap:wrap;gap:4px 0;padding:0 var(--sp-lg) 10px}
+.ap-step{display:flex;align-items:baseline;gap:7px;flex:none;padding:3px 12px 3px 0}
+.ap-step .n{font-family:var(--mono);font-size:12px;color:var(--fg4);flex:none}
+.ap-step .c{width:5px;height:5px;flex:none;border-radius:1px;align-self:center}
+.ap-step .c.done{background:var(--ok)} .ap-step .c.doing{background:var(--pri-h)} .ap-step .c.todo{background:var(--fg4)} .ap-step .c.wait{background:var(--warn)}
+.ap-step .lb{font-size:12px;color:var(--fg2);white-space:nowrap}
+.ap-step .d{font-size:12px;color:var(--fg4);white-space:nowrap}
+.ap-step:not(:last-child)::after{content:'→';color:var(--bd3);margin-left:9px;font-size:12px}
+
+/* 通用小标题 */
+.sub-h{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.18em;color:var(--tn-purple);
+  text-transform:uppercase;margin:18px 0 8px}
+.sub-h:first-child{margin-top:0}
+.sub-h::before{content:'├─ ';color:var(--bd3);font-weight:400;letter-spacing:normal;text-transform:none}
+
+/* Checklist */
+.chk{display:flex;align-items:center;gap:9px;padding:4px 10px;
+  margin:2px 0;font-size:14px;border-radius:6px;background:var(--surf-3)}
+.chk .ic{flex:none;width:9px;height:9px;border-radius:2px;font-size:0;color:transparent;
+  box-sizing:border-box;background:transparent;border:1.5px solid var(--bd2)}
+.chk .ic.ok{background:var(--ok);border-color:var(--ok)}
+.chk .ic.warn{background:var(--warn);border-color:var(--warn)}
+.chk .lb{flex:none;color:var(--fg);min-width:120px}
+.chk .v{color:var(--fg3)} .chk .v b{color:var(--warn);font-weight:600}
+.chk::before{content:'├';color:var(--bd3);font-size:12px;flex:none;margin-right:-3px}
+.chk:last-child::before{content:'╰'}
+
+/* 对比表 */
+table.cmp{width:100%;border-collapse:collapse;font-size:14px;font-family:var(--mono);border-left:2px solid var(--bd1)}
+table.cmp th{text-align:left;font-size:14px;letter-spacing:.1em;color:var(--tn-purple);font-weight:700;
+  padding:5px 8px;border-bottom:1px solid var(--bd1);text-transform:uppercase}
+table.cmp td{padding:5px 8px;border-bottom:1px solid var(--bd1);color:var(--fg3)}
+table.cmp tr.reco td{color:var(--fg)}
+table.cmp tr.reco td:first-child{color:var(--ok);font-weight:700}
+table.rpt-tb td:first-child{white-space:nowrap}
+
+/* AI 回复消息 */
+.ai-msg{padding:8px 12px;margin:14px 0;font-size:14px;color:var(--fg2);line-height:1.65;
+  background:rgba(224,175,104,.04);border-radius:8px;border-left:2px solid rgba(224,175,104,.18)}
+.ai-msg:first-child{margin-top:0}
+.ai-msg b{color:var(--fg);font-weight:600}
+.hl-tool{color:var(--tn-purple)!important}
+
+/* 折叠的高价值输出卡片 */
+.tc-collapse{margin:14px 0;border-radius:8px;overflow:hidden;background:var(--surf-4);border-left:2px solid var(--bd2)}
+.tc-collapse:first-child{margin-top:0}
+.tc-chead{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;background:var(--surf-2)}
+.tc-chead:hover{background:var(--s2)}
+.tc-car{font-family:var(--mono);font-size:14px;color:var(--fg4);flex:none;transition:transform .15s}
+.tc-collapse:not(.open) .tc-car{transform:rotate(-90deg)}
+.tc-clb{font-family:var(--mono);font-size:14px;color:var(--fg2);flex:none}
+.tc-csum{font-size:14px;color:var(--fg4);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-cbody{padding:12px 10px 2px}
+.tc-collapse:not(.open) .tc-cbody{display:none}
+
+/* 报告横幅 · 统计卡片 */
+.rpt-banner{display:flex;align-items:baseline;gap:7px;font-size:14px;color:var(--ok);
+  background:rgba(158,206,106,.08);padding:8px 12px;margin:14px 0;border-radius:8px}
+.rpt-banner::before{content:'├─ ';color:rgba(158,206,106,.4)}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.stat-card{background:var(--card-bg);padding:9px 10px;border-radius:6px;border:1px solid var(--card-bd);position:relative}
+.stat-card::before{content:'┌';position:absolute;top:1px;left:3px;color:var(--bd3);font-size:10px;opacity:.45;font-family:var(--mono)}
+.stat-card::after{content:'┘';position:absolute;bottom:1px;right:3px;color:var(--bd3);font-size:10px;opacity:.45;font-family:var(--mono)}
+.stat-card .sc-lb{font-size:14px;letter-spacing:.1em;color:var(--fg4);text-transform:uppercase}
+.stat-card .sc-big{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--fg);margin:3px 0 1px}
+.stat-card .sc-sub{font-size:14px;color:var(--fg4)}
+.stat-card .sc-sub .wn{color:var(--warn)}
+
+/* Agent Console */
+.console{background:var(--surf-2);padding:8px 12px;
+  display:flex;flex-direction:column;gap:1px;font-size:14px;margin:14px 0;border-radius:8px;border-left:2px solid var(--bd2)}
+.console:first-child{margin-top:0}
+.console::before{content:'╭─ console';font-family:var(--mono);font-size:10px;color:var(--bd3);opacity:.4;margin-bottom:2px}
+.console::after{content:'╰─';font-family:var(--mono);font-size:10px;color:var(--bd3);opacity:.4;margin-top:2px}
+.console .ln{display:flex;gap:7px;align-items:center;color:var(--fg2);padding:1.5px 0}
+.px-ic{display:inline-block;width:9px;height:9px;flex:none;border-radius:2px;box-sizing:border-box;background:transparent;border:1.5px solid var(--bd2)}
+.px-ic.px-ok{background:var(--ok);border-color:var(--ok)}
+.px-ic.px-warn{background:var(--warn);border-color:var(--warn)}
+.px-ic.px-active{background:var(--pri-h);border-color:var(--pri-h);box-shadow:0 0 6px rgba(61,152,255,.6)}
+
+@keyframes sdpulse{50%{opacity:.35}}
+
+/* ══ 调优曲线：可收起，图表/表格切换，回放动画 ══ */
+.tune-chart.tc-collapse{background:var(--surf-1);border:1px solid var(--bd1);border-left:1px solid var(--bd1)}
+.tune-chart .tc-chead{background:transparent;padding:7px 10px}
+.tune-chart .tc-chead:hover{background:var(--s2)}
+.tune-chart .tc-clb{color:var(--fg3);letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+.tune-chart .tc-csum{font-size:12px}
+.tune-chart .tc-cbody{padding:6px 10px 8px}
+.tc-live{display:flex;align-items:center;gap:4px;flex:none;color:var(--pri-h);font-weight:700;letter-spacing:.08em;font-size:12px}
+.tc-live .dot{width:5px;height:5px;border-radius:50%;background:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
+.tc-views{display:flex;flex:none;gap:2px;margin-left:auto;background:var(--s3);border-radius:6px;padding:2px}
+.tc-vbtn{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:4px;border:0;
+  background:transparent;color:var(--fg4);cursor:pointer;transition:background .12s,color .12s}
+.tc-vbtn:hover{color:var(--fg2)}
+.tc-vbtn.active{background:var(--pri-h);color:#fff}
+.tc-svg{display:block;width:100%;height:112px}
+.tc-svg .tc-grid{stroke:var(--bd1);stroke-width:1}
+.tc-svg .tc-ytick,.tc-svg .tc-xtick{font-family:var(--mono);font-size:12px;fill:var(--fg4)}
+.tc-svg .tc-base{stroke:var(--bd3);stroke-width:1;stroke-dasharray:3 3}
+.tc-svg .tc-area{fill:rgba(61,152,255,.12);stroke:none}
+.tc-svg .tc-line{fill:none;stroke:var(--pri-h);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.tc-svg .tc-cur{fill:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
+.tc-svg .tc-best{fill:var(--ok)}
+.tc-table-wrap{max-height:112px;overflow-y:auto;border:1px solid var(--bd1);border-radius:6px;background:var(--elev)}
+.tc-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+.tc-table th{position:sticky;top:0;background:var(--elev);color:var(--fg4);text-align:left;
+  padding:4px 8px;font-weight:600;letter-spacing:.06em;white-space:nowrap}
+.tc-table td{padding:3px 8px;color:var(--fg2);border-top:1px solid var(--bd1);white-space:nowrap}
+.tc-table tr.best td{color:var(--ok);font-weight:700}
+.tc-table tr.cur td{color:var(--fg)}
+
+/* ══ Action buttons ══ */
+.bi-actions{display:flex;gap:6px;padding:0;flex-wrap:wrap;margin-top:14px}
+.bi-btn{font-family:var(--mono);font-size:12px;color:#fff;font-weight:600;
+  background:linear-gradient(180deg,rgba(0,119,255,.96) 0%,rgba(0,104,223,.96) 35%,rgba(0,104,223,.96) 100%);
+  border:1px solid rgba(0,119,255,.45);border-radius:8px;-webkit-appearance:none;appearance:none;
+  padding:6px 14px;cursor:pointer;white-space:nowrap;letter-spacing:.01em;
+  box-shadow:0 0 18px rgba(0,119,255,.5),0 0 4px rgba(0,119,255,.6),inset 0 1px 0 rgba(255,255,255,.15);
+  transition:box-shadow .15s,filter .15s}
+.bi-btn:hover{filter:brightness(1.15)}
+.bi-btn.secondary{background:var(--s3);color:var(--fg2);border:1px solid var(--bd2);box-shadow:none}
+.bi-btn.secondary:hover{filter:none;background:var(--s4)}
+
+.rt-foot{margin:22px 2px 0;font-size:12px;color:var(--fg4)}
+</style>
+</head>
+<body>
+<div class="report-wrap">
+  <div class="report-hd">
+    <span class="rt-title">参数调优 · 调优报告</span>
+    <span class="rt-meta">perf-params-tuner-agent · Redis 6.0.20 · Kunpeng DevKit AI</span>
+  </div>
+
+  <div class="ai-plan report-card" id="aiPlan">
+    <div class="ap-head" id="apHead">
+      <span class="ap-arrow">▾</span><span class="ap-t">AI PLAN</span>
+      <span class="ap-goal"><b>参数调优</b> · perf-params-tuner-agent 五阶段流水线：收集调优场景 → 生成任务模板 → 生成参数模板 → 执行参数调优 → 生成调优报告</span>
+    </div>
+    <div class="ap-body">
+      <div class="ap-steps">
+        <div class="ap-step"><span class="n">1</span><span class="c done"></span><span class="lb">收集调优场景</span><span class="d">Redis 6.0.20 · 缓存场景</span></div>
+        <div class="ap-step"><span class="n">2</span><span class="c done"></span><span class="lb">生成任务/参数模板</span><span class="d">45 个参数（System 15 + Redis 30）</span></div>
+        <div class="ap-step"><span class="n">3</span><span class="c done"></span><span class="lb">执行参数调优</span><span class="d">HPO 30 轮 · 0 失败</span></div>
+        <div class="ap-step"><span class="n">4</span><span class="c done"></span><span class="lb">生成调优报告</span><span class="d">+20.78%（Round 9）</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="panel-body">
+      <div class="console">
+        <div class="ln"><span class="px-ic px-ok"></span> 任务文件 task_Redis_System.yaml · 数据目录 /tmp/redis-data 已创建</div>
+        <div class="ln"><span class="px-ic px-active"></span> nohup kat_monitor.py train_result task_Redis_System.yaml param_Redis_System.yaml</div>
+        <div class="ln"><span class="px-ic px-ok"></span> devkit 已探测到 · 后台启动 KAT 训练，实时监控进度</div>
+      </div>
+
+      <div class="tc-collapse open">
+        <div class="tc-chead">
+          <span class="tc-car">▾</span>
+          <span class="tc-clb">Redis 调优完成 · 最终总结</span>
+          <span class="tc-csum">HPO 30 轮 · 0 失败 · 64,433 → 77,821 req/s · +20.78%</span>
+        </div>
+        <div class="tc-cbody">
+          <div class="rpt-banner">✓ 报告校验通过，AI 分析已注入 · 端到端调优流水线全部完成</div>
+          <div class="stat3">
+            <div class="stat-card"><div class="sc-lb">总轮次</div><div class="sc-big">30</div><div class="sc-sub">失败 0</div></div>
+            <div class="stat-card"><div class="sc-lb">基线 → 最优</div><div class="sc-big">+20.78%</div><div class="sc-sub">64,433 → <span class="wn">77,821</span> req/s</div></div>
+            <div class="stat-card"><div class="sc-lb">最优轮次</div><div class="sc-big">Round 9</div><div class="sc-sub">最差 Round 18 · -18.32%</div></div>
+          </div>
+          <div class="sub-h">Top 5 关键参数（按重要性排序）</div>
+          <table class="cmp rpt-tb">
+            <thead><tr><th>参数</th><th>baseline</th><th>best</th><th>重要性</th></tr></thead>
+            <tbody>
+              <tr class="reco"><td>tcp-backlog</td><td>23256</td><td>47821</td><td>23.37%</td></tr>
+              <tr><td>tcp-keepalive</td><td>88</td><td>123</td><td>14.45%</td></tr>
+              <tr><td>hash-max-ziplist-entries</td><td>380</td><td>1010</td><td>6.53%</td></tr>
+              <tr><td>zset-max-ziplist-value</td><td>160</td><td>425</td><td>6.11%</td></tr>
+              <tr><td>lazyfree-lazy-eviction</td><td>no</td><td>yes</td><td>6.04%</td></tr>
+            </tbody>
+          </table>
+          <div class="sub-h">产物</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">任务/参数模板</span><span class="v">task_Redis_System.yaml · param_Redis_System.yaml</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">训练结果</span><span class="v">train_result/（train.db + 日志）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">可视化报告</span><span class="v">train_result/kat_report.html（含图表 + AI 分析）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">AI 分析</span><span class="v">train_result/analysis.md（趋势解读与建议）</span></div>
+        </div>
+      </div>
+
+      <div class="ai-msg">应用最优配置：<code style="font-family:var(--mono);background:var(--surf-1);padding:1px 5px;color:var(--pri-h)">devkit kat use -i train_result</code>。也可继续深度调优：增加轮数至 50-80、引入 System 网络栈参数、扩大 tcp-backlog 范围。</div>
+    </div>
+  </div>
+
+  <div class="tune-chart tc-collapse open" id="tuneChart">
+    <div class="tc-chead">
+      <span class="tc-car">▾</span>
+      <span class="tc-clb">调优曲线</span>
+      <span class="tc-csum" id="tcSum">Round 0/0</span>
+      <span class="tc-live"><span class="dot"></span>LIVE</span>
+      <div class="tc-views" id="tcViews">
+        <button class="tc-vbtn active" data-view="chart" type="button">图表</button>
+        <button class="tc-vbtn" data-view="table" type="button">表格</button>
+      </div>
+    </div>
+    <div class="tc-cbody">
+      <svg class="tc-svg" id="tcSvg" viewBox="0 0 600 112"></svg>
+      <div class="tc-table-wrap" id="tcTableWrap" style="display:none">
+        <table class="tc-table">
+          <thead><tr><th>Round</th><th>req/s</th><th>vs baseline</th></tr></thead>
+          <tbody id="tcTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="bi-actions">
+    <button class="bi-btn">应用最优配置到 Redis</button>
+    <button class="bi-btn secondary">增大轮数至 50-80 深度调优</button>
+    <button class="bi-btn secondary">导出可视化报告</button>
+  </div>
+
+  <div class="rt-foot">由 Kunpeng DevKit AI · perf-params-tuner-agent 自动生成</div>
+</div>
+
+<script>
+document.getElementById('apHead').addEventListener('click',()=>
+  document.getElementById('aiPlan').classList.toggle('collapsed'));
+document.querySelectorAll('.tc-chead').forEach(head=>
+  head.addEventListener('click',()=>head.closest('.tc-collapse').classList.toggle('open')));
+
+/* 调优曲线：逐轮回放 HPO 迭代曲线，播完暂停后从头继续，模拟"实时跑动"；支持图表/表格视图切换 */
+const HPO={baseline:64433,bestRound:9,
+  series:[65120,68240,66980,70150,72430,71080,74960,76510,77821,75330,
+          73870,69920,71460,68330,65780,61240,57690,52637,58920,63410,
+          66780,69230,71560,73080,74420,75190,74680,75810,76230,74990]};
+let tuneView='chart',tuneTimer=null;
+function renderTuneChart(){
+  const box=document.getElementById('tuneChart');
+  const {series,baseline,bestRound}=HPO;
+  const total=series.length;
+  const svg=document.getElementById('tcSvg');
+  const sumEl=document.getElementById('tcSum');
+  const tbody=document.getElementById('tcTableBody');
+  const tableWrap=document.getElementById('tcTableWrap');
+  const W=svg.clientWidth||600,H=112,padT=12,padB=24,padL=40,padR=8;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const lo=Math.min(baseline,...series),hi=Math.max(...series);
+  const margin=(hi-lo)*0.12||1;
+  const yMin=lo-margin,yMax=hi+margin;
+  const yOf=v=>padT+(H-padT-padB)*(1-(v-yMin)/(yMax-yMin));
+  const xOf=i=>padL+(W-padL-padR)*(total===1?0:i/(total-1));
+  const baseY=yOf(baseline).toFixed(1);
+  const fmtK=v=>Math.round(v/1000)+'k';
+  const yTicks=[yMax,(yMax+yMin)/2,yMin];
+  const axisHTML=yTicks.map(v=>{
+    const y=yOf(v).toFixed(1);
+    return `<line class="tc-grid" x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}"/>`+
+      `<text class="tc-ytick" x="${padL-6}" y="${(+y+3).toFixed(1)}" text-anchor="end">${fmtK(v)}</text>`;
+  }).join('')+(()=>{
+    const step=Math.max(1,Math.round(total/6));
+    const rounds=[];
+    for(let r=1;r<total;r+=step) rounds.push(r);
+    rounds.push(total);
+    return rounds.map(r=>
+      `<text class="tc-xtick" x="${xOf(r-1).toFixed(1)}" y="${H-4}" text-anchor="middle">${r}</text>`).join('');
+  })();
+  let reveal=1;
+  function draw(){
+    const pts=series.slice(0,reveal).map((v,i)=>`${xOf(i).toFixed(1)},${yOf(v).toFixed(1)}`).join(' ');
+    const areaPts=`${xOf(0).toFixed(1)},${(H-padB).toFixed(1)} ${pts} ${xOf(reveal-1).toFixed(1)},${(H-padB).toFixed(1)}`;
+    const bestIdx=bestRound-1;
+    const bestMark=bestIdx<reveal?
+      `<rect class="tc-best" x="${(xOf(bestIdx)-3).toFixed(1)}" y="${(yOf(series[bestIdx])-3).toFixed(1)}" width="6" height="6"/>`:'';
+    svg.innerHTML=axisHTML+
+      `<line class="tc-base" x1="${padL}" y1="${baseY}" x2="${W-padR}" y2="${baseY}"/>`+
+      `<polygon class="tc-area" points="${areaPts}"/>`+
+      `<polyline class="tc-line" points="${pts}"/>`+
+      bestMark+
+      `<circle class="tc-cur" cx="${xOf(reveal-1).toFixed(1)}" cy="${yOf(series[reveal-1]).toFixed(1)}" r="3.2"/>`;
+    const curVal=series[reveal-1];
+    const delta=((curVal-baseline)/baseline*100).toFixed(1);
+    sumEl.innerHTML=`Round ${reveal}/${total} · ${curVal.toLocaleString()} req/s · `+
+      `<span style="color:${curVal>=baseline?'var(--ok)':'var(--dgr)'}">${delta>=0?'+':''}${delta}%</span>`;
+    tbody.innerHTML=series.slice(0,reveal).map((v,i)=>{
+      const d=((v-baseline)/baseline*100).toFixed(1);
+      const cls=(i===bestIdx&&i<reveal)?'best':(i===reveal-1?'cur':'');
+      return `<tr class="${cls}"><td>Round ${i+1}</td><td>${v.toLocaleString()}</td>`+
+        `<td style="color:${v>=baseline?'var(--ok)':'var(--dgr)'}">${d>=0?'+':''}${d}%</td></tr>`;
+    }).join('');
+    if(tuneView==='table') tableWrap.scrollTop=tableWrap.scrollHeight;
+  }
+  draw();
+  tuneTimer=setInterval(()=>{
+    if(!box.classList.contains('open')) return;
+    reveal=reveal>=total?1:reveal+1;
+    draw();
+  },220);
+}
+document.getElementById('tcViews').addEventListener('click',e=>{
+  e.stopPropagation();
+  const btn=e.target.closest('.tc-vbtn'); if(!btn) return;
+  tuneView=btn.dataset.view;
+  document.querySelectorAll('#tcViews .tc-vbtn').forEach(b=>b.classList.toggle('active',b===btn));
+  document.getElementById('tcSvg').style.display=tuneView==='chart'?'':'none';
+  document.getElementById('tcTableWrap').style.display=tuneView==='table'?'':'none';
+});
+renderTuneChart();
+</script>
+</body>
+</html>
