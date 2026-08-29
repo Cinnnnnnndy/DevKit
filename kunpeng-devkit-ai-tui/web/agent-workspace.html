@@ -406,15 +406,15 @@ td.fnname{color:var(--ok)}
   background:transparent;color:var(--fg4);cursor:pointer;transition:background .12s,color .12s}
 .tc-vbtn:hover{color:var(--fg2)}
 .tc-vbtn.active{background:var(--pri-h);color:#fff}
-.tc-svg{display:block;width:100%;height:104px}
+.tc-svg{display:block;width:100%;height:112px}
 .tc-svg .tc-grid{stroke:var(--bd1);stroke-width:1}
-.tc-svg .tc-ytick,.tc-svg .tc-xtick{font-family:var(--mono);font-size:9px;fill:var(--fg4)}
+.tc-svg .tc-ytick,.tc-svg .tc-xtick{font-family:var(--mono);font-size:12px;fill:var(--fg4)}
 .tc-svg .tc-base{stroke:var(--bd3);stroke-width:1;stroke-dasharray:3 3}
 .tc-svg .tc-area{fill:rgba(61,152,255,.12);stroke:none}
 .tc-svg .tc-line{fill:none;stroke:var(--pri-h);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
 .tc-svg .tc-cur{fill:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
 .tc-svg .tc-best{fill:var(--ok)}
-.tc-table-wrap{max-height:104px;overflow-y:auto;border:1px solid var(--bd1);border-radius:6px;background:var(--elev)}
+.tc-table-wrap{max-height:112px;overflow-y:auto;border:1px solid var(--bd1);border-radius:6px;background:var(--elev)}
 .tc-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
 .tc-table th{position:sticky;top:0;background:var(--elev);color:var(--fg4);text-align:left;
   padding:4px 8px;font-weight:600;letter-spacing:.06em;white-space:nowrap}
@@ -1416,7 +1416,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
         </div>
       </div>
       <div class="tc-cbody">
-        <svg class="tc-svg" id="tcSvg" viewBox="0 0 600 104"></svg>
+        <svg class="tc-svg" id="tcSvg" viewBox="0 0 600 112"></svg>
         <div class="tc-table-wrap" id="tcTableWrap" style="display:none">
           <table class="tc-table">
             <thead><tr><th>Round</th><th>req/s</th><th>vs baseline</th></tr></thead>
@@ -1705,7 +1705,7 @@ function renderTuneChart(agentKey,scenarioKey){
   const tbody=document.getElementById('tcTableBody');
   const tableWrap=document.getElementById('tcTableWrap');
   /* viewBox 按实际渲染像素设置，避免非等比缩放把坐标轴文字/圆点拉变形 */
-  const W=svg.clientWidth||600,H=104,padT=10,padB=20,padL=42,padR=8;
+  const W=svg.clientWidth||600,H=112,padT=12,padB=24,padL=40,padR=8;
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
   const lo=Math.min(baseline,...series),hi=Math.max(...series);
   const margin=(hi-lo)*0.12||1;
