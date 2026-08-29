@@ -1787,30 +1787,55 @@ const SLASH_COMMANDS=[
 ];
 const biInput=document.getElementById('biInput');
 const slashMenu=document.getElementById('slashMenu');
-let smMatches=[],smSel=-1;
+let smMatches=[],smSel=-1,smMode='command';
 
-function slashQuery(){
+/* /session 后面接一个二级下拉，列出当前所有会话（复用 SCENARIOS，跳过 hidden） */
+function getSessionItems(){
+  const list=[];
+  Object.keys(SCENARIOS).forEach(agentKey=>{
+    SCENARIOS[agentKey].forEach(s=>{ if(!s.hidden) list.push({agentKey,key:s.key,label:s.label,status:s.status}); });
+  });
+  return list;
+}
+function statusDotColor(s){
+  return s==='done'?'var(--ok)':s==='wait'?'var(--warn)':s==='doing'?'var(--pri-h)':'var(--fg4)';
+}
+function getSlashContext(){
   const pos=biInput.selectionStart;
   const before=biInput.value.slice(0,pos);
-  const m=before.match(/(?:^|\n)\/([a-zA-Z_]*)$/);
-  return m?m[1]:null;
+  let m=before.match(/(?:^|\n)\/session\s+([^\n]*)$/);
+  if(m) return {mode:'session',query:m[1]};
+  m=before.match(/(?:^|\n)\/([a-zA-Z_]*)$/);
+  if(m) return {mode:'command',query:m[1]};
+  return null;
 }
 function paintSlashMenu(){
-  slashMenu.innerHTML='<div class="sm-list">'+smMatches.map((c,i)=>
-    `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="cmd">${c.cmd}</span><span class="desc">${c.desc}</span></div>`
-  ).join('')+'</div><div class="sm-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 补全</span><span><b>Esc</b> 关闭</span></div>';
+  const rows=smMatches.map((c,i)=>smMode==='session'
+    ?`<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span style="width:5px;height:5px;border-radius:50%;flex:none;background:${statusDotColor(c.status)}"></span><span class="cmd" style="min-width:0">${c.label}</span></div>`
+    :`<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="cmd">${c.cmd}</span><span class="desc">${c.desc}</span></div>`
+  ).join('');
+  const hint=smMode==='session'
+    ?'<div class="sm-hint"><span><b>↑↓</b> 选择</span><span><b>Enter</b> 切换会话</span><span><b>Esc</b> 关闭</span></div>'
+    :'<div class="sm-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 补全</span><span><b>Esc</b> 关闭</span></div>';
+  slashMenu.innerHTML='<div class="sm-list">'+rows+'</div>'+hint;
 }
 function closeSlashMenu(){
   slashMenu.classList.remove('show');
   slashMenu.innerHTML='';
-  smMatches=[];smSel=-1;
+  smMatches=[];smSel=-1;smMode='command';
 }
 function renderSlashMenu(){
-  const q=slashQuery();
-  if(q===null){ closeSlashMenu(); return; }
-  smMatches=SLASH_COMMANDS.filter(c=>c.cmd.slice(1).toLowerCase().startsWith(q.toLowerCase()));
+  const ctx=getSlashContext();
+  if(!ctx){ closeSlashMenu(); return; }
+  smMode=ctx.mode;
+  if(smMode==='session'){
+    const q=ctx.query.trim().toLowerCase();
+    smMatches=getSessionItems().filter(s=>!q||s.label.toLowerCase().includes(q));
+  }else{
+    smMatches=SLASH_COMMANDS.filter(c=>c.cmd.slice(1).toLowerCase().startsWith(ctx.query.toLowerCase()));
+  }
   if(!smMatches.length){
-    slashMenu.innerHTML='<div class="sm-empty">没有匹配的命令</div>';
+    slashMenu.innerHTML=`<div class="sm-empty">${smMode==='session'?'没有匹配的会话':'没有匹配的命令'}</div>`;
     slashMenu.classList.add('show');
     smSel=-1;
     return;
@@ -1820,6 +1845,14 @@ function renderSlashMenu(){
   slashMenu.classList.add('show');
 }
 function applySlash(i){
+  if(smMode==='session'){
+    const s=smMatches[i]; if(!s) return;
+    selectScenario(s.agentKey,s.key);
+    biInput.value='';
+    closeSlashMenu();
+    biInput.focus();
+    return;
+  }
   const c=smMatches[i]; if(!c) return;
   const pos=biInput.selectionStart;
   const before=biInput.value.slice(0,pos),after=biInput.value.slice(pos);
@@ -1827,8 +1860,8 @@ function applySlash(i){
   biInput.value=newBefore+after;
   const cursor=newBefore.length;
   biInput.setSelectionRange(cursor,cursor);
-  closeSlashMenu();
   biInput.focus();
+  renderSlashMenu();
 }
 biInput.addEventListener('input',renderSlashMenu);
 biInput.addEventListener('click',renderSlashMenu);
