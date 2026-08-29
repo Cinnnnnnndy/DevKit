@@ -500,6 +500,16 @@ td.mono,th.mono{font-family:var(--font-mono)}
 .cv-approve .y{background:var(--primary);color:#fff}
 .cv-approve .r{background:var(--surface-2);color:var(--foreground);border-color:var(--border-default)}
 .cv-approve .n{background:transparent;color:var(--foreground-muted);border-color:var(--border-default)}
+.cv-approve .qhead{display:flex;align-items:center;font-size:11px;color:var(--foreground-muted);
+  margin-bottom:6px;font-family:var(--font-mono)}
+.cv-approve .qnext{margin-left:auto;color:var(--primary-hover);font-weight:600;cursor:pointer}
+
+/* split diff —— 左右分栏对照，New File Card 复用同一套 .cv-code 但只有一栏 */
+.cv-splitdiff{display:grid;grid-template-columns:1fr 1fr}
+.cv-splitdiff .cv-code{border-radius:0}
+.cv-splitdiff .cv-code+.cv-code{border-left:1px solid var(--border-subtle)}
+.newbadge{font-size:10px;font-weight:700;letter-spacing:.04em;color:var(--success);
+  background:rgba(4,215,147,.14);border-radius:3px;padding:1px 6px;margin-left:8px}
 .rule{font-size:var(--fs-body-sm);color:var(--foreground-secondary);
   border-left:2px solid var(--border-strong);padding-left:var(--space-3);margin:var(--space-3) 0}
 .note{background:var(--tone-info-bg);border:1px solid rgba(0,119,255,.28);border-radius:var(--radius-lg);
@@ -1227,7 +1237,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td>进度指示器/Spinner</td><td>Claude Code 红星 + "Running…" + 下一步预告 · Codex CLI 无独立 spinner · Crush 有独立组件</td><td>旋转字符 + 当前步 + 下一步预告（吸收 Claude Code 的 "Next" 设计）——复用已有的 <code>⠋⠙⠹…</code> spinner，只新增"下一步"一行</td></tr>
 <tr><td>状态/元信息</td><td>Gemini CLI 把状态插进对话流中间 · OpenCode/Crush 收进底部常驻栏 · Codex CLI 收进顶部信息块</td><td>统一收进<a href="#frame">底部常驻状态栏</a>，<strong>不再让状态信息打断对话流</strong>——调研里唯一明确的反例，不采纳</td></tr>
 <tr><td>系统提示/帮助</td><td>Codex CLI 独有——独立一行浅灰</td><td>沿用，<strong>仅会话开场出现一次</strong>，不重复展示——反复出现会从提示变成噪音</td></tr>
-<tr><td>文件/Diff 渲染</td><td>Crush 支持 unified/split 双模式 · 其余仅 unified</td><td>默认 unified，<kbd>Ctrl+D</kbd> 打开的 Diff 视图内追加 <code>[V] Split</code>——复用既有 <a href="#p1">P05 Diff Review</a></td></tr>
+<tr><td>文件/Diff 渲染</td><td>Crush 支持 unified/split 双模式 · 其余仅 unified</td><td>对话流里的 Diff Card 默认<strong>左右分栏</strong>（改动前后逐行对齐，扫一眼小改动最快）；带 Accept/Reject 等操作的完整交互仍走既有 <a href="#p1">P05 Diff Review</a>，那里保留 unified 默认 + <kbd>Ctrl+D</kbd> 内 <code>[V] Split</code> 切换</td></tr>
 <tr><td>阶段标记</td><td>Codex CLI 独有——圆点小标题分段</td><td>分隔线 + 居中弱化小字，<strong>不做成大标题</strong>——避免和 AI 意图声明抢视觉层级</td></tr>
 <tr><td>输入框</td><td>全部产品固定底部 · OpenCode 用示例问题做 placeholder · Gemini CLI 提示 <code>@</code> 语法</td><td>底部固定，placeholder 嵌入常见任务示例（吸收 OpenCode）——比独立帮助文案省一次视觉跳转</td></tr>
 </table>
@@ -1248,22 +1258,19 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-fig"><span class="fig-t">AI Text</span>
 <div class="cv-msg cv-ai">好的，先扫一遍依赖库的 ARM 兼容性。</div>
 </div>
-<div class="cv-fig"><span class="fig-t">Aside</span>
-<div class="cv-aside">再搜宽一点，snappy 那个头文件不太对…</div>
-</div>
 <div class="cv-fig"><span class="fig-t">Clarify ~</span>
 <div class="cv-msg cv-clarify"><b>~</b> 需要确认：3 个文件都有 SSE 宏，全部按方案 A 处理，还是逐个确认？</div>
 </div>
-<p class="rule">User 靠蓝色渐变卡片 + <code>❯</code>、Clarify 靠警示黄卡片 + <code>~</code>、Aside 靠斜体+透明度、AI 靠中性卡片"什么都不额外加"——四种卡片形状/底色互相区分。<strong>TUI 面退回</strong>纯字符：卡片背景全部去掉，只剩 <code>❯</code> 加粗白字、斜体旁白、<code>~</code> 警示黄前缀——终端背景色对比度不稳定，退回时靠字重和字色，不靠底色。<code>~</code> 只用于一句话能问清楚的场景，字段明确需要结构化输入时走 <a href="#jscreen">P27 配置补齐</a> 弹层；与任务列表里常驻的 <code>⏸</code> 不同——<code>~</code> 答完即随对话流滚走；也别与 <a href="#p2">P16 /btw</a>（用户主动插话，方向相反）混淆。<strong>Thinking Block</strong> 默认折叠、标题只给耗时，展开才显示推理过程——它和 Aside 都是"辅助文本"，区别是 Aside 面向用户讲人话（"再搜宽一点"），Thinking 是模型内部推理的原始记录，通常更长、更技术化，所以默认收起；Kiro／Goose／Claude 系 CLI 都是这个"默认折叠 + 展开看细节"的处理方式，不是哪家独创。</p>
+<p class="rule">User 靠蓝色渐变卡片 + <code>❯</code>、Clarify 靠警示黄卡片 + <code>~</code>、AI 靠中性卡片"什么都不额外加"——三种卡片形状/底色互相区分。<strong>TUI 面退回</strong>纯字符：卡片背景全部去掉，只剩 <code>❯</code> 加粗白字、<code>~</code> 警示黄前缀——终端背景色对比度不稳定，退回时靠字重和字色，不靠底色。<code>~</code> 只用于一句话能问清楚的场景，字段明确需要结构化输入时走 <a href="#jscreen">P27 配置补齐</a> 弹层；与任务列表里常驻的 <code>⏸</code> 不同——<code>~</code> 答完即随对话流滚走；也别与 <a href="#p2">P16 /btw</a>（用户主动插话，方向相反）混淆。<strong>Thinking Block</strong> 默认折叠、标题只给耗时，展开才显示推理过程——是模型内部推理的原始记录，通常更长、更技术化，所以默认收起；Kiro／Goose／Claude 系 CLI 都是这个"默认折叠 + 展开看细节"的处理方式，不是哪家独创。</p>
 
 <h3>工具调用类 <span class="badge p">T0</span> <span class="chipm">在干什么</span></h3>
-<div class="cv-fig"><span class="fig-t">Search ∗</span>
-<div class="cv-tool"><span class="g">∗</span> 搜索 "SSE4.2 rapidjson macro" <span class="meta">knowledge_base · 12 hits</span></div>
+<div class="cv-fig"><span class="fig-t">Grep ∗</span>
+<div class="cv-tool"><span class="g">∗</span> grep "RAPIDJSON_SSE42" <span class="meta">3 files · 12 hits</span></div>
 </div>
-<div class="cv-fig"><span class="fig-t">Read →</span>
-<div class="cv-tool"><span class="g">→</span> 读取 snappy-stubs-internal.h:140-160</div>
+<div class="cv-fig"><span class="fig-t">Read File →</span>
+<div class="cv-tool"><span class="g">→</span> read-file snappy-stubs-internal.h:140-160</div>
 </div>
-<div class="cv-fig"><span class="fig-t">Exec $</span>
+<div class="cv-fig"><span class="fig-t">Execute $</span>
 <div class="cv-tool"><span class="g">$</span> bisheng-g++ -c context.cpp -o context.o <span class="meta">0.8s</span></div>
 </div>
 <p class="rule">三张卡同一块中性卡底，符号同为 accent 色——<strong>只换字形不换色相</strong>，与 <a href="#color">Colors</a> 一节"语义色只上字符与短文本"的形状优先原则一致。真正的风险分级不在这里：折叠态明暗看 <a href="#p2">P18 Output Collapsing</a>，需要审批时的三色分级看 <a href="#p2">P19 Permission Tiers</a>——这三张卡定的只是"默认长什么样、一眼认出是哪种调用"，是那两个 pattern 共用的底层字形，不是替代它们。TUI 面退回纯文本行，卡片去掉，符号与颜色不变。</p>
@@ -1282,11 +1289,12 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <p class="rule">复用既有 <a href="#p1">P02 AI Plan</a> 的信息结构，本卡只补两处渲染细节：<strong>加边框</strong>（对话流里唯一一处）、<strong>当前项用 <code>state-selected</code> 背景高亮</strong>——都是已有 token，没有引入新色，两个面都是这个样子（TUI 用 box-drawing 画边框，形状不变）。</p>
 <div class="cv-fig"><span class="fig-t">Approval Bar</span>
 <div class="cv-approve">
+  <div class="qhead">审批 1/3<span class="qnext">▸ 下一个</span></div>
   <div class="msg">AI 想要：修改 12 个文件<span class="risk">风险 ▮▮▮ 中</span></div>
   <div class="btns"><button class="y">[Y] Apply</button><button class="r">[R] Review each</button><button class="n">[N] Cancel</button></div>
 </div>
 </div>
-<p class="rule">复用既有 <a href="#p1">P10 Approval</a>，是<strong>批量/高风险动作的阻断式确认</strong>——区别于 Diff Card 自带的逐文件 <code>[A]ccept/[R]eject</code>：那是"这一个改动要不要收"，这是"这一整批动作要不要放行"，触发条件按 <a href="#p2">P19 Permission Tiers</a> 的风险分级（Low 可配置自动放行 · Medium 默认走这里 · High 强制逐项 Review）。几乎所有 agent CLI 都有这一档确认——只是文案不同（Kiro 叫 Yes/Trust/No，这里叫 Apply/Review/Cancel），形状是共识。</p>
+<p class="rule">复用既有 <a href="#p1">P10 Approval</a>，是<strong>批量/高风险动作的阻断式确认</strong>——区别于 Diff Card 自带的逐文件 <code>[A]ccept/[R]eject</code>：那是"这一个改动要不要收"，这是"这一整批动作要不要放行"，触发条件按 <a href="#p2">P19 Permission Tiers</a> 的风险分级（Low 可配置自动放行 · Medium 默认走这里 · High 强制逐项 Review）。<strong>多个待批准动作排队时</strong>，头部加一行 <code>审批 1/3</code> + <code>下一个</code>——处理完当前这条自动前进，不用把三条挤在一屏里同时决策；这是 Kiro"多个审批依次排队"的处理方式，不是把它们摞在一起。几乎所有 agent CLI 都有这一档确认——只是文案不同（Kiro 叫 Yes/Trust/No，这里叫 Apply/Review/Cancel），形状是共识。</p>
 <div class="cv-fig"><span class="fig-t">Progress</span>
 <div class="cv-progress"><span class="sp">⠹</span> 生成 crypto.c 补丁 (2/6) <span class="next">下一步：编译验证</span></div>
 </div>
@@ -1294,15 +1302,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-fig"><span class="fig-t">Sub Header</span>
 <div class="cv-subh">阶段2 · 依赖分析</div>
 </div>
-<p class="rule">对应实现里的 <code>.sub-h</code>——树形前缀 + 大写字母间距 + comment 灰阶，<strong>左对齐而不是居中</strong>，标的是"下面这段内容属于哪个小节"。用得比 Progress、Plan Card 都频繁——阶段级、甚至"关键修改文件"这种子块标题都用它，是这一屏最基础的分节手段。</p>
-<div class="cv-fig"><span class="fig-t">Steps List</span>
-<div class="cv-steps">
-<div class="cv-step"><span class="c done">✓</span><div><b>阶段1 · 环境检测</b><span>识别构建系统、工具链版本、目标环境</span></div></div>
-<div class="cv-step"><span class="c doing">▶</span><div><b>阶段2 · 依赖分析</b><span>扫描依赖库 ARM 兼容性，标记 x86 专属指令</span></div></div>
-<div class="cv-step"><span class="c wait">!</span><div><b>阶段3 · 编译验证</b><span>需要人工确认后继续</span></div></div>
-</div>
-</div>
-<p class="rule">内嵌在 AI 消息体里的阶段清单，和常驻顶部的 Plan Card（<a href="#p1">P02</a>）是<strong>同一份数据的两种呈现</strong>：Plan Card 是"任务开始前的全貌"，Steps List 是"回答过程中随时报告到哪一步了"——两者共用同一套状态字形（✓ 完成 · ▶ 进行中 · ! 待处理），不重新发明一套。</p>
+<p class="rule">对应实现里的 <code>.sub-h</code>——树形前缀 + 大写字母间距 + comment 灰阶，<strong>左对齐而不是居中</strong>，标的是"下面这段内容属于哪个小节"。用得比 Progress、Plan Card 都频繁——阶段级、甚至"关键修改文件"这种子块标题都用它，是这一屏最基础的分节手段。任务的阶段进度<strong>只用 Plan Card 一种呈现</strong>，不再另立一份内嵌的阶段清单——同一份数据只有一个来源，减少两处状态不同步的风险。</p>
 <div class="cv-fig"><span class="fig-t">Checklist Row</span>
 <div class="cv-chk"><span class="ic">✓</span><span class="lb">构建系统</span><span class="v">CMake 3.22 + Make / Bazel 6.0</span></div>
 <div class="cv-chk"><span class="ic">✓</span><span class="lb">编译器</span><span class="v">BiSheng Compiler 2.5.0（GCC 10.3 兼容）</span></div>
@@ -1314,17 +1314,36 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-fig"><span class="fig-t">Diff Card</span>
 <div class="cv-toolcard">
   <div class="cv-tc-head"><span class="car">▾</span><span class="lb">Edit settlement_kernel.c</span><span class="sum">_mm256_loadu_ps(...) → svld1_f32(...) · 共 4 处改动</span></div>
-  <div class="cv-tc-body">
-    <div class="cv-code">
-      <div class="path">settlement_kernel.c</div>
-      <div class="cl"><span class="no">102</span><span class="pfx"></span><span class="cmt">// 天秤扫描：x86 AVX2 intrinsics</span></div>
-      <div class="cl del"><span class="no">103</span><span class="pfx del">-</span><span class="tk-d">__m256 va = _mm256_loadu_ps(&amp;amount[i]);</span></div>
-      <div class="cl add"><span class="no">103</span><span class="pfx add">+</span><span class="tk-a">svfloat32_t va = svld1_f32(pg, &amp;amount[i]);</span></div>
-      <div class="actions"><b>[A]ccept</b> &nbsp; [E]dit &nbsp; [R]eject &nbsp; <b>[V] Split</b> &nbsp; [Space] next file</div>
+  <div class="cv-tc-body" style="padding:0">
+    <div class="cv-splitdiff">
+      <div class="cv-code">
+        <div class="path">Before</div>
+        <div class="cl"><span class="no">102</span><span class="pfx"></span><span class="cmt">// 天秤扫描：x86 AVX2 intrinsics</span></div>
+        <div class="cl del"><span class="no">103</span><span class="pfx del">-</span><span class="tk-d">__m256 va = _mm256_loadu_ps(&amp;amount[i]);</span></div>
+      </div>
+      <div class="cv-code">
+        <div class="path">After</div>
+        <div class="cl"><span class="no">102</span><span class="pfx"></span><span class="cmt">// 天秤扫描：x86 AVX2 intrinsics</span></div>
+        <div class="cl add"><span class="no">103</span><span class="pfx add">+</span><span class="tk-a">svfloat32_t va = svld1_f32(pg, &amp;amount[i]);</span></div>
+      </div>
     </div>
   </div>
 </div>
 </div>
+<div class="cv-fig"><span class="fig-t">New File Card</span>
+<div class="cv-toolcard">
+  <div class="cv-tc-head"><span class="car">▾</span><span class="lb">Create sve_kernel_utils.h</span><span class="sum">新建文件 · 3 行</span></div>
+  <div class="cv-tc-body" style="padding:0">
+    <div class="cv-code">
+      <div class="path">sve_kernel_utils.h<span class="newbadge">NEW</span></div>
+      <div class="cl"><span class="no">1</span><span class="pfx"></span>#pragma once</div>
+      <div class="cl"><span class="no">2</span><span class="pfx"></span>#include &lt;arm_sve.h&gt;</div>
+      <div class="cl"><span class="no">3</span><span class="pfx"></span>inline svfloat32_t safe_load(const float* p, size_t n);</div>
+    </div>
+  </div>
+</div>
+</div>
+<p class="rule">Diff Card 改左右分栏——同一行在改动前后分列左右，比上下堆叠更容易对上号，尤其是"只改了一个变量名"这类小改动。这里只演示<strong>纯内容渲染</strong>，不带 Accept/Reject 这层交互——操作项属于完整的 <a href="#p1">P05 Diff Review</a> 流程，在真正的确认场景里才出现（走 Approval Bar 或逐文件按钮），不是这张卡自己的职责。<strong>New File Card 不整屏刷绿</strong>——新建文件里的每一行都不是"变化"，没有 Before 可对照，刷成 add 底色反而让色彩失去意义（Diff Card 的红绿之所以有信息量，是因为红绿之间有对比；这里全部一个色，等于没有信息）。直接展示生成内容，和普通代码块一样，唯一的标记留给 header 的 <code>NEW</code> 徽标和 <code>Create</code> 动词——这才是真正携带"这是新文件"这条信息的地方，行级色块不需要重复它。</p>
 <div class="cv-fig"><span class="fig-t">Report Card</span>
 <div class="cv-toolcard">
   <div class="cv-tc-head"><span class="car">▾</span><span class="lb">迁移总结报告</span><span class="sum">10 文件修改 · 111 行新增 · 7 行删除 · 编译成功</span></div>
@@ -1343,7 +1362,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
   </div>
 </div>
 </div>
-<p class="rule">两张卡共用同一个折叠外壳——真实实现里，编辑摘要和会话总结走的是同一个折叠容器，区别只是 body 里塞什么：Diff Card 塞代码 diff（<a href="#p1">P05</a>），Report Card 塞横幅 + 统计 + 表格（<a href="#p1">P12 Session Summary</a>）。header 里的摘要行折叠后仍然可见，折叠/展开不改变这行文字——这正是 <a href="#p2">P18 Output Collapsing</a> 说的"信噪比管理"。Diff Card 的代码块按语法上色、逐 token 标出改动（<code>tk-d</code>/<code>tk-a</code>），而不是整行文本 +/-：改的是一个变量名还是一整行逻辑，读一眼就知道。</p>
+<p class="rule">三张卡共用同一个折叠外壳——真实实现里，编辑摘要、新建文件和会话总结走的是同一个折叠容器，区别只是 body 里塞什么：Diff Card 塞左右分栏代码（<a href="#p1">P05</a>），New File Card 塞单栏新增代码，Report Card 塞横幅 + 统计 + 表格（<a href="#p1">P12 Session Summary</a>）。header 里的摘要行折叠后仍然可见，折叠/展开不改变这行文字——这正是 <a href="#p2">P18 Output Collapsing</a> 说的"信噪比管理"。</p>
 <div class="cv-fig"><span class="fig-t">Migration Row</span>
 <div class="cv-mrow"><span class="ic ok">✓</span><span>OpenJDK 1.8（x86）</span><span class="ar">→</span><span class="tg">OpenJDK ARM 1.8.0（毕昇）</span><span class="badge ok">已就绪</span></div>
 <div class="cv-mrow"><span class="ic warn">●</span><span>Tomcat 8.0.53</span><span class="ar">→</span><span class="tg">东方通 TongWeb 7.0</span><span class="badge warn">license 缺失</span></div>
@@ -1359,13 +1378,6 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <h3>系统与容器类 <span class="badge p">T0</span> <span class="chipm">打断了没</span></h3>
 <div class="cv-fig"><span class="fig-t">System Tip</span>
 <div class="cv-tip">Tip: 按 <b>Ctrl+P</b> 唤出命令面板 · 本提示本次会话只显示一次</div>
-</div>
-<div class="cv-fig"><span class="fig-t">Console Log</span>
-<div class="cv-console">
-<div><span class="ok">✓</span> 扫描 32 个依赖库 · ARM 兼容性检测</div>
-<div><span class="wn">!</span> snappy-stubs-internal.h:144-158 · aarch64 路径空格缺失（源码 bug）</div>
-<div><span class="mu">○</span> rapidjson SSE 宏 · BRPC 未定义，ARM 安全</div>
-</div>
 </div>
 <div class="cv-fig"><span class="fig-t">Suggested Actions</span>
 <div class="cv-actions">
@@ -1385,7 +1397,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-statusbar">[mode:auto] [model:pangu] [ctx: <b>72%</b>] [tasks: 1 ⏸]</div>
 <div class="cv-inputbar"><b>❯</b> 试试 "帮我把 nginx 迁移到鲲鹏" 或 "这段代码为什么在 ARM 上崩了"<span class="cur"></span></div>
 </div>
-<p class="rule">这六张都不属于对话流本身——System Tip 只在会话开场出现一次；Console Log 是工具调用背后的原始输出，比 Tool Call Line 更细粒度，通常被 Diff/Report Card 的折叠态盖住；Suggested Actions 复用既有 <a href="#jscreen">P28 下一步引导</a>，随结果状态变化，不是固定菜单；<strong>Compact Progress 用确定进度条而不是不确定 spinner</strong>——压缩上下文/重建索引这类系统维护操作算得出百分比，就必须给百分比，复用 <a href="#p2">P20 Context Management</a> 的量表语义而不是新发明一套，操作期间对话流照常滚动、不阻塞输入（压缩是读，不是写）；Status Bar 见 <a href="#frame">#frame</a>，永远在底部、永远不滚动，Input 的 placeholder 直接给可以照抄的真实任务。共同点：<strong>都不该打断正在滚动的那条对话流</strong>。</p>
+<p class="rule">这五张都不属于对话流本身——System Tip 只在会话开场出现一次；Suggested Actions 复用既有 <a href="#jscreen">P28 下一步引导</a>，随结果状态变化，不是固定菜单；<strong>Compact Progress 用确定进度条而不是不确定 spinner</strong>——压缩上下文/重建索引这类系统维护操作算得出百分比，就必须给百分比，复用 <a href="#p2">P20 Context Management</a> 的量表语义而不是新发明一套，操作期间对话流照常滚动、不阻塞输入（压缩是读，不是写）；Status Bar 见 <a href="#frame">#frame</a>，永远在底部、永远不滚动，Input 的 placeholder 直接给可以照抄的真实任务。共同点：<strong>都不该打断正在滚动的那条对话流</strong>。原来这里还有一张 Console Log——和 Checklist Row（图标+定宽标签+值）形状太像，同屏两个几乎一样的列表反而增加辨认成本，去掉，工具调用的原始输出并入 Checklist Row 或折叠进 Diff/Report Card 即可。</p>
 
 <div class="sublabel">拼起来 —— 多条决策落进同一条对话流</div>
 <div class="cv-fig"><span class="fig-t">migrate 场景 · 从输入到收尾（节选，Agent Workspace 真实渲染）</span>
@@ -1394,9 +1406,8 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-divider">阶段 1 · 环境检测</div>
 <div class="cv-tool"><span class="g">$</span> bisheng-gcc --version <span class="meta" style="color:var(--success)">✓</span></div>
 <div class="cv-divider">阶段 2 · 依赖分析</div>
-<div class="cv-tool"><span class="g">∗</span> 搜索 "aarch64 SIMD 替代指令" <span class="meta">knowledge_base</span></div>
-<div class="cv-tool"><span class="g">→</span> 读取 snappy-stubs-internal.h:140-160</div>
-<div class="cv-aside">这个路径判断看着像源码 bug，再确认一下…</div>
+<div class="cv-tool"><span class="g">∗</span> grep "aarch64 SIMD 替代指令" <span class="meta">knowledge_base</span></div>
+<div class="cv-tool"><span class="g">→</span> read-file snappy-stubs-internal.h:140-160</div>
 <div class="cv-msg cv-clarify"><b>~</b> 需要确认：这处按官方 bug 记录处理，还是保守跳过？</div>
 <div class="cv-progress"><span class="sp">⠹</span> 生成 crypto.c 补丁 (2/6) <span class="next">下一步：编译验证</span></div>
 </div>
@@ -1407,25 +1418,22 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><th>元件</th><th>用途</th><th>Tier</th><th>关联 Pattern</th></tr>
 <tr><td>User Message Line</td><td>用户消息回显</td><td>T0</td><td>—</td></tr>
 <tr><td>AI Text Line</td><td>AI 默认文本</td><td>T0</td><td>—</td></tr>
-<tr><td>Aside Line</td><td>过程性旁白</td><td>T0</td><td>—</td></tr>
 <tr><td>Thinking Block</td><td>折叠的模型推理过程</td><td>T0</td><td>—</td></tr>
-<tr><td>Tool Call Line</td><td>搜索/读取/执行摘要</td><td>T0</td><td>P18 折叠 · P19 风险色</td></tr>
+<tr><td>Tool Call Line</td><td>grep/read-file/execute 摘要</td><td>T0</td><td>P18 折叠 · P19 风险色</td></tr>
 <tr><td>Clarify Line</td><td>~ 轻量澄清</td><td>T0</td><td>P27 配置补齐（重量级）</td></tr>
 <tr><td>Plan Card</td><td>任务规划，唯一带边框</td><td>T0</td><td>P02</td></tr>
-<tr><td>Approval Bar</td><td>批量/高风险动作确认</td><td>T0</td><td>P10 · P19</td></tr>
+<tr><td>Approval Bar</td><td>批量/高风险动作确认，支持排队</td><td>T0</td><td>P10 · P19</td></tr>
 <tr><td>Progress Line</td><td>spinner + 下一步</td><td>T0</td><td>P01 · P11</td></tr>
 <tr><td>Sub Header</td><td>阶段/小节标题</td><td>T0</td><td>—</td></tr>
-<tr><td>Steps List</td><td>消息体内联阶段清单</td><td>T0</td><td>P02（同数据不同呈现）</td></tr>
 <tr><td>Checklist Row</td><td>配置/环境逐项核对</td><td>T0</td><td>—</td></tr>
-<tr><td>Diff Card</td><td>代码 diff，逐 token 高亮</td><td>T0</td><td>P05 · P18 折叠外壳</td></tr>
+<tr><td>Diff Card</td><td>代码 diff，左右分栏，逐 token 高亮</td><td>T0</td><td>P05 · P18 折叠外壳</td></tr>
+<tr><td>New File Card</td><td>新建文件，单栏纯内容不刷色</td><td>T0</td><td>P18 折叠外壳</td></tr>
 <tr><td>Report Card</td><td>横幅 + 统计 + 报表</td><td>T0</td><td>P12 · P18 折叠外壳</td></tr>
 <tr><td>Migration Row</td><td>组件替换：源 → 目标</td><td>T0</td><td>—</td></tr>
 <tr><td>Tag Chips</td><td>批量枚举同类项</td><td>T0</td><td>—</td></tr>
 <tr><td>System Tip Line</td><td>一次性提示</td><td>T0</td><td>—</td></tr>
-<tr><td>Console Log</td><td>工具调用原始输出</td><td>T0</td><td>P11</td></tr>
 <tr><td>Suggested Actions</td><td>输入框上方推荐操作</td><td>T0</td><td>P28</td></tr>
 <tr><td>Compact Progress</td><td>压缩上下文等系统维护进度</td><td>T0</td><td>P20</td></tr>
-<tr><td>Diff Split Toggle</td><td>unified/split 切换</td><td>T0</td><td>P05</td></tr>
 </table>
 <div class="note"><b>组件评审门槛同样适用：</b>新增对话流元件前先查这张台账与上面 13 类决策——多数"新想法"其实是已有元件的变体，只是符号或颜色选错了。真正的新增，做完补进 <a href="#comp">组件清单</a> 与 <code>theme.ts</code>。</div>
 </section>
@@ -1930,6 +1938,29 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 <tr><td>HISTORY</td><td>历史会话，全文可搜；支持 fork 出新任务</td><td>P20 上下文管理</td><td><kbd>Ctrl+H</kbd></td></tr>
 </table>
 <div class="note"><b><code>⇄ 跟随</code>——借自 MobaXterm SFTP 面板跟随当前目录。</b><strong>Agent 改到哪个文件，左侧工程树就高亮定位到哪个文件，风险热力同步更新</strong>，用户不用在"AI 说它改了 crypto.c"和"我去树里找"之间做翻译。是 P22 Linked Drill-down 在框架层的常驻体现——联动不止发生在点击时，也发生在 Agent 行动时。</div>
+
+<div class="sublabel">工程树深层嵌套 —— 超过 3 层怎么办</div>
+<p class="desc">PROJECT 面板只有 18–28 列（见上方「区域规格」），工程树缩进却没有深度上限——真实仓库里 <code>src/core/modules/http/</code> 这种 5 层嵌套很常见。逐层缩进画到第 5 层，树线本身就吃掉小半个面板宽度，文件名没地方待——这和 <a href="#primlib">图表单元</a> 那条"画不下的东西要显式说，不能悄悄省略"的纪律撞在一起：工程树画不下深层结构时，也不能悄悄截断文件名了事。</p>
+<div class="fig"><span class="fig-t">朴素展开 —— 5 层直接缩进，18 列很快撑爆</span>
+<pre class="dense">nginx/
+├ src/
+│ ├ core/
+│ │ ├ modules/
+│ │ │ ├ http/
+│ │ │ │  <span class="sel">ngx_http.c</span> <span class="wn">⚠</span>
+│ │ │ └ event/
+│ │ └ os/
+│ └ misc/
+└ conf/</pre>
+</div>
+<div class="fig"><span class="fig-t">中间路径省略 —— 只留根与当前活跃文件的直系祖先，其余折成一个可展开的 …</span>
+<pre class="dense">nginx/
+├ <span class="cm">… <span class="fw">3 层已折叠</span> · <span class="fw">[↵]</span> <span class="fw">展开</span></span>
+│ └ http/
+│    <span class="sel">ngx_http.c</span> <span class="wn">⚠</span>
+└ conf/</pre>
+</div>
+<p class="rule"><code>…</code> 不是省略号装饰，是<strong>可交互节点</strong>——<kbd>Enter</kbd> 就地展开成完整中间层，信息不丢，只是先收起来；和 <a href="#primlib">Ranking 的 "… N more"</a>、火焰图的"N 帧过窄未显示"是同一条纪律：画不下就显式说画不下，不能悄悄吞掉。折叠边界跟 <code>⇄ 跟随</code> 联动——Agent 当前在改的文件，它那条祖先路径<strong>自动展开到底</strong>；不在这条活跃路径上的深层子树才折叠成 <code>…</code>，用户不用先手动点开五层才看到 Agent 正在碰哪个文件。超过 3 层祖先触发折叠——3 是这里的阈值，不是 5：5 层只是"深层嵌套经常发生"的举例，不是要等用户撑到 5 层折叠才生效。</p>
 
 <div class="sublabel">折叠降级链</div>
 <pre>≥160col  Dock + Canvas×3 + Inspector          <span class="cm"><span class="fw">全展开</span></span>
