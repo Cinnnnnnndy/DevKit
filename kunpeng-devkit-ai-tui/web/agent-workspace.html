@@ -392,20 +392,34 @@ td.fnname{color:var(--ok)}
 
 /* ══ Bottom Input（取自 .inp .box）══ */
 .bottom-input{flex:none;background:transparent;border-top:none;padding:10px var(--sp-lg);position:relative}
-/* ══ 调优曲线：输入框上方固定区域，仅调优类场景（带 hpo 数据）展示，实时滚动播放 ══ */
-.tune-chart{margin-bottom:8px;padding:8px 10px 6px;background:var(--surf-1);border:1px solid var(--bd1);border-radius:8px}
-.tc-top{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-family:var(--mono);font-size:12px}
-.tc-title{color:var(--fg3);letter-spacing:.14em;text-transform:uppercase;font-weight:700}
-.tc-round{color:var(--fg4)}
-.tc-live{display:flex;align-items:center;gap:4px;margin-left:auto;color:var(--pri-h);font-weight:700;letter-spacing:.08em}
+/* ══ 调优曲线：输入框上方固定区域，仅调优类场景（带 hpo 数据）展示，可收起，图表/表格切换 ══ */
+.tune-chart.tc-collapse{margin:0 0 8px;background:var(--surf-1);border:1px solid var(--bd1)}
+.tune-chart .tc-chead{background:transparent;padding:7px 10px}
+.tune-chart .tc-chead:hover{background:var(--s2)}
+.tune-chart .tc-clb{color:var(--fg3);letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+.tune-chart .tc-csum{font-size:12px}
+.tune-chart .tc-cbody{padding:2px 10px 8px}
+.tc-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-family:var(--mono);font-size:12px}
+.tc-live{display:flex;align-items:center;gap:4px;color:var(--pri-h);font-weight:700;letter-spacing:.08em}
 .tc-live .dot{width:5px;height:5px;border-radius:50%;background:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
-.tc-val{font-weight:700}
+.tc-views{display:flex;gap:2px;margin-left:auto;background:var(--s3);border-radius:6px;padding:2px}
+.tc-vbtn{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:4px;border:0;
+  background:transparent;color:var(--fg4);cursor:pointer;transition:background .12s,color .12s}
+.tc-vbtn:hover{color:var(--fg2)}
+.tc-vbtn.active{background:var(--pri-h);color:#fff}
 .tc-svg{display:block;width:100%;height:64px}
 .tc-svg .tc-base{stroke:var(--bd3);stroke-width:1;stroke-dasharray:3 3}
 .tc-svg .tc-area{fill:rgba(61,152,255,.12);stroke:none}
 .tc-svg .tc-line{fill:none;stroke:var(--pri-h);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
 .tc-svg .tc-cur{fill:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
 .tc-svg .tc-best{fill:var(--ok)}
+.tc-table-wrap{max-height:104px;overflow-y:auto;border:1px solid var(--bd1);border-radius:6px;background:var(--elev)}
+.tc-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+.tc-table th{position:sticky;top:0;background:var(--elev);color:var(--fg4);text-align:left;
+  padding:4px 8px;font-weight:600;letter-spacing:.06em;white-space:nowrap}
+.tc-table td{padding:3px 8px;color:var(--fg2);border-top:1px solid var(--bd1);white-space:nowrap}
+.tc-table tr.best td{color:var(--ok);font-weight:700}
+.tc-table tr.cur td{color:var(--fg)}
 /* ══ 斜杠命令联想菜单 ══ */
 .slash-menu{position:absolute;left:var(--sp-lg);right:var(--sp-lg);bottom:100%;margin-bottom:8px;
   background:var(--panel-bg);border:1px solid var(--panel-bd);border-radius:10px;
@@ -1389,14 +1403,28 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
   <button class="scroll-btm" id="scrollBtm" title="回到底部">↓</button>
 
   <div class="bottom-input">
-    <div class="tune-chart" id="tuneChart" style="display:none">
-      <div class="tc-top">
-        <span class="tc-title">调优曲线</span>
-        <span class="tc-round" id="tcRound">Round 0/0</span>
-        <span class="tc-live"><span class="dot"></span>LIVE</span>
-        <span class="tc-val" id="tcVal"></span>
+    <div class="tune-chart tc-collapse open" id="tuneChart" style="display:none">
+      <div class="tc-chead">
+        <span class="tc-car">▾</span>
+        <span class="tc-clb">调优曲线</span>
+        <span class="tc-csum" id="tcSum">Round 0/0</span>
       </div>
-      <svg class="tc-svg" id="tcSvg" viewBox="0 0 600 64" preserveAspectRatio="none"></svg>
+      <div class="tc-cbody">
+        <div class="tc-toolbar">
+          <span class="tc-live"><span class="dot"></span>LIVE</span>
+          <div class="tc-views" id="tcViews">
+            <button class="tc-vbtn active" data-view="chart" type="button">图表</button>
+            <button class="tc-vbtn" data-view="table" type="button">表格</button>
+          </div>
+        </div>
+        <svg class="tc-svg" id="tcSvg" viewBox="0 0 600 64" preserveAspectRatio="none"></svg>
+        <div class="tc-table-wrap" id="tcTableWrap" style="display:none">
+          <table class="tc-table">
+            <thead><tr><th>Round</th><th>req/s</th><th>vs baseline</th></tr></thead>
+            <tbody id="tcTableBody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
     <div class="bi-actions" id="biActions"></div>
     <div class="slash-menu" id="slashMenu"></div>
@@ -1659,8 +1687,9 @@ function renderSuggestions(agentKey,scenarioKey){
     `<button class="bi-btn${i===0?'':' secondary'}">${s}</button>`).join('');
 }
 
-/* 调优曲线：输入框上方固定区域，逐轮回放 HPO 迭代曲线，播完暂停后从头继续，模拟"实时跑动" */
-let tuneTimer=null;
+/* 调优曲线：输入框上方固定可收起区域，逐轮回放 HPO 迭代曲线，播完暂停后从头继续，模拟"实时跑动"；
+   支持图表/表格视图切换，收起时（.tc-collapse 无 open）暂停动画，展开时恢复 */
+let tuneTimer=null,tuneView='chart';
 function stopTuneChart(){
   if(tuneTimer){ clearInterval(tuneTimer); tuneTimer=null; }
 }
@@ -1673,8 +1702,9 @@ function renderTuneChart(agentKey,scenarioKey){
   const {series,baseline,bestRound}=meta.hpo;
   const total=series.length;
   const svg=document.getElementById('tcSvg');
-  const roundEl=document.getElementById('tcRound');
-  const valEl=document.getElementById('tcVal');
+  const sumEl=document.getElementById('tcSum');
+  const tbody=document.getElementById('tcTableBody');
+  const tableWrap=document.getElementById('tcTableWrap');
   const W=600,H=64,padT=8,padB=10,padL=4,padR=4;
   const lo=Math.min(baseline,...series),hi=Math.max(...series);
   const margin=(hi-lo)*0.12||1;
@@ -1695,16 +1725,30 @@ function renderTuneChart(agentKey,scenarioKey){
       `<circle class="tc-cur" cx="${xOf(reveal-1).toFixed(1)}" cy="${yOf(series[reveal-1]).toFixed(1)}" r="3.2"/>`;
     const curVal=series[reveal-1];
     const delta=((curVal-baseline)/baseline*100).toFixed(1);
-    roundEl.textContent=`Round ${reveal}/${total}`;
-    valEl.textContent=`${curVal.toLocaleString()} req/s · ${delta>=0?'+':''}${delta}%`;
-    valEl.style.color=curVal>=baseline?'var(--ok)':'var(--dgr)';
+    sumEl.innerHTML=`Round ${reveal}/${total} · ${curVal.toLocaleString()} req/s · `+
+      `<span style="color:${curVal>=baseline?'var(--ok)':'var(--dgr)'}">${delta>=0?'+':''}${delta}%</span>`;
+    tbody.innerHTML=series.slice(0,reveal).map((v,i)=>{
+      const d=((v-baseline)/baseline*100).toFixed(1);
+      const cls=(i===bestIdx&&i<reveal)?'best':(i===reveal-1?'cur':'');
+      return `<tr class="${cls}"><td>Round ${i+1}</td><td>${v.toLocaleString()}</td>`+
+        `<td style="color:${v>=baseline?'var(--ok)':'var(--dgr)'}">${d>=0?'+':''}${d}%</td></tr>`;
+    }).join('');
+    if(tuneView==='table') tableWrap.scrollTop=tableWrap.scrollHeight;
   }
   draw();
   tuneTimer=setInterval(()=>{
+    if(!box.classList.contains('open')) return;
     reveal=reveal>=total?1:reveal+1;
     draw();
   },220);
 }
+document.getElementById('tcViews').addEventListener('click',e=>{
+  const btn=e.target.closest('.tc-vbtn'); if(!btn) return;
+  tuneView=btn.dataset.view;
+  document.querySelectorAll('#tcViews .tc-vbtn').forEach(b=>b.classList.toggle('active',b===btn));
+  document.getElementById('tcSvg').style.display=tuneView==='chart'?'':'none';
+  document.getElementById('tcTableWrap').style.display=tuneView==='table'?'':'none';
+});
 
 function selectScenario(agentKey,scenarioKey){
   curAgent=agentKey;
@@ -1981,6 +2025,9 @@ biInput.addEventListener('blur',()=>setTimeout(closeSlashMenu,120));
 
 renderSessionList('migrate','src-migrate');
 selectScenario('migrate','src-migrate');
+/* 默认收起右侧源码区，即便初始场景带 code，也要用户手动展开 */
+document.getElementById('workspace').classList.add('foldcode');
+document.getElementById('cfoldBtn').classList.remove('on');
 
 /* ══ 皮肤切换：深色/浅色二选一配色。每次打开页面都从深色开始，不做持久化 ══ */
 function setColorTheme(theme){
