@@ -406,7 +406,9 @@ td.fnname{color:var(--ok)}
   background:transparent;color:var(--fg4);cursor:pointer;transition:background .12s,color .12s}
 .tc-vbtn:hover{color:var(--fg2)}
 .tc-vbtn.active{background:var(--pri-h);color:#fff}
-.tc-svg{display:block;width:100%;height:64px}
+.tc-svg{display:block;width:100%;height:104px}
+.tc-svg .tc-grid{stroke:var(--bd1);stroke-width:1}
+.tc-svg .tc-ytick,.tc-svg .tc-xtick{font-family:var(--mono);font-size:9px;fill:var(--fg4)}
 .tc-svg .tc-base{stroke:var(--bd3);stroke-width:1;stroke-dasharray:3 3}
 .tc-svg .tc-area{fill:rgba(61,152,255,.12);stroke:none}
 .tc-svg .tc-line{fill:none;stroke:var(--pri-h);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
@@ -1414,7 +1416,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
         </div>
       </div>
       <div class="tc-cbody">
-        <svg class="tc-svg" id="tcSvg" viewBox="0 0 600 64" preserveAspectRatio="none"></svg>
+        <svg class="tc-svg" id="tcSvg" viewBox="0 0 600 104"></svg>
         <div class="tc-table-wrap" id="tcTableWrap" style="display:none">
           <table class="tc-table">
             <thead><tr><th>Round</th><th>req/s</th><th>vs baseline</th></tr></thead>
@@ -1702,12 +1704,30 @@ function renderTuneChart(agentKey,scenarioKey){
   const sumEl=document.getElementById('tcSum');
   const tbody=document.getElementById('tcTableBody');
   const tableWrap=document.getElementById('tcTableWrap');
-  const W=600,H=64,padT=8,padB=10,padL=4,padR=4;
+  /* viewBox 按实际渲染像素设置，避免非等比缩放把坐标轴文字/圆点拉变形 */
+  const W=svg.clientWidth||600,H=104,padT=10,padB=20,padL=42,padR=8;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
   const lo=Math.min(baseline,...series),hi=Math.max(...series);
   const margin=(hi-lo)*0.12||1;
-  const yOf=v=>padT+(H-padT-padB)*(1-(v-(lo-margin))/((hi+margin)-(lo-margin)));
+  const yMin=lo-margin,yMax=hi+margin;
+  const yOf=v=>padT+(H-padT-padB)*(1-(v-yMin)/(yMax-yMin));
   const xOf=i=>padL+(W-padL-padR)*(total===1?0:i/(total-1));
   const baseY=yOf(baseline).toFixed(1);
+  const fmtK=v=>Math.round(v/1000)+'k';
+  /* 坐标轴：纵轴取 3 档刻度值，横轴按总轮次取约 6 个刻度，跟 reveal 无关，只画一次 */
+  const yTicks=[yMax,(yMax+yMin)/2,yMin];
+  const axisHTML=yTicks.map(v=>{
+    const y=yOf(v).toFixed(1);
+    return `<line class="tc-grid" x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}"/>`+
+      `<text class="tc-ytick" x="${padL-6}" y="${(+y+3).toFixed(1)}" text-anchor="end">${fmtK(v)}</text>`;
+  }).join('')+(()=>{
+    const step=Math.max(1,Math.round(total/6));
+    const rounds=[];
+    for(let r=1;r<total;r+=step) rounds.push(r);
+    rounds.push(total);
+    return rounds.map(r=>
+      `<text class="tc-xtick" x="${xOf(r-1).toFixed(1)}" y="${H-4}" text-anchor="middle">${r}</text>`).join('');
+  })();
   let reveal=1;
   function draw(){
     const pts=series.slice(0,reveal).map((v,i)=>`${xOf(i).toFixed(1)},${yOf(v).toFixed(1)}`).join(' ');
@@ -1715,7 +1735,8 @@ function renderTuneChart(agentKey,scenarioKey){
     const bestIdx=bestRound-1;
     const bestMark=bestIdx<reveal?
       `<rect class="tc-best" x="${(xOf(bestIdx)-3).toFixed(1)}" y="${(yOf(series[bestIdx])-3).toFixed(1)}" width="6" height="6"/>`:'';
-    svg.innerHTML=`<line class="tc-base" x1="${padL}" y1="${baseY}" x2="${W-padR}" y2="${baseY}"/>`+
+    svg.innerHTML=axisHTML+
+      `<line class="tc-base" x1="${padL}" y1="${baseY}" x2="${W-padR}" y2="${baseY}"/>`+
       `<polygon class="tc-area" points="${areaPts}"/>`+
       `<polyline class="tc-line" points="${pts}"/>`+
       bestMark+
