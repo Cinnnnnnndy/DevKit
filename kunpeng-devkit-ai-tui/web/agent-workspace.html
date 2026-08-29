@@ -392,6 +392,20 @@ td.fnname{color:var(--ok)}
 
 /* ══ Bottom Input（取自 .inp .box）══ */
 .bottom-input{flex:none;background:transparent;border-top:none;padding:10px var(--sp-lg);position:relative}
+/* ══ 调优曲线：输入框上方固定区域，仅调优类场景（带 hpo 数据）展示，实时滚动播放 ══ */
+.tune-chart{margin-bottom:8px;padding:8px 10px 6px;background:var(--surf-1);border:1px solid var(--bd1);border-radius:8px}
+.tc-top{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-family:var(--mono);font-size:12px}
+.tc-title{color:var(--fg3);letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+.tc-round{color:var(--fg4)}
+.tc-live{display:flex;align-items:center;gap:4px;margin-left:auto;color:var(--pri-h);font-weight:700;letter-spacing:.08em}
+.tc-live .dot{width:5px;height:5px;border-radius:50%;background:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
+.tc-val{font-weight:700}
+.tc-svg{display:block;width:100%;height:64px}
+.tc-svg .tc-base{stroke:var(--bd3);stroke-width:1;stroke-dasharray:3 3}
+.tc-svg .tc-area{fill:rgba(61,152,255,.12);stroke:none}
+.tc-svg .tc-line{fill:none;stroke:var(--pri-h);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.tc-svg .tc-cur{fill:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
+.tc-svg .tc-best{fill:var(--ok)}
 /* ══ 斜杠命令联想菜单 ══ */
 .slash-menu{position:absolute;left:var(--sp-lg);right:var(--sp-lg);bottom:100%;margin-bottom:8px;
   background:var(--panel-bg);border:1px solid var(--panel-bd);border-radius:10px;
@@ -1375,6 +1389,15 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
   <button class="scroll-btm" id="scrollBtm" title="回到底部">↓</button>
 
   <div class="bottom-input">
+    <div class="tune-chart" id="tuneChart" style="display:none">
+      <div class="tc-top">
+        <span class="tc-title">调优曲线</span>
+        <span class="tc-round" id="tcRound">Round 0/0</span>
+        <span class="tc-live"><span class="dot"></span>LIVE</span>
+        <span class="tc-val" id="tcVal"></span>
+      </div>
+      <svg class="tc-svg" id="tcSvg" viewBox="0 0 600 64" preserveAspectRatio="none"></svg>
+    </div>
     <div class="bi-actions" id="biActions"></div>
     <div class="slash-menu" id="slashMenu"></div>
     <div class="bi-row">
@@ -1600,7 +1623,11 @@ const SCENARIOS={
      goal:'perf-params-tuner-agent 五阶段流水线：收集调优场景 → 生成任务模板 → 生成参数模板 → 执行参数调优 → 生成调优报告',
      plan:[{t:'收集调优场景',d:'Redis 6.0.20 · 缓存场景',s:'done'},{t:'生成任务/参数模板',d:'45 个参数（System 15 + Redis 30）',s:'done'},
        {t:'执行参数调优',d:'HPO 30 轮 · 0 失败',s:'done'},{t:'生成调优报告',d:'+20.78%（Round 9）',s:'done'}],
-     sugg:['应用最优配置到 Redis','增大轮数至 50-80 深度调优','导出可视化报告']}
+     sugg:['应用最优配置到 Redis','增大轮数至 50-80 深度调优','导出可视化报告'],
+     hpo:{baseline:64433,bestRound:9,
+       series:[65120,68240,66980,70150,72430,71080,74960,76510,77821,75330,
+               73870,69920,71460,68330,65780,61240,57690,52637,58920,63410,
+               66780,69230,71560,73080,74420,75190,74680,75810,76230,74990]}}
   ]
 };
 const lastScenario={migrate:'src-migrate',develop:'vectorize',tune:'diagnose'};
@@ -1632,6 +1659,53 @@ function renderSuggestions(agentKey,scenarioKey){
     `<button class="bi-btn${i===0?'':' secondary'}">${s}</button>`).join('');
 }
 
+/* 调优曲线：输入框上方固定区域，逐轮回放 HPO 迭代曲线，播完暂停后从头继续，模拟"实时跑动" */
+let tuneTimer=null;
+function stopTuneChart(){
+  if(tuneTimer){ clearInterval(tuneTimer); tuneTimer=null; }
+}
+function renderTuneChart(agentKey,scenarioKey){
+  const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
+  const box=document.getElementById('tuneChart');
+  stopTuneChart();
+  if(!meta||!meta.hpo){ box.style.display='none'; return; }
+  box.style.display='';
+  const {series,baseline,bestRound}=meta.hpo;
+  const total=series.length;
+  const svg=document.getElementById('tcSvg');
+  const roundEl=document.getElementById('tcRound');
+  const valEl=document.getElementById('tcVal');
+  const W=600,H=64,padT=8,padB=10,padL=4,padR=4;
+  const lo=Math.min(baseline,...series),hi=Math.max(...series);
+  const margin=(hi-lo)*0.12||1;
+  const yOf=v=>padT+(H-padT-padB)*(1-(v-(lo-margin))/((hi+margin)-(lo-margin)));
+  const xOf=i=>padL+(W-padL-padR)*(total===1?0:i/(total-1));
+  const baseY=yOf(baseline).toFixed(1);
+  let reveal=1;
+  function draw(){
+    const pts=series.slice(0,reveal).map((v,i)=>`${xOf(i).toFixed(1)},${yOf(v).toFixed(1)}`).join(' ');
+    const areaPts=`${xOf(0).toFixed(1)},${(H-padB).toFixed(1)} ${pts} ${xOf(reveal-1).toFixed(1)},${(H-padB).toFixed(1)}`;
+    const bestIdx=bestRound-1;
+    const bestMark=bestIdx<reveal?
+      `<rect class="tc-best" x="${(xOf(bestIdx)-3).toFixed(1)}" y="${(yOf(series[bestIdx])-3).toFixed(1)}" width="6" height="6"/>`:'';
+    svg.innerHTML=`<line class="tc-base" x1="${padL}" y1="${baseY}" x2="${W-padR}" y2="${baseY}"/>`+
+      `<polygon class="tc-area" points="${areaPts}"/>`+
+      `<polyline class="tc-line" points="${pts}"/>`+
+      bestMark+
+      `<circle class="tc-cur" cx="${xOf(reveal-1).toFixed(1)}" cy="${yOf(series[reveal-1]).toFixed(1)}" r="3.2"/>`;
+    const curVal=series[reveal-1];
+    const delta=((curVal-baseline)/baseline*100).toFixed(1);
+    roundEl.textContent=`Round ${reveal}/${total}`;
+    valEl.textContent=`${curVal.toLocaleString()} req/s · ${delta>=0?'+':''}${delta}%`;
+    valEl.style.color=curVal>=baseline?'var(--ok)':'var(--dgr)';
+  }
+  draw();
+  tuneTimer=setInterval(()=>{
+    reveal=reveal>=total?1:reveal+1;
+    draw();
+  },220);
+}
+
 function selectScenario(agentKey,scenarioKey){
   curAgent=agentKey;
   lastScenario[agentKey]=scenarioKey;
@@ -1647,6 +1721,7 @@ function selectScenario(agentKey,scenarioKey){
     el.classList.toggle('active',!!meta && el.dataset.file===meta.file));
   renderAIPlan(agentKey,scenarioKey);
   renderSuggestions(agentKey,scenarioKey);
+  renderTuneChart(agentKey,scenarioKey);
   const hasCode=!!meta&&meta.code;
   document.getElementById('workspace').classList.toggle('foldcode',!hasCode);
   document.getElementById('cfoldBtn').classList.toggle('on',hasCode);
