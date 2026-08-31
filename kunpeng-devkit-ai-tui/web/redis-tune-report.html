@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>参数调优报告 · Kunpeng DevKit AI</title>
+<title>参数调优 · Agent Workspace · Kunpeng DevKit AI</title>
 <style>
 /* 视觉体系沿用 demo.html / demo-v2.html 的 PTO token —— 1px 描边、字符网格；
    结构性区块（侧栏分组、导航/AI Plan/主内容）改为圆角矩形卡片浮在页面
@@ -22,9 +22,12 @@
   --sel:#283457;
   --panel-bg:rgba(15,16,26,.94); --panel-bd:rgba(52,94,231,.10); --panel-bd2:rgba(52,94,231,.08);
   --input-bg:rgba(28,31,48,.92); --input-bd:rgba(52,94,231,.32);
+  /* 对齐 Pixso 设计稿：main-col / sidebar 是纯色深色卡片，跟带蓝色描边的 code-col 区分开 */
   --col-solid:rgb(22,23,30);
   --msg-usr-bg:rgba(255,255,255,.2);
+  /* stat-card 三卡片改为暖色调叠加（呼应参考图的琥珀色卡片），跟蓝色系的 panel/surf 区分开 */
   --card-bg:rgba(224,175,104,.08); --card-bd:rgba(224,175,104,.22);
+  /* 代码区纯黑，对齐设计稿实测值，跟左侧半透明玻璃卡片的 main-col/sidebar 区分开 */
   --code-bg:#000000;
   --surf-1:rgb(30,34,52); --surf-2:rgb(27,30,46); --surf-3:rgb(24,27,42); --surf-4:rgb(21,24,38);
   --ap-bg:rgb(32,36,56); --sel-fg:#fff;
@@ -32,14 +35,19 @@
   --sans:'Inter','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
   --fs-xs:12px; --fs-sm:12px; --fs-base:12.5px; --fs-md:13px;
   --sp-xs:2px; --sp-sm:4px; --sp-md:8px; --sp-lg:12px; --sp-xl:16px;
+  /* 兼容旧配色变量名（Tokyo Night 初版留下的引用），统一映射回 PTO token，
+     避免为改配色再逐处改 HTML/JS */
+  --accent-green:var(--ok); --accent-blue:var(--pri-h); --accent-orange:var(--warn);
+  --accent-red:var(--dgr); --accent-cyan:var(--pri-h);
+  --bg-panel:var(--s1); --bg-floating:var(--s3); --border-color:var(--bd1);
+  --text-primary:var(--fg); --text-secondary:var(--fg3); --text-muted:var(--fg4);
   --tn-gold:var(--a4); --tn-red:var(--dgr); --tn-orange:var(--o5); --tn-blue:var(--pri-h);
   --tn-green:var(--g4); --tn-teal:#2ac3de; --tn-purple:var(--v4); --tn-cyan:#7dcfff;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(--fs-base);
-  -webkit-font-smoothing:antialiased;position:relative;
-  overflow-y:auto;overflow-x:hidden;display:block;min-height:100vh}
+  -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden;position:relative}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
     radial-gradient(ellipse 120% 90% at 0% 100%,rgba(52,94,231,.26) 0%,rgba(52,94,231,.09) 30%,transparent 60%),
@@ -47,34 +55,130 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
     radial-gradient(ellipse 90% 70% at 50% 95%,rgba(52,94,231,.11) 0%,rgba(102,206,250,.03) 30%,transparent 55%),
     radial-gradient(ellipse 80% 60% at 8% 12%,rgba(187,154,247,.10) 0%,rgba(123,79,184,.03) 35%,transparent 60%),
     radial-gradient(ellipse 70% 50% at 92% 8%,rgba(52,94,231,.07) 0%,rgba(187,154,247,.03) 35%,transparent 55%),
-    radial-gradient(ellipse 60% 40% at 50% 50%,rgba(52,94,231,.05) 0%,transparent 50%);
-  background-attachment:fixed}
+    radial-gradient(ellipse 60% 40% at 50% 50%,rgba(52,94,231,.05) 0%,transparent 50%)}
 body>*{position:relative;z-index:1}
+.scan{position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.3;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.013) 0 1px,transparent 1px 3px)}
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bd3);border-radius:5px}
 ::-webkit-scrollbar-thumb:hover{background:rgba(52,94,231,.5)}
+::-webkit-scrollbar-corner{background:transparent}
 *{scrollbar-width:thin;scrollbar-color:var(--bd3) transparent}
 
-/* ══ 报告页壳：单列居中卡片，取代原 workspace 三栏布局 ══ */
-.report-wrap{max-width:860px;margin:0 auto;padding:32px 20px 60px}
-.report-hd{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.report-hd .rt-title{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--fg);letter-spacing:.02em}
-.report-hd .rt-meta{font-family:var(--mono);font-size:12px;color:var(--fg4)}
-.report-card{background:var(--col-solid);border-radius:8px;margin-top:14px;overflow:hidden}
-.report-card .panel-body{padding:14px 18px 6px}
+/* ══ Top Bar ══ */
+.topbar{height:40px;flex:none;display:flex;align-items:center;gap:12px;padding:0 var(--sp-lg)}
+/* 品牌标 —— 与 demo.html 的 blogo 语汇一致：图标 + 分段反色标识块 */
+.blogo{display:inline-flex;align-items:stretch;font-family:var(--mono);font-size:14px;
+  font-weight:700;letter-spacing:.14em;line-height:1.9;user-select:none;flex:none}
+.blogo span{padding:0 4px;display:flex;align-items:center;justify-content:center}
+.blogo .g1{color:var(--fg);letter-spacing:.18em}
+.blogo .g2{color:var(--fg2);letter-spacing:.18em}
+.blogo .kpi{width:26px;height:26px;margin-right:7px;align-self:center;object-fit:contain;flex:none}
+.blogo .ai-badge{display:inline-flex;align-items:center;justify-content:center;
+  margin-left:5px;padding:1px 7px 2px;border-radius:6px;
+  background:linear-gradient(135deg,#345ee7 0%,#4f7ef2 45%,#66cefa 100%);
+  color:#fff;font-weight:800;letter-spacing:.04em;
+  box-shadow:0 0 10px rgba(52,94,231,.55),0 0 22px rgba(102,206,250,.3),inset 0 1px 0 rgba(255,255,255,.3)}
 
-/* AI PLAN */
-.ai-plan{background:var(--ap-bg);overflow:hidden}
-.ap-head{display:flex;align-items:center;gap:8px;padding:9px var(--sp-lg);cursor:pointer;font-family:var(--mono)}
+/* ══ Nav bar：场景 tab（取自 .tab 文档标签语汇）══ */
+.nav-bar{flex:none;display:flex;align-items:stretch;background:transparent;
+  border-bottom:1px solid rgba(255,255,255,.04);height:34px;overflow:hidden}
+
+/* ══ Scenario tabs（PTO 风格圆角标签页）══ */
+.scenario-bar{flex:1;min-width:0;display:flex;align-items:center;gap:2px;padding:0 var(--sp-lg);
+  overflow-x:auto;height:100%;scrollbar-width:none}
+.scenario-bar::-webkit-scrollbar{display:none}
+.stab{font-family:var(--mono);font-size:12px;color:var(--fg3);
+  padding:0 4px 0 9px;height:25px;cursor:pointer;white-space:nowrap;
+  border:1px solid transparent;border-radius:6px;
+  flex:none;display:flex;align-items:center;gap:5px;background:transparent;
+  transition:background .12s ease,color .12s ease,border-color .12s ease}
+.stab:hover{color:var(--fg2);background:rgba(41,46,66,.7);border-color:rgba(255,255,255,.06)}
+.stab.on{background:rgba(52,94,231,.22);border-color:rgba(52,94,231,.42);color:var(--fg)}
+.stab .st{width:5px;height:5px;border-radius:50%;flex:none}
+.stab .st.done{background:var(--ok)}
+.stab .st.doing{background:var(--pri-h)}
+.stab .st.wait{background:var(--warn)}
+.stab .st.todo{background:var(--fg4)}
+.stab .tc{width:18px;height:18px;display:flex;align-items:center;justify-content:center;
+  border:none;background:transparent;color:var(--fg4);border-radius:3px;cursor:pointer;
+  font-size:14px;line-height:1;opacity:0;transition:opacity .1s,background .1s}
+.stab:hover .tc,.stab.on .tc{opacity:.55}
+.stab .tc:hover{opacity:1;background:var(--s4);color:var(--fg)}
+
+/* ══ Workspace（侧栏 + 主内容 + 代码列） ══ */
+.workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0 8px;background:transparent}
+.main-col{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;position:relative;
+  margin:8px 0;border:none;border-radius:8px;overflow:hidden;
+  background:var(--col-solid)}
+html[data-theme="light"] .main-col{border:1px solid var(--bd1)}
+/* 代码列：workspace 级别的独立面板，在 main-col 右侧展开 */
+.code-col{flex:0 0 0;min-width:0;display:flex;flex-direction:column;
+  margin:8px 0;border-radius:12px;overflow:hidden;
+  background:var(--code-bg);
+  transition:flex-basis .18s ease,border .18s ease}
+.workspace:not(.foldcode) .code-col{flex-basis:28%;border:1px solid var(--panel-bd)}
+.workspace.foldcode .code-col{flex-basis:0;border:none}
+.code-scene{display:none;flex-direction:column;flex:1;min-height:0}
+.code-scene.on{display:flex}
+
+/* 侧栏是一整块从上到下的圆角卡片，四个分组靠内部分隔线区分，而不是各自独立的卡片 */
+.sidebar{width:220px;flex:none;overflow-y:auto;
+  margin:8px 0;border:none;border-radius:8px;
+  background:var(--col-solid)}
+html[data-theme="light"] .sidebar{border:1px solid var(--bd1)}
+.sd-sec{padding:6px 4px;border-bottom:1px solid var(--bd1)}
+.sd-sec:last-child{border-bottom:none}
+.sd-sec .h{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.18em;color:var(--fg4);
+  padding:4px var(--sp-lg) 5px;text-transform:uppercase}
+.sd-node{display:flex;align-items:center;gap:7px;padding:5px var(--sp-lg);margin:1px 5px;
+  cursor:default;color:var(--fg2);min-width:0;position:relative;border-radius:6px}
+.sd-node:hover{background:var(--s2)}
+.sd-node.active{background:#0066dd;color:#fff;font-weight:700}
+.sd-node.active::before{display:none}
+.sd-node .ic{width:12px;flex:none;text-align:center;font-size:12px}
+.sd-node .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.sd-node .dot,.sm-item .dot{width:5px;height:5px;border-radius:50%;flex:none;align-self:center}
+.sd-node .dot.doing,.sm-item .dot.doing{background:var(--pri-h);animation:sdpulse 1.3s ease-in-out infinite}
+.sd-node .dot.wait,.sm-item .dot.wait{background:var(--warn)}
+.sd-node .dot.done,.sm-item .dot.done{background:var(--ok)}
+.sd-node .dot.idle,.sm-item .dot.idle{background:var(--fg4)}
+@keyframes sdpulse{50%{opacity:.35}}
+.sd-node .m{color:var(--o3);font-weight:700;flex:none;font-size:12px}
+.sd-node .a{color:var(--ok);font-weight:700;flex:none;font-size:12px}
+
+/* 会话列表：auto-follow + 手动脱离 + 一键回底 */
+.sess-scroll{max-height:none;overflow-y:visible;position:relative}
+.sd-node.lv1{padding-left:24px} .sd-node.lv2{padding-left:35px} .sd-node.lv3{padding-left:46px}
+/* 折叠的中间路径链——深层嵌套不逐层画缩进，收成一行，Enter/点击展开；见 index.html #frame 工程树深层嵌套一节的决策 */
+.sd-node.collapsed{color:var(--fg4);cursor:pointer}
+.sd-node.collapsed .ic{color:var(--bd3)}
+.sd-node.collapsed .lb{font-style:italic}
+.sd-node.collapsed:hover{color:var(--fg2)}
+
+.main-area{flex:1;min-width:0;min-height:0;display:flex;gap:0;padding:8px}
+.right-panel{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.right-panel .panel-body{position:relative}
+
+/* ══ Conversation title ══ */
+.conv-title{flex:none;display:flex;align-items:center;gap:8px;padding:8px var(--sp-lg) 4px;font-family:var(--mono);font-size:13px;
+  font-weight:700;color:var(--fg);letter-spacing:.02em}
+.conv-title::before{content:'╭─';color:var(--bd3);font-size:11px;opacity:.45;flex:none}
+.conv-title .ct-text{flex:1;min-width:0}
+
+/* AI PLAN：钉在 nav-bar 下方、main-area 上方，跟随当前 Agent、可收起 */
+.ai-plan{flex:none;background:var(--ap-bg);border-bottom:1px solid var(--bd2);overflow:hidden}
+.ap-head{display:flex;align-items:center;gap:8px;padding:6px var(--sp-lg);cursor:pointer;
+  font-family:var(--mono)}
 .ap-arrow{font-size:12px;color:var(--fg4);transition:transform .15s;flex:none}
 .ai-plan.collapsed .ap-arrow{transform:rotate(-90deg)}
 .ap-t{font-size:12px;font-weight:700;letter-spacing:.2em;color:var(--pri-h)}
 .ap-goal{font-size:12px;color:var(--fg4)}
 .ap-goal b{color:var(--fg2);font-weight:700}
-.ap-body{max-height:120px;overflow:hidden;transition:max-height .18s ease}
+.ap-body{max-height:100px;overflow:hidden;transition:max-height .18s ease}
 .ai-plan.collapsed .ap-body{max-height:0}
-.ap-steps{display:flex;flex-wrap:wrap;gap:4px 0;padding:0 var(--sp-lg) 10px}
+.ap-steps{display:flex;gap:0;padding:0 var(--sp-lg) 8px;overflow-x:auto}
 .ap-step{display:flex;align-items:baseline;gap:7px;flex:none;padding:3px 12px 3px 0}
 .ap-step .n{font-family:var(--mono);font-size:12px;color:var(--fg4);flex:none}
 .ap-step .c{width:5px;height:5px;flex:none;border-radius:1px;align-self:center}
@@ -83,43 +187,114 @@ body>*{position:relative;z-index:1}
 .ap-step .d{font-size:12px;color:var(--fg4);white-space:nowrap}
 .ap-step:not(:last-child)::after{content:'→';color:var(--bd3);margin-left:9px;font-size:12px}
 
+.cfold{margin-left:auto;color:var(--fg4);
+  background:transparent;border:none;border-radius:5px;
+  padding:4px 6px;cursor:pointer;flex:none;display:flex;align-items:center;
+  transition:background .12s ease,color .12s ease}
+.cfold:hover{color:var(--fg2);background:var(--s3)}
+.cfold.on{color:var(--pri-h);background:var(--s3)}
+.panel-head{flex:none;display:flex;align-items:center;gap:8px;padding:8px var(--sp-lg);
+  border-bottom:1px solid var(--bd1);font-family:var(--mono)}
+.panel-head::before{content:'├─';color:var(--bd3);font-size:12px;flex:none}
+.panel-head .t{font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--fg2)}
+.panel-head .crumb{font-size:12px;color:var(--fg3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.panel-head .crumb .m{color:var(--o3);font-weight:700}
+.panel-head .crumb .fn{color:var(--pri-h)}
+.panel-head .badge{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:700;
+  letter-spacing:.06em;padding:0 6px;flex:none;line-height:1.75}
+.panel-head .badge.pass{color:#1a2b1a;background:var(--ok)}
+.panel-head .badge.run{color:#2b2410;background:var(--warn)}
+.panel-head .badge.queue{color:var(--fg3);background:var(--s4)}
+.panel-body{flex:1;min-height:0;overflow-y:auto;padding:var(--sp-lg)}
+.code-col .panel-head{border-bottom:1px solid var(--bd1)}
+.code-col .panel-body{padding:9px 0;flex:1;min-height:0;overflow-y:auto}
+
+/* 代码 / diff 行 —— 与 demo.html 的 .dl/.tk 同一套克制配色，不做彩虹语法高亮 */
+.cline{font-size:12px;line-height:1.5;white-space:pre;padding:0 var(--sp-lg)}
+.cline .no{display:inline-block;width:32px;text-align:right;padding-right:8px;color:var(--fg4);font-size:12px}
+.cline .pfx{display:inline-block;width:10px;text-align:center}
+.cline .pfx.del{color:var(--dgr)} .cline .pfx.add{color:var(--ok)}
+.cline.del{background:rgba(247,118,142,.08)} .cline.add{background:rgba(158,206,106,.08)}
+.cline.hl{background:rgba(255,170,59,.07)}
+.cline .kw,.cline .fn,.cline .str,.cline .num,.cline .ty{color:var(--fg2)}
+.cline .cmt{color:var(--fg4)}
+/* 字级 diff：只高亮真正变化的 token，而不是整行 */
+.tk{padding:0 2px}
+.tk.d{background:#49273a;color:#f7768e}
+.tk.a{background:#283d3a;color:#9ece6a}
+
 /* 通用小标题 */
 .sub-h{font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.18em;color:var(--tn-purple);
   text-transform:uppercase;margin:18px 0 8px}
 .sub-h:first-child{margin-top:0}
-.sub-h::before{content:'├─ ';color:var(--bd3);font-weight:400;letter-spacing:normal;text-transform:none}
+.sub-h .cm{font-weight:400;letter-spacing:normal;text-transform:none}
 
-/* Checklist */
+/* Plan / Checklist / Pipeline steps（复用 .slist/.srow 结构）*/
+.steps{display:flex;flex-direction:column;gap:2px;margin:8px 0}
+.step{display:flex;align-items:flex-start;gap:9px;padding:4px 0}
+/* 阶段图标：不放字符（对勾/数字），纯色块表达三种状态——
+   完成=实心填色，进行中=实心+呼吸动效，待进行=空心描边 */
+.step .c{width:9px;height:9px;flex:none;margin-top:5px;border-radius:2px;
+  font-size:0;color:transparent;box-sizing:border-box;
+  background:transparent;border:1.5px solid var(--bd2)}
+.step .c.done{background:var(--ok);border-color:var(--ok)}
+.step .c.doing{background:var(--pri-h);border-color:var(--pri-h);
+  box-shadow:0 0 6px rgba(61,152,255,.6);animation:sdpulse 1.3s ease-in-out infinite}
+.step .c.pending{background:transparent;border-color:var(--bd2)}
+.step .c.wait{background:var(--warn);border-color:var(--warn)}
+html[data-sharp] .step .c{border-radius:0}
+.step .bd{flex:1;min-width:0}
+.step .t1{font-size:14px;color:var(--fg)}
+.step .t2{font-size:14px;color:var(--fg4);margin-top:1px}
+.step .est{color:var(--fg4);margin-left:6px}
+
+/* Checklist（诊断项，取自 .rl 左边框日志行）*/
 .chk{display:flex;align-items:center;gap:9px;padding:4px 10px;
   margin:2px 0;font-size:14px;border-radius:6px;background:var(--surf-3)}
+/* 跟 .step .c 同一套方块语言：ok=实心绿，warn=实心金，不放字符 */
 .chk .ic{flex:none;width:9px;height:9px;border-radius:2px;font-size:0;color:transparent;
   box-sizing:border-box;background:transparent;border:1.5px solid var(--bd2)}
 .chk .ic.ok{background:var(--ok);border-color:var(--ok)}
 .chk .ic.warn{background:var(--warn);border-color:var(--warn)}
 .chk .lb{flex:none;color:var(--fg);min-width:120px}
 .chk .v{color:var(--fg3)} .chk .v b{color:var(--warn);font-weight:600}
-.chk::before{content:'├';color:var(--bd3);font-size:12px;flex:none;margin-right:-3px}
-.chk:last-child::before{content:'╰'}
 
 /* 对比表 */
-table.cmp{width:100%;border-collapse:collapse;font-size:14px;font-family:var(--mono);border-left:2px solid var(--bd1)}
+table.cmp{width:100%;border-collapse:collapse;font-size:14px;font-family:var(--mono)}
 table.cmp th{text-align:left;font-size:14px;letter-spacing:.1em;color:var(--tn-purple);font-weight:700;
   padding:5px 8px;border-bottom:1px solid var(--bd1);text-transform:uppercase}
 table.cmp td{padding:5px 8px;border-bottom:1px solid var(--bd1);color:var(--fg3)}
 table.cmp tr.reco td{color:var(--fg)}
 table.cmp tr.reco td:first-child{color:var(--ok);font-weight:700}
-table.rpt-tb td:first-child{white-space:nowrap}
+.cmp-bar{display:inline-block;height:9px;vertical-align:-2px;margin-right:6px}
+table.rpt-tb td{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:1px}
+table.rpt-tb td.mu{color:var(--fg4)}
 
+/* 对话区域：会话开场的用户自然语言输入，区分于 Agent 输出的样式 */
+.usr-msg{display:flex;align-items:flex-start;gap:7px;padding:8px 12px;margin:14px 0;
+  background:var(--msg-usr-bg);font-size:14px;
+  color:var(--fg);line-height:1.5;border-radius:8px}
+.usr-msg:first-child{margin-top:0}
+.usr-msg .p{color:var(--pri);font-weight:700;flex:none}
 /* AI 回复消息 */
 .ai-msg{padding:8px 12px;margin:14px 0;font-size:14px;color:var(--fg2);line-height:1.65;
-  background:rgba(224,175,104,.04);border-radius:8px;border-left:2px solid rgba(224,175,104,.18)}
+  background:rgba(224,175,104,.04);border-radius:8px}
 .ai-msg:first-child{margin-top:0}
 .ai-msg b{color:var(--fg);font-weight:600}
+/* 对话正文彩色高亮（Tokyo Night 色阶）—— 品牌蓝只用于按钮，正文关键词按语义分色，
+   参考 opencode 等 TUI 的多彩输出：工具/技能名紫、文件与命令青、结果指标金、项目/组件名蓝绿 */
+/* !important：这几个是跨容器复用的工具类（ai-msg b / chk .lb 等父级选择器优先级更高，
+   不加 !important 会被 .ai-msg b、.chk .lb 的默认文字色覆盖，颜色实际不生效） */
 .hl-tool{color:var(--tn-purple)!important}
+.hl-file{color:var(--tn-cyan)!important}
+.hl-metric{color:var(--tn-gold)!important}
+.hl-proj{color:var(--tn-teal)!important}
+.hl-code{color:var(--ok)!important}
+/* 可点击的部分（文件名链接等）统一用品牌蓝，跟按钮同一套"这是可交互"的语义 */
+.hl-link{color:var(--pri-h)!important;cursor:pointer}
 
-/* 折叠的高价值输出卡片 */
-.tc-collapse{margin:14px 0;border-radius:8px;overflow:hidden;background:var(--surf-4);border-left:2px solid var(--bd2)}
-.tc-collapse:first-child{margin-top:0}
+/* 对话区域：高价值输出（报告/表格）默认折叠，点击展开；简单工具调用保持紧凑单行 */
+.tc-collapse{margin:14px 0;border-radius:8px;overflow:hidden;background:var(--surf-4)}
 .tc-chead{display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;background:var(--surf-2)}
 .tc-chead:hover{background:var(--s2)}
 .tc-car{font-family:var(--mono);font-size:14px;color:var(--fg4);flex:none;transition:transform .15s}
@@ -129,35 +304,96 @@ table.rpt-tb td:first-child{white-space:nowrap}
 .tc-cbody{padding:12px 10px 2px}
 .tc-collapse:not(.open) .tc-cbody{display:none}
 
-/* 报告横幅 · 统计卡片 */
+/* 报告横幅 · 统计卡片（对齐 Porting Advisor 迁移报告结构）*/
 .rpt-banner{display:flex;align-items:baseline;gap:7px;font-size:14px;color:var(--ok);
-  background:rgba(158,206,106,.08);padding:8px 12px;margin:14px 0;border-radius:8px}
-.rpt-banner::before{content:'├─ ';color:rgba(158,206,106,.4)}
+  background:rgba(158,206,106,.08);padding:8px 12px;margin:14px 0;
+  border-radius:8px}
+.rpt-banner.warn{color:var(--warn);background:rgba(224,175,104,.10)}
+
+/* 阻断点提示卡：把"停在哪、为什么、要什么、下一步"从散落的日志里摘出来单独呈现 */
+.blocker{margin:14px 0;padding:8px 12px;border-radius:8px;
+  background:rgba(224,175,104,.07)}
+.blocker .bt{font-size:14px;font-weight:700;color:var(--warn);
+  display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.blocker .bl{font-size:14px;color:var(--fg2);line-height:1.7;padding:1px 0}
+.blocker .bl b{color:var(--fg);font-weight:600}
+.blocker code{font-family:var(--mono);font-size:14px;background:var(--surf-1);
+  padding:1px 5px;color:var(--pri-h)}
 .stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
-.stat-card{background:var(--card-bg);padding:9px 10px;border-radius:6px;border:1px solid var(--card-bd);position:relative}
-.stat-card::before{content:'┌';position:absolute;top:1px;left:3px;color:var(--bd3);font-size:10px;opacity:.45;font-family:var(--mono)}
-.stat-card::after{content:'┘';position:absolute;bottom:1px;right:3px;color:var(--bd3);font-size:10px;opacity:.45;font-family:var(--mono)}
+.stat-card{background:var(--card-bg);padding:9px 10px;border-radius:6px;border:1px solid var(--card-bd)}
 .stat-card .sc-lb{font-size:14px;letter-spacing:.1em;color:var(--fg4);text-transform:uppercase}
 .stat-card .sc-big{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--fg);margin:3px 0 1px}
 .stat-card .sc-sub{font-size:14px;color:var(--fg4)}
-.stat-card .sc-sub .wn{color:var(--warn)}
+.stat-card .sc-sub .wn{color:var(--warn)} .stat-card .sc-sub .mu{color:var(--fg4)}
+.rbadge{font-family:var(--mono);font-size:14px;font-weight:700;padding:0 6px;letter-spacing:.02em}
+.rbadge.warn{color:#2b1a03;background:var(--warn)}
+.rbadge.ok{color:#04231a;background:var(--ok)}
+.rbadge.muted{color:var(--fg3);background:var(--s4)}
 
-/* Agent Console */
+/* 迁移成分行：源 → 目标 + 状态徽标（系统迁移场景）*/
+.mrow{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:14px}
+.mrow .ic{flex:none;font-weight:700}
+.mrow .ic.ok{color:var(--ok)} .mrow .ic.wn{color:var(--warn)}
+.mrow .lb{color:var(--fg)}
+.mrow .ar{color:var(--fg4)}
+.mrow .tg{color:var(--fg2);flex:1;min-width:0}
+
+/* Chips / 标签（取自 .tagf .tg）*/
+.chipf{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:14px;
+  border:1px solid var(--bd2);border-radius:6px;padding:3px 8px;color:var(--fg2);white-space:nowrap;line-height:1.4}
+.chip.on{border-color:var(--ok);color:var(--ok)}
+.chip b{font-weight:700}
+
+/* Hotspot Table + Flame Graph（调优 · 瓶颈定界场景，颜色改用 PTO 的 o/v/g/a 色阶循环）*/
+table.hotspot{width:100%;border-collapse:collapse;font-family:var(--mono)}
+table.hotspot thead th{position:sticky;top:0;background:var(--s1);z-index:2;
+  text-align:left;font-size:14px;letter-spacing:.08em;color:var(--tn-purple);font-weight:700;
+  padding:5px 8px;border-bottom:1px solid var(--bd1);text-transform:uppercase}
+table.hotspot th:nth-child(1){width:150px} table.hotspot th:nth-child(2){width:76px}
+table.hotspot tbody tr{cursor:pointer}
+table.hotspot tbody tr:hover td{background:var(--s2)}
+table.hotspot tbody tr.highlighted td{background:var(--sel)}
+table.hotspot td{padding:3.5px 8px;font-size:14px;border-bottom:1px solid var(--bd1);
+  color:var(--fg3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ht-pct{display:flex;align-items:center;gap:7px;height:16px}
+.ht-bar{height:10px;min-width:4px}
+.ht-pct .v{font-weight:700;font-size:14px;flex:none}
+td.fnname{color:var(--ok)}
+.fg-legend{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:7px;font-size:14px;color:var(--fg4)}
+.fg-legend i{display:inline-block;width:7px;height:7px;margin-right:4px;vertical-align:-1px}
+.flame{display:flex;flex-direction:column;gap:1px;background:var(--app)}
+.flame-row{display:flex;height:20px}
+.flame-spacer{flex:none}
+.flame-block{flex:none;height:100%;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;color:#0b0b0b;font-weight:700;font-size:12px;white-space:nowrap;cursor:pointer;
+  transition:filter .1s;font-family:var(--mono);border-right:1px solid var(--app)}
+.flame-block:hover{filter:brightness(1.25)}
+.flame-block.active{outline:2px solid var(--pri-h);outline-offset:-2px}
+.ai-note{margin-top:9px;font-size:14px;color:var(--dgr);display:flex;gap:6px;align-items:flex-start}
+.ai-note .conf{color:var(--fg4);font-size:14px;margin-top:2px}
+
+/* Agent Console（取自 .rl 日志行 + s1 容器）*/
 .console{background:var(--surf-2);padding:8px 12px;
-  display:flex;flex-direction:column;gap:1px;font-size:14px;margin:14px 0;border-radius:8px;border-left:2px solid var(--bd2)}
-.console:first-child{margin-top:0}
+  display:flex;flex-direction:column;gap:1px;font-size:14px;margin:14px 0;border-radius:8px}
 .console::before{content:'╭─ console';font-family:var(--mono);font-size:10px;color:var(--bd3);opacity:.4;margin-bottom:2px}
 .console::after{content:'╰─';font-family:var(--mono);font-size:10px;color:var(--bd3);opacity:.4;margin-top:2px}
 .console .ln{display:flex;gap:7px;align-items:center;color:var(--fg2);padding:1.5px 0}
+/* console 行状态图标：跟 .step .c / .chk .ic 统一成同一套纯色方块，不再用字符 */
 .px-ic{display:inline-block;width:9px;height:9px;flex:none;border-radius:2px;box-sizing:border-box;background:transparent;border:1.5px solid var(--bd2)}
 .px-ic.px-ok{background:var(--ok);border-color:var(--ok)}
 .px-ic.px-warn{background:var(--warn);border-color:var(--warn)}
 .px-ic.px-active{background:var(--pri-h);border-color:var(--pri-h);box-shadow:0 0 6px rgba(61,152,255,.6)}
+.px-ic.px-idle{background:transparent;border-color:var(--bd2)}
 
-@keyframes sdpulse{50%{opacity:.35}}
+/* 场景 section 显隐 */
+.scene{display:none}
+.scene.on{display:flex;flex:1;min-width:0}
 
-/* ══ 调优曲线：可收起，图表/表格切换，回放动画 ══ */
-.tune-chart.tc-collapse{background:var(--surf-1);border:1px solid var(--bd1);border-left:1px solid var(--bd1)}
+/* ══ Bottom Input（取自 .inp .box）══ */
+.bottom-input{flex:none;background:transparent;border-top:none;padding:10px var(--sp-lg);position:relative}
+/* ══ 调优曲线：输入框上方固定区域，仅调优类场景（带 hpo 数据）展示，可收起，图表/表格切换 ══ */
+.tune-chart.tc-collapse{margin:0 0 8px;background:var(--surf-1);border:1px solid var(--bd1)}
 .tune-chart .tc-chead{background:transparent;padding:7px 10px}
 .tune-chart .tc-chead:hover{background:var(--s2)}
 .tune-chart .tc-clb{color:var(--fg3);letter-spacing:.14em;text-transform:uppercase;font-size:12px}
@@ -185,139 +421,1290 @@ table.rpt-tb td:first-child{white-space:nowrap}
 .tc-table td{padding:3px 8px;color:var(--fg2);border-top:1px solid var(--bd1);white-space:nowrap}
 .tc-table tr.best td{color:var(--ok);font-weight:700}
 .tc-table tr.cur td{color:var(--fg)}
+/* ══ 斜杠命令联想菜单 ══ */
+.slash-menu{position:absolute;left:var(--sp-lg);right:var(--sp-lg);bottom:100%;margin-bottom:8px;
+  background:var(--panel-bg);border:1px solid var(--panel-bd);border-radius:10px;
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 10px 28px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);
+  overflow:hidden;display:none;z-index:30}
+.slash-menu.show{display:block}
+.sm-list{max-height:220px;overflow-y:auto;padding:4px}
+.sm-item{display:flex;align-items:baseline;gap:10px;padding:6px 9px;border-radius:6px;cursor:pointer;
+  font-family:var(--mono);transition:background .1s ease}
+.sm-item:hover{background:var(--s2)}
+.sm-item.sel{background:rgba(52,94,231,.22)}
+.sm-item .cmd{color:var(--pri-h);font-weight:700;font-size:12.5px;flex:none;min-width:172px}
+.sm-item .desc{color:var(--fg3);font-size:12px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sm-empty{padding:10px 12px;font-size:12px;color:var(--fg4)}
+.sm-hint{display:flex;gap:10px;padding:6px 12px;border-top:1px solid var(--bd1);font-size:11px;color:var(--fg4)}
+.sm-hint b{background:var(--s4);color:var(--fg2);font-weight:500;padding:0 5px;border-radius:3px}
+.bi-row{display:flex;align-items:flex-start;gap:9px;background:var(--input-bg);
+  border:1px solid var(--input-bd);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-radius:8px;padding:8px 12px;font-size:var(--fs-md);position:relative;overflow:hidden;
+  box-shadow:0 0 16px rgba(52,94,231,.18),inset 0 1px 0 rgba(255,255,255,.06);
+  transition:box-shadow .15s,border-color .15s}
+.bi-row:focus-within{border-color:rgba(52,94,231,.65);
+  box-shadow:0 0 24px rgba(52,94,231,.32),inset 0 1px 0 rgba(255,255,255,.1)}
+/* 玻璃质感高光：模拟左上角一处光斑 */
+.bi-row::before{content:'';position:absolute;top:-14px;left:-14px;width:64px;height:56px;
+  background:radial-gradient(ellipse at center,rgba(255,255,255,.3) 0%,rgba(255,255,255,.08) 50%,transparent 75%);
+  filter:blur(2.5px);pointer-events:none}
+.bi-row .p{color:var(--pri);font-weight:700;position:relative;margin-top:2px}
+.bi-row textarea{flex:1;background:transparent;border:0;outline:0;resize:none;color:var(--fg);
+  font-family:var(--mono);font-size:var(--fs-md);line-height:1.5;height:calc(1.5em*3)}
+.bi-row textarea::placeholder{color:var(--fg4)}
+.bi-cur{width:6px;height:14px;background:var(--pri-h);display:inline-block;margin-top:2px;
+  animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
 
-/* ══ Action buttons ══ */
-.bi-actions{display:flex;gap:6px;padding:0;flex-wrap:wrap;margin-top:14px}
+/* ══ Status Bar ══ */
+.status-bar{height:26px;flex:none;display:flex;align-items:stretch;
+  font-size:12px;color:var(--fg4)}
+.status-bar .keys{display:flex;gap:11px;overflow:hidden;align-items:center;padding:0 var(--sp-lg)}
+.status-bar .keys b{background:var(--s4);color:var(--fg);font-weight:500;padding:0 5px;font-size:12px}
+
+/* ══ TUI 装饰 ══ */
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 8% 15%,rgba(52,94,231,.35),transparent),
+    radial-gradient(1px 1px at 25% 55%,rgba(102,206,250,.22),transparent),
+    radial-gradient(1.5px 1.5px at 45% 85%,rgba(52,94,231,.28),transparent),
+    radial-gradient(1px 1px at 65% 25%,rgba(187,154,247,.25),transparent),
+    radial-gradient(1px 1px at 82% 65%,rgba(102,206,250,.18),transparent),
+    radial-gradient(1.5px 1.5px at 15% 78%,rgba(52,94,231,.22),transparent),
+    radial-gradient(1px 1px at 92% 42%,rgba(187,154,247,.2),transparent);
+  animation:particleDrift 25s linear infinite}
+@keyframes particleDrift{0%{transform:translateY(0)}100%{transform:translateY(-20px)}}
+.workspace{position:relative}
+.workspace::before,.workspace::after{content:'';position:absolute;width:12px;height:12px;pointer-events:none;z-index:3;opacity:.2}
+.workspace::before{top:4px;left:4px;border-top:1px solid var(--pri-h);border-left:1px solid var(--pri-h)}
+.workspace::after{bottom:4px;right:4px;border-bottom:1px solid var(--pri-h);border-right:1px solid var(--pri-h)}
+
+/* ── TUI 线框 box-drawing：面板角标、管道标记、分隔线 ── */
+.main-col::before,.main-col::after,
+.code-col::before,.code-col::after,
+.sidebar::before,.sidebar::after{
+  position:absolute;font-family:var(--mono);color:var(--bd3);pointer-events:none;z-index:2;font-size:11px;line-height:1;opacity:.55}
+.main-col,.code-col,.sidebar{position:relative}
+.main-col::before{content:'╭';top:2px;left:4px}
+.main-col::after{content:'╯';bottom:2px;right:4px}
+.sidebar::before{content:'╭';top:2px;left:4px}
+.sidebar::after{content:'╰';bottom:2px;left:4px}
+.code-col::before{content:'╮';top:2px;right:4px}
+.code-col::after{content:'╯';bottom:2px;right:4px}
+
+/* 消息左管道线 */
+.usr-msg{border-left:2px solid rgba(52,94,231,.35)}
+.ai-msg{border-left:2px solid rgba(224,175,104,.18)}
+.console{border-left:2px solid var(--bd2)}
+
+/* checklist 行前缀 */
+.chk::before{content:'├';color:var(--bd3);font-size:12px;flex:none;margin-right:-3px}
+.chk:last-child::before{content:'╰'}
+
+/* 报告 banner 和 blocker 前缀线 */
+.blocker{border-left:2px solid var(--warn)}
+
+/* stat-card 角标 */
+.stat-card{position:relative}
+.stat-card::before{content:'┌';position:absolute;top:1px;left:3px;color:var(--bd3);font-size:10px;opacity:.45;font-family:var(--mono)}
+.stat-card::after{content:'┘';position:absolute;bottom:1px;right:3px;color:var(--bd3);font-size:10px;opacity:.45;font-family:var(--mono)}
+
+/* 折叠区管道线 */
+.tc-collapse{border-left:2px solid var(--bd2)}
+
+
+/* 对比表左管道 */
+table.cmp{border-left:2px solid var(--bd1)}
+
+/* 底部输入管道装饰 */
+.bottom-input::before{content:'╰─ input';font-family:var(--mono);font-size:10px;color:var(--bd3);opacity:.35;display:block;margin-bottom:3px;padding-left:2px}
+.scroll-btm{position:absolute;bottom:56px;right:14px;width:28px;height:28px;
+  border-radius:50%;background:var(--s3);color:var(--fg3);border:none;cursor:pointer;
+  display:none;align-items:center;justify-content:center;z-index:10;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);font-size:12px;font-family:var(--mono);
+  transition:opacity .15s,background .15s}
+.scroll-btm.show{display:flex}
+.scroll-btm:hover{background:var(--pri);color:#fff}
+
+/* ══ TUI box-drawing accents ══ */
+.sub-h::before{content:'├─ ';color:var(--bd3);font-weight:400;letter-spacing:normal;text-transform:none}
+.sd-sec .h::before{content:'├ ';color:var(--bd3);font-weight:400;letter-spacing:normal;text-transform:none}
+.sd-sec:first-child .h::before{content:'╭ '}
+.sd-sec:last-child .h::before{content:'╰ '}
+.rpt-banner::before{content:'├─ ';color:rgba(158,206,106,.4)}
+.stab .st.doing{animation:sdpulse 1.3s ease-in-out infinite}
+.status-bar .keys span:not(:first-child)::before{content:'│';color:var(--bd2);margin-right:6px}
+.status-bar::before{content:'╰─ status';color:var(--bd3);display:flex;align-items:center;
+  padding:0 8px 0 var(--sp-lg);flex:none;font-size:10px;opacity:.5}
+
+/* ══ Action buttons（蓝色渐变建议按钮）══ */
+.bi-actions{display:flex;gap:6px;padding:0 0 7px;flex-wrap:wrap}
 .bi-btn{font-family:var(--mono);font-size:12px;color:#fff;font-weight:600;
   background:linear-gradient(180deg,rgba(0,119,255,.96) 0%,rgba(0,104,223,.96) 35%,rgba(0,104,223,.96) 100%);
   border:1px solid rgba(0,119,255,.45);border-radius:8px;-webkit-appearance:none;appearance:none;
-  padding:6px 14px;cursor:pointer;white-space:nowrap;letter-spacing:.01em;
+  padding:5px 14px;cursor:pointer;white-space:nowrap;letter-spacing:.01em;
   box-shadow:0 0 18px rgba(0,119,255,.5),0 0 4px rgba(0,119,255,.6),inset 0 1px 0 rgba(255,255,255,.15);
-  transition:box-shadow .15s,filter .15s}
-.bi-btn:hover{filter:brightness(1.15)}
-.bi-btn.secondary{background:var(--s3);color:var(--fg2);border:1px solid var(--bd2);box-shadow:none}
-.bi-btn.secondary:hover{filter:none;background:var(--s4)}
+  transition:box-shadow .15s,filter .15s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.bi-btn:hover{filter:brightness(1.15);
+  box-shadow:0 0 26px rgba(0,119,255,.7),0 0 6px rgba(0,119,255,.8),inset 0 1px 0 rgba(255,255,255,.22)}
+.bi-btn:active{filter:brightness(.92)}
+/* 次要建议按钮：只有第一个建议是主操作，其余降低视觉权重 */
+.bi-btn.secondary{background:var(--s3);color:var(--fg2);border:1px solid var(--bd2);
+  box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.bi-btn.secondary:hover{filter:none;background:var(--s4);box-shadow:none}
+.bi-btn.secondary:active{filter:brightness(.95)}
 
-.rt-foot{margin:22px 2px 0;font-size:12px;color:var(--fg4)}
+/* ══ Skin switcher（右上角皮肤切换：深色/浅色 二选一分组 + 无圆角独立开关）══ */
+.skin-switch{margin-left:auto;display:flex;align-items:center;gap:7px;flex:none}
+.skin-switch .ss-lb{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.18em;color:var(--fg4)}
+.ss-group{display:flex}
+.ss-btn{font-family:var(--mono);font-size:12px;color:var(--fg3);background:transparent;
+  border:1px solid var(--bd2);border-left:none;border-radius:0!important;padding:4px 10px;cursor:pointer;
+  -webkit-appearance:none;appearance:none;
+  transition:background .12s ease,color .12s ease,border-color .12s ease}
+.ss-group .ss-btn:first-child{border-left:1px solid var(--bd2)}
+.ss-btn:hover{color:var(--fg2);background:var(--s2)}
+.ss-btn.on{color:var(--sel-fg);background:rgba(52,94,231,.4);border-color:rgba(52,94,231,.5)}
+
+/* ══ 圆角开关 ══ */
+.ss-toggle{display:flex;align-items:center;gap:5px;margin-left:4px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.ss-toggle .ss-tl{font-family:var(--mono);font-size:11px;color:var(--fg4);white-space:nowrap}
+.ss-track{width:28px;height:14px;border-radius:7px;background:var(--bd2);position:relative;flex:none;transition:background .15s}
+.ss-track::after{content:'';position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--fg4);transition:transform .15s,background .15s}
+.ss-toggle.on .ss-track{background:rgba(52,94,231,.5)}
+.ss-toggle.on .ss-track::after{transform:translateX(14px);background:var(--pri-h)}
+html[data-sharp] *{border-radius:0!important}
+html[data-sharp] .ss-track{border-radius:0!important}
+html[data-sharp] .ss-track::after{border-radius:0!important}
+
+/* ══ 浅色皮肤 ══ */
+html[data-theme="light"]{
+  --bg:#eef0f5; --app:#e6e9f0; --elev:#ffffff;
+  --s1:#ffffff; --s2:#f2f4f9; --s3:#e8ebf3; --s4:#dde1ec;
+  --fg:#1b1e2b; --fg2:#3c4054; --fg3:#5c6178; --fg4:#5f6580;
+  --bd1:#dde1ec; --bd2:#c7cce0; --bd3:#a9aec9;
+  --sel:#dbe4ff;
+  --panel-bg:rgba(255,255,255,.85); --panel-bd:rgba(52,94,231,.18); --panel-bd2:rgba(52,94,231,.16);
+  --input-bg:rgba(225,232,250,.95); --input-bd:rgba(52,94,231,.35);
+  --surf-1:rgba(52,94,231,.14); --surf-2:rgba(52,94,231,.12); --surf-3:rgba(52,94,231,.10); --surf-4:rgba(52,94,231,.08);
+  --ap-bg:rgba(52,94,231,.07);
+  /* 深色主题的 pri-h/ok/warn/dgr 是为深色背景调的浅色，直接搬到浅色背景上
+     反白/低对比度，这里单独给浅色主题定义更深、更饱和的版本 */
+  --pri-h:#0d5fd6; --pri:#0058c9; --ok:#1f7a2b; --warn:#8f5c08; --dgr:#c23054;
+  --sel-fg:#1b1e2b;
+  /* 同理，对话正文里的 Tokyo Night 高亮色（.hl-tool/.hl-file/.hl-proj/.hl-metric）
+     在深色背景上是柔和糖果色，浅色背景下需要更深更饱和才够对比度 */
+  --tn-purple:#7c3aed; --tn-cyan:#0e7fb0; --tn-teal:#0f766e; --tn-gold:#92600a;
+  /* main-col/sidebar 纯色卡片 + user 消息底色，浅色主题换成白底 + 淡蓝叠加（白色叠加在浅色背景上会看不见） */
+  --col-solid:#ffffff;
+  --msg-usr-bg:rgba(13,95,214,.08);
+  /* stat-card 暖色叠加在浅色底上要提高浓度才能跟白底卡片拉开层次 */
+  --card-bg:rgba(224,175,104,.16); --card-bd:rgba(146,96,10,.35);
+}
+html[data-theme="light"] body::before{
+  background:
+    radial-gradient(ellipse 120% 90% at 0% 100%,rgba(52,94,231,.13) 0%,rgba(52,94,231,.04) 30%,transparent 60%),
+    radial-gradient(ellipse 100% 80% at 95% 90%,rgba(102,206,250,.08) 0%,transparent 55%),
+    radial-gradient(ellipse 90% 70% at 50% 95%,rgba(52,94,231,.06) 0%,transparent 55%),
+    radial-gradient(ellipse 80% 60% at 8% 12%,rgba(187,154,247,.06) 0%,transparent 60%),
+    radial-gradient(ellipse 70% 50% at 92% 8%,rgba(52,94,231,.04) 0%,transparent 55%)}
+html[data-theme="light"] .scan{background:repeating-linear-gradient(180deg,rgba(20,25,45,.02) 0 1px,transparent 1px 3px)}
+html[data-theme="light"] .particles{opacity:.5}
+html[data-theme="light"] .tk.d{background:#fbdde5;color:#c23054}
+html[data-theme="light"] .tk.a{background:#dcf3d4;color:#3a7a2a}
+html[data-theme="light"] .cline.del{background:rgba(247,118,142,.12)}
+html[data-theme="light"] .cline.add{background:rgba(60,150,60,.1)}
+html[data-theme="light"] .bi-btn{color:#fff}
+html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
+
+
+/* ══ 响应式：整页自适应，不是固定画布 ══ */
+@media (max-width:980px){
+  .sidebar{width:180px}
+  .center-panel .panel-body pre,.cline{font-size:12px}
+}
+@media (max-width:820px){
+  .workspace{flex-direction:column}
+  .sidebar{width:100%;max-height:150px;border-right:none;border-bottom:1px solid var(--bd1)}
+}
+@media (max-width:560px){
+  .status-bar .keys{display:none}
+}
 </style>
 </head>
 <body>
-<div class="report-wrap">
-  <div class="report-hd">
-    <span class="rt-title">参数调优 · 调优报告</span>
-    <span class="rt-meta">perf-params-tuner-agent · Redis 6.0.20 · Kunpeng DevKit AI</span>
-  </div>
+<div class="scan"></div>
+<div class="particles"></div>
 
-  <div class="ai-plan report-card" id="aiPlan">
+<div class="topbar">
+  <span class="blogo"><img class="kpi" alt="Kunpeng" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAAtCAYAAADV2ImkAAAKDElEQVR42s2Ze4wb1RXGv3Nn/LbHWecB7Ho3ZNf2OrsEISg0QCAKFSq0AhXaBMIjFSoU2qLSgBClRSxUbZEQRQiQeEtFpVXqlFJaKRVSqTcF0RYlsMk+bK+9rxA2lfZhj9ePtT1zT/+wnbhLEpJsGvb+5dHMeH7zzXe/c+YOYYkOBgQAIsBkgNKtwQ0V8KRYiqAMKARIAsycv+Oa2daO1wwGrfokNbpkQHtqoPXt2ZbQ+cXW4C69NfTRjL/9vNrN0FJQlBpBp85ZHc62drxmtHVydnXo7YbjlC8cNAqo9e3/tAXb0y2BZzP+QJlXh3m2PfwoAMRGRtYN7dlzDgAwM6lfBCgAQYAJwJhobW32Svt9UvJdy1SlKSdlYcaibF2RGnwzOTR0J1cq7r6LRp9jZkFEkr4gUBxsDi93C+MHAN3rIFppIUIOMjEP5ZZVB+IfjcYSTxgCG4Oh0EYABhEBAKtnCFapgZqx5Z2eZqdxF2Bud5HwZ6UEEWGO8O7cRPImv6CZA8nkr6XFcjtVKucSUYWZBQB5RkDrv4cDAVumJXi33hJImm0hzviDPOMPlCttIc6sCb8EAB9NTq4cT6X+Pl8sciwW+xYARKNR9YyA1iOIAaG3BG7TWwL7jbYQ51qDPNXSUcq0BniuNShnOrruB4DY/v1fGkulksVCgROx2CvHgqXTDCpqfyoBIOsP3gDiHztIXFJhRoGlCYbpFsJqEGYKqm3bqtGBXcn+/pssLtcrLrfbk8lkhhm4uK+vL79582ZJRNx4DXG6QLk6oSQBMuPv+KruD0StRH+0gC7RpTTzzBIANymKtUzYrxNtWDU6sGt0cPARh9e7w2R2FwoFQ0j5nVAolAWAhbBAQw4utt4DwGxr8AoBftgKca0CIMuyHkNCALJJqOoc0duFifitLaqSH4vHX3f7fNsymUxZ0zRrRtd/2RkOvx+NRtVNmzYZR7vmKVmiBxCPNYBm2jouUqR4CITNNiJkpZQAmABFAlIFhJME8qr6lG9s6MGBsbGz3VLudHk8G2bT6ZLH7bYV8vl/dgSDV9QuIY+m7kkDL8zSbFugiyQelMBtTiFUXUpG1RYKAEiw6SChgFEq2az3Lh8ZfHWwr+/Lbk3bYXM4zs1msxWLxSKIqGiY5oWBQCBZLxDHYlBPFLQXGxXCbgOAmWkLthPjATDucAhy6FJCl6ZJIAVHYA2vUNR54NN5u3LLquTgPxL79m21adqrQlGc2WzWICJyOp1KembmR+Hu7iQzK0RkHo/lhIAJYGC3MdXa2WyV8j4hcbdTCK8uTaRZmgIkarCoPUdjuVDUHPCvuYpxU8uB4QOjQ0OP2jTt8VKphFKpJAHQsmXLlHQ6/Ydwd/dr0WhUJSLj81jUz1P2MYDua2/3qGXxQ7C816WIVVkpMSsNk0BC1ECrqoIFwE1CqFkh3vh4PH5HL7McHR5+w93UdGtW100ppSAi2Gw2kcvlDppS3lOrZOYJinfsEcVGdRN2GzP+jqd9qmV72jRgMpsEErTgXAZMC0GxgFCwWHpWjA79LBaLNdstlp1uTbssk8kYzKwSEQshTJvNps5lMtesXbfunROxwmGF+UgWMx1+olV1CbuNA36/g0HfzBmmKQE0KnrkWDacJFQJZItW63dXjAz+fmjv3ksdNtsOm93elk6nDSJSiQjMbGqapk7PzDy9dt26d07UCoeBqaGpiADKZmykXgCDmBKMIUOH7UobibZ8NVPFUWxjeIWilhjJrMu2tTnev3d4//7bbJr2khDCmc1mTSGEWutnTZfLpeq63qcoyk+YWTlRKxyudNMtgfV6czgEgLYAJmG3sQm7jfMwVCZAmkw3W6tdgVwAygyYPqGoRaK/TVbk5c3x/r0jg4OPu3y+3xiG4SwUClIIodRgWVVVGIYxb5jmt0OhUGnnzp04Vt4ee9IxuVkYz+f8wXPmIfeCEbMIESuzMQjJWRC+lpcMNFiBq1lLXiEUXdALTePx70eZ1dFE8nce37KtmUxGSilJCNH4REyPx6NOz8zcv3bt2v3Hq2afO+nSq1cvE9LygibUm8GMEjPKYJQlzwuCvVECCTZtJBQCZMlifWDF6OAz/f39rS6HI+LWtPWZdNoAoFCt465bQdM0Javru0Lh8NdPFRYARARQmiYmMt5PUlunDeP2PMspCaDMsqJ8FtbwCEURwFTObrt+xejgM/G+vg2a2/O+w+lcnzkyuRphpc1mo0KhMGW12+9kZurt7T3lZpwWltyp5nM77Yr6souUK9PSNKtpAcGA0SSEmmfsy9ktW5uTg7Fkf/82q8fzIhE5isWiWfdro9WJyHQ6nWpG12/s6up662Qi7KgK1ytZbYVFXTk5nvjrJ6mr5qT5CxuRYiMSDBg+IdQc6E+fFmauaE4OxlIDAz93+XyvG4bhKBaL8iiwYGbT6/Wq2Wz25a6urrdqEWYupkMUC+Q2GBCbAek9mHokz/JaZp7wCaHqwBPeA4kbxqanyyPDwzu0lSt/WigUTMMweMHkqtpHSulwOFRd1+MeTdseiUSUxVjhuJWuapFqszPdEvALi3Khbzzx5/F4fI1ULb/1aJ5L09XJpTbYtVFZVhQFFotFFufnL+vs7PwwEokoW7ZsMf8vwI2FZEst2Cfee6+pctZZH5519tmBycnJeSGE/Tinmk6nk+Z0/eFwd/eTi0mF41pi4dhS9bXgjRvVfx86lGWibVNTUx/7fD47M0tZ7X8/qwKRKJfLhsPtfpOZxdTUFOM0DTrJY7mvr8+leTxP2e32e0qlEiqVikn0v/1FPXd1Xf9LZzh8/WKT4VRfQjkSiSgXXHBBvr2j43v5QuFmEmLa4/EozGwwc6PCytzcnKlp2nXxePwbRGTW+oYzqnBdvWpmE5mJRKLdbrW+7HS5vpLJZJiZmYhEvWDY7XYql8vjnlLp/FXd3YVaLvOZUriuHtcV6+zsHF29Zs3VWV1/3GKxwG63C2Y26j4uFovS6/WumVWUR4hI9vb2KmfSEgvBTWYWPT091BEMPmaUSldLKUeWeb0qM5vMzEIIkc1mTYfdvj2ZTHZv2rTJqL1dnPJY1LpE/e02Go2qgXD43fiePeuxYsWzXq93ay6Xg2EYkpnhdDqtpVLpOQBXLXa16bQtVTUmQSqVukdVlF9ZLBZnPp83AJCmaUpG128Ph8NvLCY1TttHmZpFKBKJKIFA4MVcPn95uVze29TUpBIRz8/Pm6qqPjkxMdEEgHt6epbOB6H6qmPkgw8cY2Njz3x68CCnkkk+NDnJiUTi+TO2jHqSFjmsYCqRuHFifPzQoclJHh8bK4/E4xcDQCQSUZYaNNWVHBgYaBtJJnflczlOpVIfNPgeS240VrlUKvXQ7MwMx+Px+xfuW1Kjp6dH1G2SisevGk4k9iQSibX1fViqg7n6IWjfvn3+4eHh62o3csK++C+rzz5mNSr3/QAAAABJRU5ErkJggg=="><span class="g2">KUNPENG</span><span class="g1">DEVKIT<span class="ai-badge">AI</span></span></span>
+  <div class="skin-switch" id="skinSwitch">
+    <span class="ss-lb">SKIN</span>
+    <div class="ss-group">
+      <button class="ss-btn" data-color="dark">深色</button>
+      <button class="ss-btn" data-color="light">浅色</button>
+    </div>
+    <span class="ss-toggle on" id="radiusToggle" title="圆角 / 直角"><span class="ss-tl">圆角</span><span class="ss-track"></span></span>
+  </div>
+</div>
+
+<div class="workspace foldcode" id="workspace">
+  <aside class="sidebar" id="sidebar">
+    <div class="sd-sec">
+      <div class="h">Sessions</div>
+      <div class="sess-scroll" id="sessScroll"></div>
+    </div>
+    <div class="sd-sec">
+      <div class="h">Project</div>
+      <div class="sd-node lv1"><span class="ic">▾</span><span class="lb">brpc/</span></div>
+      <div class="sd-node lv2 collapsed" title="src/bthread/"><span class="ic">…</span><span class="lb">src/bthread/</span></div>
+      <div class="sd-node lv2" data-file="context.cpp"><span class="ic">≡</span><span class="lb">context.cpp</span><span class="m">M</span></div>
+      <div class="sd-node lv2 collapsed" title="src/butil/third_party/snappy/"><span class="ic">…</span><span class="lb">src/butil/third_party/snappy/</span></div>
+      <div class="sd-node lv2" data-file="snappy"><span class="ic">≡</span><span class="lb">snappy-stubs-internal.h</span><span class="m">M</span></div>
+      <div class="sd-node lv2" data-file="CMakeLists"><span class="ic">≡</span><span class="lb">CMakeLists.txt</span><span class="m">M</span></div>
+      <div class="sd-node lv2" data-file="Makefile"><span class="ic">≡</span><span class="lb">Makefile</span><span class="m">M</span></div>
+      <div class="sd-node lv1"><span class="ic">▾</span><span class="lb">order-api/</span></div>
+      <div class="sd-node lv2 collapsed" title="src/main/java/com/settlement/"><span class="ic">…</span><span class="lb">src/main/java/com/settlement/</span></div>
+      <div class="sd-node lv2" data-file="Settlement"><span class="ic">≡</span><span class="lb">SettlementCalculator.java</span><span class="m">M</span></div>
+      <div class="sd-node lv2" data-file="kernel"><span class="ic">≡</span><span class="lb">settlement_kernel.c</span><span class="m">M</span></div>
+      <div class="sd-node lv2" data-file="RiskScore"><span class="ic">≡</span><span class="lb">RiskScoreEngine.java</span></div>
+      <div class="sd-node lv1" data-file="order_item.sql"><span class="ic">≡</span><span class="lb">sql/order_item.sql</span><span class="m">M</span></div>
+      <div class="sd-node lv1" data-file="Dockerfile"><span class="ic">≡</span><span class="lb">docker/Dockerfile.kunpeng</span><span class="a">A</span></div>
+      <div class="sd-node lv1" data-file="app-prod.yml"><span class="ic">≡</span><span class="lb">config/application-prod.yml</span></div>
+    </div>
+    <div class="sd-sec">
+      <div class="h">Tools</div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-green)">✓</span><span class="lb">code_migrator</span></div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-green)">✓</span><span class="lb">sql_migrator</span></div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-blue)">▶</span><span class="lb">container_builder</span></div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-blue)">▶</span><span class="lb">vector_optimizer</span></div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-green)">✓</span><span class="lb">system_diagnoser</span></div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-blue)">▶</span><span class="lb">param_tuner</span></div>
+      <div class="sd-node"><span class="ic" style="color:var(--accent-green)">✓</span><span class="lb">boostkit_matcher</span></div>
+    </div>
+    <div class="sd-sec">
+      <div class="h">Settings</div>
+      <div class="sd-node"><span class="ic">◇</span><span class="lb">Model · pangu</span></div>
+      <div class="sd-node"><span class="ic">◇</span><span class="lb">Server · Kunpeng920 remote</span></div>
+    </div>
+  </aside>
+
+  <div class="main-col">
+  <div class="conv-title"><span class="ct-text" id="convTitle">应用迁移</span><button class="cfold" id="cfoldBtn" title="代码区" aria-label="代码区"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></button></div>
+  <div class="ai-plan" id="aiPlan">
     <div class="ap-head" id="apHead">
       <span class="ap-arrow">▾</span><span class="ap-t">AI PLAN</span>
-      <span class="ap-goal"><b>参数调优</b> · perf-params-tuner-agent 五阶段流水线：收集调优场景 → 生成任务模板 → 生成参数模板 → 执行参数调优 → 生成调优报告</span>
+      <span class="ap-goal" id="apGoal"></span>
     </div>
-    <div class="ap-body">
-      <div class="ap-steps">
-        <div class="ap-step"><span class="n">1</span><span class="c done"></span><span class="lb">收集调优场景</span><span class="d">Redis 6.0.20 · 缓存场景</span></div>
-        <div class="ap-step"><span class="n">2</span><span class="c done"></span><span class="lb">生成任务/参数模板</span><span class="d">45 个参数（System 15 + Redis 30）</span></div>
-        <div class="ap-step"><span class="n">3</span><span class="c done"></span><span class="lb">执行参数调优</span><span class="d">HPO 30 轮 · 0 失败</span></div>
-        <div class="ap-step"><span class="n">4</span><span class="c done"></span><span class="lb">生成调优报告</span><span class="d">+20.78%（Round 9）</span></div>
-      </div>
-    </div>
+    <div class="ap-body" id="apBody"><div class="ap-steps" id="apSteps"></div></div>
   </div>
 
-  <div class="report-card">
-    <div class="panel-body">
-      <div class="console">
-        <div class="ln"><span class="px-ic px-ok"></span> 任务文件 task_Redis_System.yaml · 数据目录 /tmp/redis-data 已创建</div>
-        <div class="ln"><span class="px-ic px-active"></span> nohup kat_monitor.py train_result task_Redis_System.yaml param_Redis_System.yaml</div>
-        <div class="ln"><span class="px-ic px-ok"></span> devkit 已探测到 · 后台启动 KAT 训练，实时监控进度</div>
-      </div>
-
-      <div class="tc-collapse open">
-        <div class="tc-chead">
-          <span class="tc-car">▾</span>
-          <span class="tc-clb">Redis 调优完成 · 最终总结</span>
-          <span class="tc-csum">HPO 30 轮 · 0 失败 · 64,433 → 77,821 req/s · +20.78%</span>
-        </div>
-        <div class="tc-cbody">
-          <div class="rpt-banner">✓ 报告校验通过，AI 分析已注入 · 端到端调优流水线全部完成</div>
-          <div class="stat3">
-            <div class="stat-card"><div class="sc-lb">总轮次</div><div class="sc-big">30</div><div class="sc-sub">失败 0</div></div>
-            <div class="stat-card"><div class="sc-lb">基线 → 最优</div><div class="sc-big">+20.78%</div><div class="sc-sub">64,433 → <span class="wn">77,821</span> req/s</div></div>
-            <div class="stat-card"><div class="sc-lb">最优轮次</div><div class="sc-big">Round 9</div><div class="sc-sub">最差 Round 18 · -18.32%</div></div>
+  <div class="main-area" id="mainArea">
+    <!-- ═══ 迁移 Agent ═══ -->
+    <div class="scene on" data-agent="migrate" data-scenario="src-migrate">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我把 BRPC 这个 C++ 项目迁移到鲲鹏架构，不兼容的地方直接改</div>
+          <div class="ai-msg">好的，我来分析 <b class="hl-proj">BRPC</b> 项目（apache/brpc）。启动六阶段迁移流水线 ——</div>
+          <div class="sub-h">迁移流水线</div>
+          <div class="steps">
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段1 · 环境检测</div><div class="t2">识别构建系统、工具链版本、目标环境</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段2 · 依赖分析</div><div class="t2">扫描依赖库 ARM 兼容性，标记 x86 专属指令</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段3 · 汇总待确认项</div><div class="t2">SSE 宏处理策略、snappy 源码 bug 确认</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段4 · DevKit 扫描与源码适配</div><div class="t2">6 源码文件 + 4 构建配置 · 111 行新增 7 行删除</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段5 · 编译验证循环</div><div class="t2">第 3 轮编译成功 · 0 错误</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段6 · 迁移总结报告</div><div class="t2">libbrpc.so/a ELF 64-bit ARM aarch64</div></span></div>
           </div>
-          <div class="sub-h">Top 5 关键参数（按重要性排序）</div>
+
+          <div class="sub-h">阶段1 · 环境检测</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">构建系统</span><span class="v">CMake 3.22 + Make / Bazel 6.0</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">编译器</span><span class="v">BiSheng Compiler 2.5.0 (GCC 10.3 兼容)</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">目标环境</span><span class="v">openEuler 22.03 · Kunpeng 920 · aarch64</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">Protobuf</span><span class="v">protoc 3.21.12 · aarch64 已安装</span></div>
+
+          <div class="sub-h">阶段2 · 依赖分析</div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-ok"></span> 扫描 32 个依赖库 · ARM 兼容性检测</div>
+            <div class="ln"><span class="px-ic px-ok"></span> 识别 x86 专属指令 · SSE4/SSE4.2/AVX2</div>
+            <div class="ln"><span class="px-ic px-warn"></span> <b class="hl-code">snappy-stubs-internal.h</b>:144-158 · aarch64 路径空格缺失（源码 bug）</div>
+            <div class="ln"><span class="px-ic px-idle"></span> rapidjson SSE 宏 · BRPC 未定义 <b class="hl-code">RAPIDJSON_SSE42</b>/SSE2，ARM 安全</div>
+          </div>
+
+          <div class="sub-h">阶段3 · 待确认项</div>
+          <div class="ai-msg"><b>rapidjson SSE 宏处理</b>：reader.h:31,33 通过 <b class="hl-file">#ifdef RAPIDJSON_SSE42</b> 条件 include SSE 头文件。BRPC 未定义这些宏，ARM64 不会命中 SSE 路径 → <b style="color:var(--ok)">保持现状（推荐）</b></div>
+          <div class="ai-msg"><b>snappy 源码 bug</b>：snappy-stubs-internal.h 中 <b class="hl-file">uint64_tUNALIGNED_LOAD64</b> 缺少空格，x86 走宏定义路径不会命中，aarch64 上才暴露 → <b style="color:var(--ok)">已自动修复</b></div>
+
+          <div class="sub-h">阶段4-5 · 源码适配与编译验证</div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-ok"></span> <b class="hl-code">context.cpp</b> · 新增 aarch64 bthread_jump/make_fcontext 汇编</div>
+            <div class="ln"><span class="px-ic px-ok"></span> <b class="hl-code">CMakeLists.txt</b> · -msse4 -msse4.2 按架构条件化</div>
+            <div class="ln"><span class="px-ic px-ok"></span> <b class="hl-code">snappy-stubs-internal.h</b> · 修复 uint64_t 空格缺失</div>
+            <div class="ln"><span class="px-ic px-warn"></span> 第 1 轮编译 · <b class="hl-metric">2 error</b>（context.cpp 汇编语法）</div>
+            <div class="ln"><span class="px-ic px-warn"></span> 第 2 轮编译 · <b class="hl-metric">1 error</b>（Makefile flag 残留）</div>
+            <div class="ln"><span class="px-ic px-ok"></span> 第 3 轮编译成功 · 0 error · <b class="hl-code">libbrpc.so</b> 产出</div>
+          </div>
+
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">迁移总结报告</span>
+              <span class="tc-csum">10 文件修改 · 111 行新增 · 7 行删除 · 编译成功</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="rpt-banner">✓ BRPC 鲲鹏架构迁移完成 · 六阶段流水线全部完成 · 编译成功</div>
+
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">编译状态</div><div class="sc-big">PASS</div><div class="sc-sub">第 3 轮编译成功 · 0 错误</div></div>
+                <div class="stat-card"><div class="sc-lb">修改文件</div><div class="sc-big">10</div>
+                  <div class="sc-sub"><span class="wn">6 源码</span> · <span class="mu">4 构建配置</span></div></div>
+                <div class="stat-card"><div class="sc-lb">代码变更</div><div class="sc-big">+111/-7</div><div class="sc-sub">新增 111 行 · 删除 7 行</div></div>
+              </div>
+
+              <div class="sub-h">关键修改文件</div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>文件名</th><th>存放路径</th><th>修改说明</th></tr></thead>
+                <tbody>
+                  <tr><td class="hl-link">context.cpp</td><td class="mu hl-file">src/bthread/</td><td>新增 aarch64 jump/make_fcontext 汇编</td></tr>
+                  <tr><td class="hl-link">snappy-stubs-internal.h</td><td class="mu hl-file">src/butil/third_party/snappy/</td><td>修复 uint64_t 空格缺失</td></tr>
+                  <tr><td class="hl-link">CMakeLists.txt</td><td class="mu hl-file">./</td><td>-msse4 按架构条件化</td></tr>
+                  <tr><td class="hl-link">Makefile</td><td class="mu hl-file">./</td><td>-msse4.2 按架构条件化</td></tr>
+                  <tr><td class="hl-link">test/CMakeLists.txt</td><td class="mu hl-file">test/</td><td>测试编译 flag 适配</td></tr>
+                </tbody>
+              </table>
+
+              <div class="sub-h">产物验证</div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">产物架构</span><span class="v">libbrpc.so/a · ELF 64-bit LSB · ARM aarch64</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">总耗时</span><span class="v">约 35 分钟（阶段 1-6）</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="scene" data-agent="migrate" data-scenario="e2e-migrate">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我把 order-center 的数据库、中间件和应用一起端到端迁移到鲲鹏，数据库改造为达梦 DM，中间件走默认国产化路线</div>
+          <div class="ai-msg">好的，我来创建端到端迁移工程。已识别 <b class="hl-proj">Java 应用</b> + <b class="hl-proj">MySQL</b> 源库 + Tomcat/Redis/Nginx 中间件，按默认国产化路线生成迁移方案 ——</div>
+          <div class="sub-h">迁移工程配置</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">工程名称</span><span class="v">order-center-e2emig</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">迁移路线</span><span class="v">MySQL → 达梦 DM8 · Tomcat → 东方通 TongWeb · JDK → OpenJDK ARM · Nginx/Redis → ARM 原生</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">目标环境</span><span class="v">openEuler 24.03 · Kunpeng 920 · aarch64</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">源端预检</span><span class="v">MySQL 8.0 · 20 张表 · Java 应用包（WAR）已识别</span></div>
+          <div class="ai-msg">配置已确认，开始按六阶段执行端到端迁移，严格遵循 <b class="hl-metric">「无静默降级」</b> 策略 ——</div>
+
+          <div class="sub-h">端到端迁移流水线</div>
+          <div class="steps">
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段1 · 预检查与安装包解析</div><div class="t2">源端连通性 · TongWeb/DM8/OpenJDK/Nginx/Redis 安装包定位</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段2 · 源端扫描与路线生成</div><div class="t2">组件清单 · 文件映射 · 默认国产化路线</div></span></div>
+            <div class="step"><span class="c wait">!</span><span class="bd"><div class="t1">阶段3 · 中间件迁移</div><div class="t2">TongWeb license 缺失，已停止 · 未降级为 Tomcat</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段4 · 数据库迁移 MySQL → DM</div><div class="t2">SSH 隧道导出 · 20 表导入 · 19/20 一致</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段5 · 应用与 SQL 改造</div><div class="t2">JDBC 驱动/URL/方言切换 · WAR 重打包</div></span></div>
+            <div class="step"><span class="c wait">!</span><span class="bd"><div class="t1">阶段6 · 部署验证</div><div class="t2">DM/Nginx/Redis/JDK 就绪 · TongWeb + 应用待续</div></span></div>
+          </div>
+
+          <div class="sub-h">中间件迁移状态 <span class="cm">全部 4 · 已就绪 3 · 阻断 1</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">OpenJDK 1.8（x86）</span><span class="ar">→</span><span class="tg">OpenJDK ARM 1.8.0_472（毕昇）</span><span class="rbadge ok">已就绪</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">Nginx 1.24</span><span class="ar">→</span><span class="tg">Nginx 1.24 ARM</span><span class="rbadge ok">已就绪</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">Redis 6.2</span><span class="ar">→</span><span class="tg">Redis 7.2 ARM</span><span class="rbadge ok">已就绪</span></div>
+          <div class="mrow"><span class="ic wn">●</span><span class="lb">Tomcat 8.0.53</span><span class="ar">→</span><span class="tg">东方通 TongWeb 7.0.4.9_M3</span><span class="rbadge warn">license 缺失</span></div>
+
+          <div class="blocker">
+            <div class="bt">✕ 中间件阶段阻断 · TongWeb license 缺失</div>
+            <div class="bl">已在 <code>packages/</code>、<code>packages/middleware/</code>、<code>packages/tongweb/</code> 及官方镜像源中查找，未找到 <b class="hl-file">License.dat / *.lic</b>。按规则禁止静默降级为 Apache Tomcat（<code>fallback_to_apache_tomcat: false</code>）。</div>
+            <div class="bl">影响范围：TongWeb 未安装 → <b style="color:var(--warn)">order-api 应用未部署</b>（依赖 TongWeb 容器运行）</div>
+            <div class="bl">下一步（二选一）：① 补充 License.dat 到 <code>packages/tongweb/</code>；② 显式设置 <code>fallback_to_apache_tomcat: true</code> 并确认降级为 Tomcat ARM</div>
+          </div>
+
+          <div class="sub-h">数据库迁移 · MySQL → 达梦 DM8</div>
+          <div class="stat3">
+            <div class="stat-card"><div class="sc-lb">迁移表数</div><div class="sc-big">20/20</div><div class="sc-sub">全部表已导入</div></div>
+            <div class="stat-card"><div class="sc-lb">数据一致</div><div class="sc-big">19/20</div><div class="sc-sub"><span class="wn">sys_job 3 条待补录</span></div></div>
+            <div class="stat-card"><div class="sc-lb">兼容模式</div><div class="sc-big">DM8</div><div class="sc-sub">COMPATIBLE_MODE=4（MySQL 兼容）</div></div>
+          </div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">导出方式</span><span class="v">源库直连被拒（1130）→ 自动改用 SSH 隧道，未修改源库授权</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">DM 实例</span><span class="v">/opt/dmdbms · 端口 5236 · systemd 已注册并启动</span></div>
+
+          <div class="sub-h">应用与 SQL 改造 <span class="cm">已处理 10/10 项</span></div>
+          <div class="chipf">
+            <span class="chip on">LIMIT 分页</span><span class="chip on">IFNULL</span><span class="chip on">DATE_FORMAT</span>
+            <span class="chip on">NOW/CURRENT_TIMESTAMP</span><span class="chip on">CONCAT</span><span class="chip on">AUTO_INCREMENT</span>
+            <span class="chip on">反引号标识符</span><span class="chip on">tinyint(1)</span><span class="chip on">unsigned</span><span class="chip on">MyBatis 动态 SQL</span>
+          </div>
+
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">端到端迁移总结报告</span>
+              <span class="tc-csum">6 阶段 · 4 完成 · 2 阻断/部分完成 · 数据库迁移成功</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="rpt-banner warn">△ 端到端迁移部分完成 · 数据库/JDK/Nginx/Redis 就绪 · TongWeb 与应用待补充 license 后继续</div>
+
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">阶段完成度</div><div class="sc-big">4/6</div><div class="sc-sub"><span class="wn">2 项待处理</span></div></div>
+                <div class="stat-card"><div class="sc-lb">数据一致性</div><div class="sc-big">19/20</div><div class="sc-sub">张表 · 3 条记录待补录</div></div>
+                <div class="stat-card"><div class="sc-lb">阻断项</div><div class="sc-big">1</div><div class="sc-sub"><span class="wn">TongWeb license</span></div></div>
+              </div>
+
+              <div class="sub-h">产物验证</div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">DM8 数据库</span><span class="v">active · systemd enabled · 端口 5236</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">OpenJDK / Nginx / Redis</span><span class="v">全部 ARM 就绪并启动</span></div>
+              <div class="chk"><span class="ic warn">!</span><span class="lb">TongWeb</span><span class="v">未安装 · license 缺失阻断，未降级到 Apache Tomcat</span></div>
+              <div class="chk"><span class="ic warn">!</span><span class="lb">应用（order-api）</span><span class="v">未部署 · 依赖 TongWeb</span></div>
+
+              <div class="sub-h">产物清单</div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>产物</th><th>路径</th><th>说明</th></tr></thead>
+                <tbody>
+                  <tr><td class="hl-link">迁移报告</td><td class="mu">workspace/reports/</td><td>migration-report.md / .json</td></tr>
+                  <tr><td class="hl-link">兼容 SQL</td><td class="mu">workspace/db_migration/</td><td>MySQL → DM 达梦兼容改造后 SQL</td></tr>
+                  <tr><td class="hl-link">改造后 WAR</td><td class="mu">workspace/app_transform/</td><td>order-api.war（驱动/URL/方言已切换）</td></tr>
+                  <tr><td class="hl-link">路线计划</td><td class="mu">config/</td><td>route_plan.yaml</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="console"><div class="ln"><span class="px-ic px-warn"></span> 等待补充 TongWeb license · 继续命令：<b class="hl-file">devkit sys-mig phase middleware --execute</b></div></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="scene" data-agent="migrate" data-scenario="container-migrate">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我把 order-gateway 的容器镜像迁移到鲲鹏架构</div>
+          <div class="ai-msg">好的，我来分析 <b class="hl-proj">order-gateway</b> 的容器镜像。正在解析镜像层和 Dockerfile ——</div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-idle"></span> devkit sys-mig -c container_mig -i order-gateway.tar -dockerfile Dockerfile</div>
+          </div>
+          <div class="stat3">
+            <div class="stat-card"><div class="sc-lb">镜像文件统计</div><div class="sc-big">11</div><div class="sc-sub">Total Files</div></div>
+            <div class="stat-card"><div class="sc-lb">可兼容</div><div class="sc-big">10</div><div class="sc-sub">Adaptable for Compatibility</div></div>
+            <div class="stat-card"><div class="sc-lb">待确认</div><div class="sc-big">1</div><div class="sc-sub"><span class="mu">To Be Confirmed</span></div></div>
+          </div>
+          <div class="sub-h">自动识别分类容器镜像</div>
+          <div class="steps">
+            <div class="step"><span class="c pending">1</span><span class="bd"><div class="t1">识别分类镜像</div><div class="t2">基础镜像 / 业务镜像</div></span></div>
+            <div class="step"><span class="c pending">2</span><span class="bd"><div class="t1">基础镜像</div><div class="t2">拉取官方 arm64 版本，或智能重建</div></span></div>
+            <div class="step"><span class="c pending">3</span><span class="bd"><div class="t1">业务镜像</div><div class="t2">拉取源码，智能适配</div></span></div>
+            <div class="step"><span class="c pending">4</span><span class="bd"><div class="t1">生成 Dockerfile + 迁移报告</div><div class="t2">Dockerfile.kunpeng · report.json/html（中英双语）</div></span></div>
+            <div class="step"><span class="c pending">5</span><span class="bd"><div class="t1">构建与验证</div><div class="t2">镜像构建 + 启动自检</div></span></div>
+          </div>
+          <div class="console"><div class="ln"><span class="px-ic px-idle"></span> 等待系统迁移完成后启动 · 预计 4 min</div></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ═══ 开发 Agent ═══ -->
+    <div class="scene" data-agent="develop" data-scenario="vectorize">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我把 settlement_kernel.c 里的 AVX2 向量化代码改成鲲鹏 SVE 实现</div>
+          <div class="ai-msg">好的，我来用天秤扫描工具分析 <b class="hl-file">settlement_kernel.c</b>。先确认扫描配置：</div>
+          <div class="sub-h">扫描配置</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">扫描模式</span><span class="v">火焰图扫描（推荐）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">SIMD 目标</span><span class="v">--simd-target=<b style="color:var(--accent-green)">sve</b></span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">x86 指令集识别</span><span class="v">--isa=avx2 --enable-intel-intrinsics</span></div>
+          <div class="ai-msg">配置确认，启动向量化扫描 ——</div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-active"></span> ./tiancheng --flamegraph settlement_hotspot.svg --top=12 -r /order-center -o ./output --enable-intel-intrinsics --isa=avx2 --simd-target=sve</div>
+          </div>
+
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">Edit settlement_kernel.c</span>
+              <span class="tc-csum"><span class="tk d">_mm256_loadu_ps(...)</span> → <span class="tk a">svld1_f32(...)</span> · 共 4 处改动</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="cline"><span class="no">102</span><span class="pfx"></span><span class="cmt">// 天秤扫描：x86 AVX2 intrinsics，--simd-target=sve</span></div>
+              <div class="cline del"><span class="no">103</span><span class="pfx del">-</span><span class="tk d">__m256 va=_mm256_loadu_ps(&amp;amount[i]);</span></div>
+              <div class="cline del"><span class="no">104</span><span class="pfx del">-</span><span class="tk d">__m256 vr=_mm256_loadu_ps(&amp;rate[i]);</span></div>
+              <div class="cline del"><span class="no">105</span><span class="pfx del">-</span><span class="tk d">__m256 vt=_mm256_fmadd_ps(va,vr,vf);</span></div>
+              <div class="cline del"><span class="no">106</span><span class="pfx del">-</span><span class="tk d">_mm256_storeu_ps(&amp;total[i],vt);</span></div>
+              <div class="cline add hl"><span class="no">103</span><span class="pfx add">+</span><span class="tk a">svbool_t pg=svwhilelt_b32(i,n);</span></div>
+              <div class="cline add hl"><span class="no">104</span><span class="pfx add">+</span><span class="tk a">svfloat32_t va=svld1_f32(pg,&amp;amount[i]);</span></div>
+              <div class="cline add hl"><span class="no">105</span><span class="pfx add">+</span><span class="tk a">svfloat32_t vt=svmad_f32_z(pg,va,vr,vf);</span></div>
+              <div class="cline add hl"><span class="no">106</span><span class="pfx add">+</span><span class="tk a">svst1_f32(pg,&amp;total[i],vt);</span></div>
+            </div>
+          </div>
+
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">向量化改造报告</span>
+              <span class="tc-csum">3 文件待改造 · 12 处建议 · 已完成 5 · 实测 3.6x</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="rpt-banner">✓ 向量化检查成功，请根据下面建议的信息修改后重试</div>
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">需修改文件数</div><div class="sc-big">3</div><div class="sc-sub">天秤扫描</div></div>
+                <div class="stat-card"><div class="sc-lb">建议项总数</div><div class="sc-big">12</div><div class="sc-sub">已完成 <span class="wn">5</span></div></div>
+                <div class="stat-card"><div class="sc-lb">需修改代码行</div><div class="sc-big">86</div><div class="sc-sub">AVX2 → SVE</div></div>
+              </div>
+              <div class="sub-h">需修改的源码文件</div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>序号</th><th>文件名</th><th>服务端源码存放路径</th><th>建议项数量</th><th>处理建议</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td class="hl-link">risk_score.c</td><td class="mu">/order-center/settlement/src/</td><td>3</td><td><span class="hl-link">查看建议源码</span></td></tr>
+                  <tr><td>2</td><td class="hl-link">reconcile.c</td><td class="mu">/order-center/settlement/src/</td><td>2</td><td><span class="hl-link">查看建议源码</span></td></tr>
+                  <tr><td>3</td><td class="hl-link">settlement_report.c</td><td class="mu">/order-center/settlement/src/</td><td>2</td><td><span class="hl-link">查看建议源码</span></td></tr>
+                </tbody>
+              </table>
+              <div class="sub-h">实测收益</div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">结算批处理热点循环</span><span class="v">342ms → <b style="color:var(--accent-green)">96ms</b> · 3.6x</span></div>
+              <div class="sub-h">下一处候选</div>
+              <div class="chipf">
+                <span class="chip">risk_score.c · _mm256_mul_ps</span>
+                <span class="chip">reconcile.c · _mm256_cmp_ps</span>
+              </div>
+            </div>
+          </div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-active"></span> 源码向量化改造 — 12 处候选，已完成 5 处</div>
+          </div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 请帮我优化 /home/faiss-1.7.4 项目中的 /home/faiss-1.7.4/faiss/utils/distances_simd.cpp 文件</div>
+          <div class="ai-msg">好的，这是 C/C++ 源码向量化请求，命中 <b class="hl-tool">vectorization-optimization</b> 技能。先读取技能说明与目标文件，确认参数后再执行工作流 ——</div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-idle"></span> read_file /home/skills/vectorization-optimization/SKILL.md</div>
+            <div class="ln"><span class="px-ic px-idle"></span> read_file /home/faiss-1.7.4/faiss/utils/distances_simd.cpp</div>
+            <div class="ln"><span class="px-ic px-idle"></span> read_file references/examples.md · assets/command-checklist.md</div>
+          </div>
+          <div class="sub-h">参数解析 <span class="cm">对照示例 13 · 项目根目录层级可推断</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">--project-dir</span><span class="v">/home/faiss-1.7.4（用户明确给出）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">--file-path</span><span class="v">faiss/utils/distances_simd.cpp（用户明确给出）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">--simd-target</span><span class="v">neon（用户未指定指令集，按默认规则填充）</span></div>
+          <div class="ai-msg">校验通过，启动 <b class="hl-tool">vectorization_workflow</b> ——</div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-active"></span> ./devkitai vectorization_workflow --project-dir /home/faiss-1.7.4 --file-path .../distances_simd.cpp --simd-target neon</div>
+            <div class="ln"><span class="px-ic px-ok"></span> Phase1 预检查 · aarch64 · NEON(ASIMD) 支持 · tiancheng 已安装</div>
+            <div class="ln"><span class="px-ic px-ok"></span> Phase2 向量化分析 · 工具补丁 11 · AI 候选补丁 4 · 共 15</div>
+            <div class="ln"><span class="px-ic px-ok"></span> Phase3 工具补丁并行验证 · 10/11 通过 · 1 回退 AI（[66-69] 工具无法判定，转交 AI 改写）</div>
+            <div class="ln"><span class="px-ic px-warn"></span> Phase4 AI 补丁并行改写 · 3/5 通过 · 2 处功能验证失败已跳过</div>
+            <div class="ln"><span class="px-ic px-ok"></span> Phase5 补丁应用 · 13/13 写入 · 自动补充 #include &lt;arm_neon.h&gt;</div>
+          </div>
+
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">distances_simd.cpp 向量化优化任务报告</span>
+              <span class="tc-csum">16 补丁 · 通过 13 · 失败/回退 3 · 总耗时 524.43s</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="rpt-banner">✓ 工具补丁 + AI 补丁双通道验证完成 · 13 处优化已写入源码</div>
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">工具补丁</div><div class="sc-big">10/11</div><div class="sc-sub">通过 · <span class="wn">1 回退 AI</span></div></div>
+                <div class="stat-card"><div class="sc-lb">AI 补丁</div><div class="sc-big">3/5</div><div class="sc-sub">通过（含接管的回退项）· <span class="wn">2 失败</span></div></div>
+                <div class="stat-card"><div class="sc-lb">最高性能提升</div><div class="sc-big">+338.9%</div><div class="sc-sub">[103-105] speedup 4.39x</div></div>
+              </div>
+              <div class="sub-h">工具补丁 · 逐处 NEON 改写（按提升排序）</div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>补丁</th><th>代码行</th><th>性能提升</th><th>speedup</th></tr></thead>
+                <tbody>
+                  <tr><td>#1</td><td class="mu">103-105</td><td>+338.9%</td><td>4.39x</td></tr>
+                  <tr><td>#3</td><td class="mu">205-207</td><td>+334.4%</td><td>4.34x</td></tr>
+                  <tr><td>#2</td><td class="mu">192-194</td><td>+326.4%</td><td>4.26x</td></tr>
+                  <tr><td>#5</td><td class="mu">1502-1503</td><td>+318.6%</td><td>4.19x</td></tr>
+                  <tr><td>#4</td><td class="mu">218-221</td><td>+312.4%</td><td>4.12x</td></tr>
+                  <tr><td>#7</td><td class="mu">1822-1824</td><td>+309.1%</td><td>4.09x</td></tr>
+                  <tr><td>#10</td><td class="mu">1929-1931</td><td>+294.2%</td><td>3.94x</td></tr>
+                  <tr><td>#8</td><td class="mu">1899-1901</td><td>+291.1%</td><td>3.91x</td></tr>
+                  <tr><td>#6</td><td class="mu">1606-1607</td><td>+288.9%</td><td>3.89x</td></tr>
+                  <tr><td>#9</td><td class="mu">1914-1916</td><td>+170.2%</td><td>2.70x</td></tr>
+                  <tr><td>#0 <span class="rbadge muted">→AI</span></td><td class="mu">66-69</td><td colspan="2" class="mu">工具无法判定，回退 AI 改写（AI 补丁 #4 已接管，+2.0%）</td></tr>
+                </tbody>
+              </table>
+              <div class="sub-h">AI 补丁 · 改写 + 验证</div>
+              <div class="mrow"><span class="ic ok">✓</span><span class="lb">#4 [66-69]</span><span class="tg">接管工具回退项 · 改写 1 次</span><span class="rbadge ok">+2.0%</span></div>
+              <div class="mrow"><span class="ic ok">✓</span><span class="lb">#1 [152-157]</span><span class="tg">改写 2 次</span><span class="rbadge ok">+28.6%</span></div>
+              <div class="mrow"><span class="ic ok">✓</span><span class="lb">#0 [128-133]</span><span class="tg">改写 2 次 · 测试迭代 3</span><span class="rbadge ok">+35.1%</span></div>
+              <div class="mrow"><span class="ic wn">●</span><span class="lb">#3 [1744-1750]</span><span class="tg">改写 4 次仍未通过</span><span class="rbadge warn">验证失败</span></div>
+              <div class="mrow"><span class="ic wn">●</span><span class="lb">#2 [1627-1633]</span><span class="tg">改写 4 次仍未通过</span><span class="rbadge warn">验证失败</span></div>
+              <div class="sub-h">产物</div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">优化源码</span><span class="v">faiss-1.7.4_0ef9/result/faiss/utils/distances_simd.cpp</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">HTML 报告</span><span class="v">Vectorization_Patch_Result_20260827_100423.html</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">git patch</span><span class="v">devkit-vectorization.patch（8168 bytes）</span></div>
+            </div>
+          </div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 你清理一下优化痕迹，我一会重新来过</div>
+          <div class="ai-msg">我来清理工作区目录，先确认一下有哪些需要清理的痕迹 ——</div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-active"></span> ls -d /home/faiss-1.7.4_*</div>
+            <div class="ln"><span class="px-ic px-idle"></span> 9 个历史工作区目录，本次优化产生的是 faiss-1.7.4_0ef9</div>
+          </div>
+          <div class="blocker">
+            <div class="bt">? 需要确认清理范围</div>
+            <div class="bl">原始项目 <code>/home/faiss-1.7.4</code> 本身未被修改（优化结果写在工作区 <code>result/</code> 目录），无需恢复源码。</div>
+            <div class="bl">① 只清理本次产生的 <b class="hl-file">faiss-1.7.4_0ef9</b>；② 清理全部 <b class="hl-metric">9 个</b> 历史工作区目录。你要清理哪个范围？</div>
+          </div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 你现在有哪些能用的skill</div>
+          <div class="ai-msg">目前可用的 Skill 只有一个：</div>
+          <div class="chipf">
+            <span class="chip on"><b>vectorization-optimization</b></span>
+          </div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">用途</span><span class="v">C/C++ 源码 SVE/NEON 向量化优化</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">触发词</span><span class="v">向量化 · 天秤 · SVE · NEON · ARM优化 · 鲲鹏优化 · 性能优化 · 指令集优化</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">适用范围</span><span class="v">C/C++ 项目 + ARM 指令集，不适用于 AVX 等 x86 专属指令集</span></div>
+          <div class="ai-msg">如果需要其他方面能力（代码审查、研究分析、文件操作等），我也可以直接用通用工具完成，不一定需要专门的 Skill。还有其他需要帮助的吗？</div>
+        </div>
+      </section>
+    </div>
+
+    <div class="scene" data-agent="develop" data-scenario="op-gen">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我看看结算矩阵计算能不能用鲲鹏亲和库加速一下</div>
+          <div class="ai-msg">好的，我来扫描项目中的计算密集算子，匹配 <b class="hl-tool">BoostKit</b> 算子库看看哪些可以加速。</div>
+          <div class="sub-h">识别计算密集算子，自动生成鲲鹏亲和实现</div>
+          <div class="steps">
+            <div class="step"><span class="c doing">▶</span><span class="bd"><div class="t1">识别候选算子</div><div class="t2">结算矩阵化计算 · 风控评分模型</div></span></div>
+            <div class="step"><span class="c pending">2</span><span class="bd"><div class="t1">生成鲲鹏适配实现</div><div class="t2">调用 BoostKit 算子库或自动生成内核</div></span></div>
+            <div class="step"><span class="c pending">3</span><span class="bd"><div class="t1">正确性 + 性能双重验证</div><div class="t2">比对基线结果，采集性能基线</div></span></div>
+          </div>
+          <div class="sub-h">候选算子</div>
+          <div class="chipf">
+            <span class="chip">结算矩阵化计算</span>
+            <span class="chip">风控评分模型</span>
+          </div>
+          <div class="console"><div class="ln"><span class="px-ic px-idle"></span> 等待源码向量化改造收尾后启动</div></div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 你现在有哪些能用的skill</div>
+          <div class="ai-msg">当前可用的 Skills 如下：</div>
+          <div class="chipf">
+            <span class="chip on"><b>tiancheng</b></span>
+            <span class="chip"><b>cpp-kunpeng-migration</b></span>
+          </div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb hl-tool">tiancheng</span><span class="v">天秤源码性能调优 · 直接改写算法/数据结构/循环/内存访问/缓存/分支/并行/SIMD 源码，热点诊断+策略匹配+等价性验证+Benchmark 度量+逐点 patch 交付</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb hl-tool">cpp-kunpeng-migration</span><span class="v">C/C++ 项目 x86→ARM 迁移，六阶段自动化流程，双架构兼容编译</span></div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 按照Tiancheng SKILL，对服务器上的 rocksdb 做源码性能优化，源码目录:/home/DevKit_AI/rocksdb，策略库在 /home/DevKit_AI/Tiancheng-OptStrategy 目录下。编译命令:make -j$(nproc) static_lib db_bench。benchmark 命令:numactl -C 0-15 -m 0 ./db_bench --benchmarks=readseq --use_existing_db=true --threads=1 --num=10000000 --compression_type=none --db=/data/rocksdb_test。过程中禁止使用交互式命令，避免卡住。perf 使用 F99，避免耗时过长</div>
+          <div class="ai-msg">好的，我先阅读 Tiancheng Skill 完整说明，确认脚本与策略库路径是否存在 ——</div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-idle"></span> read_file /home/skills/DevkitAI/Tiancheng-Opt-Skill/SKILL.md</div>
+            <div class="ln"><span class="px-ic px-warn"></span> 用户给出的策略库路径不存在，改用技能自带策略库 /home/skills/DevkitAI/Tiancheng-OptStrategy（结构校验通过）</div>
+          </div>
+          <div class="sub-h">任务参数确认</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">项目位置</span><span class="v">/home/DevKit_AI/rocksdb（用户提供）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">编译指令</span><span class="v">make -j$(nproc) static_lib db_bench（用户提供）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">性能 Benchmark</span><span class="v">db_bench --benchmarks=readseq（用户提供）</span></div>
+          <div class="chk"><span class="ic warn">!</span><span class="lb">功能测试指令</span><span class="v">未提供，将复用仓库可发现测试或建立等价性验证</span></div>
+          <div class="chk"><span class="ic warn">!</span><span class="lb">改动约束</span><span class="v">是否换算法/加依赖/浮点精度均未提供，默认：保持行为等价、不增加运行时依赖、要求位精确</span></div>
+          <div class="ai-msg">以上未提供项将按默认约束执行，回复任意内容继续，也可一次性补充或更正。</div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 吞吐提升2%-3%即可，其它已确认，请继续</div>
+          <div class="ai-msg">好的，目标调整为吞吐提升 2%-3%，其余按默认约束确认。开始按 8 步流程推进 ——</div>
+          <div class="steps">
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.1 环境检查</div><div class="t2">依赖齐备</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.2 读取策略库</div><div class="t2">20523 案例 · 27 类别</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.3 诊断</div><div class="t2">构建 + perf 采样热点 + 策略匹配</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.4 改写</div><div class="t2">逐点改写，一个优化点一个 commit</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.5 验证</div><div class="t2">等价性测试证明行为一致</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.6 度量</div><div class="t2">benchmark 基线 vs 优化</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.7 交付</div><div class="t2">逐点 patch + 优化报告</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">4.8 回馈</div><div class="t2">全部命中已有策略，无需回馈知识库</div></span></div>
+          </div>
+
+          <div class="sub-h">策略库 · 按案例数排序（节选）</div>
           <table class="cmp rpt-tb">
-            <thead><tr><th>参数</th><th>baseline</th><th>best</th><th>重要性</th></tr></thead>
+            <thead><tr><th>类别</th><th>案例数</th><th>核心模式</th></tr></thead>
             <tbody>
-              <tr class="reco"><td>tcp-backlog</td><td>23256</td><td>47821</td><td>23.37%</td></tr>
-              <tr><td>tcp-keepalive</td><td>88</td><td>123</td><td>14.45%</td></tr>
-              <tr><td>hash-max-ziplist-entries</td><td>380</td><td>1010</td><td>6.53%</td></tr>
-              <tr><td>zset-max-ziplist-value</td><td>160</td><td>425</td><td>6.11%</td></tr>
-              <tr><td>lazyfree-lazy-eviction</td><td>no</td><td>yes</td><td>6.04%</td></tr>
+              <tr><td>内存优化</td><td>5641</td><td class="mu">引用替代拷贝 · 移动语义 · 容器预分配 · 延迟初始化</td></tr>
+              <tr><td>循环优化</td><td>2032</td><td class="mu">循环不变量外提 · 循环展开 · 提前退出 · 循环合并</td></tr>
+              <tr><td>提前返回优化</td><td>1809</td><td class="mu">空值检查提前返回 · 边界条件提前返回</td></tr>
+              <tr><td>快速路径优化</td><td>1580</td><td class="mu">空集合快速路径 · 已知结果快速路径</td></tr>
+              <tr><td>条件分支优化</td><td>1431</td><td class="mu">likely/unlikely 分支提示 · 分支消除与合并</td></tr>
+              <tr><td>算法优化</td><td>1191</td><td class="mu">哈希查找替代线性搜索 · 复杂度降低</td></tr>
+              <tr><td>数学运算优化</td><td>1108</td><td class="mu">位运算替代算术 · SIMD 向量化 · 常量折叠</td></tr>
+              <tr><td>缓存优化</td><td>1153</td><td class="mu">结果缓存复用 · 数据预取 · 缓存行对齐</td></tr>
             </tbody>
           </table>
-          <div class="sub-h">产物</div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">任务/参数模板</span><span class="v">task_Redis_System.yaml · param_Redis_System.yaml</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">训练结果</span><span class="v">train_result/（train.db + 日志）</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">可视化报告</span><span class="v">train_result/kat_report.html（含图表 + AI 分析）</span></div>
-          <div class="chk"><span class="ic ok">✓</span><span class="lb">AI 分析</span><span class="v">train_result/analysis.md（趋势解读与建议）</span></div>
+
+          <div class="console">
+            <div class="ln"><span class="px-ic px-active"></span> cd /home/DevKit_AI/rocksdb && make -j$(nproc) static_lib db_bench</div>
+            <div class="ln"><span class="px-ic px-ok"></span> 构建成功 · librocksdb.a + db_bench</div>
+            <div class="ln"><span class="px-ic px-active"></span> perf record -F 99 -g -- numactl -C 0-15 -m 0 ./db_bench --benchmarks=readseq,readseq,readseq,readseq,readseq ...</div>
+            <div class="ln"><span class="px-ic px-idle"></span> 委派 general-purpose 子 Agent · 交叉检索策略库匹配案例</div>
+          </div>
+
+          <div class="sub-h">TOP 10 · 热点函数（perf -F99）</div>
+          <table class="hotspot">
+            <thead><tr><th>占比</th><th>热点函数</th><th>可用策略</th></tr></thead>
+            <tbody>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:31px;background:var(--tn-gold)"></div><span class="v" style="color:var(--tn-gold)">7.72%</span></div></td><td class="fnname">DBIter::FindNextUserEntryInternal</td><td class="mu">循环不变量外提 · 分支提示 · 提前返回</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:18px;background:var(--tn-red)"></div><span class="v" style="color:var(--tn-red)">4.37%</span></div></td><td class="fnname">BlockBasedTableIterator::NextAndGetResult</td><td class="mu">调用链内联 · 分支提示</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:14px;background:var(--tn-orange)"></div><span class="v" style="color:var(--tn-orange)">3.59%</span></div></td><td class="fnname">BinaryHeap::downheap</td><td class="mu">冗余调用消除 · 比较函数内联</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:14px;background:var(--fg4)"></div><span class="v">3.52%</span></div></td><td class="fnname">DataBlockIter::ParseNextDataKey</td><td class="mu">分支提示 · Varint 解码优化</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:13px;background:var(--fg4)"></div><span class="v">3.14%</span></div></td><td class="fnname">MergingIterator::NextAndGetResult</td><td class="mu">虚函数去虚拟化 · 调用链内联</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:12px;background:var(--fg4)"></div><span class="v">2.98%</span></div></td><td class="fnname">crc32c_arm64</td><td class="mu">运行时分支提示</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:11px;background:var(--fg4)"></div><span class="v">2.78%</span></div></td><td class="fnname">BytewiseComparatorImpl::Compare</td><td class="mu">虚函数去虚拟化 · memcmp 内联化</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:10px;background:var(--fg4)"></div><span class="v">2.60%</span></div></td><td class="fnname">BytewiseComparatorImpl::CompareWithoutTimestamp</td><td class="mu">同上 · 虚函数去虚拟化</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:10px;background:var(--fg4)"></div><span class="v">2.47%</span></div></td><td class="fnname">MergingIterator::value</td><td class="mu">虚函数去虚拟化</td></tr>
+              <tr><td><div class="ht-pct"><div class="ht-bar" style="width:9px;background:var(--fg4)"></div><span class="v">2.39%</span></div></td><td class="fnname">Slice::compare (memcmp)</td><td class="mu">短 key 内联比较 · SIMD 优化</td></tr>
+            </tbody>
+          </table>
+          <div class="ai-msg">共性方向：虚函数去虚拟化（Comparator/Iterator 系列开销最大）、分支提示（热点函数普遍缺 ROCKSDB_LIKELY/UNLIKELY）、调用链内联、冗余调用消除、memcmp 短路径优化。</div>
+
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">rocksdb readseq 优化报告</span>
+              <span class="tc-csum">保留 7 项 · 回退 4 项 · 5,982,743 → 6,132,868 ops/sec · +2.51%</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="rpt-banner">✓ 等价性验证通过 · 性能提升 +2.51%（n=15，标准差带不重叠，统计显著）· 达成 2-3% 目标</div>
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">基线</div><div class="sc-big">5.98M</div><div class="sc-sub">ops/sec</div></div>
+                <div class="stat-card"><div class="sc-lb">优化后</div><div class="sc-big">6.13M</div><div class="sc-sub">ops/sec</div></div>
+                <div class="stat-card"><div class="sc-lb">提升</div><div class="sc-big">+2.51%</div><div class="sc-sub">目标 2-3% · 已达成</div></div>
+              </div>
+              <div class="sub-h">保留的 7 个优化点（均已合入 git）</div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>优化点</th><th>文件</th><th>策略</th><th>收益</th></tr></thead>
+                <tbody>
+                  <tr><td>opt-dbiter2</td><td class="hl-link">db/db_iter.cc</td><td class="mu">FindNextUserEntryInternal · UNLIKELY 罕见路径</td><td>+1.73%</td></tr>
+                  <tr><td>opt-finished</td><td class="hl-link">tools/db_bench_tool.cc</td><td class="mu">Stats::FinishedOps · UNLIKELY 罕见路径</td><td>+1.96%</td></tr>
+                  <tr><td>opt-bbt</td><td class="hl-link">table/block_based_table_iterator.cc</td><td class="mu">UNLIKELY 分支提示</td><td>+1.18%</td></tr>
+                  <tr><td>opt-value-fastpath</td><td class="hl-link">db/db_iter.h</td><td class="mu">DBIter::value() 快速路径重排</td><td>+0.88%</td></tr>
+                  <tr><td>opt-key-next</td><td class="hl-link">db/db_iter.h · .cc</td><td class="mu">UNLIKELY + ts_sz==0 快速路径</td><td>+0.20%</td></tr>
+                  <tr><td>opt-1</td><td class="hl-link">util/heap.h</td><td class="mu">BinaryHeap::downheap 消除冗余 get_left</td><td>+0.13%</td></tr>
+                  <tr><td>opt-2</td><td class="hl-link">table/merging_iterator.cc</td><td class="mu">MergingIterator::Next · UNLIKELY 分支提示</td><td>持平</td></tr>
+                </tbody>
+              </table>
+              <div class="sub-h">回退的 4 个有害改动（已还原，不合入）</div>
+              <div class="mrow"><span class="ic wn">●</span><span class="lb">builtin memcmp</span><span class="tg">替换 glibc memcmp，aarch64 上反而更慢</span><span class="rbadge warn">-1.68%</span></div>
+              <div class="mrow"><span class="ic wn">●</span><span class="lb">LRU 预取 prefetch</span><span class="tg">哈希链短时增加指令开销</span><span class="rbadge warn">-0.54%</span></div>
+              <div class="mrow"><span class="ic wn">●</span><span class="lb">map 查找去重</span><span class="tg">find+operator[] 比 find+insert 更快</span><span class="rbadge warn">-0.71%</span></div>
+              <div class="mrow"><span class="ic wn">●</span><span class="lb">LIKELY upper_bound</span><span class="tg">方向搞反，readseq 无 upper_bound</span><span class="rbadge warn">-1.01%</span></div>
+              <div class="sub-h">产物</div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">合并 patch</span><span class="v">rocksdb_opt_output/all_source_changes.patch</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">patch 清单</span><span class="v">rocksdb_opt_output/manifest.md</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">优化报告</span><span class="v">rocksdb_opt_output/optimization_report.md</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">逐点 patch</span><span class="v">rocksdb_opt_output/patches/（7 个文件）</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">进度日志</span><span class="v">rocksdb.perflog/PROGRESS.md</span></div>
+            </div>
+          </div>
+          <div class="ai-msg">所有优化策略均来自策略库直接匹配（条件分支优化、快速路径优化、循环优化），无需回馈入库。是否还需要其他帮助？</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ═══ 调优 Agent ═══ -->
+    <div class="scene" data-agent="tune" data-scenario="diagnose">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我扫描一下这台鲲鹏服务器的配置，看看哪些参数没调优到位</div>
+          <div class="ai-msg">好的，扫描需要 BMC 访问权限来读取硬件配置。请确认以下连接信息：</div>
+          <div class="sub-h">依赖参数配置</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">BMC_IP</span><span class="v">192.168.10.21</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">BMC_USER / BMC_PASSWD</span><span class="v">已配置 · Apply Depend</span></div>
+          <div class="ai-msg">BMC 连接验证通过，开始场景化扫描 BIOS / 内存 / 网卡 / OS 参数 ——</div>
+          <div class="rpt-banner">✓ Kspect 场景化扫描完成，6 项参数中 3 项建议修改，已生成备份 resource/backups/</div>
+          <div class="stat3">
+            <div class="stat-card"><div class="sc-lb">扫描参数</div><div class="sc-big">6</div><div class="sc-sub">bios · memory · nic · os</div></div>
+            <div class="stat-card"><div class="sc-lb">建议修改</div><div class="sc-big">3</div><div class="sc-sub"><span class="wn">待应用</span></div></div>
+            <div class="stat-card"><div class="sc-lb">已一致</div><div class="sc-big">3</div><div class="sc-sub">无需修改</div></div>
+          </div>
+          <div class="sub-h">nic · enp125s0f0</div>
+          <div class="mrow"><span class="ic wn">●</span><span class="lb">NIC Queue Count</span><span class="ar">→</span><span class="tg">NUMA Core Count</span><span class="rbadge warn">当前 1</span></div>
+          <div class="mrow"><span class="ic wn">●</span><span class="lb">IRQ Core Binding</span><span class="ar">→</span><span class="tg">IRQ NUMA Affinity</span><span class="rbadge warn">当前 0</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">RX Queue Depth</span><span class="ar">→</span><span class="tg">4096</span><span class="rbadge ok">一致</span></div>
+          <div class="sub-h">memory · os</div>
+          <div class="mrow"><span class="ic wn">●</span><span class="lb">vm.min_free_kbytes</span><span class="ar">→</span><span class="tg">NUMAs*2097152</span><span class="rbadge warn">当前 112640</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">kernel.numa_balancing</span><span class="ar">→</span><span class="tg">0</span><span class="rbadge ok">一致</span></div>
+          <div class="mrow"><span class="ic ok">✓</span><span class="lb">irqbalance.service</span><span class="ar">→</span><span class="tg">inactive</span><span class="rbadge ok">一致</span></div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-ok"></span> kspect domain scan — 6 项检查，3 项待应用</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="scene" data-agent="tune" data-scenario="bottleneck">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我定位一下结算服务最近变慢的原因</div>
+          <div class="ai-msg">好的，我来用 <b class="hl-tool">ksys</b> 采集性能数据并与基线对比，定位瓶颈根因 ——</div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-active"></span> ./ksys collect -d 10 -i 1 -o /home/order-center/ && ./ksys diff -i baseline.json now.json -o ./diff-out</div>
+          </div>
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">性能瓶颈定位报告</span>
+              <span class="tc-csum">IPC 0.86（-39.4%）· Backend Bound 61% · TOP10 热点 + 火焰图 · AI 定位置信度 88%</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="sub-h">ksys diff · Topdown 分析</div>
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">IPC</div><div class="sc-big">0.86</div><div class="sc-sub">基线 1.42 · <span class="wn">-39.4%</span></div></div>
+                <div class="stat-card"><div class="sc-lb">Backend Bound</div><div class="sc-big">61%</div><div class="sc-sub">Topdown 主导瓶颈</div></div>
+                <div class="stat-card"><div class="sc-lb">L1D MPKI</div><div class="sc-big">24.1</div><div class="sc-sub">基线 6.3 · <span class="wn">+282%</span></div></div>
+              </div>
+              <div class="sub-h">TOP 10 · 热点调用栈</div>
+              <table class="hotspot" id="hotspotTable">
+                <thead><tr><th>周期数占比</th><th>周期数</th><th>进程名</th><th>共享库/文件</th></tr></thead>
+                <tbody id="hotspotBody"></tbody>
+              </table>
+              <div class="sub-h">FLAME GRAPH</div>
+              <div class="fg-legend">
+                <span><i style="background:var(--tn-gold)"></i>18%</span>
+                <span><i style="background:var(--tn-red)"></i>~12%</span>
+                <span><i style="background:var(--tn-orange)"></i>~10%</span>
+                <span><i style="background:var(--tn-blue)"></i>3–8%</span>
+                <span><i style="background:var(--tn-green)"></i>6–10%</span>
+                <span><i style="background:var(--tn-teal)"></i>~5%</span>
+                <span><i style="background:var(--tn-purple)"></i>~4%</span>
+                <span><i style="background:var(--tn-cyan)"></i>~4%</span>
+              </div>
+              <div class="flame" id="flameGraph"></div>
+              <div class="ai-note"><span>⚠</span><div><div>AI: DB IO 等待占比 61%，与 ngx_crypto_spin_wait 自旋叠加，集中在结算批处理窗口 → I/O + spin-lock 双重瓶颈</div><div class="conf">置信度 88%</div></div></div>
+            </div>
+          </div>
+          <div class="console"><div class="ln"><span class="px-ic px-active"></span> Root cause located · 置信度计算中</div></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="scene" data-agent="tune" data-scenario="auto-param">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我把订单服务的 JVM 和连接池参数调到最优</div>
+          <div class="ai-msg">好的，我来用 <b class="hl-tool">kat</b> 自动调参工具进行迭代优化。使用 HPO 算法搜索最优参数组合 ——</div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-active"></span> devkit kat train -t order-center-task.cfg -p jvm-param.cfg -o ./train-out</div>
+          </div>
+          <div class="sub-h">Auto Tuning Report <span class="cm">devkit kat train · 算法 HPO</span></div>
+          <div class="stat3">
+            <div class="stat-card"><div class="sc-lb">总轮次</div><div class="sc-big">3</div><div class="sc-sub">失败 0</div></div>
+            <div class="stat-card"><div class="sc-lb">调优方向</div><div class="sc-big">maximize</div><div class="sc-sub">TPS</div></div>
+            <div class="stat-card"><div class="sc-lb">性能提升</div><div class="sc-big">+43.8%</div><div class="sc-sub">3.2k → <span class="wn">4.6k</span></div></div>
+          </div>
+          <div class="sub-h">方案对比 <span class="cm">baseline / best / worst</span></div>
+          <table class="cmp">
+            <thead><tr><th></th><th>TPS</th><th>P99</th><th>GC 停顿</th></tr></thead>
+            <tbody>
+              <tr><td>baseline</td><td><span class="cmp-bar" style="width:22px;background:var(--tn-orange)"></span>3.2k</td><td>210ms</td><td>38%</td></tr>
+              <tr class="reco"><td>best ★推荐</td><td><span class="cmp-bar" style="width:34px;background:var(--accent-green)"></span>4.6k</td><td>126ms</td><td>9%</td></tr>
+              <tr><td>worst 激进</td><td><span class="cmp-bar" style="width:38px;background:var(--tn-red)"></span>5.1k</td><td>98ms</td><td>4% <span style="color:var(--accent-orange)">↑内存+38%</span></td></tr>
+            </tbody>
+          </table>
+          <div class="sub-h">参数重要性</div>
+          <table class="cmp rpt-tb">
+            <thead><tr><th>参数</th><th>重要性</th><th>baseline</th><th>best</th><th>worst</th></tr></thead>
+            <tbody>
+              <tr><td>maximum-pool-size</td><td>0.42</td><td>10</td><td>32</td><td>48</td></tr>
+              <tr><td>-Xmx</td><td>0.35</td><td>2g</td><td>6g</td><td>8g</td></tr>
+              <tr><td>max-connections</td><td>0.18</td><td>1024</td><td>4096</td><td>8192</td></tr>
+            </tbody>
+          </table>
+          <div class="sub-h">迭代轮次</div>
+          <div class="steps">
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">Round 1</div><div class="t2">TPS 3.2k → 3.9k</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">Round 2</div><div class="t2">TPS 3.9k → 4.6k，收敛</div></span></div>
+            <div class="step"><span class="c doing">▶</span><span class="bd"><div class="t1">Round 3</div><div class="t2">压测方案 A / B 对照</div></span></div>
+          </div>
+          <div class="console"><div class="ln"><span class="px-ic px-active"></span> 压测 3 组配置 · wrk 60s × 3</div></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="scene" data-agent="tune" data-scenario="redis-tune">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 帮我调优本机Redis</div>
+          <div class="ai-msg">我是鲲鹏性能参数调优助手，可以为数据库/大数据等应用在鲲鹏服务器上完成系统/软件参数调优。识别到调优（tune）意图，命中 <b class="hl-tool">perf-params-tuner-agent</b> 技能，将执行端到端流水线：生成模板 → 执行调优 → 生成报告。</div>
+          <div class="steps">
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段1 · 收集调优场景</div><div class="t2">应用 Redis · 节点 本机</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段2 · 生成任务模板</div><div class="t2">缓存场景 · 吞吐量/性能方向</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段3 · 生成参数模板</div><div class="t2">45 个参数 · System 15 + Redis 30</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段4 · 执行参数调优</div><div class="t2">HPO 30 轮 · 0 失败</div></span></div>
+            <div class="step"><span class="c done">✓</span><span class="bd"><div class="t1">阶段5 · 生成调优报告</div><div class="t2">+20.78%（Round 9）</div></span></div>
+          </div>
+
+          <div class="console">
+            <div class="ln"><span class="px-ic px-active"></span> redis-cli ping · redis-server --version · 环境探测（OS / CPU / NUMA / 内存）</div>
+            <div class="ln"><span class="px-ic px-warn"></span> Redis 服务未运行，进一步确认是否已安装</div>
+            <div class="ln"><span class="px-ic px-ok"></span> 找到 redis-server / redis-cli / redis-benchmark · /root/software/redis-6.0.20/bin</div>
+          </div>
+          <div class="sub-h">阶段1 · 环境信息</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">应用</span><span class="v">Redis 6.0.20 · /root/software/redis-6.0.20/</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">节点</span><span class="v">本机 · root · 单节点部署，无需配置免密互联</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">OS / CPU</span><span class="v">openEuler 22.03 LTS-SP3 (aarch64) · HUAWEI Kunpeng 920 · 128 核 · 2 NUMA 节点</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">内存</span><span class="v">250Gi</span></div>
+
+          <div class="ai-msg">阶段2 加载 <b class="hl-tool">task-design</b> 子技能，命中 Redis 场景配置。阶段3 加载 <b class="hl-tool">params-design</b> 子技能，先做场景确认 ——</div>
+          <div class="blocker">
+            <div class="bt">? Redis 场景确认</div>
+            <div class="bl">Redis 主要用于什么场景？不同场景的参数调优方向差异较大 → 用户选择 <b class="hl-metric">缓存 Cache（推荐）</b></div>
+            <div class="bl">调优方向期望是什么？可多选 → 用户选择 <b class="hl-metric">吞吐量/性能（推荐）</b></div>
+          </div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">验证通过</span><span class="v">45 个参数（System 15 + Redis 30），immutable 11 个，所有约束满足</span></div>
+
+          <div class="sub-h">调优方案</div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">压测工具</span><span class="v">redis-benchmark -p 6379 -C 50 -n 100000 -t set,get -q</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">指标</span><span class="v">requests per second（吞吐量，越高越好）</span></div>
+          <div class="chk"><span class="ic ok">✓</span><span class="lb">配置</span><span class="v">直接生成正式调优配置 · 30 轮（HPO 算法）</span></div>
+          <div class="chipf">
+            <span class="chip on">maxmemory</span><span class="chip on">maxmemory-policy</span><span class="chip on">tcp-backlog</span>
+            <span class="chip on">io-threads</span><span class="chip on">hz</span><span class="chip">maxmemory-samples</span>
+            <span class="chip">lazyfree-*</span><span class="chip">save</span><span class="chip">···共 15+ 参数</span>
+          </div>
+
+          <div class="usr-msg"><span class="p">&gt;</span> 可以</div>
+          <div class="ai-msg">已确认，生成任务/参数配置文件，自动进入执行阶段 ——</div>
+          <div class="console">
+            <div class="ln"><span class="px-ic px-ok"></span> 任务文件 task_Redis_System.yaml · 数据目录 /tmp/redis-data 已创建</div>
+            <div class="ln"><span class="px-ic px-active"></span> nohup kat_monitor.py train_result task_Redis_System.yaml param_Redis_System.yaml</div>
+            <div class="ln"><span class="px-ic px-ok"></span> devkit 已探测到 · 后台启动 KAT 训练，实时监控进度</div>
+          </div>
+
+          <div class="tc-collapse open">
+            <div class="tc-chead">
+              <span class="tc-car">▾</span>
+              <span class="tc-clb">Redis 调优完成 · 最终总结</span>
+              <span class="tc-csum">HPO 30 轮 · 0 失败 · 64,433 → 77,821 req/s · +20.78%</span>
+            </div>
+            <div class="tc-cbody">
+              <div class="rpt-banner">✓ 报告校验通过，AI 分析已注入 · 端到端调优流水线全部完成</div>
+              <div class="stat3">
+                <div class="stat-card"><div class="sc-lb">总轮次</div><div class="sc-big">30</div><div class="sc-sub">失败 0</div></div>
+                <div class="stat-card"><div class="sc-lb">基线 → 最优</div><div class="sc-big">+20.78%</div><div class="sc-sub">64,433 → <span class="wn">77,821</span> req/s</div></div>
+                <div class="stat-card"><div class="sc-lb">最优轮次</div><div class="sc-big">Round 9</div><div class="sc-sub">最差 Round 18 · -18.32%</div></div>
+              </div>
+              <div class="sub-h">Top 5 关键参数（按重要性排序）</div>
+              <table class="cmp rpt-tb">
+                <thead><tr><th>参数</th><th>baseline</th><th>best</th><th>重要性</th></tr></thead>
+                <tbody>
+                  <tr class="reco"><td>tcp-backlog</td><td>23256</td><td>47821</td><td>23.37%</td></tr>
+                  <tr><td>tcp-keepalive</td><td>88</td><td>123</td><td>14.45%</td></tr>
+                  <tr><td>hash-max-ziplist-entries</td><td>380</td><td>1010</td><td>6.53%</td></tr>
+                  <tr><td>zset-max-ziplist-value</td><td>160</td><td>425</td><td>6.11%</td></tr>
+                  <tr><td>lazyfree-lazy-eviction</td><td>no</td><td>yes</td><td>6.04%</td></tr>
+                </tbody>
+              </table>
+              <div class="sub-h">产物</div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">任务/参数模板</span><span class="v">task_Redis_System.yaml · param_Redis_System.yaml</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">训练结果</span><span class="v">train_result/（train.db + 日志）</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">可视化报告</span><span class="v">train_result/kat_report.html（含图表 + AI 分析）</span></div>
+              <div class="chk"><span class="ic ok">✓</span><span class="lb">AI 分析</span><span class="v">train_result/analysis.md（趋势解读与建议）</span></div>
+            </div>
+          </div>
+          <div class="ai-msg">应用最优配置：<code style="font-family:var(--mono);background:var(--surf-1);padding:1px 5px;color:var(--pri-h)">devkit kat use -i train_result</code>。也可继续深度调优：增加轮数至 50-80、引入 System 网络栈参数、扩大 tcp-backlog 范围。</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <button class="scroll-btm" id="scrollBtm" title="回到底部">↓</button>
+
+  <div class="bottom-input">
+    <div class="tune-chart tc-collapse open" id="tuneChart" style="display:none">
+      <div class="tc-chead">
+        <span class="tc-car">▾</span>
+        <span class="tc-clb">调优曲线</span>
+        <span class="tc-csum" id="tcSum">Round 0/0</span>
+        <span class="tc-live"><span class="dot"></span>LIVE</span>
+        <div class="tc-views" id="tcViews">
+          <button class="tc-vbtn active" data-view="chart" type="button">图表</button>
+          <button class="tc-vbtn" data-view="table" type="button">表格</button>
         </div>
       </div>
-
-      <div class="ai-msg">应用最优配置：<code style="font-family:var(--mono);background:var(--surf-1);padding:1px 5px;color:var(--pri-h)">devkit kat use -i train_result</code>。也可继续深度调优：增加轮数至 50-80、引入 System 网络栈参数、扩大 tcp-backlog 范围。</div>
-    </div>
-  </div>
-
-  <div class="tune-chart tc-collapse open" id="tuneChart">
-    <div class="tc-chead">
-      <span class="tc-car">▾</span>
-      <span class="tc-clb">调优曲线</span>
-      <span class="tc-csum" id="tcSum">Round 0/0</span>
-      <span class="tc-live"><span class="dot"></span>LIVE</span>
-      <div class="tc-views" id="tcViews">
-        <button class="tc-vbtn active" data-view="chart" type="button">图表</button>
-        <button class="tc-vbtn" data-view="table" type="button">表格</button>
+      <div class="tc-cbody">
+        <svg class="tc-svg" id="tcSvg" viewBox="0 0 600 112"></svg>
+        <div class="tc-table-wrap" id="tcTableWrap" style="display:none">
+          <table class="tc-table">
+            <thead><tr><th>Round</th><th>req/s</th><th>vs baseline</th></tr></thead>
+            <tbody id="tcTableBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
-    <div class="tc-cbody">
-      <svg class="tc-svg" id="tcSvg" viewBox="0 0 600 112"></svg>
-      <div class="tc-table-wrap" id="tcTableWrap" style="display:none">
-        <table class="tc-table">
-          <thead><tr><th>Round</th><th>req/s</th><th>vs baseline</th></tr></thead>
-          <tbody id="tcTableBody"></tbody>
-        </table>
+    <div class="bi-actions" id="biActions"></div>
+    <div class="slash-menu" id="slashMenu"></div>
+    <div class="bi-row">
+      <span class="p">&gt;</span>
+      <span class="bi-cur"></span>
+      <textarea id="biInput" rows="3" placeholder="描述你想让 Agent 做什么，输入 / 唤出命令..."></textarea>
+    </div>
+  </div>
+  </div>
+
+  <div class="code-col" id="codeCol">
+    <div class="code-scene on" data-agent="migrate" data-scenario="src-migrate">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> snappy-stubs-internal.h &gt; src/butil/third_party/snappy &gt; <span class="fn">UNALIGNED_LOAD64()</span></span></div>
+      <div class="panel-body">
+        <div class="cline"><span class="no">142</span><span class="pfx"></span>}</div>
+        <div class="cline"><span class="no">143</span><span class="pfx"></span></div>
+        <div class="cline del"><span class="no">144</span><span class="pfx del">-</span><span class="kw">inline</span> <span class="tk d">uint64_tUNALIGNED_LOAD64</span>(<span class="kw">const void</span> *p) {</div>
+        <div class="cline del"><span class="no">145</span><span class="pfx del">-</span>&nbsp;&nbsp;<span class="tk d">uint64_tt</span>;</div>
+        <div class="cline add hl"><span class="no">144</span><span class="pfx add">+</span><span class="kw">inline</span> <span class="tk a">uint64_t UNALIGNED_LOAD64</span>(<span class="kw">const void</span> *p) {</div>
+        <div class="cline add hl"><span class="no">145</span><span class="pfx add">+</span>&nbsp;&nbsp;<span class="tk a">uint64_t t</span>;</div>
+        <div class="cline"><span class="no">146</span><span class="pfx"></span>&nbsp;&nbsp;memcpy(&amp;t, p, <span class="kw">sizeof</span> t);</div>
+        <div class="cline"><span class="no">147</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">return</span> t;</div>
+        <div class="cline"><span class="no">148</span><span class="pfx"></span>}</div>
+        <div class="cline"><span class="no">149</span><span class="pfx"></span></div>
+        <div class="cline del"><span class="no">155</span><span class="pfx del">-</span><span class="kw">inline void</span> UNALIGNED_STORE64(<span class="kw">void</span> *p, <span class="tk d">uint64_tv</span>) {</div>
+        <div class="cline add hl"><span class="no">155</span><span class="pfx add">+</span><span class="kw">inline void</span> UNALIGNED_STORE64(<span class="kw">void</span> *p, <span class="tk a">uint64_t v</span>) {</div>
+        <div class="cline"><span class="no">156</span><span class="pfx"></span>&nbsp;&nbsp;memcpy(p, &amp;v, <span class="kw">sizeof</span> v);</div>
+        <div class="cline"><span class="no">157</span><span class="pfx"></span>}</div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="migrate" data-scenario="e2e-migrate">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> order_item.sql &gt; sql &gt; <span class="fn">MySQL → 达梦 DM</span></span></div>
+      <div class="panel-body">
+        <div class="cline del"><span class="no">1</span><span class="pfx del">-</span>INSERT INTO <span class="tk d">`order_item`</span> (<span class="tk d">`order_id`,`sku`,`qty`</span>) VALUES (?,?,?)</div>
+        <div class="cline del"><span class="no">2</span><span class="pfx del">-</span><span class="tk d">ON DUPLICATE KEY UPDATE `qty` = `qty` + VALUES(`qty`)</span>;</div>
+        <div class="cline add hl"><span class="no">1</span><span class="pfx add">+</span><span class="tk a">MERGE INTO</span> "order_item" T</div>
+        <div class="cline add hl"><span class="no">2</span><span class="pfx add">+</span><span class="tk a">USING</span> (SELECT ? "order_id", ? "sku", ? "qty" FROM DUAL) S</div>
+        <div class="cline add"><span class="no">3</span><span class="pfx add">+</span><span class="kw">ON</span> (T."order_id"=S."order_id" <span class="kw">AND</span> T."sku"=S."sku")</div>
+        <div class="cline add hl"><span class="no">4</span><span class="pfx add">+</span><span class="tk a">WHEN MATCHED THEN UPDATE</span> <span class="kw">SET</span> T."qty"=T."qty"+S."qty"</div>
+        <div class="cline add hl"><span class="no">5</span><span class="pfx add">+</span><span class="tk a">WHEN NOT MATCHED THEN INSERT</span> ("order_id","sku","qty") <span class="kw">VALUES</span> (S."order_id",S."sku",S."qty");</div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="migrate" data-scenario="container-migrate">
+      <div class="panel-head"><span class="crumb"><span class="m">[+]</span> Dockerfile.kunpeng &gt; docker &gt; <span class="fn">Dockerfile.kunpeng</span></span></div>
+      <div class="panel-body">
+        <div class="cline del"><span class="no">1</span><span class="pfx del">-</span><span class="kw">FROM</span> <span class="tk d">nginx:1.25</span></div>
+        <div class="cline add hl"><span class="no">1</span><span class="pfx add">+</span><span class="kw">FROM</span> <span class="tk a">kunpeng-registry/nginx:1.25-aarch64</span></div>
+        <div class="cline"><span class="no">2</span><span class="pfx"></span></div>
+        <div class="cline del"><span class="no">3</span><span class="pfx del">-</span><span class="kw">COPY</span> --from=build <span class="tk d">/out/nginx-x86_64</span> /usr/sbin/nginx</div>
+        <div class="cline add hl"><span class="no">3</span><span class="pfx add">+</span><span class="kw">COPY</span> --from=build <span class="tk a">/out/nginx-aarch64</span> /usr/sbin/nginx</div>
+        <div class="cline"><span class="no">4</span><span class="pfx"></span><span class="kw">EXPOSE</span> <span class="num">80</span> <span class="num">443</span></div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="develop" data-scenario="vectorize">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> settlement_kernel.c &gt; settlement &gt; <span class="fn">calc_batch():104</span></span></div>
+      <div class="panel-body">
+        <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt">// settlement_kernel.c —— 结算批处理核心计算，鲲鹏 SVE 向量化版本</span></div>
+        <div class="cline"><span class="no">2</span><span class="pfx"></span><span class="kw">#include</span> &lt;arm_sve.h&gt;</div>
+        <div class="cline"><span class="no">3</span><span class="pfx"></span><span class="kw">#include</span> &lt;stdint.h&gt;</div>
+        <div class="cline"><span class="no">4</span><span class="pfx"></span><span class="kw">#include</span> "settlement_types.h"</div>
+        <div class="cline"><span class="no">5</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">6</span><span class="pfx"></span><span class="kw">typedef struct</span> {</div>
+        <div class="cline"><span class="no">7</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">const float</span> *amount;</div>
+        <div class="cline"><span class="no">8</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">const float</span> *rate;</div>
+        <div class="cline"><span class="no">9</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">float</span> *total;</div>
+        <div class="cline"><span class="no">10</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">int</span> n;</div>
+        <div class="cline"><span class="no">11</span><span class="pfx"></span>} <span class="ty">settle_ctx_t</span>;</div>
+        <div class="cline"><span class="no">12</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">13</span><span class="pfx"></span><span class="kw">static inline float</span> <span class="fn">clamp_rate</span>(<span class="kw">float</span> r) {</div>
+        <div class="cline"><span class="no">14</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">return</span> r &lt; 0.f ? 0.f : (r &gt; 1.f ? 1.f : r);</div>
+        <div class="cline"><span class="no">15</span><span class="pfx"></span>}</div>
+        <div class="cline"><span class="no">16</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">99</span><span class="pfx"></span><span class="cmt">// 天秤扫描定位的热点循环 · 已完成 SVE 向量化改造</span></div>
+        <div class="cline"><span class="no">100</span><span class="pfx"></span><span class="kw">void</span> <span class="fn">calc_batch</span>(<span class="ty">settle_ctx_t</span> *ctx) {</div>
+        <div class="cline"><span class="no">101</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">const float</span> *amount = ctx-&gt;amount, *rate = ctx-&gt;rate;</div>
+        <div class="cline"><span class="no">102</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">float</span> *total = ctx-&gt;total;</div>
+        <div class="cline hl"><span class="no">103</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; ctx-&gt;n; i += svcntw()) {</div>
+        <div class="cline add"><span class="no">104</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;svbool_t pg = svwhilelt_b32(i, ctx-&gt;n);</div>
+        <div class="cline add"><span class="no">105</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;svfloat32_t va = svld1_f32(pg, &amp;amount[i]);</div>
+        <div class="cline add"><span class="no">106</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;svfloat32_t vr = svld1_f32(pg, &amp;rate[i]);</div>
+        <div class="cline add"><span class="no">107</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;svfloat32_t vt = svmad_f32_z(pg, va, vr, svdup_f32(1.0f));</div>
+        <div class="cline add"><span class="no">108</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;svst1_f32(pg, &amp;total[i], vt);</div>
+        <div class="cline"><span class="no">109</span><span class="pfx"></span>&nbsp;&nbsp;}</div>
+        <div class="cline"><span class="no">110</span><span class="pfx"></span>}</div>
+        <div class="cline"><span class="no">111</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">112</span><span class="pfx"></span><span class="cmt">// x86 标量兜底路径，非 aarch64 构建时启用</span></div>
+        <div class="cline"><span class="no">113</span><span class="pfx"></span><span class="kw">void</span> <span class="fn">calc_batch_scalar_fallback</span>(<span class="ty">settle_ctx_t</span> *ctx) {</div>
+        <div class="cline"><span class="no">114</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; ctx-&gt;n; i++)</div>
+        <div class="cline"><span class="no">115</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;ctx-&gt;total[i] = ctx-&gt;amount[i] * <span class="fn">clamp_rate</span>(ctx-&gt;rate[i]);</div>
+        <div class="cline"><span class="no">116</span><span class="pfx"></span>}</div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="develop" data-scenario="op-gen">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> db_iter.cc &gt; rocksdb/db &gt; <span class="fn">DBIter::FindNextUserEntryInternal()</span></span></div>
+      <div class="panel-body">
+        <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt">// opt-dbiter2 · 策略：条件分支优化 → likely/unlikely 分支提示</span></div>
+        <div class="cline del"><span class="no">2</span><span class="pfx del">-</span>&nbsp;&nbsp;<span class="kw">if</span> (<span class="tk d">ts_sz_ > 0 && !timestamp_lb_</span>) {</div>
+        <div class="cline add hl"><span class="no">2</span><span class="pfx add">+</span>&nbsp;&nbsp;<span class="kw">if</span> (<span class="tk a">ROCKSDB_UNLIKELY(ts_sz_ > 0 && !timestamp_lb_)</span>) {</div>
+        <div class="cline"><span class="no">3</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt">// 罕见路径：仅在启用 user-defined timestamp 且无下界时命中</span></div>
+        <div class="cline"><span class="no">4</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">continue</span>;</div>
+        <div class="cline"><span class="no">5</span><span class="pfx"></span>&nbsp;&nbsp;}</div>
+        <div class="cline"><span class="no">6</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">7</span><span class="pfx"></span><span class="cmt">// opt-value-fastpath · 策略：快速路径优化 → 常见条件快捷处理（db_iter.h）</span></div>
+        <div class="cline del"><span class="no">8</span><span class="pfx del">-</span>&nbsp;&nbsp;<span class="ty">Slice</span> <span class="fn">value</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="tk d">is_blob_ ? ResolveBlobValue() : value_</span>; }</div>
+        <div class="cline add hl"><span class="no">8</span><span class="pfx add">+</span>&nbsp;&nbsp;<span class="ty">Slice</span> <span class="fn">value</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="tk a">ROCKSDB_LIKELY(!is_blob_) ? value_ : ResolveBlobValue()</span>; }</div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="tune" data-scenario="diagnose">
+      <div class="panel-head"><span class="crumb">kspect &gt; <span class="fn">domain scan</span></span></div>
+      <div class="panel-body">
+        <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt"># kspect scan · 4 类别 · 6 项参数</span></div>
+        <div class="cline hl"><span class="no">2</span><span class="pfx"></span>vm.min_free_kbytes = <span class="num">112640</span> <span class="cmt">← 建议 NUMAs*2097152</span></div>
+        <div class="cline"><span class="no">3</span><span class="pfx"></span>kernel.numa_balancing = <span class="num">0</span> <span class="cmt">建议 0（一致）</span></div>
+        <div class="cline"><span class="no">4</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">5</span><span class="pfx"></span><span class="cmt"># nic enp125s0f0</span></div>
+        <div class="cline hl"><span class="no">6</span><span class="pfx"></span>NIC Queue Count = <span class="num">1</span> <span class="cmt">← 建议 NUMA Core Count</span></div>
+        <div class="cline hl"><span class="no">7</span><span class="pfx"></span>IRQ Core Binding = <span class="num">0</span> <span class="cmt">← 建议 IRQ NUMA Affinity</span></div>
+        <div class="cline"><span class="no">8</span><span class="pfx"></span>RX Queue Depth = <span class="num">4096</span> <span class="cmt">建议 4096（一致）</span></div>
+        <div class="cline"><span class="no">9</span><span class="pfx"></span>irqbalance.service = <span class="fn">inactive</span> <span class="cmt">建议 inactive（一致）</span></div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="tune" data-scenario="bottleneck">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> crypto.c &gt; nginx-gateway &gt; src &gt; crypto.c &gt; <span class="fn" id="crumbFn">ngx_crypto_spin_wait()</span></span></div>
+      <div class="panel-body">
+        <div class="cline"><span class="no">84</span><span class="pfx"></span>&nbsp;&nbsp;<span class="kw">while</span> (*lock) {</div>
+        <div class="cline"><span class="no">86</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (spin--) {</div>
+        <div class="cline hl"><span class="no">87</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">asm</span> <span class="kw">volatile</span>(<span class="str">"yield"</span>); <span class="cmt">← 热点 18.42%</span></div>
+        <div class="cline"><span class="no">88</span><span class="pfx"></span>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+        <div class="cline"><span class="no">89</span><span class="pfx"></span>&nbsp;&nbsp;}</div>
+        <div class="cline"><span class="no">90</span><span class="pfx"></span>}</div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="tune" data-scenario="auto-param">
+      <div class="panel-head"><span class="crumb">config &gt; <span class="fn">application-prod.yml</span></span></div>
+      <div class="panel-body">
+        <div class="cline del"><span class="no">7</span><span class="pfx del">-</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="tk d">10</span></div>
+        <div class="cline add hl"><span class="no">7</span><span class="pfx add">+</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maximum-pool-size: <span class="tk a">32</span></div>
+        <div class="cline del"><span class="no">8</span><span class="pfx del">-</span><span class="tk d">-Xmx2g -XX:+UseG1GC</span></div>
+        <div class="cline add hl"><span class="no">8</span><span class="pfx add">+</span><span class="tk a">-Xmx6g -XX:+UseZGC</span></div>
+        <div class="cline del"><span class="no">9</span><span class="pfx del">-</span>server.tomcat.max-connections=<span class="tk d">1024</span></div>
+        <div class="cline add hl"><span class="no">9</span><span class="pfx add">+</span>server.tomcat.max-connections=<span class="tk a">4096</span></div>
+      </div>
+    </div>
+    <div class="code-scene" data-agent="tune" data-scenario="redis-tune">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> redis.conf &gt; redis-6.0.20 &gt; <span class="fn">best 方案</span></span></div>
+      <div class="panel-body">
+        <div class="cline del"><span class="no">1</span><span class="pfx del">-</span>tcp-backlog <span class="tk d">23256</span></div>
+        <div class="cline add hl"><span class="no">1</span><span class="pfx add">+</span>tcp-backlog <span class="tk a">47821</span> <span class="cmt">← 重要性 23.37%</span></div>
+        <div class="cline del"><span class="no">2</span><span class="pfx del">-</span>tcp-keepalive <span class="tk d">88</span></div>
+        <div class="cline add hl"><span class="no">2</span><span class="pfx add">+</span>tcp-keepalive <span class="tk a">123</span></div>
+        <div class="cline del"><span class="no">3</span><span class="pfx del">-</span>hash-max-ziplist-entries <span class="tk d">380</span></div>
+        <div class="cline add hl"><span class="no">3</span><span class="pfx add">+</span>hash-max-ziplist-entries <span class="tk a">1010</span></div>
+        <div class="cline del"><span class="no">4</span><span class="pfx del">-</span>zset-max-ziplist-value <span class="tk d">160</span></div>
+        <div class="cline add hl"><span class="no">4</span><span class="pfx add">+</span>zset-max-ziplist-value <span class="tk a">425</span></div>
+        <div class="cline del"><span class="no">5</span><span class="pfx del">-</span>lazyfree-lazy-eviction <span class="tk d">no</span></div>
+        <div class="cline add hl"><span class="no">5</span><span class="pfx add">+</span>lazyfree-lazy-eviction <span class="tk a">yes</span></div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="bi-actions">
-    <button class="bi-btn">应用最优配置到 Redis</button>
-    <button class="bi-btn secondary">增大轮数至 50-80 深度调优</button>
-    <button class="bi-btn secondary">导出可视化报告</button>
+<div class="status-bar">
+  <div class="keys">
+    <span><b>1</b> 迁移</span><span><b>2</b> 开发</span><span><b>3</b> 调优</span>
+    <span><b>↑↓</b> 场景</span>
+    <span><b>C</b> 代码区</span><span><b>P</b> AI Plan</span>
+    <span><b>Ctrl+P</b> 命令</span><span><b>F1</b> 帮助</span>
+    <span><b>Esc</b> 返回启动页</span>
   </div>
-
-  <div class="rt-foot">由 Kunpeng DevKit AI · perf-params-tuner-agent 自动生成</div>
 </div>
 
 <script>
-document.getElementById('apHead').addEventListener('click',()=>
-  document.getElementById('aiPlan').classList.toggle('collapsed'));
-document.querySelectorAll('.tc-chead').forEach(head=>
-  head.addEventListener('click',()=>head.closest('.tc-collapse').classList.toggle('open')));
+/* ══ 场景元数据：驱动二级 tab 生成 + 侧栏文件联动 ══ */
+const SCENARIOS={
+  migrate:[
+    {key:'src-migrate',label:'源码迁移',status:'done',file:'context.cpp',code:true,
+     goal:'六阶段流水线：环境检测 → 依赖分析 → 确认 → DevKit 扫描适配 → 编译验证 → 报告',
+     plan:[{t:'环境检测',d:'CMake + BiSheng',s:'done'},{t:'依赖分析',d:'32 libs · SSE/snappy',s:'done'},
+       {t:'待确认项',d:'rapidjson 保持现状',s:'done'},{t:'源码适配',d:'10 files',s:'done'},
+       {t:'编译验证',d:'第 3 轮成功',s:'done'},{t:'迁移报告',d:'libbrpc.so aarch64',s:'done'}],
+     sugg:['查看完整迁移报告','在目标机运行单元测试','对比迁移前后性能基线']},
+    {key:'e2e-migrate',label:'端到端迁移',status:'wait',file:'order_item.sql',code:true,
+     goal:'六阶段流水线：预检+解析 → 源端扫描+路线 → 中间件 → 数据库 MySQL→DM → 应用/SQL 改造 → 部署验证',
+     plan:[{t:'预检+安装包解析',d:'TongWeb/DM8/JDK/Nginx/Redis',s:'done'},{t:'源端扫描+路线生成',d:'',s:'done'},
+       {t:'中间件迁移',d:'TongWeb license 缺失',s:'wait'},{t:'数据库迁移',d:'MySQL→DM · 19/20 一致',s:'done'},
+       {t:'应用+SQL 改造',d:'WAR 重打包',s:'done'},{t:'部署验证',d:'TongWeb+应用待续',s:'wait'}],
+     sugg:['补充 TongWeb License','降级为 Tomcat ARM','重跑中间件阶段']},
+    {key:'container-migrate',label:'容器迁移',status:'wait',file:'Dockerfile',code:true,
+     goal:'devkit sys-mig -c container_mig 分析 x86 镜像与 Dockerfile，生成鲲鹏版 Dockerfile 与双语迁移报告',
+     plan:[{t:'识别分类镜像',d:'基础镜像 / 业务镜像',s:'todo'},{t:'基础镜像重建',d:'',s:'todo'},
+       {t:'业务镜像适配',d:'',s:'todo'},{t:'生成 Dockerfile + 报告',d:'11 files · 10 可兼容 · 1 待确认',s:'todo'},{t:'构建与验证',d:'',s:'todo'}],
+     sugg:['开始容器镜像迁移','查看基础镜像清单']}
+  ],
+  develop:[
+    {key:'vectorize',label:'源码向量化改造',status:'doing',file:'kernel',code:true,
+     goal:'识别 x86 SIMD intrinsics，自动改写为鲲鹏 NEON/SVE 向量化实现',
+     plan:[{t:'火焰图扫描定位热点',d:'--simd-target=sve',s:'done'},{t:'识别候选 intrinsics',d:'12 处候选',s:'done'},
+       {t:'生成 SVE 向量化实现',d:'已完成 5 处',s:'doing'},{t:'实测收益验证',d:'342ms → 96ms',s:'doing'}],
+     sugg:['只清理本次工作区','应用 git patch 到 faiss 项目','继续改造下一处候选']},
+    {key:'op-gen',label:'通算算子智能生成',status:'done',file:'Settlement',code:true,
+     goal:'天秤（Tiancheng）源码性能调优：热点诊断 → 策略库匹配 → 逐点改写 → 等价性验证 → Benchmark 度量 → patch 交付',
+     plan:[{t:'识别候选算子',d:'结算矩阵化计算 · 风控评分模型',s:'done'},{t:'热点诊断 + 策略匹配',d:'rocksdb readseq · 20523 案例策略库',s:'done'},
+       {t:'逐点改写 + 等价性验证',d:'7 项保留 · 4 项回退',s:'done'},{t:'Benchmark 度量',d:'+2.51%（目标 2-3%）',s:'done'}],
+     sugg:['应用 patch 到 rocksdb 主干','继续识别结算矩阵候选算子','查看完整优化报告']}
+  ],
+  tune:[
+    {key:'diagnose',label:'自动配置诊断',status:'done',file:'app-prod.yml',code:false,
+     goal:'kspect 场景化扫描 BIOS/内存/网卡/OS 参数，比对推荐值并给出可一键应用的修改建议',
+     plan:[{t:'扫描 4 类参数',d:'bios · memory · nic · os',s:'done'},{t:'比对推荐值',d:'6 项 · 3 项待应用',s:'done'},
+       {t:'生成修改前备份',d:'resource/backups/',s:'done'},{t:'待用户确认应用',d:'',s:'done'}],
+     sugg:['一键应用 3 项建议','导出扫描报告','回滚到备份配置']},
+    {key:'bottleneck',label:'快速定界性能瓶颈',status:'doing',file:'crypto.c',code:true,
+     goal:'采集热点调用栈与火焰图，AI 定位根因',
+     plan:[{t:'采集热点调用栈',d:'Top 13',s:'done'},{t:'生成火焰图',d:'',s:'done'},
+       {t:'AI 定位根因',d:'置信度计算中',s:'doing'}],
+     sugg:['查看完整火焰图','导出 Topdown 分析','对比历史性能基线']},
+    {key:'auto-param',label:'参数自动迭代优化',status:'doing',file:'app-prod.yml',code:true,hidden:true,
+     goal:'一键开启参数自动迭代优化',
+     plan:[{t:'Round 1',d:'3.2k → 3.9k',s:'done'},{t:'Round 2',d:'3.9k → 4.6k',s:'done'},
+       {t:'Round 3',d:'方案 A/B 对照',s:'doing'}],
+     sugg:['应用 best 方案参数','继续 Round 3 压测','导出调优报告']},
+    {key:'redis-tune',label:'参数调优',status:'done',file:'redis.conf',code:true,
+     goal:'perf-params-tuner-agent 五阶段流水线：收集调优场景 → 生成任务模板 → 生成参数模板 → 执行参数调优 → 生成调优报告',
+     plan:[{t:'收集调优场景',d:'Redis 6.0.20 · 缓存场景',s:'done'},{t:'生成任务/参数模板',d:'45 个参数（System 15 + Redis 30）',s:'done'},
+       {t:'执行参数调优',d:'HPO 30 轮 · 0 失败',s:'done'},{t:'生成调优报告',d:'+20.78%（Round 9）',s:'done'}],
+     sugg:['应用最优配置到 Redis','增大轮数至 50-80 深度调优','导出可视化报告'],
+     hpo:{baseline:64433,bestRound:9,
+       series:[65120,68240,66980,70150,72430,71080,74960,76510,77821,75330,
+               73870,69920,71460,68330,65780,61240,57690,52637,58920,63410,
+               66780,69230,71560,73080,74420,75190,74680,75810,76230,74990]}}
+  ]
+};
+const lastScenario={migrate:'src-migrate',develop:'vectorize',tune:'redis-tune'};
+let curAgent='migrate';
 
-/* 调优曲线：逐轮回放 HPO 迭代曲线，播完暂停后从头继续，模拟"实时跑动"；支持图表/表格视图切换 */
-const HPO={baseline:64433,bestRound:9,
-  series:[65120,68240,66980,70150,72430,71080,74960,76510,77821,75330,
-          73870,69920,71460,68330,65780,61240,57690,52637,58920,63410,
-          66780,69230,71560,73080,74420,75190,74680,75810,76230,74990]};
-let tuneView='chart',tuneTimer=null;
-function renderTuneChart(){
+function renderSessionList(activeAgent,activeScenario){
+  const el=document.getElementById('sessScroll');
+  el.innerHTML=Object.keys(SCENARIOS).map(agentKey=>
+    SCENARIOS[agentKey].filter(s=>!s.hidden).map(s=>
+      `<div class="sd-node ${agentKey===activeAgent&&s.key===activeScenario?'active':''}"
+        data-agent="${agentKey}" data-scenario="${s.key}">
+        <span class="dot ${s.status}"></span><span class="lb">${s.label}</span></div>`).join('')
+  ).join('');
+}
+
+function renderAIPlan(agentKey,scenarioKey){
+  const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
+  if(!meta) return;
+  document.getElementById('apGoal').innerHTML=`<b>${meta.label}</b> · ${meta.goal||''}`;
+  document.getElementById('apSteps').innerHTML=(meta.plan||[]).map((p,i)=>
+    `<div class="ap-step"><span class="n">${i+1}</span><span class="c ${p.s}"></span>
+      <span class="lb">${p.t}</span>${p.d?`<span class="d">${p.d}</span>`:''}</div>`).join('');
+}
+
+/* 建议操作：根据当前对话/场景内容变化，而不是固定不变 */
+function renderSuggestions(agentKey,scenarioKey){
+  const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
+  document.getElementById('biActions').innerHTML=(meta&&meta.sugg||[]).map((s,i)=>
+    `<button class="bi-btn${i===0?'':' secondary'}">${s}</button>`).join('');
+}
+
+/* 调优曲线：输入框上方固定可收起区域，逐轮回放 HPO 迭代曲线，播完暂停后从头继续，模拟"实时跑动"；
+   支持图表/表格视图切换，收起时（.tc-collapse 无 open）暂停动画，展开时恢复 */
+let tuneTimer=null,tuneView='chart';
+function stopTuneChart(){
+  if(tuneTimer){ clearInterval(tuneTimer); tuneTimer=null; }
+}
+function renderTuneChart(agentKey,scenarioKey){
+  const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
   const box=document.getElementById('tuneChart');
-  const {series,baseline,bestRound}=HPO;
+  stopTuneChart();
+  if(!meta||!meta.hpo){ box.style.display='none'; return; }
+  box.style.display='';
+  const {series,baseline,bestRound}=meta.hpo;
   const total=series.length;
   const svg=document.getElementById('tcSvg');
   const sumEl=document.getElementById('tcSum');
   const tbody=document.getElementById('tcTableBody');
   const tableWrap=document.getElementById('tcTableWrap');
+  /* viewBox 按实际渲染像素设置，避免非等比缩放把坐标轴文字/圆点拉变形 */
   const W=svg.clientWidth||600,H=112,padT=12,padB=24,padL=40,padR=8;
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
   const lo=Math.min(baseline,...series),hi=Math.max(...series);
@@ -327,6 +1714,7 @@ function renderTuneChart(){
   const xOf=i=>padL+(W-padL-padR)*(total===1?0:i/(total-1));
   const baseY=yOf(baseline).toFixed(1);
   const fmtK=v=>Math.round(v/1000)+'k';
+  /* 坐标轴：纵轴取 3 档刻度值，横轴按总轮次取约 6 个刻度，跟 reveal 无关，只画一次 */
   const yTicks=[yMax,(yMax+yMin)/2,yMin];
   const axisHTML=yTicks.map(v=>{
     const y=yOf(v).toFixed(1);
@@ -380,7 +1768,301 @@ document.getElementById('tcViews').addEventListener('click',e=>{
   document.getElementById('tcSvg').style.display=tuneView==='chart'?'':'none';
   document.getElementById('tcTableWrap').style.display=tuneView==='table'?'':'none';
 });
-renderTuneChart();
+
+function selectScenario(agentKey,scenarioKey){
+  curAgent=agentKey;
+  lastScenario[agentKey]=scenarioKey;
+  document.querySelectorAll('#sessScroll .sd-node').forEach(el=>
+    el.classList.toggle('active',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
+  document.querySelectorAll('.scene').forEach(el=>
+    el.classList.toggle('on',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
+  document.querySelectorAll('.code-scene').forEach(el=>
+    el.classList.toggle('on',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
+  const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
+  if(meta) document.getElementById('convTitle').textContent=meta.label;
+  document.querySelectorAll('#sidebar .sd-node[data-file]').forEach(el=>
+    el.classList.toggle('active',!!meta && el.dataset.file===meta.file));
+  renderAIPlan(agentKey,scenarioKey);
+  renderSuggestions(agentKey,scenarioKey);
+  renderTuneChart(agentKey,scenarioKey);
+  const hasCode=!!meta&&meta.code;
+  document.getElementById('workspace').classList.toggle('foldcode',!hasCode);
+  document.getElementById('cfoldBtn').classList.toggle('on',hasCode);
+  setTimeout(checkScrollBottom,50);
+  if(agentKey==='tune' && scenarioKey==='bottleneck') initHotspot();
+}
+
+function toggleAIPlan(){
+  document.getElementById('aiPlan').classList.toggle('collapsed');
+}
+function toggleCodeFold(){
+  const folded=document.getElementById('workspace').classList.toggle('foldcode');
+  document.getElementById('cfoldBtn').classList.toggle('on',!folded);
+}
+document.getElementById('apHead').addEventListener('click',toggleAIPlan);
+document.getElementById('cfoldBtn').addEventListener('click',toggleCodeFold);
+document.getElementById('sessScroll').addEventListener('click',e=>{
+  const t=e.target.closest('.sd-node[data-agent]'); if(t) selectScenario(t.dataset.agent,t.dataset.scenario);
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ location.href='launch.html'; return; }
+  const tag=document.activeElement.tagName;
+  if(tag==='INPUT'||tag==='TEXTAREA'||document.activeElement.isContentEditable) return;
+  if(e.key==='c'||e.key==='C') toggleCodeFold();
+  else if(e.key==='p'||e.key==='P') toggleAIPlan();
+  else if(e.key==='1') selectScenario('migrate',lastScenario.migrate);
+  else if(e.key==='2') selectScenario('develop',lastScenario.develop);
+  else if(e.key==='3') selectScenario('tune',lastScenario.tune);
+  else if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+    e.preventDefault();
+    const sc=SCENARIOS[curAgent].filter(s=>!s.hidden),ci=sc.findIndex(s=>s.key===lastScenario[curAgent]);
+    const ni=e.key==='ArrowUp'?Math.max(0,ci-1):Math.min(sc.length-1,ci+1);
+    selectScenario(curAgent,sc[ni].key);
+  }
+});
+
+/* 高价值输出（报告/表格）默认折叠，点击标题展开/收起 */
+document.querySelectorAll('.tc-chead').forEach(head=>
+  head.addEventListener('click',()=>head.closest('.tc-collapse').classList.toggle('open')));
+
+
+/* ══ 热点表格 + 火焰图（调优 · 快速定界性能瓶颈）══ */
+let hotspotReady=false;
+const CYCLE_COLORS=['gold','red','orange','blue','green','teal','purple','cyan'];
+const HOTSPOTS=[
+ {fn:'ngx_crypto_spin_wait',pct:18.42,cycles:92100000,proc:'nginx-worker',lib:'nginx (src/crypto.c)'},
+ {fn:'SSL_read',pct:12.87,cycles:64350000,proc:'nginx-worker',lib:'/usr/lib64/libssl.so.1.1'},
+ {fn:'__memcpy_avx_unaligned',pct:10.55,cycles:52750000,proc:'nginx-worker',lib:'/usr/lib64/libc-2.28.so'},
+ {fn:'arch_cpu_idle',pct:8.21,cycles:41050000,proc:'swapper',lib:'[kernel.kallsyms]'},
+ {fn:'tcp_sendmsg',pct:6.74,cycles:33700000,proc:'nginx-worker',lib:'[kernel.kallsyms]'},
+ {fn:'finish_task_switch',pct:5.38,cycles:26900000,proc:'swapper',lib:'[kernel.kallsyms]'},
+ {fn:'ngx_epoll_process_events',pct:4.66,cycles:23300000,proc:'nginx-worker',lib:'nginx (ngx_epoll_module.c)'},
+ {fn:'copy_page',pct:3.92,cycles:19600000,proc:'nginx-worker',lib:'[kernel.kallsyms]'},
+ {fn:'SSL_write',pct:3.15,cycles:15750000,proc:'nginx-worker',lib:'/usr/lib64/libssl.so.1.1'},
+ {fn:'__do_softirq',pct:2.68,cycles:13400000,proc:'ksoftirqd',lib:'[kernel.kallsyms]'}
+];
+const FLAME=[
+ [{sp:0,w:100,c:'var(--bg-floating)',fn:'nginx-worker (all)'}],
+ [{sp:0,w:18,c:'var(--tn-blue)',fn:'epoll_wait'},
+  {sp:0,w:35,c:'var(--tn-red)',fn:'SSL_read'},
+  {sp:0,w:32,c:'var(--tn-green)',fn:'ngx_http_process_request'},
+  {sp:0,w:12,c:'var(--tn-teal)',fn:'tcp_sendmsg'}],
+ [{sp:0,w:10,c:'var(--tn-cyan)',fn:'epoll_ctl'},
+  {sp:0,w:8,c:'var(--tn-purple)',fn:'ep_poll'},
+  {sp:0,w:20,c:'var(--tn-gold)',fn:'ngx_crypto_spin_wait'},
+  {sp:0,w:10,c:'var(--tn-orange)',fn:'__memcpy_avx_unaligned'},
+  {sp:0,w:5,c:'var(--tn-blue)',fn:'BIO_read'},
+  {sp:0,w:14,c:'var(--tn-red)',fn:'ngx_http_upstream_process_header'},
+  {sp:0,w:10,c:'var(--tn-green)',fn:'ngx_http_finalize_request'},
+  {sp:0,w:8,c:'var(--tn-teal)',fn:'ngx_output_chain'},
+  {sp:0,w:7,c:'var(--tn-purple)',fn:'tcp_write_xmit'},
+  {sp:0,w:5,c:'var(--tn-cyan)',fn:'__alloc_skb'}],
+ [{sp:18,w:14,c:'var(--tn-gold)',fn:'arch_cpu_idle (spin)'},
+  {sp:0,w:6,c:'var(--tn-orange)',fn:'cache miss stall'}]
+];
+function initHotspot(){
+  if(hotspotReady) return; hotspotReady=true;
+  const body=document.getElementById('hotspotBody');
+  body.innerHTML=HOTSPOTS.map((h,i)=>{
+    const color=i<3?'var(--tn-'+['gold','red','orange'][i]+')':'var(--fg4)';
+    return `<tr data-func="${h.fn}">
+      <td><div class="ht-pct"><div class="ht-bar" style="width:${Math.max(4,h.pct*4)}px;background:${color}"></div>
+        <span class="v" style="color:${color}">${h.pct.toFixed(2)}%</span></div></td>
+      <td>${h.cycles.toLocaleString()}</td>
+      <td>${h.proc}</td>
+      <td class="fnname" title="${h.fn}">${h.lib} <span style="color:var(--text-muted)">· ${h.fn}</span></td>
+    </tr>`;
+  }).join('');
+  const flameEl=document.getElementById('flameGraph');
+  flameEl.innerHTML=FLAME.map(row=>{
+    let out='';
+    row.forEach(b=>{
+      if(b.sp) out+=`<div class="flame-spacer" style="width:${b.sp}%"></div>`;
+      out+=`<div class="flame-block" data-func="${b.fn}" style="width:${b.w}%;background:${b.c}">${b.fn} ${b.w}%</div>`;
+    });
+    return `<div class="flame-row">${out}</div>`;
+  }).join('');
+  body.addEventListener('click',e=>{
+    const tr=e.target.closest('tr[data-func]'); if(tr) highlightFunction(tr.dataset.func);
+  });
+  flameEl.addEventListener('click',e=>{
+    const b=e.target.closest('.flame-block[data-func]'); if(b) highlightFunction(b.dataset.func);
+  });
+}
+function highlightFunction(funcName){
+  document.querySelectorAll('#hotspotBody tr.highlighted').forEach(r=>r.classList.remove('highlighted'));
+  document.querySelectorAll('.flame-block.active').forEach(b=>b.classList.remove('active'));
+  const row=document.querySelector(`#hotspotBody tr[data-func="${funcName}"]`);
+  if(row) row.classList.add('highlighted');
+  document.querySelectorAll(`.flame-block[data-func="${funcName}"]`).forEach(b=>{
+    b.classList.add('active');
+    b.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});
+  });
+  const crumb=document.getElementById('crumbFn');
+  if(crumb) crumb.textContent=funcName+'()';
+}
+
+function checkScrollBottom(){
+  const pb=document.querySelector('.scene.on .panel-body');
+  const btn=document.getElementById('scrollBtm');
+  if(!pb||!btn)return;
+  btn.classList.toggle('show',pb.scrollHeight-pb.scrollTop-pb.clientHeight>50);
+}
+document.querySelectorAll('.panel-body').forEach(pb=>pb.addEventListener('scroll',checkScrollBottom));
+document.getElementById('scrollBtm').addEventListener('click',()=>{
+  const pb=document.querySelector('.scene.on .panel-body');
+  if(pb)pb.scrollTo({top:pb.scrollHeight,behavior:'smooth'});
+});
+
+/* ══ 输入框「/」斜杠命令联想 ══ */
+const SLASH_COMMANDS=[
+  {cmd:'/help',desc:'显示帮助信息'},
+  {cmd:'/quit',desc:'退出程序（同 /exit）'},
+  {cmd:'/config',desc:'查看 / 修改配置信息'},
+  {cmd:'/skills',desc:'管理 Agent 已启用的技能'},
+  {cmd:'/session',desc:'会话管理 · list / delete',picker:true},
+  {cmd:'/resume',desc:'恢复历史会话，例如 /resume <task_id>',picker:true},
+  {cmd:'/porting_workflow',desc:'执行迁移工作流任务'},
+  {cmd:'/vectorization_workflow',desc:'执行向量化优化工作流任务'},
+  {cmd:'/prompt',desc:'非交互式执行 Agent'},
+  {cmd:'/embedding',desc:'文档存入向量数据库'},
+  {cmd:'/encrypt',desc:'密文加密功能'},
+  {cmd:'/server',desc:'启动 server'},
+  {cmd:'/clear',desc:'清空当前对话上下文'},
+  {cmd:'/theme',desc:'切换深色 / 浅色皮肤'}
+];
+const AGENT_LABEL={migrate:'迁移',develop:'开发',tune:'调优'};
+const STATUS_LABEL={done:'已完成',doing:'进行中',wait:'待处理'};
+const biInput=document.getElementById('biInput');
+const slashMenu=document.getElementById('slashMenu');
+let smMatches=[],smSel=-1,smMode='cmd';
+
+function flatSessions(){
+  const out=[];
+  Object.keys(SCENARIOS).forEach(agentKey=>{
+    SCENARIOS[agentKey].filter(s=>!s.hidden).forEach(s=>
+      out.push({agentKey,scenarioKey:s.key,label:s.label,status:s.status}));
+  });
+  return out;
+}
+function slashQuery(){
+  const pos=biInput.selectionStart;
+  const before=biInput.value.slice(0,pos);
+  const m=before.match(/(?:^|\n)\/([a-zA-Z_]*)$/);
+  return m?m[1]:null;
+}
+/* /session、/resume 补全后——「/」联想不关闭，换成会话选择器接力，见 index.html #comp 的 P13 Selector Popup 决策 */
+function sessionQuery(){
+  const pos=biInput.selectionStart;
+  const before=biInput.value.slice(0,pos);
+  const m=before.match(/(?:^|\n)\/(?:session|resume)[ \t]+([^\n]*)$/i);
+  return m?m[1]:null;
+}
+function paintSlashMenu(){
+  const rows=smMode==='session'
+    ? smMatches.map((s,i)=>
+        `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="dot ${s.status}"></span><span class="cmd">${s.label}</span><span class="desc">${AGENT_LABEL[s.agentKey]} · ${STATUS_LABEL[s.status]}</span></div>`
+      ).join('')
+    : smMatches.map((c,i)=>
+        `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="cmd">${c.cmd}</span><span class="desc">${c.desc}</span></div>`
+      ).join('');
+  const hint=smMode==='session'
+    ? '<div class="sm-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 切换会话</span><span><b>Esc</b> 关闭</span></div>'
+    : '<div class="sm-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 补全</span><span><b>Esc</b> 关闭</span></div>';
+  slashMenu.innerHTML='<div class="sm-list">'+rows+'</div>'+hint;
+}
+function closeSlashMenu(){
+  slashMenu.classList.remove('show');
+  slashMenu.innerHTML='';
+  smMatches=[];smSel=-1;smMode='cmd';
+}
+function renderSlashMenu(){
+  const sq=sessionQuery();
+  if(sq!==null){
+    smMode='session';
+    const all=flatSessions(),q=sq.trim().toLowerCase();
+    smMatches=q?all.filter(s=>s.label.toLowerCase().includes(q)):all;
+    if(!smMatches.length){
+      slashMenu.innerHTML='<div class="sm-empty">没有匹配的会话</div>';
+      slashMenu.classList.add('show');
+      smSel=-1;
+      return;
+    }
+    smSel=0;
+    paintSlashMenu();
+    slashMenu.classList.add('show');
+    return;
+  }
+  const q=slashQuery();
+  if(q===null){ closeSlashMenu(); return; }
+  smMode='cmd';
+  smMatches=SLASH_COMMANDS.filter(c=>c.cmd.slice(1).toLowerCase().startsWith(q.toLowerCase()));
+  if(!smMatches.length){
+    slashMenu.innerHTML='<div class="sm-empty">没有匹配的命令</div>';
+    slashMenu.classList.add('show');
+    smSel=-1;
+    return;
+  }
+  smSel=0;
+  paintSlashMenu();
+  slashMenu.classList.add('show');
+}
+function applySlash(i){
+  if(smMode==='session'){
+    const s=smMatches[i]; if(!s) return;
+    selectScenario(s.agentKey,s.scenarioKey);
+    biInput.value='';
+    closeSlashMenu();
+    biInput.focus();
+    return;
+  }
+  const c=smMatches[i]; if(!c) return;
+  const pos=biInput.selectionStart;
+  const before=biInput.value.slice(0,pos),after=biInput.value.slice(pos);
+  const newBefore=before.replace(/\/([a-zA-Z_]*)$/,c.cmd+' ');
+  biInput.value=newBefore+after;
+  const cursor=newBefore.length;
+  biInput.setSelectionRange(cursor,cursor);
+  biInput.focus();
+  if(c.picker) renderSlashMenu(); else closeSlashMenu();
+}
+biInput.addEventListener('input',renderSlashMenu);
+biInput.addEventListener('click',renderSlashMenu);
+biInput.addEventListener('keydown',e=>{
+  if(!slashMenu.classList.contains('show'))return;
+  if(e.key==='ArrowDown'){ e.preventDefault(); if(smMatches.length){smSel=(smSel+1)%smMatches.length;paintSlashMenu();} }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); if(smMatches.length){smSel=(smSel-1+smMatches.length)%smMatches.length;paintSlashMenu();} }
+  else if(e.key==='Tab'||e.key==='Enter'){ if(smMatches.length){e.preventDefault();applySlash(smSel);} }
+  else if(e.key==='Escape'){ e.preventDefault(); closeSlashMenu(); }
+});
+slashMenu.addEventListener('mousedown',e=>{
+  const item=e.target.closest('.sm-item'); if(!item)return;
+  e.preventDefault();
+  applySlash(Number(item.dataset.i));
+});
+biInput.addEventListener('blur',()=>setTimeout(closeSlashMenu,120));
+
+renderSessionList('tune','redis-tune');
+selectScenario('tune','redis-tune');
+/* 默认收起右侧源码区，即便初始场景带 code，也要用户手动展开 */
+document.getElementById('workspace').classList.add('foldcode');
+document.getElementById('cfoldBtn').classList.remove('on');
+
+/* ══ 皮肤切换：深色/浅色二选一配色。每次打开页面都从深色开始，不做持久化 ══ */
+function setColorTheme(theme){
+  document.documentElement.setAttribute('data-theme',theme);
+  document.querySelectorAll('.ss-group .ss-btn').forEach(b=>b.classList.toggle('on',b.dataset.color===theme));
+}
+document.querySelectorAll('.ss-group .ss-btn').forEach(b=>b.addEventListener('click',()=>setColorTheme(b.dataset.color)));
+setColorTheme('dark');
+
+/* ══ 圆角开关：默认开（圆角），关闭后全局直角 ══ */
+const rToggle=document.getElementById('radiusToggle');
+rToggle.addEventListener('click',()=>{
+  const on=rToggle.classList.toggle('on');
+  if(on){document.documentElement.removeAttribute('data-sharp')}
+  else{document.documentElement.setAttribute('data-sharp','')}
+});
 </script>
 </body>
 </html>
