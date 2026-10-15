@@ -10,10 +10,10 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23101010'/%3E%3Crect x='2' y='3' width='5' height='3' fill='%23ed1c24'/%3E%3Crect x='2' y='7' width='9' height='2' fill='%23e8e8e8'/%3E%3Crect x='2' y='10' width='6' height='2' fill='%23777'/%3E%3Crect x='12' y='10' width='2' height='2' fill='%230077ff'/%3E%3C/svg%3E" type="image/svg+xml" />
 <!--
   Kunpeng DevKit AI · 项目启动页
-  把仓库里的八份自包含 HTML、十一份设计规范、整套视觉 token 收成一页入口。
+  把仓库里的自包含 HTML、设计规范、整套视觉 token 收成一页入口。
   按用途分四组：研究 / 设计系统 / Demo / 实机录屏。
-  别写成"八份可交互原型"——真正能交互的只有 TUI 设计 demo（十幕可切换）
-  与原生 TUI 实录（录像可播放/暂停），其余是静帧和文档，说法要对得上东西。
+  别写成"八份可交互原型"——真正能点能翻的只有设计 demo、Agent Workspace 演示
+  与原生 TUI 实录，其余是静帧和文档，说法要对得上东西。
   自包含单文件，无外部依赖、无联网。
 
   · 部署位置：仓库根 /index.html —— 它就是站点首页，Pages 走分支模式
@@ -260,7 +260,7 @@ pre .hw{font-size:1ch}
       面向鲲鹏迁移 / 开发 / 诊断 / 调优的 <b>AI Native Terminal Engineering Workspace</b> 的完整设计文档集。
       产品形态先钉死一条——这是<b>原生 TUI 应用</b>：独立常驻进程、全屏接管终端、自有事件循环，
       不是 CLI 命令集合，不是 IDE 里的终端面板，不是聊天窗口套壳。
-      八份自包含 HTML 收在这一页，按用途分四组：<b>研究</b>（竞品 / 视觉 / 渲染能力三份分析）、<b>设计系统</b>（设计输入 + 整合版设计系统页）、<b>Demo</b>（五屏静帧 + 十幕可交互原型）、<b>实机录屏</b>（真实 PTY 字符流）。设计系统、实现实况、视觉 token 速查与十二份规范原文，全部整合在<a href="./kunpeng-devkit-ai-tui/web/index.html" style="color:var(--pri-h)">设计系统页</a>里——这一页只做入口，内容归内容页。
+      自包含 HTML 收在这一页，按用途分四组：<b>研究</b>（竞品 / 视觉 / 渲染能力三份分析）、<b>设计系统</b>（设计输入 + 整合版设计系统页 + Agent 编排交互规格）、<b>Demo</b>（五屏静帧 + 完整 Agent Workspace + 十幕可交互原型）、<b>实机录屏</b>（真实 PTY 字符流）。设计系统、实现实况、视觉 token 速查与十二份规范原文，全部整合在<a href="./kunpeng-devkit-ai-tui/web/index.html" style="color:var(--pri-h)">设计系统页</a>里——这一页只做入口，内容归内容页。
       设计规范已收敛，实现进行中——渲染底座、Chrome 层外壳与十四种图表原语已落地，
       Agent Runtime 与 MCP 客户端尚未开始。
     </p>
@@ -271,6 +271,7 @@ pre .hw{font-size:1ch}
       <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/demo.html">看 TUI 设计 demo</a>
       <a class="pill pill--primary" href="./kunpeng-devkit-ai-tui/web/tui-live.html">看真机实录 ▶</a>
       <a class="pill" href="./kunpeng-devkit-ai-tui/web/index.html">设计系统</a>
+      <a class="pill" href="./kunpeng-devkit-ai-tui/web/interaction-spec.html">Agent 编排交互规格 ★</a>
       <a class="pill" href="./kunpeng-devkit-ai-tui/web/competitive-analysis.html">TUI 竞品分析</a>
       <a class="pill" href="./kunpeng-devkit-ai-tui/web/competitive-analysis-2.html">竞品分析 · 第二部分</a>
       <a class="pill" href="./kunpeng-devkit-ai-tui/web/competitive-analysis-3.html">竞品分析 · 第三部分</a>
@@ -549,6 +550,41 @@ pre .hw{font-size:1ch}
             </a>
           </div>
         </article>
+
+        <!-- interaction-spec.html -->
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/interaction-spec.html">Agent 编排交互规格</a></h3>
+            <div class="card-tags">
+              <span class="tag tag--star">新</span>
+              <span class="tag tag--spec">交互规格</span>
+              <span class="tag">18 行功能对照</span>
+              <span class="tag">含验收条件</span>
+            </div>
+          </div>
+          <div class="card-preview tall" aria-hidden="true">
+<pre><span class="pv-dim">┌ </span><span class="pv-fg">功能表单 · 逐行对照</span><span class="pv-dim"> ─────────</span>
+<span class="pv-dim">│</span> <span class="pv-ok">✓</span> <span class="pv-fg">模型切换 / token 计量</span> <span class="pv-dim">§4A</span>
+<span class="pv-dim">│</span> <span class="pv-ok">✓</span> <span class="pv-fg">工具调用并发</span>       <span class="pv-dim">§4B</span>
+<span class="pv-dim">│</span> <span class="pv-ok">✓</span> <span class="pv-fg">子 Agent 并发</span>       <span class="pv-dim">§4C</span>
+<span class="pv-dim">│</span> <span class="pv-ok">✓</span> <span class="pv-fg">多级嵌套</span>           <span class="pv-dim">§4D</span>
+<span class="pv-dim">├─ </span><span class="pv-dim">每个单元</span>
+<span class="pv-dim">│</span> <span class="pv-fg">字符帧 → 键鼠 → 状态矩阵</span>
+<span class="pv-dim">│</span> <span class="pv-run">AC-A1 … AC-E8</span> <span class="pv-dim">可勾验收</span>
+<span class="pv-dim">└──────────────────────────────────</span></pre>
+          </div>
+          <p class="card-desc">本轮新增能力的<b>交互合同</b>：先把用户给的功能表单逐行对照（哪一条落在哪个对话流基本单元、是新增还是复用），再给五份交互详规——<b>模型与 token（含供应商）· 工具调用并发 · 子 Agent 并发 · 多级嵌套 · 命令改配置</b>，每份带字符帧、键鼠路径、状态矩阵与验收条件（<span class="mono">AC-A1…E8</span>）。它和设计系统页的分工：<b>设计系统页定义单元长什么样，这一页定义这些单元在这五个场景里怎么动</b>。缺口与待裁决项也留在文内，没有藏进正文。</p>
+          <div class="card-links">
+            <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/interaction-spec.html">打开交互规格</a>
+            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/agent-workspace.html">配对的 demo</a>
+            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/index.html#convo">对话流基元</a>
+          </div>
+          <div class="card-src">
+            <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/interaction-spec.html" target="_blank" rel="noopener">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4.5 2.5 8 6 11.5M10 4.5 13.5 8 10 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>kunpeng-devkit-ai-tui/web/interaction-spec.html
+            </a>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -556,7 +592,7 @@ pre .hw{font-size:1ch}
     <section class="card-group" aria-labelledby="g-demo">
       <div class="group-header">
         <h2 class="group-title" id="g-demo">Demo</h2>
-        <span class="group-note">四屏静帧与十幕可交互原型，都是自包含单文件，下载双击即开</span>
+        <span class="group-note">整屏字符帧、完整 Agent Workspace 与十幕原型，都是自包含单文件，下载双击即开</span>
         <div class="group-rule" aria-hidden="true"></div>
       </div>
       <div class="card-grid">
@@ -602,27 +638,27 @@ pre .hw{font-size:1ch}
           <div class="card-head">
             <h3 class="card-title"><a href="./kunpeng-devkit-ai-tui/web/agent-workspace.html">Agent Workspace 演示</a><span class="star">★</span></h3>
             <div class="card-tags">
-              <span class="tag tag--star">新</span>
+              <span class="tag tag--star">本轮重点</span>
               <span class="tag tag--html">演示</span>
-              <span class="tag">Tokyo Night</span>
-              <span class="tag">玻璃质感</span>
+              <span class="tag">12 个场景</span>
+              <span class="tag">可交互 · 可切主题</span>
             </div>
           </div>
           <div class="card-preview tall" aria-hidden="true">
-<pre><span class="pv-dim">┌ SESSIONS ─────────┬──────────────────</span>
-<span class="pv-dim">│</span> <span class="pv-run">▸ 应用迁移</span>          <span class="pv-dim">│</span> <span class="pv-fg">任务配置</span>
-<span class="pv-dim">│   系统迁移</span>          <span class="pv-dim">│</span> <span class="pv-fg">源码类型</span>  <span class="pv-dim">C/C++/ASM</span>
-<span class="pv-dim">│</span> <span class="pv-run">▸ 容器迁移</span>          <span class="pv-dim">│</span> <span class="pv-fg">目标环境</span>  <span class="pv-dim">openEuler</span>
-<span class="pv-dim">├ PROJECT ──────────┤──────────────────</span>
-<span class="pv-dim">│</span> <span class="pv-fg">src/crypto.c</span>   <span class="pv-er">M</span>  <span class="pv-dim">│</span> <span class="pv-ok">✓</span> <span class="pv-fg">Analyze dep</span>  <span class="pv-dim">18</span>
-<span class="pv-dim">│</span> <span class="pv-fg">conf/nginx</span>     <span class="pv-er">M</span>  <span class="pv-dim">│</span> <span class="pv-ok">✓</span> <span class="pv-fg">Gen patches</span>  <span class="pv-dim">25</span>
-<span class="pv-dim">│</span> <span class="pv-fg">order-item.sql</span> <span class="pv-er">M</span>  <span class="pv-dim">│</span> <span class="pv-ok">✓</span> <span class="pv-fg">Build verify</span>
-<span class="pv-dim">└──────────────────┴──────────────────</span></pre>
+<pre><span class="pv-dim">┌ SESSIONS ─────────┬── </span><span class="pv-fg">子 Agent 并发编排</span><span class="pv-dim"> ──</span>
+<span class="pv-dim">│</span> <span class="pv-run">▸ 子 Agent 开发编排</span><span class="pv-dim">│</span> <span class="pv-ok">■</span> <span class="pv-fg">SUB-1</span> <span class="pv-dim">settlement_kernel.c  完成</span>
+<span class="pv-dim">│</span> <span class="pv-run">▸ 模型与 Token</span>    <span class="pv-dim">│</span> <span class="pv-run">■</span> <span class="pv-fg">SUB-3</span> <span class="pv-dim">reconcile.c      进行中</span>
+<span class="pv-dim">│</span> <span class="pv-run">▸ 多级子 Agent 嵌套</span><span class="pv-dim">│</span> <span class="pv-wn">│</span> <span class="pv-fg">$</span> <span class="pv-dim">apply_patch  reconcile.c [77-82]</span>
+<span class="pv-dim">├ PROJECT ──────────┤</span> <span class="pv-wn">│</span> <span class="pv-fg">∗</span> <span class="pv-dim">grep  prefetch · 全工程引用点</span>
+<span class="pv-dim">│</span> <span class="pv-fg">reconcile.c</span> <span class="pv-er">M</span>  <span class="pv-dim">│</span> <span class="pv-fg">profiler 类已串行，其余 3 个工具仍并发</span>
+<span class="pv-dim">│</span> <span class="pv-fg">risk_score.c</span> <span class="pv-er">M</span> <span class="pv-dim">│</span> <span class="pv-dim">3 子 Agent · 上限 4 · 峰值并发 3</span>
+<span class="pv-dim">└──────────────────┴──</span><span class="pv-run">模型 devkit-gateway/ pangu2.5-72b</span><span class="pv-dim">──</span></pre>
           </div>
-          <p class="card-desc"><b>风格 B · 面板质感</b>的完整工作台演示。Tokyo Night 配色 + 玻璃质感（backdrop-filter blur + 彩色辉光阴影），三栏布局：<b>侧栏导航 · AI 对话主区 · 代码面板</b>。场景是 <b>order-center C++ 项目</b>迁移到鲲鹏 ARM64 的全流程——依赖分析 → 补丁生成 → 构建验证，含 diff 高亮、统计卡片、迁移报告表格。文字对比度经 WCAG AA 审查。附配套<a href="./kunpeng-devkit-ai-tui/web/launch.html" style="color:var(--pri-h)">启动页</a>。</p>
+          <p class="card-desc">完整 Agent Workspace：<b>迁移 · 开发 · 调优</b>三个 Agent 域共 <b>12 个场景</b>，三栏布局（侧栏导航 · AI 对话主区 · 代码面板）。本轮重点是把「主 Agent 编排多个子 Agent 并发」与「会话内改模型 / token」这两件事画成一条能纵向扫视的对话流：<b>子 Agent 并发编排 · 模型与 Token · 多级子 Agent 嵌套</b>三屏排在最前。用的全是同一套既有基元——<b>状态方块</b>（只此一种状态形状，不闪）、AI 文本、受阻说明块、Checklist 行，加编排类元件（Sub-Agent Block / 并发槽位 / 层级树 / token 徽标）与输入区单元（<span class="mono">/</span> 命令、提示行、候选菜单）；<b>模型与 token 可以在对话框里用 <span class="mono">/model</span> · <span class="mono">/tokens</span> 直接改</b>，当前模型与用量常驻底栏。深浅双主题 + 可切角色主题，键盘与鼠标路径等价。</p>
           <div class="card-links">
             <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/agent-workspace.html">打开工作台</a>
-            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/launch.html">启动页</a>
+            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/interaction-spec.html">交互规格</a>
+            <a class="lnk" href="./kunpeng-devkit-ai-tui/web/index.html#convo">对话流基元</a>
           </div>
           <div class="card-src">
             <a class="src" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/web/agent-workspace.html" target="_blank" rel="noopener">
@@ -741,7 +777,7 @@ pre .hw{font-size:1ch}
 
   <!-- ═══════════════════════════ footer ═══════════════════════════ -->
   <footer class="foot">
-    <div>本页是站点首页 <a href="https://cinnnnnnndy.github.io/DevKit/">cinnnnnnndy.github.io/DevKit/</a>，源文件是仓库根的 <span class="mono">index.html</span>（Pages 分支模式发布，发布分支在 Settings → Pages 里指定）。站内链接走相对路径 <span class="mono">./kunpeng-devkit-ai-tui/web/*.html</span>，所以在线打开和本地双击打开是同一套链接；八份 HTML 都是自包含单文件，无需构建、无需联网——但自包含不等于可交互：能点能翻的只有 TUI 设计 demo 与原生 TUI 实录，其余是静帧与文档。</div>
+    <div>本页是站点首页 <a href="https://cinnnnnnndy.github.io/DevKit/">cinnnnnnndy.github.io/DevKit/</a>，源文件是仓库根的 <span class="mono">index.html</span>（Pages 分支模式发布，发布分支在 Settings → Pages 里指定）。站内链接走相对路径 <span class="mono">./kunpeng-devkit-ai-tui/web/*.html</span>，所以在线打开和本地双击打开是同一套链接；站内 HTML 都是自包含单文件，无需构建、无需联网——但自包含不等于可交互：能点能翻的是 <b>Agent Workspace 演示</b>、TUI 设计 demo 与原生 TUI 实录，其余是静帧与文档。</div>
     <div>卡片按用途分四组：<b>研究</b>是结论的来处，<b>设计系统</b>回答凭什么这么设计，<b>Demo</b>看界面长什么样，<b>实机录屏</b>证明程序真的跑了。同一份文件只在一组里出现，跨组的引用走卡片里的链接条。</div>
     <div>卡片里指向 <span class="mono">app/</span> 与 Markdown 原文的链接都落到 GitHub：终端应用在浏览器里跑不了，只能给源码（本地 <span class="mono">bun run dev</span> / <span class="mono">preview</span> / <span class="mono">gallery</span> 可直接跑起来）；<span class="mono">.md</span> 被 Pages 当纯文本返回，读起来不方便。每张卡片底部的灰色路径是它在仓库里的位置，点进去就是源。</div>
     <div>视觉 token 的速查表在<a href="./kunpeng-devkit-ai-tui/web/index.html#cheat">设计系统页</a>——规范内容归规范页，这一页只做入口。本页视觉直接取自 <span class="mono">docs/VISUAL.md</span>：Dark-first 六级表面、预合成前景实色、红身份 / 蓝交互 / 粉红语义的三分工、方形为默认（圆角 = 浮起）。<b>启动页本身就是这套规范的第一个样例</b>——参照页是浅色的，这里没有照抄，因为这套 token 是 Dark-first 的。</div>

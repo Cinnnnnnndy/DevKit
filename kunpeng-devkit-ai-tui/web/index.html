@@ -37,6 +37,16 @@
   --state-hover:rgba(255,255,255,.06); --state-selected:rgba(0,119,255,.14);
   --tone-info-bg:rgba(0,119,255,.16); --tone-warning-bg:rgba(255,170,59,.16); --tone-critical-bg:rgba(255,75,123,.14);
   --focus-ring:rgba(0,119,255,.42);
+  /* ═══ 对话正文行内强调（Inline Highlight） ═══
+     这 6 个 token 只作用于「AI/IP 正文里的一小段文字」，不进卡片底色、不做状态、不改边框。
+     它是有意偏离「品牌蓝只用于可交互」这条一般规则的例外：正文里工具名、文件路径、指标值
+     混在同一句话里，全用同一色等于没重点，所以按语义分配色相（见 #convo 的 Inline Highlight 卡）。 */
+  --hl-code:#9ece6a;    /* 代码/标识符：模型名、命令、参数值 */
+  --hl-file:#7dcfff;    /* 文件/路径/命令：wt/sub-1、config.toml */
+  --hl-metric:#e0af68;  /* 结果指标：1.24M、70% → 85%、+18.4% */
+  --hl-tool:#bb9af7;    /* 工具/技能名：bench_compare、profiler */
+  --hl-proj:#2ac3de;    /* 项目/组件名：BRPC、snappy */
+  --hl-link:#3d98ff;    /* 可点进去的对象：报告、commit、文件链接 */
 }
 :root[data-theme="light"]{
   --background:#f5f5f5; --background-elevated:#ffffff;
@@ -45,6 +55,8 @@
   --foreground-muted:rgba(0,0,0,.42); --foreground-disabled:rgba(0,0,0,.26);
   --border-subtle:rgba(0,0,0,.07); --border-default:rgba(0,0,0,.12); --border-strong:rgba(0,0,0,.20);
   --state-hover:rgba(0,0,0,.04); --state-selected:rgba(0,119,255,.10);
+  /* 行内强调的浅色版：深色底上的柔和糖果色搬到浅色底会糊掉，这里换成更深更饱和的同色相 */
+  --hl-code:#1f7a2b; --hl-file:#0e7fb0; --hl-metric:#92600a; --hl-tool:#7c3aed; --hl-proj:#0f766e; --hl-link:#0d5fd6;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:72px}
@@ -238,8 +250,9 @@ pre .a8{color:#713F12} pre .a6{color:#CA8A04} pre .a4{color:#F4CB22} pre .a3{col
  * 实测就是 1.000 ×，加了反而会变成 1.2 格。
  */
 pre .fw{font-size:2ch}   /* 汉字 → 2 格；点阵 → 1 格 */
-/* 回退字体把它们画成了全角，但字符画按 1 格排（⏸ 是 tokens.STATUS_GLYPH
-   的 paused 字形，不能换成别的字符，所以只能在这里把宽度掰回来）。 */
+/* ⬡ 在回退字体里被画成全角，但字符画按 1 格排，只能在这里把宽度掰回来。
+   状态字形（⏸ ● ▶ ✓ ○）已经不用了——状态统一成方块 ■/□，两者在本文档字体下实测
+   都是 1.000 格（■ 自带在等宽字体覆盖范围内，不需要 .hw 兜宽）。 */
 pre .hw{font-size:1ch}
 pre .s2{color:#a2a2a2}   /* foreground secondary on surface-1 —— 图元标签列 */
 pre .sel{background:#18293C}
@@ -318,9 +331,9 @@ td.mono,th.mono{font-family:var(--font-mono)}
 .plan-card .pc-row{display:flex;align-items:center;gap:var(--space-2);
   padding:5px var(--space-4);font-size:13px;color:var(--foreground-secondary)}
 .plan-card .pc-row.cur{background:var(--state-selected);color:var(--foreground)}
-.plan-card .pc-c{width:16px;flex:none;text-align:center}
-.plan-card .pc-c.done{color:var(--success)}
-.plan-card .pc-c.cur{color:var(--primary-hover)}
+/* 计划步骤的勾选标记：原来这里是 ✓ / ▸ / □ 三个字形，已换成状态方块
+   （done / doing / todo，几何与色值见「状态方块」一节）——同一份计划在
+   agent-workspace.html 里也是这个形状，两个面读同一套 */
 
 /* ═══ conversation bubbles —— agent-workspace.html 的实际渲染，非终端字符画 ═══ */
 .cv-msg{border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);margin:var(--space-2) 0;
@@ -342,9 +355,10 @@ td.mono,th.mono{font-family:var(--font-mono)}
 
 .cv-progress{display:flex;align-items:center;gap:var(--space-2);background:var(--surface-1);
   border-radius:var(--radius-md);padding:8px var(--space-4);margin:5px 0;font-size:13px;color:var(--foreground)}
-.cv-progress .sp{color:var(--primary-hover);flex:none;animation:cvspin 1s steps(10) infinite}
+/* spinner 字形在这里是静止的——画廊不模拟闪烁。终端面它是逐帧换字符（⠋⠙⠹⠸…）的旋进，
+   换的是字符不是透明度，两条通道不一样，别把「换字符」抄成「闪一下」 */
+.cv-progress .sp{color:var(--primary-hover);flex:none}
 .cv-progress .next{margin-left:auto;color:var(--foreground-muted);font-size:12px}
-@keyframes cvspin{50%{opacity:.35}}
 
 .cv-divider{display:flex;align-items:center;gap:var(--space-3);margin:var(--space-4) 0;
   color:var(--foreground-muted);font-size:12px}
@@ -371,44 +385,363 @@ td.mono,th.mono{font-family:var(--font-mono)}
   border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:9px var(--space-4);
   margin:5px 0;font-size:14px;color:var(--foreground-muted)}
 .cv-inputbar b{color:var(--primary-hover);font-weight:700;flex:none}
+/* 光标 = 常亮实心方块，不闪。块光标靠形状就已经和文字分开了，再加闪烁是把同一件事说第二遍 */
 .cv-inputbar .cur{width:6px;height:14px;background:var(--primary-hover);display:inline-block;
-  margin-left:2px;animation:cvcur 1s steps(1) infinite}
-@keyframes cvcur{50%{opacity:0}}
+  margin-left:2px}
+
+/* ═══ 状态方块 —— 全项目唯一的状态形状（对话流基元与编排类共用）═══
+   一个 9px 方块（直角模式下 radius 0），只有两个正交通道：
+     填充 = 在不在跑     实心：在跑 或 已经有结果；空心：还没开始 或 主动收住
+     颜色 = 语义         蓝 进行中 · 绿 完成 · 金 待处理（受阻 / 需要你看一眼）· 灰 未开始
+   状态名只有这一份定义，所有元件共用：
+     .stq                —— 新元件一律写这个
+     .cv-chk .ic         —— 检查项（历史类名，保留兼容）
+     .cv-mrow .ic        —— 映射行（历史类名，保留兼容）
+     .cv-sa-now .c       —— 子 Agent 卡片里「当前这一步」的指示
+     .cv-mdrow .ck       —— 只共用几何：它表达的是「当前选中的模型」，
+                            属于「品牌蓝 = 选中」那条语义，状态规则在 .cv-mdrow.cur 里
+   【为什么状态只有一种形状，且不再用 ✓ ▶ ! ● 这类字形】
+   同一条流里曾经出现 5 种状态字形，各自还带颜色：于是「完成」有两种画法，
+   「受阻」和「已收住」共用 !，「待处理」是金圆点还是金字取决于在哪个元件里。
+   方块把「形状」这一维度收成一个，其余交给填充与颜色，用户不用先学一张符号表；
+   终端面也更好落：字形要占一个字符宽（12px）且和文字抢基线，方块 9px、一个 fill box。
+   NO_COLOR / 16 色下方位块退成「实心 / 空心」两档，仍分得出在跑与没在跑。
+   【有文字的地方不放方块】头行（.cv-sa-stat）那组「完成 / 进行中 / 受阻」本身就是信息，
+   再叠一个方块等于同一件事说两遍，还会把时长与工具数挤窄——方块只放在没有文字的位置。
+   【无障碍】方块没有文字，凡是被它替换掉文字的位置都带 title + role="img" + aria-label。 */
+.stq,.cv-chk .ic,.cv-mrow .ic,.cv-sa-now .c,.cv-mdrow .ck
+  {width:9px;height:9px;flex:none;border-radius:2px;box-sizing:border-box;
+   background:transparent;border:1.5px solid var(--border-strong)}
+.stq.doing,.cv-sa-now .c{background:var(--primary-hover);border-color:var(--primary-hover);
+  box-shadow:0 0 6px rgba(0,119,255,.6)}
+.stq.done,.cv-chk .ic.ok,.cv-mrow .ic.ok,
+.cv-sa-now.done .c{background:var(--success);border-color:var(--success);box-shadow:none}
+.stq.wait,.cv-chk .ic.warn,.cv-chk .ic.wn,.cv-mrow .ic.wn,.cv-mrow .ic.warn,
+.cv-sa-now.wn .c{background:var(--warning);border-color:var(--warning);box-shadow:none}
+/* hold = 空心金：收住 / 回退不是失败，是一个「已停下、还要你看一眼」——
+   跟 todo 一样空心，但保留 warning 色，否则它就只是「还没开始」了 */
+.stq.hold{background:transparent;border-color:var(--warning)}
+.stq.todo{background:transparent;border-color:var(--border-strong)}
+
+/* ═══ 编排类元件 —— 子 Agent / 并发 / 多级嵌套 / 模型与计量 ═══
+   与上面四组基元的分工：上面回答「这一行是什么」，这里回答「这一行由谁产出、几件事同时在跑」。
+   全部是 agent-workspace.html 新增场景（develop · subagent / model-token / subagent-tree）的真实渲染。 */
+
+/* 编排泳道：并发不靠动效表达「同时」，靠同屏并置的多条泳道对齐同一条时间轴——
+   静态帧下也读得出来。状态由条本身的填充色 + 条内文字承担（原来条内文字前还挂了一个
+   ✓ / ▶ 字形，和底色说同一件事，已去掉）；方块是深色底上的颜色块，落在彩色条上等于隐形 */
+.cv-lanes{display:flex;flex-direction:column;gap:3px;margin:var(--space-2) 0 2px}
+.cv-lane{display:flex;align-items:center;gap:9px}
+.cv-lane .nm{font-family:var(--font-mono);font-size:12px;color:var(--foreground-secondary);
+  width:128px;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-lane .tk{flex:1;min-width:0;height:15px;position:relative;background:var(--surface-3);border-radius:3px}
+.cv-lane .bar{position:absolute;top:0;height:100%;border-radius:3px;display:flex;align-items:center;
+  padding:0 6px;font-family:var(--font-mono);font-size:11px;font-weight:700;color:#0b0b0b;
+  white-space:nowrap;overflow:hidden;background:var(--primary-hover)}
+.cv-lane .bar.done{background:var(--success)}
+.cv-lane .bar.wait{background:var(--warning)}
+.cv-lane .ms{font-family:var(--font-mono);font-size:12px;color:var(--foreground-muted);
+  width:44px;flex:none;text-align:right}
+.cv-axis{display:flex;gap:9px;margin-top:1px}
+.cv-axis .nm{width:128px;flex:none}
+.cv-axis .ticks{flex:1;min-width:0;display:flex;justify-content:space-between;
+  font-family:var(--font-mono);font-size:11px;color:var(--foreground-muted)}
+.cv-axis .ms{width:44px;flex:none}
+
+/* ══ 子 Agent 卡片 ══
+   【为什么删掉每张卡自带的那条彩色长导轨】
+   原来是「一张卡一条 2px 竖线」，颜色承接状态。两层嵌套起，屏幕上同时出现
+   绿 / 蓝 / 绿 / 蓝 / 金几条平行长线，而这条线同时重复了两件已经说过的事：
+     · 状态 —— 头部本来就有 完成 / 进行中 / 受阻 三个状态词，身份徽标也已经是同一个颜色
+     · 深度 —— 缩进本来就在表达嵌套
+   两件都重复、两件都不精确承担，删掉不丢信息。终端面更明显：2px 圆角彩条在 OpenTUI 里
+   退化成 │ 字符列，4 层嵌套就是 4 列 │，比现状更糟。改成终端原生的读法：
+     深度 = 缩进（16px 一格，按层累加；深度上限 4 层，最坏 64px）+ SUB-2.2.1 这个编号
+     状态 = 颜色落在状态词与短徽标上（头部的状态词、身份徽标、token 徽标）；
+            头行有词就不放方块，见「状态方块」一节的分工 */
+.cv-sa{position:relative;margin:var(--space-3) 0}
+.cv-sa.lv2,.cv-sa.lv3,.cv-sa.lv4{padding-left:16px}
+
+/* 头行 = 收起态的全部内容：是谁 / 在干什么（完成给收益、受阻给卡在哪）/ 多久 / 几个工具 / 多少 token。
+   收起后这行一字不变，展开只是把「怎么干的」补在下面——信噪比管理，不是两种版式 */
+.cv-sa-head{display:flex;align-items:center;gap:var(--space-2);padding:6px 10px;
+  border-radius:var(--radius-sm);background:var(--surface-2);font-family:var(--font-mono)}
+.cv-sa-badge{font-size:11px;font-weight:700;letter-spacing:.12em;padding:1px 6px;border-radius:3px;
+  background:var(--surface-3);color:var(--foreground-secondary);flex:none}
+.cv-sa.done .cv-sa-badge{background:rgba(4,215,147,.16);color:var(--success)}
+.cv-sa.running .cv-sa-badge{background:rgba(0,119,255,.24);color:var(--primary-hover)}
+.cv-sa.wn .cv-sa-badge{background:var(--tone-warning-bg);color:var(--warning)}
+.cv-sa-nm{font-size:12.5px;font-weight:700;color:var(--foreground);flex:none}
+.cv-sa-role{font-size:12px;color:var(--foreground-muted);flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-sa-stat{display:flex;gap:var(--space-2);flex:none;font-size:12px;color:var(--foreground-muted)}
+/* 头行的状态位：导轨删掉之后，状态色落在头部的第一组字（完成 / 进行中 / 受阻）上。
+   这里没有方块——头行是收起态唯一读得出内容的一行，状态词本身就是信息，
+   方块只放在没有文字的位置（见「状态方块」一节） */
+.cv-sa.done .cv-sa-stat>span:first-child{color:var(--success)}
+.cv-sa.running .cv-sa-stat>span:first-child{color:var(--primary-hover)}
+.cv-sa.wn .cv-sa-stat>span:first-child{color:var(--warning)}
+
+/* 深度徽标保留但降为纯文本：去掉底色后它不再是一个「层」，只剩两个字符，用来在滚到长流
+   中部、看不到顶部树概览时兜底回答「这是第几层」 */
+.cv-sa-depth{font-size:11px;color:var(--foreground-muted);flex:none;letter-spacing:.04em}
+
+/* body = 三块平铺，不再层层套盒子：当前（或最后）一步 → 工具行 → 一条说明或受阻卡。
+   左侧留白取 head 的横向 padding（10px），于是只有两条基线而不是三条：
+   工具行的字形落在折叠把手那一列，.cv-sa-now 的文字落在徽标那一列——
+   和 head 自己的排版网格对齐，展开体不会向左「冒出」卡片内边距之外 */
+.cv-sa-body{padding:4px 0 0 10px}
+/* 卡内不套卡（对应下方 Sub-Agent Block 那条「三块平铺」的规则）：
+   body 已经是第二层容器，第三块不该再是一张带底色的卡。
+   AI 文本退回纯文本；受阻块只收底色与圆角，金左线留着——它是「这里停下来了」的
+   唯一签名，在任何嵌套深度都要读得出来，是语义不是装饰。正文缩到 18px，
+   和 .cv-sa-now 的文字落在同一个内容列上（9px 方块 + 9px gap），卡内只有一条内容基线。 */
+.cv-sa-body .cv-ai{background:none;border-radius:0;padding:0;margin:6px 0 0;font-size:13px}
+.cv-sa-body .cv-blocker{background:none;border-radius:0;padding:2px 0 2px 18px;margin:8px 0 0}
+
+/* 所有子 agent 卡片都可收起，头部即开关（caret 用伪元素，和 agent-workspace 同一套写法）。
+   折叠只收起「怎么干的」，头部那一行始终留着——收起来之后这块仍然读得懂。
+   默认收起已完成 / 已收住的，默认展开进行中 / 受阻的：收不收由「还需不需要你看」定，
+   不由深度定，否则最深的那个受阻项会被父级一起藏掉。
+   把手（▾）放头部最左、紧贴卡片身份，不放行尾——行尾离名字可能一千多像素远，缩进越深越远 */
+.cv-sa-head{cursor:pointer;user-select:none}
+.cv-sa-head::before{content:'▾';font-size:11px;color:var(--foreground-secondary);
+  opacity:.85;flex:none;width:11px;text-align:center;margin-right:-2px}
+.cv-sa.collapsed>.cv-sa-body{display:none}
+.cv-sa.collapsed>.cv-sa-head::before{transform:rotate(-90deg)}
+.cv-sa.collapsed>.cv-sa-head{background:var(--surface-2)}
+
+/* 当前（或最后）一步：只留这一步。已完成的前置步骤压进头部摘要，不在 body 里铺完整历史——
+   展开要看的是「现在在干什么」，不是回放；要回放走左侧会话列表里那条完整轨迹 */
+.cv-sa-now{display:flex;align-items:flex-start;gap:9px;padding:3px 0 5px;font-size:13px}
+/* 状态色由 .cv-sa-now 上的状态类决定（无类 = 进行中），方块几何与色值见「状态方块」一节 */
+.cv-sa-now .c{margin-top:5px}
+.cv-sa-now .t1{color:var(--foreground);flex:none}
+.cv-sa-now .t2{color:var(--foreground-muted);flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* 工具行：紧凑单行、无边框、无底色——沿用对话流「工具调用」那条基元（字形 + 目标 + 右对齐 meta），
+   字形只换字形不换色相（$ 执行 / → 读取 / ∗ 搜索）。工具名不设定宽列：定宽列会把这一行读成表格。
+   并发只在进行中的行上给一根细条，左端对齐读「同时开始」，长度差读「谁快谁慢」；
+   跑完的行不回填满格绿条——一条 100% 的进度条不携带任何信息，只留耗时 */
+.cv-sa-lns{display:flex;flex-direction:column;gap:1px;margin:2px 0}
+.cv-sa-lns .ln{display:flex;align-items:center;gap:var(--space-2);padding:1.5px 0;
+  font-size:13px;color:var(--foreground-secondary)}
+.cv-sa-lns .g{font-family:var(--font-mono);color:var(--primary-hover);flex:none;width:11px}
+.cv-sa-lns .tn{font-family:var(--font-mono);font-size:12px;color:var(--accent);flex:none;padding-right:2px}
+.cv-sa-lns .ta{font-size:12px;color:var(--foreground-secondary);flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-sa-lns .tb{flex:none;width:56px;height:5px;background:var(--surface-3);border-radius:3px;
+  overflow:hidden;position:relative}
+.cv-sa-lns .tb i{position:absolute;top:0;bottom:0;left:0;border-radius:3px;background:var(--primary-hover)}
+.cv-sa-lns .tm{font-family:var(--font-mono);font-size:11px;color:var(--foreground-muted);
+  flex:none;width:52px;text-align:right}
+
+/* token 徽标：默认中性、不抢注意力，只在越过阈值时着色——沿用 P20「提醒但不替用户做决策」 */
+.cv-tok{font-family:var(--font-mono);font-size:11px;font-weight:700;padding:1px 5px;border-radius:3px;
+  background:var(--surface-3);color:var(--foreground-secondary);flex:none;white-space:nowrap}
+.cv-tok.wn{background:var(--tone-warning-bg);color:var(--warning)}
+.cv-tok.danger{background:var(--tone-critical-bg);color:var(--danger)}
+
+/* 层级树：从属关系靠连接符 + 缩进画，深度另给一列显式徽标对齐——
+   不靠纯缩进暗示深度，缩进过了第 3 层就开始吃掉可读宽度 */
+.cv-tree{margin:var(--space-3) 0;padding:var(--space-2) var(--space-3);
+  border-radius:var(--radius-md);background:var(--surface-2)}
+.cv-tree-row{display:flex;align-items:center;gap:var(--space-2);padding:2px 6px;
+  border-radius:4px;font-family:var(--font-mono);font-size:12px}
+.cv-tree-row .tx{color:var(--border-strong);flex:none;white-space:pre}
+.cv-tree-row .dp{font-size:10px;font-weight:700;letter-spacing:.06em;padding:1px 4px;
+  border-radius:3px;background:var(--surface-3);color:var(--foreground-muted);flex:none}
+.cv-tree-row .nm{color:var(--foreground-secondary);font-weight:700;flex:none}
+.cv-tree-row .rl{color:var(--foreground-muted);flex:1;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+/* 状态列：只有一个状态方块（原来这里是「▶ 进行中 / ✓ 完成 / ! 受阻」的字形+文字）。
+   这棵树里 .rl 已经把每行在干什么写全了（「验证未通过」「触达深度上限，已收住」），
+   状态词是重复第二遍；方块不占宽度，也不会把长文件名挤掉。
+   方块没有文字，状态靠 title / aria-label 带出来；几何见「状态方块」一节 */
+.cv-tree-row .stq{margin-left:auto}
+/* 折叠的中间层：画不下就显式说画不下，不能悄悄吞掉——可交互节点，点击 / Enter 就地展开 */
+.cv-tree-row.fold{cursor:pointer;color:var(--foreground-muted)}
+.cv-tree-row.fold:hover{background:var(--surface-3);color:var(--foreground-secondary)}
+.cv-tree-row.fold .lb{font-style:italic;flex:none}
+.cv-tree-row.fold .hint{margin-left:auto;font-size:11px;flex:none;opacity:.75}
+
+/* 并发槽位：多级嵌套下每一层都想并发，而全局槽位是有限资源。
+   露「还剩几个」比露「现在几个」更重要——会耗尽的是槽位，不是并发数 */
+.cv-slots{display:flex;align-items:center;gap:6px;margin:var(--space-2) 0;
+  font-family:var(--font-mono);font-size:12px}
+.cv-slots .lb{color:var(--foreground-muted);flex:none}
+.cv-slots .sq{width:16px;height:9px;border-radius:2px;flex:none;box-sizing:border-box;
+  border:1.5px solid var(--border-strong);background:transparent}
+.cv-slots .sq.used{background:var(--primary-hover);border-color:var(--primary-hover)}
+.cv-slots .v{color:var(--foreground-secondary);font-weight:700;flex:none}
+.cv-slots .nt{color:var(--foreground-muted);flex:1;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+
+/* 模型切换：候选列表内嵌在对话流里不弹浮层——跟 P13 Selector Popup 的分工是：
+   浮层服务「输入时联想」，用完即走；这里的切换结果要留在会话记录里可回看 */
+.cv-model{margin:var(--space-3) 0;border:1px solid var(--border-default);
+  border-radius:var(--radius-md);background:var(--surface-1);overflow:hidden}
+.cv-model-h{display:flex;align-items:center;gap:var(--space-2);padding:6px 11px;
+  border-bottom:1px solid var(--border-default);font-family:var(--font-mono);font-size:12px;
+  font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--foreground-secondary)}
+.cv-model-h .hint{margin-left:auto;font-size:11px;font-weight:400;letter-spacing:normal;
+  text-transform:none;color:var(--foreground-muted)}
+.cv-model-pool{padding:5px 0}
+.cv-model-pool+.cv-model-pool{border-top:1px solid var(--border-default)}
+/* 供应商组头：一行说完「谁 / 什么端点 / 几个模型 / 现在能不能用」。
+   组头带状态方块（与会话状态、任务状态同一套方块），模型行缩进一格表示从属——
+   层级只走缩进这一个通道。用不了的供应商用「可见但不可选」表达，
+   不用隐藏假装它不存在：用户需要知道这条路存在、以及缺什么才能走。 */
+.cv-model-pool .pv{display:flex;align-items:center;gap:8px;padding:3px 11px 4px;
+  font-family:var(--font-mono);font-size:12px}
+.cv-model-pool .pv .pn{font-weight:700;color:var(--foreground);flex:none;width:174px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-model-pool .pv .pd{color:var(--foreground-muted);font-size:11px;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-model-pool .pv .ps{flex:none;font-size:11px;color:var(--foreground-secondary)}
+.cv-model-pool .pv .ps.off{color:var(--warning)}
+.cv-model-pool .cv-mdrow{padding-left:27px}
+.cv-model-pool .cv-mdrow.off{cursor:default}
+.cv-model-pool .cv-mdrow.off .mn,.cv-model-pool .cv-mdrow.off .md{opacity:.75}
+.cv-mdrow{display:flex;align-items:center;gap:9px;padding:5px 11px;font-family:var(--font-mono)}
+.cv-mdrow.cur{background:var(--state-selected)}
+/* 当前模型标记：不是状态方块，是「选中」（品牌蓝 = 选中/焦点），只共用同一份 9px 几何，
+   「选中 = 实心蓝」这条留在下面——同一行还有行高亮与 current 徽标一起说，不靠方块单通道 */
+.cv-mdrow.cur .ck{background:var(--primary-hover);border-color:var(--primary-hover)}
+.cv-mdrow .mn{font-size:12.5px;font-weight:700;color:var(--foreground);flex:none;width:186px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-mdrow .md{font-size:12px;color:var(--foreground-muted);flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-mdrow .mt{font-size:11px;font-weight:700;padding:1px 5px;border-radius:3px;flex:none;
+  background:var(--surface-3);color:var(--foreground-secondary)}
+.cv-mdrow.cur .mt{background:var(--tone-info-bg);color:var(--primary-hover)}
+
+/* 额度条：P13 的四级风险色在主题安全 token 里只有三档可用的填充色
+   （0–49 与 50–69 共用「安全区」绿，档位名称由右侧文案区分，不靠颜色硬凑四档） */
+.cv-quota{display:flex;flex-direction:column;gap:4px;margin:var(--space-3) 0}
+.cv-qrow{display:flex;align-items:center;gap:9px;font-family:var(--font-mono);font-size:12px}
+.cv-qrow .ql{color:var(--foreground-muted);width:26px;flex:none}
+.cv-qrow .qt{flex:none;width:164px;height:8px;background:var(--surface-3);border-radius:4px;
+  overflow:hidden;position:relative}
+.cv-qrow .qt i{position:absolute;top:0;bottom:0;left:0;border-radius:4px}
+.cv-qrow .qp{flex:none;width:38px;color:var(--foreground-secondary);font-weight:700}
+.cv-qrow .qr{flex:1;min-width:0;color:var(--foreground-muted)}
+.cv-qrow.lv1 .qt i,.cv-qrow.lv2 .qt i{background:var(--success)}
+.cv-qrow.lv3 .qt i{background:var(--warning)}
+.cv-qrow.lv4 .qt i{background:var(--danger)}
+
+/* 底栏常驻计量：模型 + 上下文水位 + token 三项并排。
+   这是上面 .cv-statusbar 的渲染式版本——终端面退回那条纯文本 [model:][ctx:] */
+.cv-metrics{display:flex;align-items:center;gap:var(--space-3);background:var(--surface-2);
+  border-radius:var(--radius-md);padding:6px var(--space-3);
+  font-family:var(--font-mono);font-size:12px;color:var(--foreground-muted)}
+.cv-metrics b{color:var(--foreground-secondary);font-weight:600}
+/* 供应商前缀：留在模型名前面说清「谁的模型、从哪个账号扣额度」，但比模型名弱一档。
+   窄到放不下时它先走（和提示行同一个降级顺序），模型名本身永不丢。 */
+.cv-metrics .mt .src{color:var(--foreground-muted);font-weight:400}
+.cv-metrics .mt{display:flex;align-items:center;gap:5px}
+.cv-metrics .mt.warn b{color:var(--warning)}
+.cv-metrics .ctxb{display:inline-block;width:42px;height:6px;border-radius:3px;
+  background:var(--surface-3);overflow:hidden;position:relative}
+.cv-metrics .ctxb i{position:absolute;top:0;bottom:0;left:0;background:var(--foreground-muted)}
+.cv-metrics .ctxb i.lv3{background:var(--warning)}
+.cv-metrics .ctxw{color:var(--foreground-muted);font-weight:400;font-size:11px;margin-left:-2px}
+
+/* ═══ 输入框下方命令提示行 ═══
+   场景里能改的设置（模型、token 告警线）如果只在浮层或配置文件里能改，用户不会知道它在这儿也能改。
+   位置选输入框下方单独一行，不是右上角浮层：右上角是 Web 的惯例，输入一长就必然和正文打架，
+   窄屏时右上角也最先没地方放。opencode 与 Claude Code 都是把提示放在 prompt 下面一行——
+   和输入内容物理隔离，输入多长都不冲突，窄屏时整行收起也不损失功能。
+   它是路标不是按钮：不抢焦点、不可点，命令的唯一入口永远是上面那个输入框。 */
+.cv-hintbar{display:flex;align-items:center;gap:9px;padding:6px 2px 0;
+  font-family:var(--font-mono);font-size:11px;color:var(--foreground-muted);white-space:nowrap}
+/* 三档层次，参照 opencode 那一行（Build · Big Pickle  OpenCode Zen）：
+   命令（蓝，当标签用）> 值（亮 + 700，模型名与 token）> 来源（次级灰，池名与告警线）。
+   不写「模型：」「当前」「已用」这类前缀——命令名本身就是标签。 */
+.cv-hintbar .it{display:flex;align-items:center;gap:5px;flex:none}
+.cv-hintbar .c{color:var(--primary-hover);font-weight:700}
+.cv-hintbar b{color:var(--foreground);font-weight:700}
+.cv-hintbar .src{color:var(--foreground-secondary);margin-left:1px}
+.cv-hintbar .it:first-child .src{margin-left:4px}
+.cv-hintbar .sep{color:var(--border-strong);flex:none}
 
 /* sub-header —— 阶段/小节标题，左对齐树形前缀，对应实现里的 .sub-h */
 .cv-subh{font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.14em;
   text-transform:uppercase;color:var(--foreground-muted)}
 .cv-subh::before{content:'├─ ';color:var(--border-strong);font-weight:400;letter-spacing:normal}
 
-/* inline steps list —— 消息体内联的阶段清单，别于常驻的 Plan Card */
-.cv-steps{display:flex;flex-direction:column;gap:2px}
-.cv-step{display:flex;align-items:flex-start;gap:var(--space-2);padding:3px 0}
-.cv-step .c{width:14px;flex:none;text-align:center;font-size:12px;font-weight:700;
-  margin-top:2px;color:var(--foreground-muted)}
-.cv-step .c.done{color:var(--success)}
-.cv-step .c.doing{color:var(--primary-hover)}
-.cv-step .c.wait{color:var(--warning)}
-.cv-step b{display:block;font-size:13px;font-weight:600;color:var(--foreground)}
-.cv-step span{display:block;font-size:12px;color:var(--foreground-muted);margin-top:1px}
+/* 这里原来有一套 .cv-steps/.cv-step（消息体内联的阶段清单）。已删除：上面 Sub Header 那条规则
+   早就定了「任务的阶段进度只用 Plan Card 一种呈现，不再另立一份内嵌的阶段清单」，同一份数据
+   只留一个来源。子 Agent 块展开后的「当前步」由 .cv-sa-now 承担，它只给一步，不是一份清单 */
 
-/* checklist row —— 配置确认/环境校验，图标 + 定宽标签 + 值 */
-.cv-chk{display:flex;align-items:baseline;gap:var(--space-2);padding:5px 10px;margin:2px 0;
+/* checklist row —— 配置确认/环境校验，状态方块 + 定宽标签 + 值 */
+.cv-chk{display:flex;align-items:center;gap:var(--space-2);padding:5px 10px;margin:2px 0;
   font-size:13px;border-radius:var(--radius-sm);background:var(--surface-1)}
-.cv-chk .ic{flex:none;font-weight:700;color:var(--success)}
-.cv-chk .ic.warn{color:var(--warning)}
+/* 检查项的状态方块：ok=实心绿，warn=实心金；几何与色值见「状态方块」一节。
+   对齐从 baseline 改成 center：方块按基线会把底边贴到文字基线上，看起来矮半格 */
 .cv-chk .lb{flex:none;color:var(--foreground);min-width:96px}
 .cv-chk .v{color:var(--foreground-secondary)}
+/* 值会折成两三行的检查行（命令回执里的「没有改」就是这样）：方块与标签顶对齐第一行。
+   居中会让方块漂到两行文字的正中，读起来像在给第二行做标记 */
+.cv-chk.wrap{align-items:flex-start}
+.cv-chk.wrap .ic{margin-top:4px}
+.cv-chk.wrap .v{flex:1;min-width:0}
 
-/* console —— 工具调用背后的原始日志行 */
-.cv-console{background:var(--surface-1);border-radius:var(--radius-md);padding:8px 12px;
+/* 命令候选菜单（打 /model 唤出）：P13 的内嵌变体，贴在输入框正上方。
+   行结构与 .sm-item 同源——状态方块 + 等宽命令/模型名 + 供应商 + 描述 */
+.cv-menu{background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:var(--radius-md);
+  padding:4px;font-family:var(--font-mono)}
+.cv-menu-row{display:flex;align-items:center;gap:10px;padding:6px 9px;border-radius:var(--radius-sm);font-size:12.5px}
+.cv-menu-row.on{background:rgba(0,119,255,.16)}
+.cv-menu-row .cmd{color:var(--primary-hover);font-weight:700;flex:none;min-width:172px}
+.cv-menu-row .src{color:var(--foreground-muted);font-size:11px;flex:none;min-width:44px}
+.cv-menu-row .desc{color:var(--foreground-secondary);font-size:12px;flex:1;min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-menu-hint{display:flex;gap:10px;padding:6px 12px;border-top:1px solid var(--border-subtle);
+  font-size:11px;color:var(--foreground-muted)}
+.cv-menu-hint b{background:var(--surface-3);color:var(--foreground-secondary);font-weight:500;
+  padding:0 5px;border-radius:3px}
+
+/* 行内强调（Inline Highlight）：正文里一小段文字按语义分色，见 #convo 的 Inline Highlight 卡。
+   !important 与 agent-workspace.html 同因：这几个是跨容器复用的工具类，
+   父级选择器 .cv-ai b / .cv-chk .lb 优先级更高，不加会被正文默认色吃掉。 */
+.cv-hl-code{color:var(--hl-code)!important}
+.cv-hl-file{color:var(--hl-file)!important}
+.cv-hl-metric{color:var(--hl-metric)!important}
+.cv-hl-tool{color:var(--hl-tool)!important}
+.cv-hl-proj{color:var(--hl-proj)!important}
+.cv-hl-link{color:var(--hl-link)!important;cursor:pointer}
+
+/* 受阻说明块（Blocker Note）：金左侧线 + 加粗标题 + 1–3 行说明。
+   与状态方块的分工：方块说「要你看一眼」，这里说「为什么卡住、要不要人裁决」。
+   底色比 --tone-warning-bg（.16，给整条警示消息卡用）更淡——它是流内的说明块，
+   底下还有 1–3 行正文，底色重了正文对比度会被吃掉 */
+.cv-blocker{margin:var(--space-4) 0;padding:var(--space-2) var(--space-3);
+  border-left:2px solid var(--warning);border-radius:var(--radius-md);background:rgba(255,170,59,.07)}
+.cv-blocker .bt{font-size:14px;font-weight:700;color:var(--warning)}
+.cv-blocker .bl{font-size:13.5px;color:var(--foreground-secondary);line-height:1.7;padding:1px 0}
+.cv-blocker .bl b{color:var(--foreground);font-weight:600}
+.cv-blocker code{font-family:var(--font-mono);font-size:12.5px;background:var(--surface-1);
+  padding:1px 5px;border-radius:3px;color:var(--hl-code)}
+/* 浅色底上 #ffaa3b 做正文标题只有 ~1.9:1，必须压深（与 .hl-* 浅色版同一个理由） */
+:root[data-theme="light"] .cv-blocker{border-left-color:#c07a06}
+:root[data-theme="light"] .cv-blocker .bt{color:#8a5a08}
+
+/* 状态方块画廊行：五个状态并排 + 名称，用来把词表本身当成一个元件展示 */
+.cv-sqrow{display:flex;flex-wrap:wrap;gap:var(--space-2) var(--space-4);
+  font-family:var(--font-mono);font-size:12px;color:var(--foreground-secondary)}
+.cv-sqrow>span{display:inline-flex;align-items:center;gap:6px}
+.cv-sqrow .nt{color:var(--foreground-muted)}
+
+/* console —— 工具调用背后的原始日志行 */.cv-console{background:var(--surface-1);border-radius:var(--radius-md);padding:8px 12px;
   font-family:var(--font-mono);font-size:12.5px;color:var(--foreground-secondary);
   display:flex;flex-direction:column;gap:3px}
 .cv-console .ok{color:var(--success)} .cv-console .wn{color:var(--warning)} .cv-console .mu{color:var(--foreground-muted)}
 
 /* migration row —— 组件替换：源 → 目标 + 状态徽标 */
 .cv-mrow{display:flex;align-items:center;gap:var(--space-2);padding:3px 0;font-size:13px}
-.cv-mrow .ic{flex:none;font-weight:700}
-.cv-mrow .ic.ok{color:var(--success)} .cv-mrow .ic.warn{color:var(--warning)}
+/* 映射行的状态方块（原来的 ✓ / ● 字形已去掉）：几何与状态色见「状态方块」一节 */
 .cv-mrow .ar{color:var(--foreground-muted)}
 .cv-mrow .tg{flex:1;color:var(--foreground-secondary)}
 .cv-mrow .badge{font-size:11px;font-weight:600;padding:1px 8px;border-radius:var(--radius-pill);flex:none}
@@ -474,7 +807,7 @@ td.mono,th.mono{font-family:var(--font-mono)}
 /* 系统维护类确定进度条 —— 压缩上下文/重建索引，区别于工具调用的不确定 spinner */
 .cv-sysprog{display:flex;align-items:center;gap:var(--space-3);background:var(--surface-1);
   border-radius:var(--radius-md);padding:10px 14px}
-.cv-sysprog .ic{flex:none;color:var(--accent);font-size:16px;animation:cvspin 1.2s linear infinite}
+.cv-sysprog .ic{flex:none;color:var(--accent);font-size:16px}
 .cv-sysprog .body{flex:1;min-width:0}
 .cv-sysprog .msg{font-size:13px;color:var(--foreground)}
 .cv-sysprog .bar{display:flex;align-items:center;gap:8px;margin-top:6px}
@@ -642,6 +975,7 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <span class="tb-right">
     <a href="./screens.html">五个典型页面 ↗</a>
     <a href="./design-input.html">设计输入 ↗</a>
+    <a href="./interaction-spec.html">并发编排 · 交互规格 ↗</a>
     <a href="./tui-live.html">可运行实录 ↗</a>
     <a href="./tui-capability.html">TUI 渲染能力分析 ↗</a>
     <button class="tbtn" onclick="tt()">◐ <span id="tl">Light</span></button>
@@ -766,7 +1100,7 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
   <div><div class="chip" style="background:#ffaa3b"></div><div class="meta"><b>--warning</b><span>#FFAA3B</span></div></div>
   <div><div class="chip" style="background:#ff4b7b"></div><div class="meta"><b>--danger</b><span>#FF4B7B</span></div></div>
 </div>
-<p class="rule">TUI 语义映射：<span style="color:#3d98ff">primary</span> = 焦点/当前项/Agent 活动 · <span style="color:#7c8db8">accent</span> = 元数据/ID/次级强调 · <span style="color:#04d793">success</span> = ✓ 完成/通过 · <span style="color:#ffaa3b">warning</span> = ⚠ 风险/待重启/非致命异常 · <span style="color:#ff4b7b">danger</span> = ✕ 失败/Critical/高危操作。</p>
+<p class="rule">TUI 语义映射：<span style="color:#3d98ff">primary</span> = 焦点/当前项/Agent 活动 · <span style="color:#7c8db8">accent</span> = 元数据/ID/次级强调 · <span style="color:#04d793">success</span> = 完成方块 / 「通过」文字 · <span style="color:#ffaa3b">warning</span> = 受阻方块 / 风险与待重启文字 · <span style="color:#ff4b7b">danger</span> = 失败文字 / Critical / 高危操作。<strong>状态一律是<a href="#convo">状态方块</a>（■ 实心 / □ 空心），语义色不再靠字形区分</strong>——上表里的 success/warning 只说明方块填什么色，不再说明"用什么符号"。</p>
 
 <div class="note warn"><b>品牌色 <code>#0077FF</code> 的两条硬约束。</b><br><br>
 <strong>① 文本不能直接用品牌色。</strong>对比度在 <code>#101010</code> 上 4.61:1（勉强过 AA），在 <code>#1C1C1C</code> 上降到 <strong>4.12:1，不达标</strong>。规范：<strong>品牌色只用于填充/边框/焦点底色；文本/链接/图标一律用 <code>--primary-hover #3D98FF</code></strong>（各表面 5.8–6.5:1，全部达标）。<br><br>
@@ -784,9 +1118,12 @@ table.ck-spec-tb td.g{font-family:var(--font-mono);font-size:12px;color:var(--fg
 <tr><td style="color:var(--foreground-muted)">copy-blue</td><td class="mono" style="color:var(--foreground-muted)">已退出</td><td class="mono" style="color:var(--danger)">7° ✕</td><td style="color:var(--foreground-muted)">与品牌撞色，TUI 中停用</td></tr>
 </table>
 <div class="note"><b>还有一条形状层的分离规则，比调色相更可靠。</b>语义色（success / warning / danger）与数据色阶在色相上仍有邻近（warning 35° vs accum-orange 25°）。终端里最终靠<strong>字形</strong>而非色相区分：<br>
-<strong>语义色只上字符与短文本</strong>（<code>✓ ⚠ ✕</code>、状态标签），<strong>永不上色块</strong>；<br>
+<strong>语义色只上字符、短文本与状态方块</strong>（<code>⚠</code> 告警字形、状态标签、<a href="#convo">状态方块</a>），<strong>永不上表面色块</strong>（背景 / 整行底色 / 大填充）；<br>
 <strong>数据色阶只上色块与点阵</strong>（<code>█▓▒░ ⣿</code>），<strong>永不上文字</strong>。<br>
-这与设计系统自身的"Badge 语义色只作用于文字，底面保持中性"是同一条纪律的两面。有了它，即使色相接近也不会误读。</div>
+状态方块是这条规则的边界情况，单独说清：它只有 9px，占位与一个字符等价，读法是「指示」而不是「表面」；
+而且它正是让这条规则更稳的那个形状 —— 同一个 warning 色，落在 9px 方块上是「状态」，落在色阶条上是「数据」，
+两者形状不同，色相再近也不会误读。
+这与设计系统自身的"Badge 语义色只作用于文字，底面保持中性"是同一条纪律的两面。</div>
 
 <div class="sublabel">State Overlays — 预合成（叠在 surface-2 上）</div>
 <div class="sw">
@@ -914,7 +1251,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <section id="motion">
 <div class="eyebrow">Foundation</div>
 <h2>Motion</h2>
-<p class="desc">设计原则原样继承：<strong>动效只服务于功能。无装饰性循环动画，无内容区持续播放。</strong>这条在 TUI 里比 Web 更重要——终端重绘成本高，且远程 SSH 下每一帧都是带宽。</p>
+<p class="desc">设计原则原样继承：<strong>动效只服务于功能。无装饰性循环动画，无内容区持续播放。</strong>这条在 TUI 里比 Web 更重要——终端重绘成本高，且远程 SSH 下每一帧都是带宽。<strong>2026-08 收紧：状态一律不靠闪烁表达</strong>——原先允许的「Timeline 当前步呼吸」已删除，见下方。</p>
 <table>
 <tr><th>Token</th><th>Web</th><th>TUI @30fps</th><th>用途</th></tr>
 <tr><td class="mono">--duration-fast</td><td class="mono">100ms</td><td class="mono">3 帧</td><td>hover / 选中态切换 / 焦点移动</td></tr>
@@ -922,15 +1259,16 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td class="mono">--duration-slow</td><td class="mono">350ms</td><td class="mono">10 帧</td><td>模态浮层进出 / Workspace 切换</td></tr>
 </table>
 <pre><span class="cm"><span class="fw">允许的动效（服务于功能）：</span></span>
-  <span class="pr"><span class="fw">⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏</span></span>  spinner —— <span class="fw">仅在真实</span> pending <span class="fw">的工具调用上</span>
+  <span class="pr"><span class="fw">⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏</span></span>  spinner —— <span class="fw">仅在真实</span> pending <span class="fw">的工具调用上（逐帧换字符，不是闪烁）</span>
   <span class="ok">█</span><span class="cm">░</span> → <span class="ok">██</span><span class="cm">░</span> → <span class="ok">███</span>   <span class="fw">进度填充</span> —— <span class="fw">有确定进度时</span>
-  <span class="pr">▶</span> <span class="fw">呼吸</span>             Timeline <span class="fw">当前步，</span>1s <span class="fw">周期</span>
   <span class="fw">逐行</span> reveal          <span class="fw">流式输出</span>
 
 <span class="er"><span class="fw">禁止：</span></span>
+  ✗ <span class="fw">状态靠闪烁表达（呼吸 / 闪动 / 忽明忽暗）</span>
   ✗ <span class="fw">常驻装饰性动画（跑马灯、闪烁边框、彩虹渐变）</span>
   ✗ <span class="fw">无进度信息时的假进度条</span>
   ✗ <span class="fw">全屏重绘式转场（远程</span> SSH <span class="fw">下会明显卡顿）</span></pre>
+<p class="rule"><strong>为什么把「呼吸」也删掉</strong>：闪动是「进行中」的第 4 个通道，而前 3 个——颜色、填充（实心 / 空心）、文字（<code>进行中</code>）——已经说清了同一件事；多一路通道不增加信息，只增加噪音。它还在三处直接失真：<strong>① 静态帧读不出来</strong>（截图、SSH、录屏抽帧里「在跑」和「卡住」长得一样，而这恰恰是最需要区分的两种状态）；<strong>② 降级后消失</strong>（<code>NO_COLOR</code> / 16 色 / <code>prefers-reduced-motion</code> 下退化成灰色的忽明忽暗，或者干脆不动）；<strong>③ 与资源纪律冲突</strong>（远程 SSH 下按帧计成本，一个为了「好看」的循环重绘要一直占着带宽）。需要强调「进行中」时，改用<strong>常亮</strong>的区分手段：实心填充、外发光、条内文字——它们在任何一帧里都一样清楚。<strong>状态指示只用一个 9px 方块</strong>（见 <a href="#convo">Status Square</a>），所以这里也不再指望某个字形去接住颜色被抽掉的情况。唯一保留的运动是 Loading 的旋进字形，它换的是<strong>字符</strong>不是透明度：旋进表达「还在推进」，闪烁只是同一帧的明暗变化，两者不是一回事。</p>
 <p class="rule">远程降级：检测到高延迟连接（RTT &gt; 80ms）时自动关闭所有过渡动画，只保留 spinner 与进度条，且 spinner 降到 4fps。</p>
 </section>
 
@@ -996,19 +1334,19 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
               <span class="du">身份 —— splash 字标、顶栏迷你标识、<span class="ck-mono">NEW</span> 新增标。<s>强调 / 选中 / 焦点 / 语义 / 任何数据可视化</s></span></div>
             <div class="ck-role"><span class="sw" style="background:#0077ff"></span>
               <span class="nm">品牌蓝<em>#0077FF</em></span>
-              <span class="du">交互 —— 选中、焦点、当前对象、进度、主按钮。<b>只做填充 / 边框 / 焦点底色，不用于文本</b></span></div>
+              <span class="du">交互 —— 选中、焦点、当前对象、进度、主按钮、<strong>■ 进行中 / 选中方块</strong>（方块是它唯一允许的静态形状）。<b>只做填充 / 边框 / 焦点底色，不用于文本</b></span></div>
             <div class="ck-role"><span class="sw" style="background:#3d98ff"></span>
               <span class="nm">primary-hover<em>#3D98FF</em></span>
               <span class="du">一切文本 / 链接 / 图标走这一档 —— 品牌蓝在深色表面对比度只有 4.12，不达 AA</span></div>
             <div class="ck-role"><span class="sw" style="background:#ff4b7b"></span>
               <span class="nm">错误红<em>#FF4B7B</em></span>
-              <span class="du">语义 —— 失败、Critical、删除行。<s>品牌表达</s></span></div>
+              <span class="du">语义 —— 失败、Critical、删除行。<s>品牌表达</s>只写文字，<strong>不做失败状态的方块色</strong>——失败步读作「受阻」，方块走金色</span></div>
             <div class="ck-role"><span class="sw" style="background:#04d793"></span>
               <span class="nm">success<em>#04D793</em></span>
-              <span class="du">✓ 完成 / 通过</span></div>
+              <span class="du">■ 完成方块 · 「通过 / 已加载」文字</span></div>
             <div class="ck-role"><span class="sw" style="background:#ffaa3b"></span>
               <span class="nm">warning<em>#FFAA3B</em></span>
-              <span class="du">⚠ 风险 / 待重启 / 非致命异常</span></div>
+              <span class="du">■ 受阻方块 · 风险 / 待重启 / 非致命异常文字</span></div>
             <div class="ck-role"><span class="sw" style="background:#7c8db8"></span>
               <span class="nm">accent<em>#7C8DB8</em></span>
               <span class="du">元数据 / ID / 次级强调 —— 替代 Web 端用 mono 字族表达的"这是数据"</span></div>
@@ -1049,7 +1387,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
             <span class="ck-ck-spec-n">评审时直接拿来当判据</span>
           </div>
           <ul class="ck-rules">
-            <li class="y"><i>✓</i><span><b>形状层分离，比调色相更可靠。</b>语义色<b>只上字符与短文本</b>（<span class="ck-mono">✓ ⚠ ✕</span>、状态标签），永不上色块；数据色阶<b>只上色块与点阵</b>（<span class="ck-mono">█▓▒░ ⣿</span>），永不上文字。有了它，即使 warning 35° 与 accum-orange 25° 色相接近也不会误读。</span></li>
+            <li class="y"><i>✓</i><span><b>形状层分离，比调色相更可靠。</b>语义色<b>只上字符、短文本与状态方块</b>（<span class="ck-mono">⚠</span> 告警字形、状态标签、<span class="ck-mono">9px</span> 状态方块），<b>永不上表面色块</b>；数据色阶<b>只上色块与点阵</b>（<span class="ck-mono">█▓▒░ ⣿</span>），永不上文字。状态方块是这条纪律里唯一的色块例外，理由写在 <a href="#convo">Status Square</a>：它 9px，占位等同一个字，读法是"指示"不是"表面"。有了它，即使 warning 35° 与 accum-orange 25° 色相接近也不会误读。</span></li>
             <li class="n"><i>✕</i><span><b>语义色不参与数据可视化。</b>一个 90% 的 CPU 利用率本身不是"错误"——它该用顺序色阶的最亮档，而不是 danger 红。只有当 AI 判定它构成问题时，才由 P26 标注层叠加 danger 色的描边与角标。把<b>"数据"和"结论"用不同的颜色系统表达</b>，是这套规范里最重要的一条用色纪律。</span></li>
             <li class="y"><i>✓</i><span><b>强调色配额：蓝 = 当前对象，或当前唯一推荐的动作。</b>其余一律中性。第一版把蓝铺到十几处，结果蓝不再指向任何东西。评审判据：<b>遮住所有蓝色，还能说清"我现在选中的是什么"吗？</b>能，说明蓝铺多了。</span></li>
           </ul>
@@ -1147,7 +1485,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td><b>SectionLabel</b><br><span class="chipm">分区标签</span></td><td class="mono">primitives.tsx</td><td class="mono">box + text</td><td>— 静态，可选计数</td><td>—</td></tr>
 <tr><td><b>KeyHint</b><br><span class="chipm">快捷键 Chip</span></td><td class="mono">primitives.tsx</td><td class="mono">box + text（反色底）</td><td>— 静态</td><td>—</td></tr>
 <tr><td><b>StatusGlyph</b><br><span class="chipm">语义徽标</span></td><td class="mono">primitives.tsx</td><td class="mono">text</td><td>按 SemanticTone 上色</td><td>—</td></tr>
-<tr><td><b>TaskTabs</b><br><span class="chipm">Tab</span></td><td class="mono">task-tabs.tsx</td><td class="mono">原生 <code>&lt;tab-select&gt;</code></td><td>running ▶ · completed ✓ · failed ✕ · waiting ⏸ · idle ○</td><td>Tab 移入区域，←/→ 切换，Enter 选中，循环</td></tr>
+<tr><td><b>TaskTabs</b><br><span class="chipm">Tab</span></td><td class="mono">task-tabs.tsx</td><td class="mono">原生 <code>&lt;tab-select&gt;</code></td><td>running · completed · failed · waiting · idle —— <strong>五态一律画状态方块</strong>，代码里那套 ▶ ✓ ✕ ⏸ ○ 字形待替换</td><td>Tab 移入区域，←/→ 切换，Enter 选中，循环</td></tr>
 <tr><td><b>PromptBar</b><br><span class="chipm">Input</span></td><td class="mono">prompt-bar.tsx</td><td class="mono">原生 <code>&lt;input&gt;</code></td><td>default · focused</td><td>点击/Tab 聚焦，Enter 提交</td></tr>
 <tr><td><b>CommandPalette</b><br><span class="chipm">Select / Modal</span></td><td class="mono">overlays.tsx</td><td class="mono">ModalFrame + input + 列表</td><td>query 过滤 · selected 高亮 · disabled 项</td><td>Ctrl+P 开 · ↑/↓ 选 · Enter 执行 · Esc 关</td></tr>
 <tr><td><b>ModalFrame / OverlayScrim</b><br><span class="chipm">Modal 基座</span></td><td class="mono">overlays.tsx</td><td class="mono">absolute 定位 box + 全屏遮罩</td><td>tone：neutral · warning · danger</td><td>Esc 关闭（各 Overlay 自行绑定）</td></tr>
@@ -1162,7 +1500,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td><b>Status Badge</b><br><span class="chipm">状态徽章</span></td><td class="mono">.sb</td><td class="mono">text（语义色反色底，仿 <code>KunpengBrand</code> 的 <code>DEVKIT AI</code> 徽标写法）</td><td>ok · warning · danger · neutral</td></tr>
 <tr><td><b>Toggle Group</b><br><span class="chipm">排序/筛选按钮组</span></td><td class="mono">.sortg .sbtn</td><td class="mono">多个 <code>ActionButton</code> 并排，激活态只描边不填充</td><td>on · off，互斥或多选</td></tr>
 </table>
-<p class="rule">先例：Agent Console 目前用纯色小字形（●▶⚠✕○）表状态，没有用 Status Badge——这是<strong>信息密度的取舍</strong>，不是技术限制。加 Badge 前先确认这一屏是否真的需要比字形更重的强调，别为了好看而加。</p>
+<p class="rule">先例：Agent Console 用的是<strong>纯色状态方块</strong>而不是 Status Badge——这是<strong>信息密度的取舍</strong>，不是技术限制（方块原来是一组小字形 <code>●▶⚠✕○</code>，2026-08 统一成方块，见 <a href="#convo">Status Square</a>）。加 Badge 前先确认这一屏是否真的需要比一个指示方块更重的强调，别为了好看而加。</p>
 
 <div class="sublabel">实际用法 —— 直接摘自源码</div>
 <pre class="dense tight"><span class="cm">// primitives.tsx —— Button</span>
@@ -1182,19 +1520,19 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <p class="rule">≥80 列 Dock 才存在；&lt;80 列（<code>layoutForWidth</code> 的 <code>narrow</code> 档）Dock 让位，TaskTabs 切到 <code>showBrand</code> 变体。Dock 自身在 &lt;100 列（或 <kbd>Ctrl+B</kbd> 强制）时收成 3 列图标带。品牌字标同样分三档：<code>full</code> ≥22 列（◢ KUNPENG + DEVKIT AI 徽标）· <code>wordmark</code> ≥10 列（只留 ◢ KUNPENG）· <code>none</code> &lt;10 列<strong>整个不画</strong>——<code>brand.tsx</code> 原话："低于最小宽度不画，不缩着画"。</p>
 
 <div class="fig"><span class="fig-t">TaskTabs · 宽屏（≥80 列，Dock 存在）</span>
-<pre class="dense"><span class="ok">▶</span> <span class="pr">1 migrate nginx</span>   <span class="cm">✓</span> 2 optimize pangu-7   <span class="cm">○</span> 3 diagnose crash   <span class="cm"><span class="hw">⏸</span></span> 4 order-svc   <span class="cm">+</span>            <span class="s2">v0.1.0 · Kunpeng ARM64 · </span><span class="ok">● READY</span></pre>
+<pre class="dense"><span class="pr" role="img" aria-label="进行中" title="进行中">■</span> <span class="pr">1 migrate nginx</span>   <span class="ok" role="img" aria-label="完成" title="完成">■</span> 2 optimize pangu-7   <span class="cm" role="img" aria-label="未开始" title="未开始">□</span> 3 diagnose crash   <span class="wn" role="img" aria-label="等待配置" title="等待配置">■</span> 4 order-svc   <span class="cm">+</span>            <span class="s2">v0.1.0 · Kunpeng ARM64 · </span><span class="ok" role="img" aria-label="已就绪" title="已就绪">■</span> <span class="s2">READY</span></pre>
 </div>
 <div class="fig"><span class="fig-t">TaskTabs · 窄屏（&lt;80 列，showBrand 变体，wordmark 字标）</span>
-<pre class="dense"><span class="br">◢</span> KUNPENG <span class="sel">│▶ migrate nginx</span>                                                <span class="ok">●</span></pre>
+<pre class="dense"><span class="br">◢</span> KUNPENG <span class="sel">│<span class="pr" role="img" aria-label="进行中" title="进行中">■</span> migrate nginx</span>                                                <span class="ok" role="img" aria-label="已就绪" title="已就绪">■</span></pre>
 </div>
 
 <div class="fig"><span class="fig-t">Dock · 展开（≥100 列，dockWidth 23–27，full 字标）</span>
 <pre class="dense">┌ <span class="br">◢</span> KUNPENG <span class="t">DEVKIT AI</span> ──┐
 │ <span class="s2">T A S K S</span>  <span class="ac">4</span>          │
-│ <span class="sel">▎</span><span class="ok">✓</span> migrate nginx      │
-│  <span class="pr">▶</span> optimize pangu-7    │
+│ <span class="sel">▎</span><span class="ok" role="img" aria-label="完成" title="完成">■</span> migrate nginx      │
+│  <span class="pr" role="img" aria-label="进行中" title="进行中">■</span> optimize pangu-7    │
 │ <span class="s2">P R O J E C T</span>  <span class="ac">6</span>      │
-│  <span class="sel">▎</span>○ nginx/            │
+│  <span class="sel">▎</span><span class="cm" role="img" aria-label="未开始" title="未开始">□</span> nginx/            │
 └───────────────────────┘</pre>
 </div>
 <div class="fig"><span class="fig-t">Dock · 折叠（&lt;100 列或 Ctrl+B 强制，3 列——none 字标）</span>
@@ -1221,19 +1559,21 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <section id="convo">
 <div class="eyebrow">Components</div>
 <h2>对话流基元 —— 跨产品调研统一决策</h2>
-<p class="desc">AI CLI 的主界面本质是一条不断滚动的对话流：用户消息、AI 文本、工具调用、等待状态、Plan、进度、系统提示混排在同一条纵向流里——这条流怎么分行分色，直接决定产品好不好读。下面对比了 OpenCode / Codex CLI / Gemini CLI / Claude Code 四家在 13 类基础元件上的做法，逐条给出 DevKit AI 的统一决策。<a href="#p1">P01–P20</a> 里的 Agent Timeline、AI Plan、Tool Execution 等场景级 pattern，都是拿下面这些行级基元拼出来的——这里补的是最底层、被复用最多、却从未单列过规范的一层。</p>
+<p class="desc">AI CLI 的主界面本质是一条不断滚动的对话流：用户消息、AI 文本、工具调用、等待状态、Plan、进度、系统提示混排在同一条纵向流里——这条流怎么分行分色，直接决定产品好不好读。下面对比了 OpenCode / Codex CLI / Gemini CLI / Claude Code 四家在 14 类基础元件上的做法，逐条给出 DevKit AI 的统一决策。<a href="#p1">P01–P20</a> 里的 Agent Timeline、AI Plan、Tool Execution 等场景级 pattern，都是拿下面这些行级基元拼出来的——这里补的是最底层、被复用最多、却从未单列过规范的一层。</p>
+<p class="desc">本节分三组：<strong>对话流基元（14 类）</strong>回答「一条流里的这一行是什么」，<strong><a href="#convo">编排类元件（8 类）</a></strong>回答「这一行由谁产出、有几件事正在同时进行」，<strong>输入区单元（4 类）</strong>回答「不在流里、但和流同一眼位的那几个东西是什么」。后两组随「主 Agent 编排多子 Agent 并发」与「会话内改模型 / token 预算」的能力一起新增——一个画的不是一个行，而是一棵树怎么在一维滚动的流里落下来；另一组压根不在流里，所以都不塞进上面那张表。</p>
 <p class="desc">DevKit AI 有两个对话流渲染面：<a href="./agent-workspace.html">Agent Workspace</a>（Electron/浏览器承载，真实 CSS 渲染，圆角卡片、渐变、模糊都能画）与 <code>kunpeng-devkit-ai-tui</code>（OpenTUI 原生终端，只有字符格）。下面的样式画廊<strong>直接用真实 HTML/CSS 卡片渲染</strong>——就是 Agent Workspace 的实际样子，不是终端字符画；每张卡末尾标注它在终端面上退回什么形态，两个面共用同一套决策，只是画法不同。</p>
 
-<div class="sublabel">13 类元件 —— 现状与决策</div>
+<div class="sublabel">14 类元件 —— 现状与决策</div>
 <table>
 <tr><th>元件</th><th>跨产品现状</th><th>DevKit AI 决策</th></tr>
 <tr><td>用户消息</td><td>OpenCode 左侧蓝色竖线 · Codex CLI 整行灰底高亮 · Gemini CLI/Claude Code <code>&gt;</code> 前缀纯文本</td><td>Workspace 面：<code>❯</code> 前缀 + 蓝色渐变卡片；<strong>TUI 面退回</strong>加粗白字、不用整行背景色——深色终端下背景色对比度不稳定，16 色降级时更明显</td></tr>
-<tr><td>AI 意图/说明</td><td>四家均纯文本，仅 Gemini CLI 加 <code>✦</code> 标说话人</td><td>Workspace 面：中性卡片、不加前缀符号；<strong>TUI 面退回</strong>纯文本——AI 文本是对话流的默认态，靠"不是别的类型"识别</td></tr>
+<tr><td>AI 意图/说明</td><td>四家均纯文本，仅 Gemini CLI 加 <code>✦</code> 标说话人</td><td>Workspace 面：<strong>中性卡片（<code>--surface-1</code>）、无边框、无前缀</strong>；<strong>TUI 面退回</strong>纯文本——AI 文本是对话流的默认态，靠"不是别的类型"识别。<strong>不得借用任何语义色线</strong>：金色左线是<a href="#p1">受阻说明块</a>的专属签名，普通说明借用它之后，同一条流里就只剩两种底色深浅的差别，用户读不出"这是说明还是停下来了"（<code>agent-workspace.html</code> 的 <code>.ai-msg</code> 曾借用，已收回；卡内的说明连底色一并去掉，见「卡内不套卡」）</td></tr>
 <tr><td>工具调用 · 搜索/读取</td><td>OpenCode 用双符号区分子类型 · Gemini CLI/Claude Code 用边框卡片 · Codex CLI 混进圆点说明</td><td>沿用双符号方案——<code>∗</code> 搜索 · <code>→</code> 读取，紧凑单行不加边框（这两类调用频率最高，边框是持续噪声）</td></tr>
 <tr><td>工具调用 · 执行</td><td>四家都不单独区分"执行类"，混在读取类里</td><td>新增 <code>$</code>（终端惯例，一眼识别"在跑命令"）——与 ∗/→ 同为 accent 色，<strong>只换字形不换色相</strong>，见下方说明</td></tr>
 <tr><td>过程性旁白</td><td>OpenCode 独有——多轮工具调用之间插入"再搜宽一点"这类过渡句</td><td>斜体 + 降透明度，不加前缀；与 AI 意图声明区分——旁白更短、更口语化，只起承接作用</td></tr>
-<tr><td>等待/澄清</td><td>OpenCode 用 <code>~</code> 前缀浅色 · 其余产品混进普通 AI 文本</td><td><code>~</code> 前缀 + 警示黄色，<strong>唯一需要用户立即响应的状态</strong>，值得单独语义——与任务级 <code>⏸</code>、P27 配置补齐的区别见下方</td></tr>
-<tr><td>任务规划卡片</td><td>Codex CLI 独立标题卡片 + <code>□</code> 复选框 · OpenCode 侧栏区块 · Crush 底部 Pills · Claude Code <kbd>Ctrl+T</kbd> 唤出清单</td><td><strong>对话流里唯一允许描边的类型</strong>——标题加粗 + 复选框列表，当前项额外背景高亮（吸收 Codex CLI），复用既有 <a href="#p1">P02 AI Plan</a></td></tr>
+<tr><td>等待/澄清</td><td>OpenCode 用 <code>~</code> 前缀浅色 · 其余产品混进普通 AI 文本</td><td><code>~</code> 前缀 + 警示黄色，<strong>唯一需要用户立即响应的状态</strong>，值得单独语义——与任务级「等待方块」（金）的区别见下方</td></tr>
+<tr><td>受阻说明块</td><td>四家<strong>都没有独立类型</strong>——OpenCode 用 <code>~</code> 前缀行笼统承载，其余直接混进普通 AI 文本，用户读完才知道「这不是进展汇报，是停下来了」</td><td>金色左线 + 加粗标题 + 1–3 行说明，<strong>只用于「为什么卡住、要不要人裁决」</strong>。与状态方块是分工不是重复：方块说「有事要你看一眼」，它说「卡在哪、下一步只能选什么」。属<strong>流内块</strong>——随对话流滚走，不做浮层、不常驻底栏；一个受阻点一块，几件事互不干扰就各写各的，不合并成一份长报告。<strong>金色左线是本块在整条流里的唯一签名</strong>，其他单元一律不得借用（借用即失效，见上一条）</td></tr>
+<tr><td>任务规划卡片</td><td>Codex CLI 独立标题卡片 + <code>□</code> 复选框 · OpenCode 侧栏区块 · Crush 底部 Pills · Claude Code <kbd>Ctrl+T</kbd> 唤出清单</td><td><strong>对话流里唯一允许描边的类型</strong>——标题加粗 + 状态方块列表（<a href="#convo">Status Square</a>：完成实心绿 / 进行中实心蓝 / 未开始空心灰），当前项额外背景高亮（吸收 Codex CLI），复用既有 <a href="#p1">P02 AI Plan</a></td></tr>
 <tr><td>进度指示器/Spinner</td><td>Claude Code 红星 + "Running…" + 下一步预告 · Codex CLI 无独立 spinner · Crush 有独立组件</td><td>旋转字符 + 当前步 + 下一步预告（吸收 Claude Code 的 "Next" 设计）——复用已有的 <code>⠋⠙⠹…</code> spinner，只新增"下一步"一行</td></tr>
 <tr><td>状态/元信息</td><td>Gemini CLI 把状态插进对话流中间 · OpenCode/Crush 收进底部常驻栏 · Codex CLI 收进顶部信息块</td><td>统一收进<a href="#frame">底部常驻状态栏</a>，<strong>不再让状态信息打断对话流</strong>——调研里唯一明确的反例，不采纳</td></tr>
 <tr><td>系统提示/帮助</td><td>Codex CLI 独有——独立一行浅灰</td><td>沿用，<strong>仅会话开场出现一次</strong>，不重复展示——反复出现会从提示变成噪音</td></tr>
@@ -1258,10 +1598,14 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-fig"><span class="fig-t">AI Text</span>
 <div class="cv-msg cv-ai">好的，先扫一遍依赖库的 ARM 兼容性。</div>
 </div>
+<div class="cv-fig"><span class="fig-t">Inline Highlight 行内强调（AI 文本内部的六种值）</span>
+<div class="cv-msg cv-ai">已切到 <b class="cv-hl-code">devkit-gateway/qwen2.5-coder-32b</b>，告警线 <b class="cv-hl-metric">70% → 85%</b>，改动落在 <b class="cv-hl-file">wt/sub-1</b>，由 <b class="cv-hl-tool">bench_compare</b> 复测 <b class="cv-hl-proj">BRPC</b>，详见 <b class="cv-hl-link">迁移报告</b>。</div>
+</div>
+<p class="rule">AI 文本本身是默认态、不加前缀不加底（见上一条），但<strong>一句话里塞着模型名、路径、指标、工具、项目名</strong>——全用同一个颜色等于没重点。所以正文内部另开一套<strong>行内强调词表</strong>：代码/标识符 <code>--hl-code</code> · 文件与路径 <code>--hl-file</code> · 结果指标 <code>--hl-metric</code> · 工具与技能名 <code>--hl-tool</code> · 项目与组件名 <code>--hl-proj</code> · 可点进去的对象 <code>--hl-link</code>，六个 token 已进 <a href="#color">Colors</a>，深浅主题各一套值（浅色底不能用深色底那套柔和糖果色，会糊）。<strong>这是有意偏离「品牌蓝只用于可交互」的例外</strong>：参考 opencode 等 TUI 的多彩输出，正文关键词按语义分色比统一灰更省阅读成本；但边界要守住——<strong>只上关键词，不上整句</strong>（一段话 3–4 处封顶，超了说明这段话该拆成列表或卡片），<strong>不许自造第七种颜色</strong>。<strong>终端面降级</strong>：TrueColor 可用时沿用同一套色相；16 色或 <code>NO_COLOR</code> 时六种色相挤在 16 色调色板里已经不可辨，<strong>全部退回默认前景色 + 加粗</strong>，不再用颜色承担区分职责——与 <a href="#color">Colors</a> 的降级纪律一致。</p>
 <div class="cv-fig"><span class="fig-t">Clarify ~</span>
 <div class="cv-msg cv-clarify"><b>~</b> 需要确认：3 个文件都有 SSE 宏，全部按方案 A 处理，还是逐个确认？</div>
 </div>
-<p class="rule">User 靠蓝色渐变卡片 + <code>❯</code>、Clarify 靠警示黄卡片 + <code>~</code>、AI 靠中性卡片"什么都不额外加"——三种卡片形状/底色互相区分。<strong>TUI 面退回</strong>纯字符：卡片背景全部去掉，只剩 <code>❯</code> 加粗白字、<code>~</code> 警示黄前缀——终端背景色对比度不稳定，退回时靠字重和字色，不靠底色。<code>~</code> 只用于一句话能问清楚的场景，字段明确需要结构化输入时走 <a href="#jscreen">P27 配置补齐</a> 弹层；与任务列表里常驻的 <code>⏸</code> 不同——<code>~</code> 答完即随对话流滚走；也别与 <a href="#p2">P16 /btw</a>（用户主动插话，方向相反）混淆。<strong>Thinking Block</strong> 默认折叠、标题只给耗时，展开才显示推理过程——是模型内部推理的原始记录，通常更长、更技术化，所以默认收起；Kiro／Goose／Claude 系 CLI 都是这个"默认折叠 + 展开看细节"的处理方式，不是哪家独创。</p>
+<p class="rule">User 靠蓝色渐变卡片 + <code>❯</code>、Clarify 靠警示黄卡片 + <code>~</code>、AI 靠中性卡片"什么都不额外加"——三种卡片形状/底色互相区分。<strong>TUI 面退回</strong>纯字符：卡片背景全部去掉，只剩 <code>❯</code> 加粗白字、<code>~</code> 警示黄前缀——终端背景色对比度不稳定，退回时靠字重和字色，不靠底色。<code>~</code> 只用于一句话能问清楚的场景，字段明确需要结构化输入时走 <a href="#jscreen">P27 配置补齐</a> 弹层；与任务列表里常驻的「等待方块」（金色实心）不同——<code>~</code> 答完即随对话流滚走；也别与 <a href="#p2">P16 /btw</a>（用户主动插话，方向相反）混淆。<strong>Thinking Block</strong> 默认折叠、标题只给耗时，展开才显示推理过程——是模型内部推理的原始记录，通常更长、更技术化，所以默认收起；Kiro／Goose／Claude 系 CLI 都是这个"默认折叠 + 展开看细节"的处理方式，不是哪家独创。</p>
 
 <h3>工具调用类 <span class="badge p">T0</span> <span class="chipm">在干什么</span></h3>
 <div class="cv-fig"><span class="fig-t">Grep ∗</span>
@@ -1279,11 +1623,11 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-fig"><span class="fig-t">Plan Card</span>
 <div class="plan-card">
   <div class="pc-h">PLAN · 迁移 BRPC → Kunpeng ARM64</div>
-  <div class="pc-row"><span class="pc-c done">✓</span>环境检测</div>
-  <div class="pc-row"><span class="pc-c done">✓</span>依赖分析</div>
-  <div class="pc-row cur"><span class="pc-c cur">▸</span>生成迁移补丁</div>
-  <div class="pc-row"><span class="pc-c">□</span>编译验证循环</div>
-  <div class="pc-row"><span class="pc-c">□</span>迁移总结报告</div>
+  <div class="pc-row"><span class="stq done" role="img" aria-label="已完成"></span>环境检测</div>
+  <div class="pc-row"><span class="stq done" role="img" aria-label="已完成"></span>依赖分析</div>
+  <div class="pc-row cur"><span class="stq doing" role="img" aria-label="进行中"></span>生成迁移补丁</div>
+  <div class="pc-row"><span class="stq todo" role="img" aria-label="未开始"></span>编译验证循环</div>
+  <div class="pc-row"><span class="stq todo" role="img" aria-label="未开始"></span>迁移总结报告</div>
 </div>
 </div>
 <p class="rule">复用既有 <a href="#p1">P02 AI Plan</a> 的信息结构，本卡只补两处渲染细节：<strong>加边框</strong>（对话流里唯一一处）、<strong>当前项用 <code>state-selected</code> 背景高亮</strong>——都是已有 token，没有引入新色，两个面都是这个样子（TUI 用 box-drawing 画边框，形状不变）。</p>
@@ -1295,6 +1639,13 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 </div>
 </div>
 <p class="rule">复用既有 <a href="#p1">P10 Approval</a>，是<strong>批量/高风险动作的阻断式确认</strong>——区别于 Diff Card 自带的逐文件 <code>[A]ccept/[R]eject</code>：那是"这一个改动要不要收"，这是"这一整批动作要不要放行"，触发条件按 <a href="#p2">P19 Permission Tiers</a> 的风险分级（Low 可配置自动放行 · Medium 默认走这里 · High 强制逐项 Review）。<strong>多个待批准动作排队时</strong>，头部加一行 <code>审批 1/3</code> + <code>下一个</code>——处理完当前这条自动前进，不用把三条挤在一屏里同时决策；这是 Kiro"多个审批依次排队"的处理方式，不是把它们摞在一起。几乎所有 agent CLI 都有这一档确认——只是文案不同（Kiro 叫 Yes/Trust/No，这里叫 Apply/Review/Cancel），形状是共识。</p>
+<div class="cv-fig"><span class="fig-t">Blocker Note 受阻说明块</span>
+<div class="cv-blocker">
+<div class="bt">⚠ 并发采集会互相干扰</div>
+<div class="bl">sub-1 与 sub-3 都要跑 <b>perf</b> 采样。同机同时采集会互相抢 CPU 与 PMU 计数器，采出来的性能数据是失真的 —— 所以我把 <b>profiler 类工具串起来跑</b>，其余工具照常并行。</div>
+</div>
+</div>
+<p class="rule">对话流里唯一需要<strong>解释「为什么走不下去」</strong>的块——金色左线 + 加粗标题 + 1–3 行说明。<strong>与谁分工、不跟谁抢</strong>：状态方块（蓝/绿/金/灰）只说明「有事要你看一眼」，不解释原因；<a href="#convo">Clarify <code>~</code></a> 是一句话能答的问题，受阻块是<strong>要解释因果、要人裁决方案</strong>；<a href="#p1">Approval Bar</a> 管「这一批动作放不放行」（动作已定，只等许可），受阻块管「为什么这条路按现在的配置走不通」（方案本身待定）。三者的触发条件互斥，同屏不该同时出现两条。<strong>标题首字符写死两种</strong>：<code>⚠</code> 受阻 / <code>?</code> 待裁决——终端面没有左线可画时靠这个字符认出它，也顺手替代了标题里的「注意」二字。<strong>说明行 1–3 行封顶</strong>，写<strong>这一次任务</strong>的取舍与后果，不写工具日志（日志进 <a href="#p2">P18 Output Collapsing</a>）；一个受阻点一块，互不干扰就各写各的，不合并成长报告。<strong>「写取舍」的边界</strong>：写的是这次的选项与代价（另一处受阻块里的「要么接受一次语义变更，要么放弃这处加速」是正例），不写产品的价值宣言（「宁可少一点并行度，也不拿可信度去换」这类换个项目依然成立的话属规范，规范里自有落点，不需要在会话里复述一遍）。<strong>终端面退回</strong>：左线换成 <code>▏</code> 前缀 + 金色标题行，无底色——底色在 16 色终端下会盖掉正文对比度。</p>
 <div class="cv-fig"><span class="fig-t">Progress</span>
 <div class="cv-progress"><span class="sp">⠹</span> 生成 crypto.c 补丁 (2/6) <span class="next">下一步：编译验证</span></div>
 </div>
@@ -1303,12 +1654,24 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-subh">阶段2 · 依赖分析</div>
 </div>
 <p class="rule">对应实现里的 <code>.sub-h</code>——树形前缀 + 大写字母间距 + comment 灰阶，<strong>左对齐而不是居中</strong>，标的是"下面这段内容属于哪个小节"。用得比 Progress、Plan Card 都频繁——阶段级、甚至"关键修改文件"这种子块标题都用它，是这一屏最基础的分节手段。任务的阶段进度<strong>只用 Plan Card 一种呈现</strong>，不再另立一份内嵌的阶段清单——同一份数据只有一个来源，减少两处状态不同步的风险。</p>
-<div class="cv-fig"><span class="fig-t">Checklist Row</span>
-<div class="cv-chk"><span class="ic">✓</span><span class="lb">构建系统</span><span class="v">CMake 3.22 + Make / Bazel 6.0</span></div>
-<div class="cv-chk"><span class="ic">✓</span><span class="lb">编译器</span><span class="v">BiSheng Compiler 2.5.0（GCC 10.3 兼容）</span></div>
-<div class="cv-chk"><span class="ic warn">!</span><span class="lb">NPU 驱动</span><span class="v">未检测到 ≥ 23.0 版本，[F] 修复</span></div>
+<div class="cv-fig"><span class="fig-t">Status Square 状态方块</span>
+<div class="cv-sqrow">
+  <span><span class="stq doing"></span>进行中<span class="nt">实心蓝 · 常亮外发光</span></span>
+  <span><span class="stq done"></span>完成<span class="nt">实心绿</span></span>
+  <span><span class="stq wait"></span>受阻 / 待处理<span class="nt">实心金</span></span>
+  <span><span class="stq hold"></span>已收住<span class="nt">空心金</span></span>
+  <span><span class="stq todo"></span>未开始<span class="nt">空心灰</span></span>
 </div>
-<p class="rule">环境检测、配置确认类信息统一走这个形状——图标 + 定宽标签 + 值。<strong>不用表格</strong>：表格是给可排序/可筛选的数据用的（见 <a href="#comp">Sortable Table</a>），这里只是逐项核对，一行一项就够。</p>
+</div>
+<p class="rule">这是<strong>全项目唯一的状态形状</strong>，取代原来散落的 <code>✓ ▶ ! ● ○</code> 五套状态字形：方块只有两个正交通道——<strong>填充</strong>读「在不在跑」（实心 = 在跑或已有结果，空心 = 还没开始或主动收住），<strong>颜色</strong>读语义（蓝 进行中 · 绿 完成 · 金 待处理 · 灰 未开始）。放在 <a href="./agent-workspace.html">agent-workspace.html</a> 的树、检查项、映射行、会话列表、console、AI Plan 步骤带、卡片「当前步」上，是同一份 <code>.stq</code> 定义。<br><br>
+三条配套规则：<strong>① 有文字的地方不放方块</strong>——子 Agent 头行的「完成 / 进行中 / 受阻」本身就是信息，再叠方块等于说两遍，还把时长与工具数挤窄；<strong>② 状态词与方块不同时出现</strong>，一个位置只用一种读法；<strong>③ 语义色只上指示，不上表面</strong>——方块只有 9px，占位与一个字符等价，与「数据色阶只上色块与点阵」并不冲突，反而靠形状把同一个 warning 色分成了「状态」与「数据」两种读法。<br><br>
+<strong>终端面</strong>是这一套的退化形态：一个字符格，<code>■</code>（实心）/ <code>□</code>（空心），颜色由终端色支撑——宽一格、与文字同基线，比 <code>✓ ▶ ○</code> 更省横向空间，也不再需要为每个状态挑字形；<code>NO_COLOR</code> 与 16 色降级时 <code>■</code> / <code>□</code> 仍然分得出在跑和没在跑——原来的字形一旦没有颜色就完全读不出语义，这是换掉它的主要原因。<strong>无障碍</strong>：方块本身没有文字，凡是被它替换掉文字的位置都带 <code>title</code> + <code>role="img"</code> + <code>aria-label</code>，语义不走颜色单通道。</p>
+<div class="cv-fig"><span class="fig-t">Checklist Row</span>
+<div class="cv-chk"><span class="ic ok" role="img" aria-label="通过"></span><span class="lb">构建系统</span><span class="v">CMake 3.22 + Make / Bazel 6.0</span></div>
+<div class="cv-chk"><span class="ic ok" role="img" aria-label="通过"></span><span class="lb">编译器</span><span class="v">BiSheng Compiler 2.5.0（GCC 10.3 兼容）</span></div>
+<div class="cv-chk"><span class="ic warn" role="img" aria-label="需要注意"></span><span class="lb">NPU 驱动</span><span class="v">未检测到 ≥ 23.0 版本，[F] 修复</span></div>
+</div>
+<p class="rule">环境检测、配置确认类信息统一走这个形状——状态方块 + 定宽标签 + 值（方块见上一条 Status Square）。<strong>不用表格</strong>：表格是给可排序/可筛选的数据用的（见 <a href="#comp">Sortable Table</a>），这里只是逐项核对，一行一项就够。</p>
 
 <h3>结果类 <span class="badge p">T0</span> <span class="chipm">做完了没</span></h3>
 <div class="cv-fig"><span class="fig-t">Diff Card</span>
@@ -1348,7 +1711,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-toolcard">
   <div class="cv-tc-head"><span class="car">▾</span><span class="lb">迁移总结报告</span><span class="sum">10 文件修改 · 111 行新增 · 7 行删除 · 编译成功</span></div>
   <div class="cv-tc-body">
-    <div class="cv-rptbanner">✓ BRPC 鲲鹏架构迁移完成 · 六阶段流水线全部完成 · 编译成功</div>
+    <div class="cv-rptbanner">BRPC 鲲鹏架构迁移完成 · 六阶段流水线全部完成 · 编译成功</div>
     <div class="cv-stat3">
       <div class="cv-stat"><span class="lb">编译状态</span><span class="v">PASS</span><span class="sub">第 3 轮编译成功 · 0 错误</span></div>
       <div class="cv-stat"><span class="lb">修改文件</span><span class="v">10</span><span class="sub"><b>6 源码</b> · 4 构建配置</span></div>
@@ -1364,8 +1727,8 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 </div>
 <p class="rule">三张卡共用同一个折叠外壳——真实实现里，编辑摘要、新建文件和会话总结走的是同一个折叠容器，区别只是 body 里塞什么：Diff Card 塞左右分栏代码（<a href="#p1">P05</a>），New File Card 塞单栏新增代码，Report Card 塞横幅 + 统计 + 表格（<a href="#p1">P12 Session Summary</a>）。header 里的摘要行折叠后仍然可见，折叠/展开不改变这行文字——这正是 <a href="#p2">P18 Output Collapsing</a> 说的"信噪比管理"。</p>
 <div class="cv-fig"><span class="fig-t">Migration Row</span>
-<div class="cv-mrow"><span class="ic ok">✓</span><span>OpenJDK 1.8（x86）</span><span class="ar">→</span><span class="tg">OpenJDK ARM 1.8.0（毕昇）</span><span class="badge ok">已就绪</span></div>
-<div class="cv-mrow"><span class="ic warn">●</span><span>Tomcat 8.0.53</span><span class="ar">→</span><span class="tg">东方通 TongWeb 7.0</span><span class="badge warn">license 缺失</span></div>
+<div class="cv-mrow"><span class="ic ok" role="img" aria-label="已完成"></span><span>OpenJDK 1.8（x86）</span><span class="ar">→</span><span class="tg">OpenJDK ARM 1.8.0（毕昇）</span><span class="badge ok">已就绪</span></div>
+<div class="cv-mrow"><span class="ic warn" role="img" aria-label="需要注意"></span><span>Tomcat 8.0.53</span><span class="ar">→</span><span class="tg">东方通 TongWeb 7.0</span><span class="badge warn">license 缺失</span></div>
 </div>
 <p class="rule">端到端迁移场景里，一个组件的新旧对照用这一行——<strong>不是 Diff</strong>（Diff 是同一份代码改了什么），是<strong>替换关系</strong>（这个组件被换成了那个组件），徽标只给最终状态。</p>
 <div class="cv-fig"><span class="fig-t">Tag Chips</span>
@@ -1379,11 +1742,6 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <div class="cv-fig"><span class="fig-t">System Tip</span>
 <div class="cv-tip">Tip: 按 <b>Ctrl+P</b> 唤出命令面板 · 本提示本次会话只显示一次</div>
 </div>
-<div class="cv-fig"><span class="fig-t">Suggested Actions</span>
-<div class="cv-actions">
-<button class="cv-actbtn">看诊断报告</button><button class="cv-actbtn">跑性能基线</button><button class="cv-actbtn">继续下一个文件</button>
-</div>
-</div>
 <div class="cv-fig"><span class="fig-t">Compact Progress</span>
 <div class="cv-sysprog">
   <span class="ic">✦</span>
@@ -1394,17 +1752,267 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 </div>
 </div>
 <div class="cv-fig"><span class="fig-t">Status Bar + Input</span>
-<div class="cv-statusbar">[mode:auto] [model:pangu] [ctx: <b>72%</b>] [tasks: 1 ⏸]</div>
+<div class="cv-statusbar"><span>[mode:auto] [model:pangu] [ctx: <b>72%</b>] [tasks: 1 <span role="img" aria-label="1 个任务待处理" title="待处理" style="color:var(--warning)">■</span>]</span></div>
 <div class="cv-inputbar"><b>❯</b> 试试 "帮我把 nginx 迁移到鲲鹏" 或 "这段代码为什么在 ARM 上崩了"<span class="cur"></span></div>
 </div>
-<p class="rule">这五张都不属于对话流本身——System Tip 只在会话开场出现一次；Suggested Actions 复用既有 <a href="#jscreen">P28 下一步引导</a>，随结果状态变化，不是固定菜单；<strong>Compact Progress 用确定进度条而不是不确定 spinner</strong>——压缩上下文/重建索引这类系统维护操作算得出百分比，就必须给百分比，复用 <a href="#p2">P20 Context Management</a> 的量表语义而不是新发明一套，操作期间对话流照常滚动、不阻塞输入（压缩是读，不是写）；Status Bar 见 <a href="#frame">#frame</a>，永远在底部、永远不滚动，Input 的 placeholder 直接给可以照抄的真实任务。共同点：<strong>都不该打断正在滚动的那条对话流</strong>。原来这里还有一张 Console Log——和 Checklist Row（图标+定宽标签+值）形状太像，同屏两个几乎一样的列表反而增加辨认成本，去掉，工具调用的原始输出并入 Checklist Row 或折叠进 Diff/Report Card 即可。</p>
+<p class="rule">这三张都不属于对话流本身——System Tip 只在会话开场出现一次；<strong>Compact Progress 用确定进度条而不是不确定 spinner</strong>——压缩上下文/重建索引这类系统维护操作算得出百分比，就必须给百分比，复用 <a href="#p2">P20 Context Management</a> 的量表语义而不是新发明一套，操作期间对话流照常滚动、不阻塞输入（压缩是读，不是写）；Status Bar 见 <a href="#frame">#frame</a>，永远在底部、永远不滚动，Input 的 placeholder 直接给可以照抄的真实任务。共同点：<strong>都不该打断正在滚动的那条对话流</strong>。（原来这一组里还有 Suggested Actions，已挪到下方<a href="#convo">输入区单元</a>——它挂在输入框上方，位置属那一组；文案纪律随卡一起搬走，没有第二份。）</p>
+<div class="note"><b>待裁决 · Console Log 与实现的偏差：</b>上面这条决策写下时删掉了 Console Log（理由：与 Checklist Row 形状太像），但 <a href="./agent-workspace.html">agent-workspace.html</a> 的 <code>tune</code> 场景里<strong>仍在用 <code>.console</code> 折叠块</strong>渲染调优日志（规范说删了、实现还在用，按仓库纪律属缺陷，需记录并裁决）。两条出路，<strong>倾向 B</strong>：<br>
+A · 删实现——调优日志并入 Tool Call Line 与 <a href="#p2">P18</a> 折叠输出，与上面决策一致，代价是失去「一屏看清整轮迭代日志」的能力；<br>
+B · 收回规范——把 Console 重新登记为「<strong>Console Block 日志块</strong>」，并给它一条硬约束：<strong>只在调优、编译冗余输出这类「行数多但结构弱」的场景用</strong>，且必须可收起、默认收起；与 Checklist Row 的分工是「列不齐的流水账」对「字段固定的核对项」。选 B 需同步补进元件台账与上面那张表，并把本条决策改成「限制了使用范围」而不是「删除」。</div>
+
+<h3>编排类 <span class="badge p">T0</span> <span class="chipm">谁派给谁的 · 几件事同时在跑</span></h3>
+<p class="desc">上面 14 类回答的是<strong>「这一行是什么」</strong>——它们是<strong>一条</strong>对话流里的一行。这一组回答另一个问题：<strong>「这一行由谁产出，有几件事正在同时进行」</strong>。当产品从「单个 agent 顺序干活」走到「主 agent 编排多个子 agent 并发干活」，对话流就不再是一条线而是一棵树；<strong>树要怎么在一维的、只能纵向滚动的流里画出来</strong>，是这 8 类元件要解决的问题（原为 9 类，其中「场景命令入口」已挪到下方输入区单元——按位置归类更好查）。它们全部来自 <a href="./agent-workspace.html">agent-workspace.html</a> 的 <code>develop · subagent</code> / <code>model-token</code> / <code>subagent-tree</code> 三个场景。</p>
+<table>
+<tr><th>元件</th><th>跨产品现状</th><th>DevKit AI 决策</th></tr>
+<tr><td>子 Agent 块</td><td>Claude Code 的 Task 工具只在主流里回一行摘要，子 agent 的内部过程收进 <kbd>Ctrl+O</kbd>；OpenCode 当普通工具调用；Codex CLI 无子 agent</td><td><strong>给独立块，块内有自己完整的一套排版</strong>（当前步 → 工具并发 → 结论），<strong>不画左侧状态导轨</strong>——状态色只落在头部的状态词与徽标上。子 agent 跑的是一整套流程，压成一行等于把编排能力藏起来——但块也不并进主流，两种版式不混在一起。<strong>头部那一行就是收起态的全部内容</strong>（谁 / 在干什么 / 多久 / 几个工具 / 多少 token），展开只是把「现在在干什么」补在下面，这一行开合之间一字不变。<strong>每张块都可收起、头部即开关</strong>；默认收起已完成与已收住的，默认展开进行中与受阻的</td></tr>
+<tr><td>子 Agent 并排</td><td>各家只有「一个接一个」的串行视图</td><td>编排泳道：同屏并置 + 对齐同一条时间轴，右端给耗时与状态。<strong>并发不靠动效表达「同时」</strong>——静态帧、SSH、截图里都要读得出来，这跟 <a href="#motion">Motion</a> 一节只把动效当补充是同一条纪律</td></tr>
+<tr><td>工具调用并发</td><td>四家都是单行、串行追加</td><td>同一子 agent 内并行的工具各自一条<strong>左端对齐</strong>的进度条：起点落在同一条竖线上表示同时开始，长度差即进度差。入口形状不变，仍是上面 Tool Call Line 的紧凑单行</td></tr>
+<tr><td>嵌套深度</td><td>无——Claude Code 明确禁止子 agent 再生子 agent</td><td>深度走<strong>一个通道：缩进（16px 一格，按层累加）+ <code>SUB-2.2.1</code> 编号</strong>，<strong>刻意不占颜色</strong>——颜色通道归了状态方块（蓝 / 绿 / 金 / 灰），深度与状态是正交维度。<strong>不给每张卡画状态导轨</strong>：那会同时重复状态与缩进两件已经说过的事，多层嵌套下还长出一排平行彩条。<strong>缩进不封顶</strong>——深度上限 4 层所以最坏 64px，封顶会把第 3、4 层压平、废掉缩进这个信号；触顶不下钻、收住并回退基线，不留半成品</td></tr>
+<tr><td>画不下的层级</td><td>直接省略</td><td>折叠成可交互的 <code>…</code> 节点，点击 / <kbd>Enter</kbd> 就地展开。<strong>画不下就显式说画不下，不能悄悄吞掉</strong>——沿用 index.html 工程树那条既有决策</td></tr>
+<tr><td>并发槽位</td><td>无</td><td>显式露出<strong>「还剩几个」而不是「现在几个」</strong>——会耗尽的是槽位，不是并发数。子级只能继承父级的剩余槽位、不单独开池，否则嵌套会绕过全局上限</td></tr>
+<tr><td>模型切换</td><td>统一走 <code>/model</code> 浮层（<a href="#p2">P13</a>）</td><td>会话内切换的候选列表<strong>内嵌在对话流里</strong>，不弹浮层——切换结果要留在会话记录里可回看。与 P13 的分工是「输入时联想，用完即走」对「事后可回看」，两者不互相替代</td></tr>
+<tr><td>Token / 额度计量</td><td>各家收进底栏或 <code>/status</code></td><td>模型 · ctx 水位 · tokens 三项<strong>常驻底栏</strong>；子 agent 的消耗用徽标就地挂在块头，父级汇总额用一行文字说清算法——<strong>父子不双算</strong>。ctx 给 <code>当前值/阈值</code>，阈值可由命令改</td></tr>
+</table>
+<p class="rule">本组原有第 9 行「场景命令入口」（输入框下方那行命令提示），已随 Suggested Actions 一起挪进下方<a href="#convo">输入区单元</a>——它不是「谁派给谁」的问题，而是「贴着输入框的东西有哪些」的问题，按位置归类比按能力归类更好查。决策结论一字未改，只是换了组。</p>
+
+<div class="sublabel">编排类画廊 —— Agent Workspace 真实渲染，逐个单独成卡</div>
+
+<div class="cv-fig"><span class="fig-t">Orchestration Lane 编排泳道</span>
+<div class="cv-lanes">
+<div class="cv-lane"><span class="nm">main</span><span class="tk"><span class="bar done" style="left:0;width:14%">编排</span><span class="bar done" style="left:15%;width:24%">冲突检测</span><span class="bar" style="left:41%;width:57%">收口与合并</span></span><span class="ms">15.4s</span></div>
+<div class="cv-lane"><span class="nm">sub-1 · kernel</span><span class="tk"><span class="bar done" style="left:14%;width:38%">6 工具</span></span><span class="ms">6.2s</span></div>
+<div class="cv-lane"><span class="nm">sub-2 · risk</span><span class="tk"><span class="bar" style="left:14%;width:74%">8 工具</span></span><span class="ms">11.8s</span></div>
+<div class="cv-lane"><span class="nm">sub-3 · profiler</span><span class="tk"><span class="bar wait" style="left:52%;width:44%">等独占 profiler</span></span><span class="ms">—</span></div>
+</div>
+<div class="cv-axis"><span class="nm"></span><span class="ticks"><span>0s</span><span>4s</span><span>8s</span><span>12s</span><span>16s</span></span><span class="ms"></span></div>
+</div>
+<p class="rule">泳道图画的是<strong>谁在等谁</strong>。sub-1 和 sub-2 的左端都从 14% 起——那是 main 派发完的时刻，两条泳道在同一竖线上开始，就是「并行」这件事在静态帧里的全部证据；sub-3 的空档不是它慢，是它在等一把独占的 profiler，所以那一格用<strong>等待色（金）+ 条内文字「等独占 profiler」</strong>而不是「未开始」。工具数写在条内、耗时写在条外：条内是这条泳道<em>干了什么</em>，条外是<em>花了多久</em>，两者不该混进同一个位置。</p>
+
+<div class="cv-fig"><span class="fig-t">Sub-Agent Block 子 Agent 块（含工具并发 + token 徽标）</span>
+<div class="cv-sa running">
+<div class="cv-sa-head">
+<span class="cv-sa-badge">SUB-2</span>
+<span class="cv-sa-nm">risk_score.c</span>
+<span class="cv-sa-role">风控评分 · 2 处已应用，第 3 处验证中</span>
+<span class="cv-sa-stat"><span>进行中</span><span>11.8s</span><span>5 工具 · 并发 3</span></span>
+<span class="cv-tok wn">82.4k</span>
+</div>
+<div class="cv-sa-body">
+<div class="cv-sa-now"><span class="c"></span><span class="t1">改写 + 等价性验证</span><span class="t2">2 处已应用 · 第 3 处验证中</span></div>
+<div class="cv-sa-lns">
+<div class="ln"><span class="g">$</span><span class="tn">apply_patch</span><span class="ta">risk_score.c · [214-218]</span><span class="tm">1.2s</span></div>
+<div class="ln"><span class="g">→</span><span class="tn">read_file</span><span class="ta">risk_score.c · [300-420]</span><span class="tb"><i style="width:78%"></i></span><span class="tm">进行中</span></div>
+<div class="ln"><span class="g">∗</span><span class="tn">grep</span><span class="ta">compare_impl · 全工程引用点</span><span class="tb"><i style="width:44%"></i></span><span class="tm">进行中</span></div>
+</div>
+<div class="cv-ai">3 处改动正常推进；另外 1 处受阻，不阻塞本支其他工具跑完。</div>
+</div>
+</div>
+<div class="cv-sa done collapsed">
+<div class="cv-sa-head">
+<span class="cv-sa-badge">SUB-1</span>
+<span class="cv-sa-nm">settlement_kernel.c</span>
+<span class="cv-sa-role">结算矩阵向量化 · 收益 3.6x · 无下级</span>
+<span class="cv-sa-stat"><span>完成</span><span>6.2s</span><span>4 工具</span></span>
+<span class="cv-tok">18.4k</span>
+</div>
+<div class="cv-sa-body">
+<div class="cv-sa-now done"><span class="c"></span><span class="t1">改写 AVX2 → SVE 并验证</span><span class="t2">位精确一致 · 342ms → 96ms</span></div>
+<div class="cv-ai">收益 3.6x，位精确一致。改动落在 wt/sub-1。</div>
+</div>
+</div>
+</div>
+<p class="rule"><strong>头部那一行就是收起态的全部内容</strong>，顺序即一次编排的完整生命周期：<strong>是谁（<code>SUB-2</code> 徽标 + 文件名）→ 在干什么 → 干了多久（状态 + 耗时 + 工具数）→ 花了多少（token 徽标）</strong>。其中「在干什么」按状态给不同的东西：<strong>进行中给「现在在干什么」，完成给收益（<code>收益 3.6x</code>），受阻给「卡在哪」</strong>——同一行位置只回答「我需不需要点开它」，不需要点开就已经能答。<strong>展开后这一行一字不变</strong>，只是把「怎么干的」补在下面，所以开合之间没有内容跳动。</p>
+<p class="rule">展开体只有三块平铺、<strong>没有第三层容器</strong>：当前（或最后）一步 → 工具行 → 一条说明。<strong>「卡内不套卡」是这一条的实现纪律</strong>：第三块里的 AI 文本进了卡片就退回纯文本（去底色、去圆角），受阻块只收底色和圆角、<strong>金左线留着</strong>——那条线在卡内仍然是「这里停下来了」的唯一签名，是语义不是装饰；卡外的 AI 文本是中性的，卡内再套一层带底色的卡，两三层下去就只剩深浅不同的方块，读不出谁是容器、谁是内容（两面对应的两条规则：<code>.cv-sa-body .cv-ai</code> 与 <code>.sa-body .ai-msg</code>）。<strong>已完成的中间步骤不铺开</strong>——展开要看的是「现在在干什么」，不是回放；要回放走左侧会话列表里那条完整轨迹。工具行沿用对话流「工具调用」那条基元（字形 + 目标 + 右对齐 meta），<strong>不加边框、不加底色、也不给工具名定宽列</strong>——定宽列会把这几行读成一张表格，而它们不是表。<strong>只有进行中的行才画进度条</strong>：<code>apply_patch</code> 只给 1.2s 不给满格绿条，因为一条 100% 的进度条不携带任何信息。剩下两条<strong>左端对齐</strong>——起点落在同一条竖线上表示「同时开始」，长度差表示进度差，并发这件事在静态帧、SSH、截图里都读得出来，不必等动画转完。</p>
+<p class="rule"><strong>每张卡片都可收起，头部就是开关</strong>——嵌套时这条最要紧：一个二级块底下可能再挂三层，全摊开会把面板撑成一条读不完的长梯。折叠<strong>只收起「怎么干的」，头部那一行始终留着</strong>，所以收起来之后这块仍然读得懂，只是不再占版面。<strong>默认状态由「还需不需要你看」决定，不由深度决定</strong>：已完成、已收住的默认收起（上面那张 <code>SUB-1</code>），进行中、受阻的默认展开。<strong>按深度收是个陷阱</strong>——最深的那个往往是受阻项，按深度收会把它连同父级一起藏掉，等于把最该被看见的东西收走了。</p>
+
+<div class="cv-fig"><span class="fig-t">Concurrency Slots 并发槽位</span>
+<div class="cv-slots"><span class="lb">并发槽位</span><span class="sq used"></span><span class="sq used"></span><span class="sq used"></span><span class="sq free"></span><span class="v">3 / 4</span><span class="nt">3 个在跑 · 还剩 1 个名额</span></div>
+</div>
+<p class="rule">方块画的是<strong>槽位</strong>不是「正在跑的 agent 数」——两者在多级嵌套下会分叉（一个 agent 可能同时占 2 个槽位）。填实的方块数就是「现在几个」，剩下的空心方块是<strong>「还剩几个」</strong>；后者才是会先耗尽、也才需要决策的那个量。所以这个元件不写百分比、不写刻度，只摆方块：<code>3 / 4</code> 里的 4 是上限，空心方块的位置让用户不用算就知道还能塞几个。</p>
+
+<div class="cv-fig"><span class="fig-t">Hierarchy Tree 层级树（含折叠节点）</span>
+<div class="cv-tree">
+<div class="cv-tree-row"><span class="tx"></span><span class="dp">L1</span><span class="nm">main</span><span class="rl">编排与收口 · 扇出 2 个一级</span><span class="stq doing" role="img" aria-label="进行中" title="进行中"></span></div>
+<div class="cv-tree-row"><span class="tx">├─ </span><span class="dp">L2</span><span class="nm">sub-1</span><span class="rl">settlement_kernel.c · 结算矩阵向量化</span><span class="stq done" role="img" aria-label="已完成" title="已完成"></span></div>
+<div class="cv-tree-row"><span class="tx">└─ </span><span class="dp">L2</span><span class="nm">sub-2</span><span class="rl">risk_score.c · 风控评分 · 扇出 2 个二级</span><span class="stq doing" role="img" aria-label="进行中" title="进行中"></span></div>
+<div class="cv-tree-row"><span class="tx">   ├─ </span><span class="dp">L3</span><span class="nm">sub-2.1</span><span class="rl">分支提示改写</span><span class="stq done" role="img" aria-label="已完成" title="已完成"></span></div>
+<div class="cv-tree-row"><span class="tx">   ├─ </span><span class="dp">L3</span><span class="nm">sub-2.2</span><span class="rl">冗余调用消除 · 扇出 1 个三级</span><span class="stq doing" role="img" aria-label="进行中" title="进行中"></span></div>
+<div class="cv-tree-row"><span class="tx">   │  └─ </span><span class="dp">L4</span><span class="nm">sub-2.2.1</span><span class="rl">内联比较函数 · 验证未通过</span><span class="stq wait" role="img" aria-label="受阻，待裁决" title="受阻，待裁决"></span></div>
+<div class="cv-tree-row fold"><span class="tx">   └─ </span><span class="lb">… 更深 2 层已折叠</span><span class="hint">点击展开</span></div>
+</div>
+</div>
+<p class="rule">树形概览里深度走<strong>两条互补通道</strong>：连接符的缩进，和 <code>L1–L4</code> 这一列显式对齐的层号。加层号这一列是因为<strong>纯缩进过了第 3 层就开始吃掉可读宽度</strong>——缩进画得下的深度，眼睛不一定数得清。<strong>但也就到此为止</strong>：子 agent 块内部<strong>不重复画导轨</strong>（见下一张卡），否则同一份深度信息会在一屏里出现两遍，还会在终端面退化成 │ 字符列。概览负责「一次看全」，卡片负责「看清这一支」。右下角那个 <code>…</code> 是可点的：<strong>画不下就显式说画不下，点了就地展开</strong>，不能悄悄吞掉两层当它们不存在——沉默的截断和「本来就没有」在界面上长得一模一样。</p>
+
+<div class="cv-fig"><span class="fig-t">Nested Sub-Agent Block 多级嵌套（L2 内含 L3，L3 内含 L4）</span>
+<div class="cv-sa running lv2">
+<div class="cv-sa-head">
+<span class="cv-sa-depth">L2</span><span class="cv-sa-badge">SUB-2</span>
+<span class="cv-sa-nm">risk_score.c</span>
+<span class="cv-sa-role">风控评分 · 已派 2 个二级，1 个已回</span>
+<span class="cv-sa-stat"><span>进行中</span><span>11.8s</span><span>8 工具</span></span>
+<span class="cv-tok wn">82.4k</span>
+</div>
+<div class="cv-sa-body">
+<div class="cv-sa-now"><span class="c"></span><span class="t1">按改动类型拆两个二级</span><span class="t2">分支提示改写 / 冗余调用消除</span></div>
+<div class="cv-sa done lv3 collapsed">
+<div class="cv-sa-head">
+<span class="cv-sa-depth">L3</span><span class="cv-sa-badge">SUB-2.1</span>
+<span class="cv-sa-nm">分支提示改写</span>
+<span class="cv-sa-role">收益 +6.2% · 无下级</span>
+<span class="cv-sa-stat"><span>完成</span><span>2.1s</span><span>2 工具</span></span>
+<span class="cv-tok">9.6k</span>
+</div>
+<div class="cv-sa-body">
+<div class="cv-sa-now done"><span class="c"></span><span class="t1">应用 3 处 UNLIKELY 分支提示</span><span class="t2">无新依赖 · 零接口变更</span></div>
+<div class="cv-ai">改动面小、风险低，已合入 wt/sub-2。</div>
+</div>
+</div>
+<div class="cv-sa running lv3">
+<div class="cv-sa-head">
+<span class="cv-sa-depth">L3</span><span class="cv-sa-badge">SUB-2.2</span>
+<span class="cv-sa-nm">冗余调用消除</span>
+<span class="cv-sa-role">已派 1 个三级 · 等它回收</span>
+<span class="cv-sa-stat"><span>进行中</span><span>6.4s</span><span>4 工具</span></span>
+<span class="cv-tok">21.8k</span>
+</div>
+<div class="cv-sa-body">
+<div class="cv-sa-now"><span class="c"></span><span class="t1">冗余调用消除</span><span class="t2">1 处已应用 · 2 个工具在跑</span></div>
+<div class="cv-sa-lns">
+<div class="ln"><span class="g">$</span><span class="tn">apply_patch</span><span class="ta">risk_score.c · [214-218]</span><span class="tm">1.2s</span></div>
+<div class="ln"><span class="g">→</span><span class="tn">read_file</span><span class="ta">risk_score.c · [300-420]</span><span class="tb"><i style="width:78%"></i></span><span class="tm">进行中</span></div>
+<div class="ln"><span class="g">∗</span><span class="tn">grep</span><span class="ta">compare_impl · 全工程引用点</span><span class="tb"><i style="width:44%"></i></span><span class="tm">进行中</span></div>
+</div>
+<div class="cv-sa wn lv4">
+<div class="cv-sa-head">
+<span class="cv-sa-depth">L4</span><span class="cv-sa-badge">SUB-2.2.1</span>
+<span class="cv-sa-nm">内联比较函数</span>
+<span class="cv-sa-role">验证未通过 · 需人裁决</span>
+<span class="cv-sa-stat"><span>受阻</span><span>2.9s</span><span>2 工具</span></span>
+<span class="cv-tok danger">9.8k</span>
+</div>
+<div class="cv-sa-body">
+<div class="cv-sa-now wn"><span class="c"></span><span class="t1">内联改写</span><span class="t2">判定会改变多态语义 · 已停在验证</span></div>
+<div class="cv-chk"><span class="ic warn" role="img" aria-label="需要注意"></span><span class="lb">受阻原因</span><span class="v">比较函数被虚函数分派调用，内联会改变多态语义——不是性能问题，是正确性问题。<b>没有绕过验证往上报成功</b></span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p class="rule"><strong>深度只走一个通道</strong>：<code>L2</code>/<code>L3</code> 纯文本 + 缩进（16px 一格，按层累加）+ <code>SUB-2.2.1</code> 这个编号；状态只落在字形与短文本上（头部的状态词、<code>SUB-</code> 徽标底色、token 徽标）。<strong>两个维度各占一个通道，不交叉</strong>，所以「第 4 层且受阻」这种组合能同时读出来，而不是两件事抢同一个颜色。<strong>深度上限 4 层，缩进最坏 64px，不必封顶</strong>：封顶会把第 3、4 层压成一样平，缩进这个信号就废了；上限本身才是防止无限嵌套的闸门。<strong>状态只向上冒泡一层语义，不向上传染</strong>：<code>SUB-2.2.1</code> 受阻时，父级 <code>SUB-2</code> 仍是「进行中」而不是「失败」——但受阻项必须冒泡到 main 的收口清单，不能烂在第 4 层没人看见。<strong>已完成的中间层默认收起</strong>：它既没有待办也没有异常，占着屏幕只会把深层嵌套撑成一条长梯。</p>
+
+<div class="cv-fig"><span class="fig-t">Model Switcher 模型切换器（供应商 → 模型两层）</span>
+<div class="cv-model">
+<div class="cv-model-h">Models<span class="hint">点一行切换 · 立即生效，不需要重开会话</span></div>
+<div class="cv-model-pool">
+<div class="pv"><span class="stq done" role="img" aria-label="已鉴权，可用" title="已鉴权，可用"></span><span class="pn">devkit-gateway</span><span class="pd">内部推理网关 · devkit-gateway.internal/v1 · 3 个模型</span><span class="ps">已鉴权 · 共享额度池</span></div>
+<div class="cv-mdrow cur"><span class="ck"></span><span class="mn">pangu2.5-72b-instruct</span><span class="md">通用推理 · 迁移与 SQL 改造默认</span><span class="mt">current</span></div>
+<div class="cv-mdrow"><span class="ck"></span><span class="mn">deepseek-v3-671b</span><span class="md">128k 长上下文 · 跨模块重构</span><span class="mt">128k</span></div>
+<div class="cv-mdrow"><span class="ck"></span><span class="mn">qwen2.5-coder-32b</span><span class="md">代码专精 · 低延迟，适合子 Agent</span><span class="mt">快</span></div>
+</div>
+<div class="cv-model-pool">
+<div class="pv"><span class="stq done" role="img" aria-label="已就绪，可用" title="已就绪，可用"></span><span class="pn">kunpeng-local</span><span class="pd">本机昇腾推理 · 127.0.0.1:8000 · 1 个模型</span><span class="ps">已就绪 · 独占配额</span></div>
+<div class="cv-mdrow"><span class="ck"></span><span class="mn">pangu2.5-7b-instruct</span><span class="md">轻量 · 心跳与日志摘要等低价值调用</span><span class="mt">省</span></div>
+</div>
+<div class="cv-model-pool">
+<div class="pv"><span class="stq wait" role="img" aria-label="未配置密钥" title="未配置密钥"></span><span class="pn">private-cloud</span><span class="pd">客户私有云 · llm.private.internal/v1 · 2 个模型</span><span class="ps off">未配置密钥</span></div>
+<div class="cv-mdrow off"><span class="ck"></span><span class="mn">deepseek-v3-671b</span><span class="md">与 devkit-gateway 同名 · 走客户侧账号计费</span><span class="mt">需密钥</span></div>
+<div class="cv-mdrow off"><span class="ck"></span><span class="mn">qwen2.5-coder-32b</span><span class="md">与 devkit-gateway 同名 · 走客户侧账号计费</span><span class="mt">需密钥</span></div>
+</div>
+</div>
+</div>
+<p class="rule">每行给的是<strong>「换了会怎样」而不是「换了是不是更好」</strong>：低延迟、长上下文、独占配额各是一个可验证的取舍，产品不替用户排序。<strong>分组分的是供应商，不是「额度池」这个比喻</strong>——组头回答的三件事都是<strong>账号</strong>的属性：这个端点是谁的、密钥配没配、额度从哪个账号扣。<strong>同名模型必须能区分</strong>：<code>deepseek-v3-671b</code> 在 <code>devkit-gateway</code> 与 <code>private-cloud</code> 下都有，走的账号与计费都不同，所以候选行、命令、回执一律用 <code>供应商/模型</code> 这个全名，只给模型名时命令<strong>拒绝执行并列出两种写法</strong>——猜一个切过去，用户可能悄悄换掉了计费主体，这比报错难查得多。<strong>没配密钥的供应商可见但不可选</strong>（空心金方块 + 「未配置密钥」）：不是「没有这个模型」，是「有，你得先补 <code>API_KEY</code>」，隐藏它等于把一条可选的路藏起来。<strong>接近上限仍然允许切</strong>（沿用 <a href="#p2">P13</a>「提醒但不替用户做决策」）：这里只提示不阻断。切换只影响之后的调用，<strong>正在跑的子 Agent 保持原模型跑完</strong>，不在中途换掉一个已经开始的推理。<strong>一次只摊开一组</strong>：当前供应商展开、其余收起，要看别家再点开——满屏模型名比分组更难找。</p>
+
+<div class="cv-fig"><span class="fig-t">Quota Bars 额度与上下文水位</span>
+<div class="cv-quota">
+<div class="cv-qrow lv1"><span class="ql">5h</span><span class="qt"><i style="width:38%"></i></span><span class="qp">38%</span><span class="qr">充裕 · reset 14:00</span></div>
+<div class="cv-qrow lv3"><span class="ql">7d</span><span class="qt"><i style="width:72%"></i></span><span class="qp">72%</span><span class="qr">偏高 · reset 周一 09:00 · 建议把子 Agent 换低配模型</span></div>
+<div class="cv-qrow lv1"><span class="ql">ctx</span><span class="qt"><i style="width:38%"></i></span><span class="qp">38%</span><span class="qr">会话上下文 · 未接近 <a href="#p2">P20</a> 压缩线</span></div>
+</div>
+</div>
+<p class="rule">三条水位（5h / 7d / ctx）用同一把尺子，<strong>颜色只有三档可用的填充色</strong>——四级风险色里 0–49 与 50–69 共用「安全区」绿，档位名称由右侧文案区分。这不是妥协：<strong>靠颜色硬凑四档，在 16 色 / <code>NO_COLOR</code> 降级下会退化成一片同色，而文案不会</strong>。百分比数字固定宽度右对齐，三行扫过去不需要逐行找数字在哪。越过 70% 才变色、85% 升级为危险色，且<strong>只提示不阻断</strong>——同一条 P13 纪律。</p>
+
+<div class="cv-fig"><span class="fig-t">Status Bar Metrics 底栏常驻计量（模型 + ctx + tokens）</span>
+<div class="cv-metrics">
+<span class="mt">模型 <span class="src">devkit-gateway/</span><b>pangu2.5-72b-instruct</b></span>
+<span class="mt">ctx <span class="ctxb"><i class="lv3" style="width:72%"></i></span> <b>72%</b><span class="ctxw">/70%</span></span>
+<span class="mt">tokens <b>1.24M</b></span>
+</div>
+</div>
+<p class="rule">这是上面那三件计量收进<a href="#frame">底部常驻状态栏</a>的样子，也是上面 <a href="#convo">Status Bar</a> 那张字符版本的渲染式对应物——<strong>同一个决策，两个面两种画法</strong>：终端面退回 <code>[model:pangu] [ctx: 72%] [tokens 12k]</code>。三项一起常驻，是因为它们要一起看才有意义：<em>模型换了才知道 token 为什么涨，水位高了才知道该不该换模型</em>。<strong>状态不打断对话流</strong>——这条从 14 类那张表里就定下来了，这里只是把它落成具体的几个数。ctx 给的是 <code>当前值/阈值</code>：只给当前值，用户没法判断「这个 72% 算不算高」；只给阈值，又看不到离它还有多远。<strong>阈值是可以改的</strong>（见下一条），所以它必须露在面上，不能藏在配置文件里。窄屏只藏模型名（它是三项里最不随会话变化的），ctx 与 tokens 必须留下。</p>
+
+<h3>输入区单元 <span class="badge p">T0</span> <span class="chipm">贴着输入框 · 常驻但不在流里</span></h3>
+<p class="desc">这一组不按「谁在说话 / 在干什么」分类，按<strong>位置</strong>分类：它们<strong>都不在对话流里</strong>——不随流滚动、不占流的一行，但和流共用同一个眼位（输入框那一带），用户扫一眼就能改设置、点下一步。上一组编排类画的是「一棵树怎么落进一维的流」，这一组画的是「流之外贴着输入框的那一圈有哪些东西值得常驻」，共 4 类。其中 Suggested Actions 的卡见下方、Command Hint Bar 与 Command Candidate Menu 的卡见下方两张，Tune Chart 的画法复用 <a href="#primlib">图表单元</a>（曲线 / 双视图 / 降级链都在那里定义过），这里只做决策与登记，不重复画第三套曲线。共同纪律：<strong>只在该场景真有内容时出现，常驻会退化成没人读的说明文字</strong>；<strong>都不抢焦点</strong>（唯一入口永远是输入框本身）；<strong>都不进对话流</strong>（要留痕的东西走上面那条流的回执，见下一条）。</p>
+<table>
+<tr><th>单元</th><th>跨产品现状</th><th>DevKit AI 决策</th></tr>
+<tr><td>下一步建议</td><td>Codex CLI 会话末尾给 follow-up 建议 · Claude Code 在结果后给回车建议 · opencode 无此形态</td><td>输入框上方一行 2–3 个按钮，<strong>随结果状态变化而变化，不是固定菜单</strong>；文案必须是短句（中文 ≤8 字），理由与写法见下方卡。它<strong>不进流</strong>——点了就当作一条用户消息落进流里，建议本身不占流的位置</td></tr>
+<tr><td>命令提示行</td><td>Claude Code 在 prompt 下方常驻一行模式提示（<code>? for shortcuts</code> · <code>⏵⏵ accept edits on</code>）；opencode 同样在 prompt 下方给 keybinding——<strong>两家都没有「右上角浮标」这种 Web 式做法</strong></td><td>场景里可改的设置（模型、token 告警线）<strong>在输入框下方单独一行</strong>给命令提示，命令就在上面那个框里敲。<strong>不做右上角浮层</strong>（用户最初考虑过这个方案，否掉）：输入一长就和正文打架，窄屏时右上角也最先没地方放。排版与降级见下方卡</td></tr>
+<tr><td>命令候选菜单</td><td>四家的 <code>/</code> 补全都弹在输入框上方，但<strong>只列命令名与说明</strong>，不告诉用户这个选择会动到什么资源</td><td>贴输入框上方、<kbd>↑↓</kbd> 移动 / <kbd>Tab</kbd>·<kbd>Enter</kbd> 确认 / <kbd>Esc</kbd> 关闭；<strong>候选行内多出「供应商」</strong>——换模型前最该先知道的是「它从哪个账号扣额度、会不会挤掉正在跑的活」，以及「同名模型必须写全名」。是 <a href="#p2">P13</a> 的内嵌变体，不新立组件</td></tr>
+<tr><td>调优曲线容器</td><td>无此形态——HPO 曲线通常只在最终报告里出现一次</td><td>输入框上方<strong>可收起</strong>的一块：图表／表格双视图，<strong>收起时暂停动效</strong>（不收起来就一直在画的曲线是白烧 CPU，也违反 <a href="#motion">Motion</a> 只把动效当补充的纪律）。它不属于对话流——曲线是过程量，结论才进流（走 <a href="#p2">P18</a> 折叠的高价值输出）</td></tr>
+</table>
+
+<div class="cv-fig"><span class="fig-t">Suggested Actions 下一步建议（输入框上方一行）</span>
+<div class="cv-actions">
+<button class="cv-actbtn">看诊断报告</button><button class="cv-actbtn">跑性能基线</button><button class="cv-actbtn">看下一个文件</button>
+</div>
+<p class="rule">文案必须是<strong>简短语句</strong>：动宾结构、一句话说完，<strong>中文不超过 8 个字</strong>（含专名或英文片段时整项不超过 16 格，且不再挂修饰语——写「应用到 rocksdb」而不是「应用 patch 到 rocksdb 主干」）。<strong>省掉可有可无的动词前缀与主语</strong>：「查看完整迁移报告」→「看迁移报告」，「在目标机运行单元测试」→「跑单元测试」，「把子 Agent 换成 32b」→「子 Agent 换 32b」。理由：这些是<strong>并行摆在同一行的三个按钮</strong>，长度不齐会让行宽由最长那条决定，短的那两条看着像残句；而且用户是扫读不是精读，一个动宾短语就够他决定点不点。写不成短句说明这条建议<strong>该拆成两条，或者它根本不是"下一步"而是别的类型</strong>。</p>
+</div>
+
+<div class="cv-fig"><span class="fig-t">Command Hint Bar 命令提示行（输入框下方）</span>
+<div class="cv-inputbar"><b>❯</b> 描述你想让 Agent 做什么，输入 / 唤出命令…<span class="cur"></span></div>
+<div class="cv-hintbar">
+<span class="it"><span class="c">/model</span> <b>pangu2.5-72b-instruct</b><span class="src">devkit-gateway</span></span>
+<span class="sep">·</span>
+<span class="it"><span class="c">/tokens</span> <b>1.24M</b><span class="src">告警线 70%</span></span>
+</div>
+</div>
+<p class="rule">场景里能改的设置（模型、token 告警线）<strong>如果只在浮层或配置文件里能改，用户不会知道它在这儿也能改</strong>。这一行就是那句「可以用命令改」，而命令就在上面那个框里敲。<br>
+<strong>每一项是「命令 + 值 + 来源」三档，命令当标签用</strong>（参照 opencode 的 <code>Build · Big Pickle  OpenCode Zen</code>）：<strong>值最大声</strong>——用户真正要看的是现在用哪个模型、这轮烧了多少，这两个数才是他决定要不要敲命令的依据；<strong>不写「模型：」「当前」「已用」这类前缀</strong>，命令名本身就是标签，多一层标签只是多一层要读的字。灰字只放<strong>解释这个值</strong>的东西：供应商解释额度从哪个账号扣、也提醒换模型时可能要写全名，告警线解释这个 token 数离哪条线还有多远。<br>
+它不与底栏常驻计量重复：<strong>底栏是全局事实</strong>（任何场景都看得见），<strong>这里是「就地可改」的入口</strong>，只在真有命令可改的场景出现——做成常驻，它会从「这里能改」退化成一条没人再读的说明文字。<br>
+<strong>位置选输入框下方单独一行，不是右上角浮层</strong>：右上角是 Web 的惯例，输入一长就必然和正文打架；窄屏时右上角也最先没地方放。opencode 与 Claude Code 都是把提示放在 prompt 下面一行——和输入内容物理隔离，<strong>输入多长都不冲突，窄屏时整行收起也不损失任何功能</strong>。它是<strong>路标不是按钮</strong>：不抢焦点、不可点，命令的唯一入口永远是上面那个输入框。<br>
+<strong>窄屏降级：先丢来源，再截值，最后整项去</strong>。1200px 以下没什么要动（一行 ≈ 550px）；到 820px 先去掉池名——它只是「从哪扣额度」的解释，去掉不影响「我现在用的哪个模型」；再窄就让模型名自己截断（<code>…</code>），命令留住，tokens 与告警线不被挤走；到 560px 塞不下模型名了，才把整个模型项连同它的分隔符一起去掉（<strong><code>/tokens 1.24M 告警线 70%</code> 永不在降级里丢</strong>）。<strong>降级顺序必须与底栏一致</strong>：两个面同一个牺牲顺序，用户才不会在窄屏和宽屏看到两套优先级。</p>
+
+<div class="cv-fig"><span class="fig-t">Command Candidate Menu 命令候选（打 <code>/model</code> 唤出，行内带供应商）</span>
+<div class="cv-menu">
+<div class="cv-menu-row on"><span class="stq done" role="img" aria-label="当前模型" title="当前模型"></span><span class="cmd">pangu2.5-72b-instruct</span><span class="src">devkit-gateway</span><span class="desc">通用推理 · 迁移与 SQL 改造默认 · 当前</span></div>
+<div class="cv-menu-row"><span class="stq todo" role="img" aria-label="未选中" title="未选中"></span><span class="cmd">deepseek-v3-671b</span><span class="src">devkit-gateway</span><span class="desc">128k 长上下文 · 跨模块重构</span></div>
+<div class="cv-menu-row"><span class="stq todo" role="img" aria-label="未选中" title="未选中"></span><span class="cmd">qwen2.5-coder-32b</span><span class="src">devkit-gateway</span><span class="desc">代码专精 · 低延迟，适合子 Agent</span></div>
+<div class="cv-menu-row"><span class="stq todo" role="img" aria-label="未选中" title="未选中"></span><span class="cmd">pangu2.5-7b-instruct</span><span class="src">kunpeng-local</span><span class="desc">轻量 · 心跳与日志摘要等低价值调用</span></div>
+<div class="cv-menu-row"><span class="stq todo" role="img" aria-label="未选中" title="未选中"></span><span class="cmd">qwen2.5-coder-32b</span><span class="src">private-cloud</span><span class="desc">与 devkit-gateway 同名 · 走客户侧账号计费 · 需密钥</span></div>
+<div class="cv-menu-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 切换模型</span><span><b>Esc</b> 关闭</span></div>
+</div>
+</div>
+<p class="rule">候选菜单是 <a href="#p2">P13 Model / Quota Switcher</a> 的<strong>内嵌变体</strong>，不新立组件：位置贴在输入框正上方（补全完接着选，视线不用跳）、<kbd>↑↓</kbd> 移动 / <kbd>Enter</kbd> 确认 / <kbd>Esc</kbd> 关闭、当前项用状态方块标出来。<br>
+<strong>供应商进候选行</strong>：换模型前最该先知道的两件事都在这儿——「它从哪个账号扣额度、会不会挤掉正在跑的活」，以及「这个名字是唯一的吗」。<code>qwen2.5-coder-32b</code> 在两行里都出现、来源不同，用户一眼就能看出必须写全名；<strong>联想同时认模型名与 <code>供应商/</code> 前缀</strong>（打 <code>qwen</code> 按名字筛、打 <code>devkit-</code> 按供应商筛），两种输入都是人会打的，不该只支持一种。<br>
+<strong>唯一来源是配置文件</strong>（<code>.devkitai/config.toml</code> 的供应商与模型路由表）：命令不是配置文件的快捷方式，而是它的<strong>另一个写入口</strong>——两边写同一个值，所以在哪边改另一边马上是新值，因此<strong>不需要「应用」按钮，也不需要「同步」状态</strong>。<br>
+<strong>它只在输入框这一带存在，不落进流</strong>：选定之后留下的痕迹是上一条<a href="#convo">命令回执</a>（用户消息 + AI 细节），菜单自己随 <kbd>Esc</kbd> 或选择消失——菜单是「选择发生的地方」，回执是「选择之后的历史」，两者分工不重叠。</p>
+
+<div class="sublabel">命令回执 —— 命令的结果留在对话流里，不弹窗</div>
+<p class="desc">改配置也是一轮对话。<strong>回执是新造的一个单元吗？不是</strong>——它是两个既有基元的固定组合：命令行本身走<a href="#convo">用户消息</a>（它确实是用户说的），结果走 <a href="#convo">AI 文本</a>（成功）或 <a href="#convo">Checklist Row</a>（被拒）。所以这里没有新增组件，只有一条组合规则，见下方。</p>
+
+<div class="cv-fig"><span class="fig-t">Command Echo · 成功 —— 用户消息 + AI 文本，关键值加亮</span>
+<div class="cv-msg cv-user"><b>❯</b> /tokens 85</div>
+<div class="cv-msg cv-ai">告警线 <b>70% → 85%</b>，立即生效。当前用量不变，提醒点改到 85%。</div>
+</div>
+
+<div class="cv-fig"><span class="fig-t">Command Echo · 被拒 —— 用户消息 + Checklist Row（金方块 + 没有改 + 边界 + 正确写法）</span>
+<div class="cv-msg cv-user"><b>❯</b> /tokens 120</div>
+<div class="cv-chk wrap"><span class="ic warn" role="img" aria-label="没有改" title="没有改"></span><span class="lb">没有改</span><span class="v">120 超出可选范围 <b>20–95</b>。要关掉提示可以用 <b>/tokens 95</b></span></div>
+</div>
+<p class="rule"><strong>为什么要进对话流，而不是弹 toast、弹窗、或在右上角冒一条：</strong>「我什么时候把它改成 85 的」是一个会被追问的问题，答案必须在滚动历史里查得到；toast 三秒后消失，翻历史时它从来没存在过。<br>
+<strong>被拒也要回执，而且要给出正确写法</strong>：静默失败会被读成「我是不是没按对回车」，用户会反复敲同一条命令。拒绝回执必须同时回答三件事——<strong>没改</strong>（用 <a href="#convo">状态方块</a>的实心金，和「受阻」同色）、<strong>边界/原因是什么</strong>（数值范围、名字为什么有歧义、缺哪个配置）、<strong>那该怎么敲</strong>。<strong>四种拒绝理由共用这一个形状</strong>：范围越界、名字多义（列出全部全名写法）、供应商不可用（缺 <code>API_KEY</code>）、无匹配项——不为新理由造新组件。<br>
+<strong>回执只说业务，产品语义归本页的单元定义</strong>：回执的职责是「这次发生了什么、你该怎么改」。所以「告警线是『你想在第几个点被告知』、它是阈值不是水位、超过 100% 等于不提醒自己」这类<strong>产品语义不由回执承担</strong>（本页上面 Quota Bars 与 Status Bar Metrics 两条已经把阈值 ≠ 水位写清楚了），业务流里只留数值边界与正确写法。判断标准很简单：<strong>同一句话换个项目还成不成立——成立的是业务，只跟本产品怎么设计有关的，是标注</strong>，标注一律收进本页的单元定义，不混进用户的真实会话。<strong>两类最常犯的标注</strong>：<strong>位置自述</strong>——「底栏的 ctx 当前值不变」→「当前用量不变」（数字在哪看是单元的事，回执只报数字本身）；<strong>行为自述</strong>——「其余可直接切」→ 删（候选列表怎么操作属 Model Switcher 单元，不属这次会话的业务状态）。<br>
+<strong>两个入口只留一份痕迹</strong>：敲完整命令、从候选菜单选一行，是同一个动作的两个入口，都要写回执；浮层里点一行（<a href="#convo">Model Switcher</a>）不算——那是面板内的就地操作，浮层自己的 current 标记就是它的反馈，再写一条回执只会把流撑长。<br>
+<strong>写入位置在对话流末尾、并自动滚到底</strong>：改完立刻看到结果，不用自己往下找；回执只进当前场景的那条流，翻历史不会串场。<br>
+<strong>光敲命令名不带参数 = 列候选，不报错</strong>：<code>/model</code> 回车不是"参数漏了"，而是"我想选一个"——报错会把用户推回原点（"那我该怎么写？"），直接列出候选才是这条命令该有的样子。输入留在框里、菜单开着等选，光标位置不动。候选菜单本身不在流里（它贴在输入框上方），卡片见上方<a href="#convo">输入区单元</a>。</p>
 
 <div class="sublabel">拼起来 —— 多条决策落进同一条对话流</div>
 <div class="cv-fig"><span class="fig-t">migrate 场景 · 从输入到收尾（节选，Agent Workspace 真实渲染）</span>
 <div class="cv-msg cv-user"><b>❯</b> 把 BRPC 迁移到鲲鹏架构，不兼容的地方直接改</div>
 <div class="cv-msg cv-ai">好的，我来分析 BRPC，启动六阶段迁移流水线。</div>
 <div class="cv-divider">阶段 1 · 环境检测</div>
-<div class="cv-tool"><span class="g">$</span> bisheng-gcc --version <span class="meta" style="color:var(--success)">✓</span></div>
+<div class="cv-tool"><span class="g">$</span> bisheng-gcc --version <span class="stq done" role="img" aria-label="命令成功" title="命令成功"></span></div>
 <div class="cv-divider">阶段 2 · 依赖分析</div>
 <div class="cv-tool"><span class="g">∗</span> grep "aarch64 SIMD 替代指令" <span class="meta">knowledge_base</span></div>
 <div class="cv-tool"><span class="g">→</span> read-file snappy-stubs-internal.h:140-160</div>
@@ -1413,18 +2021,87 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 </div>
 <p class="rule">这条流里只有一处圆角卡片带边框（Plan Card，图中未展开），没有一处整行拉满的饱和填充，状态与提示都不在这条流里——它们在底栏。<strong>这正是本节全部决策要一起达成的效果：一条能快速纵向扫视、不被自身装饰打断的对话流</strong>，TUI 面把所有卡片背景去掉后，效果同样成立。</p>
 
+<div class="cv-fig"><span class="fig-t">subagent-tree 场景 · 分层编排与收口（节选，Agent Workspace 真实渲染）</span>
+<div class="cv-msg cv-user"><b>❯</b> 这次改动铺得很开，你能派几层就派几层，我要看得到谁在干什么</div>
+<div class="cv-msg cv-ai">好的。这次<b>不是平铺兄弟</b>，是分层编排：我拆 2 个一级子 Agent，其中 <b>sub-2</b> 自己又拆了 2 个二级。<b>到第 4 层我收住了</b>——再往下，协调成本和 token 放大已经盖不住收益。</div>
+<div class="cv-subh">层级编排总览 · 9 个 Agent / 最大深度 4</div>
+<div class="cv-tree">
+<div class="cv-tree-row"><span class="tx"></span><span class="dp">L1</span><span class="nm">main</span><span class="rl">编排与收口 · 扇出 2 个一级</span><span class="stq doing" role="img" aria-label="进行中" title="进行中"></span></div>
+<div class="cv-tree-row"><span class="tx">├─ </span><span class="dp">L2</span><span class="nm">sub-1</span><span class="rl">settlement_kernel.c · 结算矩阵向量化</span><span class="stq done" role="img" aria-label="已完成" title="已完成"></span></div>
+<div class="cv-tree-row"><span class="tx">└─ </span><span class="dp">L2</span><span class="nm">sub-2</span><span class="rl">risk_score.c · 风控评分 · 扇出 2 个二级</span><span class="stq doing" role="img" aria-label="进行中" title="进行中"></span></div>
+<div class="cv-tree-row"><span class="tx">   ├─ </span><span class="dp">L3</span><span class="nm">sub-2.1</span><span class="rl">分支提示改写</span><span class="stq done" role="img" aria-label="已完成" title="已完成"></span></div>
+<div class="cv-tree-row"><span class="tx">   ├─ </span><span class="dp">L3</span><span class="nm">sub-2.2</span><span class="rl">冗余调用消除 · 扇出 1 个三级</span><span class="stq doing" role="img" aria-label="进行中" title="进行中"></span></div>
+<div class="cv-tree-row"><span class="tx">   │  └─ </span><span class="dp">L4</span><span class="nm">sub-2.2.1</span><span class="rl">内联比较函数 · 验证未通过</span><span class="stq wait" role="img" aria-label="受阻，待裁决" title="受阻，待裁决"></span></div>
+<div class="cv-tree-row"><span class="tx">   └─ </span><span class="dp">L3</span><span class="nm">sub-2.3</span><span class="rl">继续下钻 · 触达深度上限，已收住</span><span class="stq hold" role="img" aria-label="已收住，回退基线" title="已收住，回退基线"></span></div>
+<div class="cv-tree-row fold"><span class="tx">      └─ </span><span class="lb">… 更深 2 层已折叠</span><span class="hint">点击展开</span></div>
+</div>
+<div class="cv-slots"><span class="lb">并发槽位</span><span class="sq used"></span><span class="sq used"></span><span class="sq used"></span><span class="sq free"></span><span class="v">3 / 4</span><span class="nt">3 个在跑 · 还剩 1 个名额</span></div>
+<div class="cv-sa wn lv4">
+<div class="cv-sa-head">
+<span class="cv-sa-depth">L4</span><span class="cv-sa-badge">SUB-2.2.1</span>
+<span class="cv-sa-nm">内联比较函数</span>
+<span class="cv-sa-role">验证未通过 · 需人裁决</span>
+<span class="cv-sa-stat"><span>受阻</span><span>2.9s</span><span>2 工具</span></span>
+<span class="cv-tok danger">9.8k</span>
+</div>
+<div class="cv-sa-body">
+<div class="cv-sa-now wn"><span class="c"></span><span class="t1">内联改写</span><span class="t2">判定会改变多态语义 · 已停在验证</span></div>
+<div class="cv-chk"><span class="ic warn" role="img" aria-label="需要注意"></span><span class="lb">受阻原因</span><span class="v">我停在这里，<b>没有绕过验证往上报成功</b>。这条改动需要人裁决：要么接受一次语义变更，要么放弃这处加速</span></div>
+</div>
+</div>
+<div class="cv-rptbanner warn">9 个 Agent · 6 已完成 · 1 受阻待裁决 · 2 已收住回退</div>
+<div class="cv-metrics"><span class="mt">模型 <span class="src">devkit-gateway/</span><b>pangu2.5-72b-instruct</b></span><span class="mt">ctx <span class="ctxb"><i style="width:34%"></i></span> <b>34%</b></span><span class="mt">tokens <b>268.8k</b></span></div>
+</div>
+<p class="rule">这条流里同时出现了<strong>三种「没做完」</strong>，而它们长得不一样、也不该长得一样：<code>sub-2.2.1</code> 是<strong>受阻待裁决</strong>（有问题，但需要人来决定）、<code>sub-2.3</code> 是<strong>触顶收住</strong>（没做，但是主动止损，不是失败）、折叠的 <code>…</code> 是<strong>没画出来</strong>（有内容，只是屏幕放不下）。前两者的区分落在<strong>状态方块的填充</strong>上——受阻是<strong>实心金</strong>（还在等你），已收住是<strong>空心金</strong>（已经停下来了），同一个色相靠填充就分得开，不必再看文字；折叠的 <code>…</code> 不标方块，它不是状态而是「画不下」。三种的中文解释仍然由 <code>.rl</code> 那列文字给全（「验证未通过」「触达深度上限，已收住」），颜色只负责说「这里需要你看一眼」。底部的收口横幅把三种数量一次报清，右侧底栏给出这次编排的总账。<strong>token 用「父子不双算」的算法</strong>：每个 Agent 只计自己的调用，父级汇总 = 自身 + 全部后代，按 Agent 去重——否则每加一层就重复计一次，越深的编排越显得贵，用户会因此不敢用深编排。</p>
+
+<div class="sublabel">本轮新增 → 基元映射（每一部分分别落在哪个对话流基本单元上）</div>
+<p class="desc">这一轮为「会话内改模型 / token 预算」和「主 Agent 编排多子 Agent 并发」新增的每一部分，都要能回答同一个问题：<strong>它究竟是哪个已登记的基元，还是一个真的新单元</strong>。下表逐条给出答案——<strong>凡是已有对应基元的，一律复用并保持形状一致，不另画一套</strong>；标 <span class="badge p">新</span> 的三条是本轮真正新增、已补进上面表格与台账的单元；标 <span class="badge s">变体</span> 的是已有基元的一个受约束的变体（不是新单元，但形状差异要写清楚）。</p>
+<table>
+<tr><th>新增部分</th><th>对应基元</th><th>结论</th></tr>
+<tr><td>命令行本身（<code>/model devkit-gateway/qwen2.5-coder-32b</code>）</td><td>User Message Line</td><td>复用——它确实是用户说的话，不改形状</td></tr>
+<tr><td>成功回执正文（「告警线 70% → 85%，立即生效」）</td><td>AI Text Line + Inline Highlight</td><td>复用——AI 文本是默认态，关键值靠行内强调分色，不加前缀不加底</td></tr>
+<tr><td>被拒回执（「没有改 / 为什么 / 该怎么敲」）</td><td>Checklist Row</td><td><span class="badge s">变体</span> 实心金方块 + <code>wrap</code>（值多行时方块与标签顶对齐第一行），值列自动折行</td></tr>
+<tr><td>输入框下方的命令提示行</td><td>Command Hint Bar</td><td>已有，本轮重排版（命令当标签 / 值最大声 / 灰字只作解释）+ 定死降级阶梯</td></tr>
+<tr><td>输入框上方的 <code>/model</code> 候选列表</td><td>Command Candidate Menu（P13 内嵌变体）</td><td><span class="badge p">新</span> 本轮登记；行为契约见输入区单元那张表</td></tr>
+<tr><td>候选行的「当前项」标记</td><td>Status Square（实心绿）</td><td>复用——<strong>状态统一用方块，不新增形状</strong>（本轮明确的一条纪律）</td></tr>
+<tr><td>候选行的供应商列（<code>devkit-gateway</code> / <code>kunpeng-local</code>）</td><td>Command Candidate Menu 的一个字段</td><td>复用——它不是一个单元，是「从哪个账号扣额度、这个名字是否唯一」</td></tr>
+<tr><td>模型浮层里的供应商分组（组头 + 缩进的模型行）</td><td>Model Switcher 的受约束变体</td><td><span class="badge s">变体</span> 组头一行 = 供应商名 + 端点 + 模型数 + 状态方块 + 状态字；<strong>一次只摊开一组</strong>，深度只走缩进、不画导轨；未配密钥的组用空心金方块 + 「未配置密钥」，行可见但不可选</td></tr>
+<tr><td>切换被拒的两种新理由（同名多义 / 未配密钥）</td><td>Checklist Row</td><td><span class="badge s">变体</span> 与「越界被拒」同一个形状、同一句「没有改」，区别只在值列里把正确写法列出来</td></tr>
+<tr><td>额度条随供应商变的那一行说明</td><td>Sub Header 的注解位</td><td>复用——额度是账号的属性，换供应商就换一套数字与重置时间</td></tr>
+<tr><td>下一步建议按钮行</td><td>Suggested Actions</td><td>已有，本轮从「系统与容器类」挪进输入区单元（按位置归类），文案纪律随卡一起搬</td></tr>
+<tr><td>子 Agent 卡片与它的内部排版</td><td>Sub-Agent Block</td><td>已有；本轮补两条硬规则：<strong>头部一行 = 收起态的全部内容</strong>（开合一字不变）、<strong>默认收起已完成 / 默认展开进行中与受阻</strong>（收不收看「还需不需要你看」，不看深度）</td></tr>
+<tr><td>同一子 Agent 内并发的工具行</td><td>Concurrent Tool Row</td><td>已有——左端对齐的进度条，<strong>只有进行中的行画条</strong>，完成的行只给耗时</td></tr>
+<tr><td>卡片 / 嵌套层的收起展开</td><td>P18 折叠外壳</td><td>复用——摘要行折叠后仍可见，折叠不改变这行文字</td></tr>
+<tr><td>层级编号 <code>SUB-2.2.1</code> 与 16px 缩进</td><td>Depth Badge + 缩进</td><td>复用——深度<strong>只走这一个通道</strong>，不给卡片画状态导轨</td></tr>
+<tr><td>多层从属总览与 <code>…</code> 折叠节点</td><td>Hierarchy Tree</td><td>已有——画不下就显式说画不下，节点可就地展开</td></tr>
+<tr><td>「还剩几个」的并发槽位</td><td>Concurrency Slot Gauge</td><td>已有——子级继承父级剩余槽位，不单独开池</td></tr>
+<tr><td>子 Agent 的 token 徽标与父级汇总额</td><td>Token Badge</td><td>已有——父子不双算，父级 = 自身 + 全部后代</td></tr>
+<tr><td>谁在什么时候跑的时间轴</td><td>Orchestration Lane</td><td>已有——并发不靠动效表达，静态帧可读</td></tr>
+<tr><td>流内的模型切换结果</td><td>Model Switcher</td><td>已有——留在流里可回看，与 P13 浮层分工不重叠</td></tr>
+<tr><td>额度与上下文水位条</td><td>Quota Bar</td><td>已有——四级风险色降为三档</td></tr>
+<tr><td>底栏的模型 / ctx / tokens 三项</td><td>Status Bar Metrics</td><td>已有——状态不打断对话流</td></tr>
+<tr><td>编排结束的收口总结横幅</td><td>Report Card 的横幅段</td><td>复用——不新造「总结条」</td></tr>
+<tr><td>受阻说明（为什么卡住、要不要人裁决）</td><td>Blocker Note</td><td><span class="badge p">新</span> 本轮登记：金色左线 + 加粗标题（<code>⚠</code>/<code>?</code>）+ 1–3 行说明</td></tr>
+<tr><td>正文里的六色关键词强调</td><td>Inline Highlight</td><td><span class="badge p">新</span> 本轮登记：六个 <code>--hl-*</code> token，只上关键词不上整句</td></tr>
+<tr><td>输入框上方的调优曲线区</td><td>Tune Chart Container</td><td><span class="badge p">新</span> 本轮登记：可收起、双视图、收起即暂停</td></tr>
+</table>
+<p class="rule">读法：<strong>一张表里 26 条只有 4 条是新的</strong>——这正是「组件评审门槛」想守住的比例。多级并发与「会话内改配置」这两个能力最容易诱人再发明一套进度通知、一套状态标记、一套总结条；实际上它们全都落在已登记的基元上，真正缺的只有三件事：<strong>如何解释「为什么卡住」</strong>（受阻说明块）、<strong>正文里怎么分色</strong>（行内强调）、<strong>输入框上面那块曲线怎么收</strong>（调优曲线容器）。</p>
+
 <div class="sublabel">元件台账 —— 归入 <a href="#comp">#comp 组件清单</a></div>
 <table>
 <tr><th>元件</th><th>用途</th><th>Tier</th><th>关联 Pattern</th></tr>
 <tr><td>User Message Line</td><td>用户消息回显</td><td>T0</td><td>—</td></tr>
 <tr><td>AI Text Line</td><td>AI 默认文本</td><td>T0</td><td>—</td></tr>
+<tr><td>Inline Highlight</td><td>AI 文本<strong>内部</strong>的行内强调词表（六个语义色 token <code>--hl-*</code>）；不是独立单元，是正文里的一层着色规则——只上关键词、不上整句</td><td>T0</td><td><a href="#color">Colors</a> · 降级链</td></tr>
 <tr><td>Thinking Block</td><td>折叠的模型推理过程</td><td>T0</td><td>—</td></tr>
 <tr><td>Tool Call Line</td><td>grep/read-file/execute 摘要</td><td>T0</td><td>P18 折叠 · P19 风险色</td></tr>
 <tr><td>Clarify Line</td><td>~ 轻量澄清</td><td>T0</td><td>P27 配置补齐（重量级）</td></tr>
 <tr><td>Plan Card</td><td>任务规划，唯一带边框</td><td>T0</td><td>P02</td></tr>
 <tr><td>Approval Bar</td><td>批量/高风险动作确认，支持排队</td><td>T0</td><td>P10 · P19</td></tr>
+<tr><td>Blocker Note</td><td>受阻说明块：金色左线 + 加粗标题（<code>⚠</code> 受阻 / <code>?</code> 待裁决）+ 1–3 行说明，回答「为什么卡住、要不要人裁决」；与状态方块、Clarify、Approval Bar 三者触发条件互斥</td><td>T0</td><td>P07 · P19</td></tr>
 <tr><td>Progress Line</td><td>spinner + 下一步</td><td>T0</td><td>P01 · P11</td></tr>
 <tr><td>Sub Header</td><td>阶段/小节标题</td><td>T0</td><td>—</td></tr>
+<tr><td>Status Square</td><td>唯一的状态形状：9px 方块，填充读「在不在跑」、颜色读语义；树 / 检查项 / 映射行 / 会话列表 / 供应商组头 / console / 步骤带共用</td><td>T0</td><td>P01 · P07 · P11</td></tr>
 <tr><td>Checklist Row</td><td>配置/环境逐项核对</td><td>T0</td><td>—</td></tr>
 <tr><td>Diff Card</td><td>代码 diff，左右分栏，逐 token 高亮</td><td>T0</td><td>P05 · P18 折叠外壳</td></tr>
 <tr><td>New File Card</td><td>新建文件，单栏纯内容不刷色</td><td>T0</td><td>P18 折叠外壳</td></tr>
@@ -1434,8 +2111,22 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td>System Tip Line</td><td>一次性提示</td><td>T0</td><td>—</td></tr>
 <tr><td>Suggested Actions</td><td>输入框上方推荐操作</td><td>T0</td><td>P28</td></tr>
 <tr><td>Compact Progress</td><td>压缩上下文等系统维护进度</td><td>T0</td><td>P20</td></tr>
+<tr><td>Orchestration Lane</td><td>主 Agent 派发与子 Agent 并行时间轴</td><td>T0</td><td>P01 · P07</td></tr>
+<tr><td>Sub-Agent Block</td><td>子 Agent 独立内部排版（当前步 + 工具行 + 说明），可收起可嵌套，不画导轨</td><td>T0</td><td>P07 · P11 · P18 折叠</td></tr>
+<tr><td>Concurrent Tool Row</td><td>同一 Agent 内并行工具的左端对齐进度，仅进行中的行画条</td><td>T0</td><td>P11 · P18</td></tr>
+<tr><td>Depth Badge</td><td>嵌套层级 <code>L1–L4</code> 纯文本 + 缩进，与状态正交</td><td>T0</td><td>P07</td></tr>
+<tr><td>Hierarchy Tree</td><td>多级从属总览 + 可展开折叠节点</td><td>T0</td><td>P07 · P18</td></tr>
+<tr><td>Concurrency Slot Gauge</td><td>剩余并发槽位（还剩几个）</td><td>T1</td><td>P20</td></tr>
+<tr><td>Token Badge</td><td>单 Agent 消耗，父子不双算</td><td>T1</td><td>P20</td></tr>
+<tr><td>Model Switcher</td><td>会话内切模型：<strong>供应商 → 模型</strong>两层（组头可收起、一次只摊开一组），结果留在流里可回看；候选菜单与完整命令两个入口共用同一个写入口</td><td>T4</td><td>P13（内嵌变体）</td></tr>
+<tr><td>Command Echo</td><td>命令回执：<strong>组合而非新组件</strong>——命令行=User Message，成功=AI Text，被拒=Checklist Row（实心金 +「没有改」+ 为什么 + 正确写法，含「同名要写全名」「密钥没配」两种理由）</td><td>T0</td><td>P13 · P28</td></tr>
+<tr><td>Command Candidate Menu</td><td>打 <code>/model</code> 唤出的候选列表，行内带供应商；联想同时认模型名与 <code>供应商/</code> 前缀；P13 内嵌变体</td><td>T0</td><td>P13</td></tr>
+<tr><td>Quota Bar</td><td>额度 / 上下文水位，四级风险色降为三档；<strong>额度挂在供应商账号上</strong>，切供应商就换一套数字与重置时间</td><td>T1</td><td>P13 · P20</td></tr>
+<tr><td>Status Bar Metrics</td><td>模型 + ctx 水位 + tokens 三项常驻</td><td>T0</td><td>P20</td></tr>
+<tr><td>Command Hint Bar</td><td>输入框下方的场景命令提示（路标，不可点）</td><td>T0</td><td>P13 · P15</td></tr>
+<tr><td>Tune Chart Container</td><td>输入框上方<strong>可收起</strong>的调优曲线容器：图表／表格双视图，收起即暂停动效，不进对话流</td><td>T4</td><td>P20 · <a href="#primlib">图表单元</a></td></tr>
 </table>
-<div class="note"><b>组件评审门槛同样适用：</b>新增对话流元件前先查这张台账与上面 13 类决策——多数"新想法"其实是已有元件的变体，只是符号或颜色选错了。真正的新增，做完补进 <a href="#comp">组件清单</a> 与 <code>theme.ts</code>。</div>
+<div class="note"><b>组件评审门槛同样适用：</b>新增对话流元件前先查这张台账与上面 14 类 + 编排类 8 类 + 输入区 4 类的决策——多数「新想法」其实是已有元件的变体，只是符号或颜色选错了。真正的新增，做完补进 <a href="#comp">组件清单</a> 与 <code>theme.ts</code>（本轮共 3 条，见上方映射表的 <span class="badge p">新</span>）。编排类是这条门槛最容易失守的地方：多级并发天然诱使人再发明一套「进度通知」，而它通常只是 <a href="#convo">Compact Progress</a> 换了个位置，或者 Sub-Agent Block 的 token 徽标。</div>
 </section>
 
 <section id="comp">
@@ -1465,6 +2156,15 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw">（更纱�
 <tr><td>Sortable Table</td><td>算子/进程/Issue 排行</td><td>T4</td><td>P24</td><td class="mono">Table 组件</td></tr>
 <tr><td>Split Container</td><td>Workspace 布局</td><td>T4</td><td>P23</td><td class="mono">Flex + 定制拖拽</td></tr>
 <tr><td>Overlay</td><td>Palette / Approval</td><td>T4</td><td>P25</td><td class="mono">Modal 组件</td></tr>
+<tr><td>Orchestration Lane</td><td>子 Agent 并发时间轴</td><td>T0</td><td>P07</td><td class="mono">定制 Widget</td></tr>
+<tr><td>Sub-Agent Block</td><td>子 Agent 内部排版容器（可折叠 + 嵌套；头部即收起态全部内容，展开只给当前步/工具行/说明）</td><td>T0</td><td>P07 · P11</td><td class="mono">Container + Collapsible</td></tr>
+<tr><td>Model Switcher</td><td>会话内模型切换，内嵌不弹层</td><td>T4</td><td>P13</td><td class="mono">OptionList（内嵌变体）</td></tr>
+<tr><td>Token / Quota Meter</td><td>分来源 token 与额度水位</td><td>T1</td><td>P20</td><td class="mono">ProgressBar + Text</td></tr>
+<tr><td>Command Hint Bar</td><td>输入框下方的场景命令路标（不可点）</td><td>T0</td><td>P13 · P15</td><td class="mono">Text（Composer 内一行）</td></tr>
+<tr><td>Command Candidate Menu</td><td>打 <code>/model</code> 唤出的候选列表（贴输入框上方，行内带供应商）</td><td>T0</td><td>P13</td><td class="mono">OptionList（内嵌变体）</td></tr>
+<tr><td>Blocker Note</td><td>受阻说明块（金左线 + <code>⚠</code>/<code>?</code> 标题 + 1–3 行说明）</td><td>T0</td><td>P07 · P19</td><td class="mono">Container + Text</td></tr>
+<tr><td>Inline Highlight</td><td>AI 文本内部行内强调（六个语义色 token）</td><td>T0</td><td>—</td><td class="mono">Text（内联着色规则）</td></tr>
+<tr><td>Tune Chart Container</td><td>输入框上方可收起的调优曲线区（双视图，收起即暂停）</td><td>T2</td><td>P20</td><td class="mono">Collapsible + Live Canvas</td></tr>
 </table>
 <div class="note"><b>组件评审门槛（继承 preview-gate 流程）：</b>每个组件实现时必须声明：所属渲染层（T0–T4）、降级路径、键盘等价操作、使用的设计 token。<strong>禁止在业务模块里直接造新样式</strong>——需要新样式先做 preview 页确认没有可用组件，再加入 <code>theme.ts</code>。</div>
 </section>
@@ -1827,7 +2527,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 <p class="rule">列头点击/快捷键排序（<code>▾</code> 标记）、行内筛选表达式、多选批量操作。用于算子排行、进程表、Issue 表、文件风险表。基于 <code>@opentui/core</code> Table 原语实现。</p></div></div>
 
 <div class="pat"><div class="hd"><span class="no">P25</span><span class="nm">Non-destructive Overlay</span><span class="sc">依赖：浮层缓冲</span></div><div class="bd">
-<pre class="dense"><span class="cm">│ Agent Console  ▶ Generate Patch <span class="fw">⠹</span>    ← <span class="fw">底层继续运行（压暗）</span></span>
+<pre class="dense"><span class="cm">│ Agent Console  </span><span class="pr" role="img" aria-label="进行中" title="进行中">■</span><span class="cm"> Generate Patch <span class="fw">⠹</span>    ← <span class="fw">底层继续运行（压暗）</span></span>
 │      ╭─ <span class="pr">Approval</span> ────────────────────╮
 │      │ Modify 12 files  <span class="wn">Risk Medium</span>  │
 │      │ <span class="pr">[Y] Apply</span> [R] Review [N] No   │
@@ -1861,30 +2561,30 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 </table>
 
 <div class="sublabel">完整框架</div>
-<pre class="dense">┌ <span class="br">▪</span> <span class="t">DevKit AI</span> ───────────────────────────────── <span class="hw">⬡</span> →ARM64 · <span class="ok">●</span> <span class="fw">就绪</span> ┐ <span class="cm">  ← Header</span>
+<pre class="dense">┌ <span class="br">▪</span> <span class="t">DevKit AI</span> ───────────────────────────────── <span class="hw">⬡</span> →ARM64 · <span class="ok" role="img" aria-label="已就绪" title="已就绪">■</span> <span class="fw">就绪</span> ┐ <span class="cm">  ← Header</span>
 ├─┬──────────────────┬────────────────────────────────────────────┤
 │<span class="pr">▮</span>│<span class="t">TASKS</span>             │<span class="sel"> 1 migrate </span> 2 optimize <span class="fw">⠹</span>  3 diag  +         │<span class="cm">  ← Tab Bar</span>
 │ │                  ├──────────────────────┬─────────────────────┤
-│<span class="cm">▯</span>│<span class="ok">●</span> 1 migrate nginx │ Migration Report     │ src/crypto.c        │
-│<span class="cm">▯</span>│<span class="pr">▶</span> 2 optimize <span class="pr"><span class="fw">⠹</span></span>    │ Compat <span class="br">████████</span><span class="cm">░░</span> 82%│ <span class="er">- _mm_pause();</span>      │
-│<span class="cm">▯</span>│<span class="cm">○</span> 3 diagnose      │ <span class="er">Critical 2</span>  <span class="wn">Warn 8</span>   │ <span class="ok">+ asm("yield");</span>     │
-│<span class="cm">▯</span>│<span class="wn">⚠</span> 4 order-svc <span class="wn"><span class="hw">⏸</span></span>   │                      │                     │
-│ │──────────────────│ ├ SSE     <span class="wn">⚠</span> crypto.c │ Evidence            │
-│ │<span class="t">PROJECT</span>   <span class="pr">⇄ <span class="fw">跟随</span></span>  │ ├ atomic  <span class="wn">⚠</span> memory.c │  <span class="ac">[1]</span> <span class="fw">案例库</span> #4471   │
-│ │nginx/            │ └ Makefile <span class="ok">✓</span>         │  <span class="ac">[2]</span> ARM ARM §B2.5  │
+│<span class="cm">▯</span>│<span class="ok" role="img" aria-label="完成" title="完成">■</span> 1 migrate nginx │ Migration Report     │ src/crypto.c        │
+│<span class="cm">▯</span>│<span class="pr" role="img" aria-label="进行中" title="进行中">■</span> 2 optimize <span class="pr"><span class="fw">⠹</span></span>    │ Compat <span class="br">████████</span><span class="cm">░░</span> 82%│ <span class="er">- _mm_pause();</span>      │
+│<span class="cm">▯</span>│<span class="cm" role="img" aria-label="未开始" title="未开始">□</span> 3 diagnose      │ <span class="er">Critical 2</span>  <span class="wn">Warn 8</span>   │ <span class="ok">+ asm("yield");</span>     │
+│<span class="cm">▯</span>│<span class="wn" role="img" aria-label="等待配置" title="等待配置">■</span> 4 order-svc     │                      │                     │
+│ │──────────────────│ ├ SSE     <span class="wn" role="img" aria-label="风险" title="风险">■</span> crypto.c │ Evidence            │
+│ │<span class="t">PROJECT</span>   <span class="pr">⇄ <span class="fw">跟随</span></span>  │ ├ atomic  <span class="wn" role="img" aria-label="风险" title="风险">■</span> memory.c │  <span class="ac">[1]</span> <span class="fw">案例库</span> #4471   │
+│ │nginx/            │ └ Makefile <span class="ok" role="img" aria-label="通过" title="通过">■</span>         │  <span class="ac">[2]</span> ARM ARM §B2.5  │
 │ │ ├ src/           │                      │                     │
 │ │ │  <span class="sel">crypto.c</span> <span class="er">███</span>  │                      │                     │
 │ │ │  memory.c <span class="ho">██</span>   │                      │                     │
 │ │ └ conf/          │                      │                     │
 │ ├──────────────────┼────────────────────────────────────────────┤
 │ │<span class="t">TOOLS</span>             │ <span class="t">Agent Console</span>          <span class="cm">[Ctrl+J]</span>            │<span class="cm">  ← Console</span>
-│ │<span class="ok">✓</span> cpp_migrator    │ <span class="ok">●</span> Scan project    <span class="cm">1,204 files</span>              │
-│ │<span class="ok">✓</span> knowledge_base  │ <span class="ok">●</span> Search KB       <span class="cm">3 hits</span>                   │
-│ │<span class="cm">○</span> sql_migrator    │ <span class="pr">▶</span> Generate patch <span class="pr"><span class="fw">⠹</span></span>  <span class="cm">cpp_migrator</span>           │
+│ │<span class="ok" role="img" aria-label="完成" title="完成">■</span> cpp_migrator    │ <span class="ok" role="img" aria-label="完成" title="完成">■</span> Scan project    <span class="cm">1,204 files</span>              │
+│ │<span class="ok" role="img" aria-label="完成" title="完成">■</span> knowledge_base  │ <span class="ok" role="img" aria-label="完成" title="完成">■</span> Search KB       <span class="cm">3 hits</span>                   │
+│ │<span class="cm" role="img" aria-label="未开始" title="未开始">□</span> sql_migrator    │ <span class="pr" role="img" aria-label="进行中" title="进行中">■</span> Generate patch <span class="pr"><span class="fw">⠹</span></span>  <span class="cm">cpp_migrator</span>           │
 ├─┴──────────────────┴────────────────────────────────────────────┤
 │ <span class="pr">❯</span> <span class="fw">让</span> crypto.c <span class="fw">也用</span> NEON <span class="fw">优化</span>▌                                   │<span class="cm">  ← Input</span>
 ├─────────────────────────────────────────────────────────────────┤
-│ <span class="cm">[F1]</span>Migrate  <span class="cm">mode:</span><span class="ok">auto</span>  model:pangu  <span class="cm">ctx:</span><span class="wn">72%⚠</span>  <span class="wn"><span class="hw">⏸</span> 1 <span class="fw">任务待配置</span></span>    │<span class="cm">  ← Status</span>
+│ <span class="cm">[F1]</span>Migrate  <span class="cm">mode:</span><span class="ok">auto</span>  model:pangu  <span class="cm">ctx:</span><span class="wn">72%⚠</span>  <span class="wn" role="img" aria-label="等待配置" title="等待配置">■</span> <span class="wn">1 <span class="fw">任务待配置</span></span>    │<span class="cm">  ← Status</span>
 └─────────────────────────────────────────────────────────────────┘</pre>
 
 <div class="sublabel">区域规格</div>
@@ -1931,7 +2631,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 <div class="sublabel">Dock 面板</div>
 <table>
 <tr><th>面板</th><th>内容</th><th>对应 Pattern</th><th>快捷键</th></tr>
-<tr><td>TASKS</td><td>并发任务列表 + 状态徽标 + 耗时；<code>⏸ 等待配置</code>置顶</td><td>P29 多任务</td><td><kbd>Alt+1..9</kbd></td></tr>
+<tr><td>TASKS</td><td>并发任务列表 + 状态方块 + 耗时；<code>■ 等待配置</code>（金色）置顶</td><td>P29 多任务</td><td><kbd>Alt+1..9</kbd></td></tr>
 <tr><td>PROJECT</td><td>工程树 + 文件风险热力；<strong><code>⇄ 跟随</code>开关：自动定位到 Agent 正在处理的文件</strong></td><td>P22 联动</td><td><kbd>Ctrl+E</kbd></td></tr>
 <tr><td>TOOLS</td><td>已装 MCP 工具与状态；点击查看最近调用记录</td><td>P11 · P17</td><td>—</td></tr>
 <tr><td>KB</td><td>知识库检索入口与最近引用；可拖引用进 Canvas</td><td>P08 知识检索</td><td><kbd>Ctrl+K</kbd></td></tr>
@@ -1947,7 +2647,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 │ ├ core/
 │ │ ├ modules/
 │ │ │ ├ http/
-│ │ │ │  <span class="sel">ngx_http.c</span> <span class="wn">⚠</span>
+│ │ │ │  <span class="sel">ngx_http.c</span> <span class="wn" role="img" aria-label="风险" title="风险">■</span>
 │ │ │ └ event/
 │ │ └ os/
 │ └ misc/
@@ -1957,7 +2657,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 <pre class="dense">nginx/
 ├ <span class="cm">… <span class="fw">3 层已折叠</span> · <span class="fw">[↵]</span> <span class="fw">展开</span></span>
 │ └ http/
-│    <span class="sel">ngx_http.c</span> <span class="wn">⚠</span>
+│    <span class="sel">ngx_http.c</span> <span class="wn" role="img" aria-label="风险" title="风险">■</span>
 └ conf/</pre>
 </div>
 <p class="rule"><code>…</code> 不是省略号装饰，是<strong>可交互节点</strong>——<kbd>Enter</kbd> 就地展开成完整中间层，信息不丢，只是先收起来；和 <a href="#primlib">Ranking 的 "… N more"</a>、火焰图的"N 帧过窄未显示"是同一条纪律：画不下就显式说画不下，不能悄悄吞掉。折叠边界跟 <code>⇄ 跟随</code> 联动——Agent 当前在改的文件，它那条祖先路径<strong>自动展开到底</strong>；不在这条活跃路径上的深层子树才折叠成 <code>…</code>，用户不用先手动点开五层才看到 Agent 正在碰哪个文件。超过 3 层祖先触发折叠——3 是这里的阈值，不是 5：5 层只是"深层嵌套经常发生"的举例，不是要等用户撑到 5 层折叠才生效。</p>
@@ -1978,7 +2678,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 <div class="eyebrow">Layout &amp; Interaction</div>
 <h2>Shell 布局</h2>
 <pre>┌──────────────────────────────────────────────────┐
-│ Header   DevKit AI v26.0        <span class="hw">⬡</span> NPU:8  <span class="ok">● OK</span>    │
+│ Header   DevKit AI v26.0        <span class="hw">⬡</span> NPU:8  <span class="ok" role="img" aria-label="已就绪" title="已就绪">■</span> OK    │
 ├────────────┬─────────────────────────────────────┤
 │ Explorer   │                                     │
 │ ▸ Migrate  │          Main Canvas                │
@@ -1987,7 +2687,7 @@ HBM     <span class="o8">░░░</span><span class="o6">▓▓▓▓</span><sp
 │ ▸ Optimize │                                     │
 │ ▸ Observe  │                                     │
 ├────────────┴─────────────────────────────────────┤
-│ Agent Console  <span class="pr">▶</span> analyzing trace… <span class="cm">[tool:profiler]</span>│
+│ Agent Console  <span class="pr" role="img" aria-label="进行中" title="进行中">■</span> analyzing trace… <span class="cm">[tool:profiler]</span>│
 ├──────────────────────────────────────────────────┤
 │ <span class="pr">❯</span> input                             <span class="cm">tokens 12k</span>   │
 └──────────────────────────────────────────────────┘</pre>
@@ -2119,8 +2819,8 @@ bun run screenshots</pre>
 <pre><span class="fw">阶段</span>1 <span class="pr"><span class="fw">初始化配置</span></span> ─▸ <span class="fw">阶段</span>2 <span class="pr"><span class="fw">代码迁移</span></span> ─▸ <span class="fw">阶段</span>3 <span class="pr"><span class="fw">验证编译</span></span> ─┬─▸ <span class="fw">阶段</span>4 <span class="pr"><span class="fw">代码优化</span></span> ─▸ <span class="fw">阶段</span>5 <span class="pr"><span class="fw">参数优化</span></span> ─▸ <span class="fw">阶段</span>6 <span class="pr"><span class="fw">场景化调优</span></span>
   <span class="fw">开屏引导</span>          <span class="fw">自然语言触发</span>       <span class="fw">一键编译</span>      │     <span class="fw">高亮</span> + diff        <span class="fw">方案对比图表</span>        <span class="fw">业务场景深调</span>
   <span class="fw">能力安装</span>          Plan <span class="fw">生成</span> → <span class="fw">确认</span>    <span class="fw">结果反馈</span>      │     Plan <span class="fw">生成</span>          <span class="fw">性能前后对比</span>
-  Skill <span class="fw">配置</span>        <span class="wn"><span class="fw">配置补齐</span></span>          <span class="er">✕ <span class="fw">失败</span></span> ──────┘     <span class="wn"><span class="fw">配置补齐</span></span>            <span class="wn"><span class="fw">配置补齐</span></span>
-  <span class="fw">多任务管理</span>        <span class="fw">改写结果展示</span>       <span class="ok">✓ <span class="fw">通过</span></span>            <span class="ok"><span class="fw">下一步引导</span></span>          <span class="ok"><span class="fw">下一步引导</span></span>
+  Skill <span class="fw">配置</span>        <span class="wn"><span class="fw">配置补齐</span></span>          <span class="wn" role="img" aria-label="失败，受阻" title="失败，受阻">■</span> <span class="fw">失败</span> ──────┘     <span class="wn"><span class="fw">配置补齐</span></span>            <span class="wn"><span class="fw">配置补齐</span></span>
+  <span class="fw">多任务管理</span>        <span class="fw">改写结果展示</span>       <span class="ok" role="img" aria-label="通过" title="通过">■</span> <span class="fw">通过</span>            <span class="ok"><span class="fw">下一步引导</span></span>          <span class="ok"><span class="fw">下一步引导</span></span>
                    <span class="ok"><span class="fw">下一步引导</span></span>
 <span class="cm">                    ▲                  ▲                  ▲                  ▲</span>
 <span class="cm">                    └────────── <span class="fw">三个贯穿全流程的连接组织</span> ───────────┘</span>
@@ -2178,8 +2878,8 @@ bun run screenshots</pre>
 │     <span class="br">██████</span>  <span class="br">███████</span>   <span class="br">███</span>   <span class="br">██</span>  <span class="br">██</span> <span class="br">██</span>    <span class="br">██</span>                  │
 │                              <span class="cm">AI Terminal   v26.0</span>             │
 │                                                              │
-│  <span class="ok">●</span> Runtime <span class="fw">本地已就绪</span>          <span class="cm"><span class="hw">⬡</span> <span class="fw">交叉编译</span> → Kunpeng ARM64</span>    │
-│  <span class="wn">⚠</span> 3 <span class="fw">项能力未安装</span>              <span class="cm">[Enter] <span class="fw">查看</span></span>                  │
+│  <span class="ok" role="img" aria-label="已就绪" title="已就绪">■</span> Runtime <span class="fw">本地已就绪</span>          <span class="cm"><span class="hw">⬡</span> <span class="fw">交叉编译</span> → Kunpeng ARM64</span>    │
+│  <span class="wn" role="img" aria-label="受阻，需要你看一眼" title="受阻，需要你看一眼">■</span> 3 <span class="fw">项能力未安装</span>              <span class="cm">[Enter] <span class="fw">查看</span></span>                  │
 │                                                              │
 │  <span class="pr">❯</span> <span class="fw">想做什么？直接说</span> —— <span class="fw">或按</span> <span class="cm">Ctrl+P</span> <span class="fw">看全部命令</span>                │
 │                                                              │
@@ -2190,22 +2890,22 @@ bun run screenshots</pre>
 
 <h3>阶段 1 · 能力安装与 Skill 配置</h3>
 <pre class="dense">╭─ Capabilities ───────────────────────── <span class="cm">[Space]<span class="fw">勾选</span> [I]<span class="fw">安装</span> [A]<span class="fw">全装</span></span> ─╮
-│ <span class="ok">✓</span> kunpeng_knowledge_base_search  <span class="fw">知识库检索</span>      <span class="cm"><span class="fw">已就绪</span></span>              │
-│ <span class="ok">✓</span> code_cpp_migrator              C/C++ <span class="fw">源码迁移</span>   <span class="cm"><span class="fw">已就绪</span></span>             │
-│ <span class="cm">○</span> database_sql_migrator          SQL <span class="fw">智能迁移</span>     <span class="cm"><span class="fw">未安装</span>  12MB</span>       │
-│ <span class="cm">○</span> sql_syntax_repair              SQL <span class="fw">语法修复</span>     <span class="cm"><span class="fw">未安装</span>  3MB</span>        │
-│ <span class="wn">⚠</span> profiler                       <span class="fw">性能剖析</span>        <span class="wn"><span class="fw">需</span> NPU <span class="fw">驱动</span></span>         │
+│ <span class="ok" role="img" aria-label="已就绪" title="已就绪">■</span> kunpeng_knowledge_base_search  <span class="fw">知识库检索</span>      <span class="cm"><span class="fw">已就绪</span></span>              │
+│ <span class="ok" role="img" aria-label="已就绪" title="已就绪">■</span> code_cpp_migrator              C/C++ <span class="fw">源码迁移</span>   <span class="cm"><span class="fw">已就绪</span></span>             │
+│ <span class="cm" role="img" aria-label="未安装" title="未安装">□</span> database_sql_migrator          SQL <span class="fw">智能迁移</span>     <span class="cm"><span class="fw">未安装</span>  12MB</span>       │
+│ <span class="cm" role="img" aria-label="未安装" title="未安装">□</span> sql_syntax_repair              SQL <span class="fw">语法修复</span>     <span class="cm"><span class="fw">未安装</span>  3MB</span>        │
+│ <span class="wn" role="img" aria-label="受阻，缺驱动" title="受阻，缺驱动">■</span> profiler                       <span class="fw">性能剖析</span>        <span class="wn"><span class="fw">需</span> NPU <span class="fw">驱动</span></span>         │
 │                                    <span class="cm">└ <span class="fw">未检测到</span> driver ≥ 23.0<span class="fw">，</span>[F] <span class="fw">修复</span></span>│
 ├──────────────────────────────────────────────────────────────────    ┤
-│ Skill    <span class="ok">✓</span> devkitai.SKILL.md  <span class="fw">已加载</span>       <span class="cm">[E] <span class="fw">编辑</span>  [R] <span class="fw">重载</span></span>        │
+│ Skill    <span class="ok" role="img" aria-label="已加载" title="已加载">■</span> devkitai.SKILL.md  <span class="fw">已加载</span>       <span class="cm">[E] <span class="fw">编辑</span>  [R] <span class="fw">重载</span></span>        │
 ╰──────────────────────────────────────────────────────────────────    ╯</pre>
 <p class="rule">复用 <strong>P17 State-Gated Toggle</strong>：装/卸不对称——安装要确认体积与依赖，卸载直接执行。<strong>P14 Index State</strong>：安装进度用三态状态机，异常统一 warning 色并给修复动作（不用 danger）。</p>
 
 <h3>阶段 2/4/5 · 配置补齐（P27）</h3>
 <pre class="dense">│ Agent
-│ <span class="ok">●</span> Analyze dependency               <span class="cm">18 libs</span>
-│ <span class="ok">●</span> Generate patches                 <span class="cm">12 files</span>
-│ <span class="wn"><span class="hw">⏸</span></span> Build verify —— <span class="wn"><span class="fw">需要补充</span> 3 <span class="fw">项配置才能继续</span></span>
+│ <span class="ok" role="img" aria-label="完成" title="完成">■</span> Analyze dependency               <span class="cm">18 libs</span>
+│ <span class="ok" role="img" aria-label="完成" title="完成">■</span> Generate patches                 <span class="cm">12 files</span>
+│ <span class="wn" role="img" aria-label="受阻，等待配置" title="受阻，等待配置">■</span> Build verify —— <span class="wn"><span class="fw">需要补充</span> 3 <span class="fw">项配置才能继续</span></span>
 │
 │   ╭─ <span class="fw">补充配置</span> ───────────────────────────────────────────╮
 │   │ <span class="cm"><span class="fw">为什么需要：未探测到</span> aarch64 <span class="fw">交叉编译工具链</span></span>          │
@@ -2217,10 +2917,10 @@ bun run screenshots</pre>
 │   │                                                      │
 │   │ <span class="pr">[↵] <span class="fw">填完继续</span></span>   [S] <span class="fw">跳过验证</span>   [Esc] <span class="fw">中止任务</span>         │
 │   ╰──────────────────────────────────────────────────────╯
-│ <span class="cm">○</span> Performance check</pre>
+│ <span class="cm" role="img" aria-label="未开始" title="未开始">□</span> Performance check</pre>
 
 <h3>阶段 2/4/5 · 下一步引导（P28）</h3>
-<pre class="dense">│ <span class="ok">✓ Build PASS</span>   21 fixed · <span class="wn">2 manual</span> · 3m12s
+<pre class="dense">│ <span class="ok" role="img" aria-label="通过" title="通过">■</span> <span class="ok">Build PASS</span>   21 fixed · <span class="wn">2 manual</span> · 3m12s
 │
 │ <span class="cm"><span class="fw">下一步</span></span>
 │  <span class="pr">▸</span> <span class="pr">[1]</span> <span class="fw">跑性能基线，看迁移后掉了多少</span>        <span class="cm">~2min</span>
@@ -2247,12 +2947,12 @@ bun run screenshots</pre>
 
 <h3>阶段 1 · 多任务管理（P29）</h3>
 <pre class="dense">┌<span class="pr">tasks</span>─────────────────────── <span class="cm">[Alt+1..9]<span class="fw">切换</span> [n]<span class="fw">新建</span> [k]<span class="fw">终止</span></span> ─┐
-│ <span class="ok">●</span> <span class="cm">1</span> migrate nginx          <span class="ok">✓ <span class="fw">完成</span></span>    Build PASS  <span class="cm">12:04</span>      │
-│ <span class="pr">▶</span> <span class="cm">2</span> optimize pangu-72b      <span class="pr"><span class="fw">⠹</span> <span class="fw">采集中</span></span>  02:14 / ~05:00         │
-│ <span class="cm">○ 3</span> diagnose crash.log     <span class="cm"><span class="fw">排队中</span></span>                           │
-│ <span class="wn">⚠</span> <span class="cm">4</span> migrate order-svc      <span class="wn"><span class="hw">⏸</span> <span class="fw">等待补充配置</span></span>  <span class="cm">[↵] <span class="fw">去处理</span></span>       │
+│ <span class="ok" role="img" aria-label="完成" title="完成">■</span> <span class="cm">1</span> migrate nginx            <span class="fw">完成</span>    Build PASS  <span class="cm">12:04</span>      │
+│ <span class="pr" role="img" aria-label="进行中" title="进行中">■</span> <span class="cm">2</span> optimize pangu-72b      <span class="pr"><span class="fw">⠹</span> <span class="fw">采集中</span></span>  02:14 / ~05:00         │
+│ <span class="cm" role="img" aria-label="排队中" title="排队中">□ 3</span> diagnose crash.log     <span class="cm"><span class="fw">排队中</span></span>                           │
+│ <span class="wn" role="img" aria-label="等待补充配置" title="等待补充配置">■</span> <span class="cm">4</span> migrate order-svc        <span class="fw">等待补充配置</span>  <span class="cm">[↵] <span class="fw">去处理</span></span>       │
 └─────────────────────────────────────────────────────────────┘</pre>
-<p class="rule">长任务（迁移大工程、性能采集）必须能后台跑。要点：① 任务状态徽标复用全局符号体系；② <strong>⏸ 等待配置</strong>是最需要突出的状态——它卡着不动且需要人，要在底栏常驻提示；③ 后台任务完成时给<strong>非打断式通知</strong>（底栏闪一下 + 任务列表徽标变化），不抢当前焦点。</p>
+<p class="rule">长任务（迁移大工程、性能采集）必须能后台跑。要点：① 任务状态一律画<a href="#convo">状态方块</a>（金实心 = 等待/受阻，空心金 = 已收住），没有第二套符号；② <strong>「等待配置」是最需要突出的状态</strong>——它卡着不动且需要人，要在底栏常驻提示；③ 后台任务完成时给<strong>非打断式通知</strong>（底栏一次性高亮 + 任务列表方块变化，只强调一次、不循环），不抢当前焦点。</p>
 </section>
 
 <section id="s-mig">
@@ -2282,18 +2982,18 @@ bun run screenshots</pre>
 ╰────────────────────────────────────────────────╯
 
 <span class="cm">Step 3 · Agent <span class="fw">执行流</span></span>
-│ <span class="ok">●</span> Source Scan                <span class="cm">1,204 files  1.2s</span> │
-│ <span class="ok">●</span> Dependency Analysis        <span class="cm">18 libs</span>           │
-│ <span class="pr">▶</span> API Compatibility  <span class="pr"><span class="fw">⠹</span></span>       <span class="cm">tool:cpp_migrator</span> │
-│ <span class="cm">○</span> Generate Patch  ○ Build Verify               │
+│ <span class="ok" role="img" aria-label="完成" title="完成">■</span> Source Scan                <span class="cm">1,204 files  1.2s</span> │
+│ <span class="ok" role="img" aria-label="完成" title="完成">■</span> Dependency Analysis        <span class="cm">18 libs</span>           │
+│ <span class="pr" role="img" aria-label="进行中" title="进行中">■</span> API Compatibility  <span class="pr"><span class="fw">⠹</span></span>       <span class="cm">tool:cpp_migrator</span> │
+│ <span class="cm" role="img" aria-label="未开始" title="未开始">□</span> Generate Patch  <span class="cm" role="img" aria-label="未开始" title="未开始">□</span> Build Verify               │
 
 <span class="cm">Step 4 · <span class="fw">迁移报告</span></span>
 ╭─ Migration Report · nginx ─────────────────────╮
 │ Compatibility  <span class="br">████████</span><span class="cm">░░</span> 82%                  │
 │ <span class="er">Critical 2</span> · <span class="wn">Warning 8</span> · <span class="ok">Auto-fixable 21</span>       │
-│ ├ SSE instruction  <span class="wn">⚠</span>  crypto.c:88              │
-│ ├ atomic API       <span class="wn">⚠</span>  memory.c:223             │
-│ └ Makefile flags   <span class="ok">✓</span>                           │
+│ ├ SSE instruction  <span class="wn" role="img" aria-label="风险" title="风险">■</span>  crypto.c:88              │
+│ ├ atomic API       <span class="wn" role="img" aria-label="风险" title="风险">■</span>  memory.c:223             │
+│ └ Makefile flags   <span class="ok" role="img" aria-label="通过" title="通过">■</span>                           │
 │ Files: crypto.c <span class="o3">███████</span> · memory.c <span class="o5">████</span> · mk <span class="o7">██</span>│
 ╰────────────────────────────────────────────────╯
 
@@ -2304,30 +3004,30 @@ bun run screenshots</pre>
 │ <span class="pr">[A]ccept</span>  [E]dit  [R]eject  [Space] next       │
 
 <span class="cm">Step 6 · <span class="fw">总结</span></span>
-│ <span class="ok">✓ 21 fixed</span>  <span class="wn">⚠ 2 manual</span>  Build <span class="ok">PASS</span>             │
+│ <span class="ok" role="img" aria-label="完成" title="完成">■</span> <span class="ok">21 fixed</span>  <span class="wn" role="img" aria-label="受阻，需人工" title="受阻，需人工">■</span> <span class="wn">2 manual</span>  Build <span class="ok">PASS</span>             │
 │ Bench  100ms → <span class="ok">70ms (−30%)</span>                     │</pre>
 
 <div class="sublabel">实况 · 工作台外壳</div>
-<p class="desc">下面这屏是同一个 migrate nginx 场景，<code>bun run devkitai</code> <b>真实跑起来之后导出的</b>——走 OpenTUI 渲染器渲染的同一条路，颜色是运行时真正算出来的那一个，<b>不是重画的 mockup</b>。由 <code>app/tools/shell_html.py</code> 导成 <code>&lt;pre&gt;</code> 而不是 SVG 截图：<b>字符可以选中复制</b>、行距归页面的网格管、宽度由 <code>tools.fix_charart</code> 掰正。手工截图一旦落地就和代码脱钩，改了组件不改图，图就开始撒谎。</p>
-<pre class="dense screen" aria-label="工作台外壳实况">                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #04d793; background-color: #1c1c1c"> ✓ </span><span style="color: #3d98ff; background-color: #1c1c1c; font-weight: bold">1 migrate nginx </span><span style="color: #0077ff; background-color: #1c1c1c">▔▔</span> <span style="color: #3d98ff; background-color: #1c1c1c"> ▶ </span><span style="color: #777777; background-color: #1c1c1c">2 optimize pangu-72b </span> <span style="color: #777777; background-color: #1c1c1c"> ○ </span><span style="color: #777777; background-color: #1c1c1c">3 diagnose crash.log </span> <span style="color: #777777; background-color: #1c1c1c"> <span class="hw">⏸</span> </span><span style="color: #777777; background-color: #1c1c1c">4 migrate order-svc </span> <span style="color: #777777; background-color: #1c1c1c"> + </span>                                    
+<p class="desc">下面这屏是同一个 migrate nginx 场景，<code>bun run devkitai</code> <b>真实跑起来之后导出的</b>——走 OpenTUI 渲染器渲染的同一条路，颜色是运行时真正算出来的那一个，<b>不是重画的 mockup</b>。由 <code>app/tools/shell_html.py</code> 导成 <code>&lt;pre&gt;</code> 而不是 SVG 截图：<b>字符可以选中复制</b>、行距归页面的网格管、宽度由 <code>tools.fix_charart</code> 掰正。手工截图一旦落地就和代码脱钩，改了组件不改图，图就开始撒谎。 <b>状态字形已按 <a href="#convo">Status Square</a> 统一成方块 <code>■</code>/<code>□</code></b>——这一屏的字符已就地替换、行宽不变，但它终究是上一次导出的产物，渲染器改完后要用 <code>shell_html.py</code> 重新导出一次，才能重新满足「图 = 代码」——这一屏里的<b>目录节点还留着旧的 <code>○</code> 标记</b>，demo 里的对应画法是 <code>▾</code>（已展开）/ <code>≡</code>（文件），重新导出时一并换掉。</p>
+<pre class="dense screen" aria-label="工作台外壳实况">                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #04d793; background-color: #1c1c1c"> ■ </span><span style="color: #3d98ff; background-color: #1c1c1c; font-weight: bold">1 migrate nginx </span><span style="color: #0077ff; background-color: #1c1c1c">▔▔</span> <span style="color: #3d98ff; background-color: #1c1c1c"> ■ </span><span style="color: #777777; background-color: #1c1c1c">2 optimize pangu-72b </span> <span style="color: #777777; background-color: #1c1c1c"> □ </span><span style="color: #777777; background-color: #1c1c1c">3 diagnose crash.log </span> <span style="color: #777777; background-color: #1c1c1c"> ■ </span><span style="color: #777777; background-color: #1c1c1c">4 migrate order-svc </span> <span style="color: #777777; background-color: #1c1c1c"> + </span>                                    
   <span style="color: #e8e8e8; background-color: #1c1c1c"> ▮ </span><span style="color: #ed1c24; background-color: #1c1c1c"> ▪ </span><span style="color: #777777; background-color: #1c1c1c">KUNPENG </span><span style="color: #1c1c1c; background-color: #e8e8e8"> DEVKIT</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">cpu · kunpeng-920</span><span style="color: #2a2a2a"> ────────────────────────────────────────────────────────┐</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">EVIDENCE</span><span style="color: #2a2a2a"> ──────────────────────────────────────┐</span> 
   <span style="color: #777777; background-color: #1c1c1c"> ▯ </span><span style="color: #777777"> T A S K S</span><span style="color: #7c8db8">  4</span>       <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #4d7209"><span class="fw">⠤⠒⠒⠒⠒⠢⠤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠤⠒⠒⠒⠒⠒⠤⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠔⠒⠒⠒⠒⠤⠤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀</span></span><span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4"> src/crypto.c:223</span>                               <span style="color: #2a2a2a">│</span> 
-  <span style="color: #777777; background-color: #1c1c1c"> ▯ </span><span style="color: #0077ff; background-color: #18293c">█</span> <span style="color: #04d793; background-color: #18293c">✓ </span><span style="color: #3d98ff; background-color: #18293c">migrate nginx</span>   <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #4d7209"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠔⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠒⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠒⠤⣀⠀⠀⠀⠀⠀⠀⠀</span></span><span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4">  - _mm_pause();</span>                                <span style="color: #2a2a2a">│</span> 
-      <span style="color: #3d98ff">▶ </span><span style="color: #a4a4a4">optimize pangu-7</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #4d7209"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠒⠤⠤⠤⠤⠤⠒⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠒⠢⠤⠤⠤⠤⠒⠊⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠒⠢⠤⠤⠤⠤</span></span><span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4">  + asm volatile(&quot;yield&quot;);</span>                      <span style="color: #2a2a2a">│</span> 
-      <span style="color: #777777">○ </span><span style="color: #a4a4a4">diagnose crash.</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">└────────────────────────────────────────────────────────────────────────────┘</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                 <span style="color: #2a2a2a">│</span> 
-      <span style="color: #ffaa3b"><span class="hw">⏸</span> </span><span style="color: #a4a4a4">migrate order-s</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">64-core heatmap</span><span style="color: #2a2a2a"> ──────────────────────────────────────────────────────────┐</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4"> [1] <span class="fw">指令替换案例库</span> #4471</span>                       <span style="color: #2a2a2a">│</span> 
+  <span style="color: #777777; background-color: #1c1c1c"> ▯ </span><span style="color: #0077ff; background-color: #18293c">█</span> <span style="color: #04d793; background-color: #18293c">■ </span><span style="color: #3d98ff; background-color: #18293c">migrate nginx</span>   <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #4d7209"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡠⠔⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠢⢄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠒⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠒⠤⣀⠀⠀⠀⠀⠀⠀⠀</span></span><span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4">  - _mm_pause();</span>                                <span style="color: #2a2a2a">│</span> 
+      <span style="color: #3d98ff">■ </span><span style="color: #a4a4a4">optimize pangu-7</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #4d7209"><span class="fw">⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⠒⠤⠤⠤⠤⠤⠒⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠒⠢⠤⠤⠤⠤⠒⠊⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠒⠢⠤⠤⠤⠤</span></span><span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4">  + asm volatile(&quot;yield&quot;);</span>                      <span style="color: #2a2a2a">│</span> 
+      <span style="color: #777777">□ </span><span style="color: #a4a4a4">diagnose crash.</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">└────────────────────────────────────────────────────────────────────────────┘</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                 <span style="color: #2a2a2a">│</span> 
+      <span style="color: #ffaa3b">■ </span><span style="color: #a4a4a4">migrate order-s</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">┌─ </span><span style="color: #a2a2a2">64-core heatmap</span><span style="color: #2a2a2a"> ──────────────────────────────────────────────────────────┐</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4"> [1] <span class="fw">指令替换案例库</span> #4471</span>                       <span style="color: #2a2a2a">│</span> 
      <span style="color: #777777"> P R O J E C T</span><span style="color: #7c8db8">  6</span>   <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #737373">  0-15  </span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #b3f141">█</span><span style="color: #737373">   NUMA0 </span><span style="color: #caf57a">██████░░</span><span style="color: #a2a2a2">   80%</span>                             <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4"> [2] ARM ARM §B2.5</span>                              <span style="color: #2a2a2a">│</span> 
      <span style="color: #0077ff; background-color: #18293c">█</span> <span style="color: #777777; background-color: #18293c">○ </span><span style="color: #3d98ff; background-color: #18293c">nginx/</span>          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #737373"> 16-31  </span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #737373">   NUMA1 </span><span style="color: #4d7209">██░░░░░░</span><span style="color: #a2a2a2">   22%</span>                             <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4"> [3] runtime.log: unaligned</span>                     <span style="color: #2a2a2a">│</span> 
         <span style="color: #777777">○ </span><span style="color: #a4a4a4">src/</span>           <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #737373"> 32-47  </span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #caf57a">█</span><span style="color: #737373">   NUMA2 </span><span style="color: #b3f141">██████░░</span><span style="color: #a2a2a2">   74%</span>                             <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4">     access at 0x7f3a…</span>                          <span style="color: #2a2a2a">│</span> 
-          <span style="color: #ffaa3b">⚠ </span><span style="color: #a4a4a4">crypto.c </span><span style="color: #fbab74">██</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span>          <span style="color: #ffaa3b">⚠</span><span style="color: #ffaa3b">⚠</span><span style="color: #ffaa3b">⚠</span><span style="color: #ffaa3b">⚠</span><span style="color: #ffaa3b">⚠</span>                                                             <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                 <span style="color: #2a2a2a">│</span> 
-          <span style="color: #ffaa3b">⚠ </span><span style="color: #a4a4a4">memory.c </span><span style="color: #fa8838">██</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #737373"> 48-63  </span><span style="color: #caf57a">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #737373">   NUMA3 </span><span style="color: #86c70f">██░░░░░░</span><span style="color: #a2a2a2">   31%</span>                             <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4"> <span class="fw">置信度</span> █████████░ 91%</span>                          <span style="color: #2a2a2a">│</span> 
-          <span style="color: #04d793">✓ </span><span style="color: #a4a4a4">ngx_core.c </span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #ffaa3b">⚠ AI: </span><span style="color: #a2a2a2">core 34-38 <span class="fw">持续</span> &gt;80%<span class="fw">，疑似跨</span> NUMA <span class="fw">内存访问</span></span>                            <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                 <span style="color: #2a2a2a">│</span> 
+          <span style="color: #ffaa3b">■ </span><span style="color: #a4a4a4">crypto.c </span><span style="color: #fbab74">██</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span>          <span style="color: #ffaa3b">⚠</span><span style="color: #ffaa3b">⚠</span><span style="color: #ffaa3b">⚠</span><span style="color: #ffaa3b">⚠</span><span style="color: #ffaa3b">⚠</span>                                                             <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                 <span style="color: #2a2a2a">│</span> 
+          <span style="color: #ffaa3b">■ </span><span style="color: #a4a4a4">memory.c </span><span style="color: #fa8838">██</span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #737373"> 48-63  </span><span style="color: #caf57a">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #b3f141">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #86c70f">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #4d7209">█</span><span style="color: #737373">   NUMA3 </span><span style="color: #86c70f">██░░░░░░</span><span style="color: #a2a2a2">   31%</span>                             <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #a4a4a4"> <span class="fw">置信度</span> █████████░ 91%</span>                          <span style="color: #2a2a2a">│</span> 
+          <span style="color: #04d793">■ </span><span style="color: #a4a4a4">ngx_core.c </span>  <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #ffaa3b">⚠ AI: </span><span style="color: #a2a2a2">core 34-38 <span class="fw">持续</span> &gt;80%<span class="fw">，疑似跨</span> NUMA <span class="fw">内存访问</span></span>                            <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                 <span style="color: #2a2a2a">│</span> 
         <span style="color: #777777">○ </span><span style="color: #a4a4a4">conf/</span>          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span>                                                                            <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">└─────────────────────────────────────────────────┘</span> 
      <span style="color: #777777"> T O O L S</span><span style="color: #7c8db8">  4</span>       <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">└───────────────────────────────────────────────── </span><span style="color: #a2a2a2"><span class="fw">低</span> ▏▍▋█ <span class="fw">高</span> · T3 <span class="fw">真彩热力</span></span><span style="color: #2a2a2a"> ─┘</span> <span style="color: #2a2a2a">│</span>                                                     
-     <span style="color: #0077ff; background-color: #18293c">█</span> <span style="color: #04d793; background-color: #18293c">✓ </span><span style="color: #3d98ff; background-color: #18293c">cpp_migrator</span>    <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">┌─ </span><span style="color: #a4a4a4">kernels</span><span style="color: #2a2a2a"> ──────────────────────────────────────────────────────────────────┐</span> <span style="color: #2a2a2a">│</span>                                                     
-      <span style="color: #04d793">✓ </span><span style="color: #a4a4a4">knowledge_base</span>   <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #e8e8e8; background-color: #1c1c1c; font-weight: bold">Kernel ▾</span>           <span style="color: #777777; background-color: #1c1c1c; font-weight: bold"> Calls    </span><span style="color: #777777; background-color: #1c1c1c; font-weight: bold"> Avg       </span><span style="color: #777777; background-color: #1c1c1c; font-weight: bold"> Total              </span>               <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                     
-      <span style="color: #777777">○ </span><span style="color: #a4a4a4">sql_migrator</span>     <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #3d98ff; background-color: #18293c"> softmax            </span><span style="color: #3d98ff; background-color: #18293c">    1024  </span><span style="color: #3d98ff; background-color: #18293c">    2.1ms  </span><span style="color: #3d98ff; background-color: #18293c"> █░░░░░░░░░░ 2.1s   </span>               <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                     
-      <span style="color: #ffaa3b">⚠ </span><span style="color: #a4a4a4">profiler</span><span style="color: #101010; background-color: #ed1c24"> NEW </span>    <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #7c8db8">matmul_4096</span>        <span style="color: #a4a4a4">     512  </span><span style="color: #a4a4a4">   12.4ms  </span> <span style="color: #6e0acd">████░░░░░░░</span><span style="color: #a4a4a4"> 6.3s   </span>               <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                     
+     <span style="color: #0077ff; background-color: #18293c">█</span> <span style="color: #04d793; background-color: #18293c">■ </span><span style="color: #3d98ff; background-color: #18293c">cpp_migrator</span>    <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">┌─ </span><span style="color: #a4a4a4">kernels</span><span style="color: #2a2a2a"> ──────────────────────────────────────────────────────────────────┐</span> <span style="color: #2a2a2a">│</span>                                                     
+      <span style="color: #04d793">■ </span><span style="color: #a4a4a4">knowledge_base</span>   <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #e8e8e8; background-color: #1c1c1c; font-weight: bold">Kernel ▾</span>           <span style="color: #777777; background-color: #1c1c1c; font-weight: bold"> Calls    </span><span style="color: #777777; background-color: #1c1c1c; font-weight: bold"> Avg       </span><span style="color: #777777; background-color: #1c1c1c; font-weight: bold"> Total              </span>               <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                     
+      <span style="color: #777777">□ </span><span style="color: #a4a4a4">sql_migrator</span>     <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span><span style="color: #3d98ff; background-color: #18293c"> softmax            </span><span style="color: #3d98ff; background-color: #18293c">    1024  </span><span style="color: #3d98ff; background-color: #18293c">    2.1ms  </span><span style="color: #3d98ff; background-color: #18293c"> █░░░░░░░░░░ 2.1s   </span>               <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                     
+      <span style="color: #ffaa3b">■ </span><span style="color: #a4a4a4">profiler</span><span style="color: #101010; background-color: #ed1c24"> NEW </span>    <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #7c8db8">matmul_4096</span>        <span style="color: #a4a4a4">     512  </span><span style="color: #a4a4a4">   12.4ms  </span> <span style="color: #6e0acd">████░░░░░░░</span><span style="color: #a4a4a4"> 6.3s   </span>               <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                     
                          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #7c8db8">layernorm</span>          <span style="color: #a4a4a4">    2048  </span><span style="color: #a4a4a4">    1.8ms  </span> <span style="color: #3f0675">██░░░░░░░░░</span><span style="color: #a4a4a4"> 3.7s   </span>               <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                     
                          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">│</span> <span style="color: #7c8db8">attention_fwd</span>      <span style="color: #a4a4a4">    1024  </span><span style="color: #a4a4a4">   18.2ms  </span> <span style="color: #b977f9">███████████</span><span style="color: #a4a4a4"> 18.6s  </span>               <span style="color: #2a2a2a">│</span> <span style="color: #2a2a2a">│</span>                                                     
                          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span> <span style="color: #2a2a2a">└────────────────────────────────────────────────────────── </span><span style="color: #a4a4a4">4 <span class="fw">行</span> · Kernel ▾</span><span style="color: #2a2a2a"> ─┘</span> <span style="color: #2a2a2a">│</span>                                                     
@@ -2339,10 +3039,10 @@ bun run screenshots</pre>
                          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span>                                                                                <span style="color: #2a2a2a">│</span>                                                     
                          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span>                                                                                <span style="color: #2a2a2a">│</span>                                                     
                          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333">┌─ </span><span style="color: #a2a2a2">AGENT CONSOLE</span><span style="color: #333333"> ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐</span>
-                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333">│</span> <span style="color: #a4a4a4"> ● Scan project        1,204 files</span>                                                                                                 <span style="color: #333333">│</span>
-                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333">│</span> <span style="color: #a4a4a4"> ● Search KB           3 hits</span>                                                                                                      <span style="color: #333333">│</span>
-                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333">│</span> <span style="color: #a4a4a4"> ▶ Generate patch  <span class="fw">⠹</span>   cpp_migrator</span>                                                                                                <span style="color: #333333">│</span>
-                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333">│</span> <span style="color: #a4a4a4"> ○ Build verify</span>                                                                                                                    <span style="color: #333333">│</span>
+                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333">│</span> <span style="color: #a4a4a4"> ■ Scan project        1,204 files</span>                                                                                                 <span style="color: #333333">│</span>
+                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333">│</span> <span style="color: #a4a4a4"> ■ Search KB           3 hits</span>                                                                                                      <span style="color: #333333">│</span>
+                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333">│</span> <span style="color: #a4a4a4"> ■ Generate patch  <span class="fw">⠹</span>   cpp_migrator</span>                                                                                                <span style="color: #333333">│</span>
+                         <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333">│</span> <span style="color: #a4a4a4"> □ Build verify</span>                                                                                                                    <span style="color: #333333">│</span>
                          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333">│</span>                                                                                                                                    <span style="color: #333333">│</span>
                          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333">│</span>                                                                                                                                    <span style="color: #333333">│</span>
                          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333">│</span>                                                                                                                                    <span style="color: #333333">│</span>
@@ -2352,7 +3052,7 @@ bun run screenshots</pre>
                          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333; background-color: #1c1c1c">│</span> <span style="color: #3d98ff; background-color: #1c1c1c">❯</span>   <span style="color: #727272; background-color: #1c1c1c"><span class="fw">把</span> ./nginx <span class="fw">迁到鲲鹏</span></span>                                                                                                            <span style="color: #333333; background-color: #1c1c1c">│</span>
                          <span style="color: #2a2a2a; background-color: #1c1c1c">│</span><span style="color: #333333; background-color: #1c1c1c">└────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘</span>
   <span style="color: #1c1c1c; background-color: #e8e8e8"> Ctrl+B </span><span style="color: #777777; background-color: #1c1c1c"> <span class="fw">折叠</span> Dock   </span><span style="color: #1c1c1c; background-color: #e8e8e8"> Ctrl+J </span><span style="color: #777777; background-color: #1c1c1c"> Console   </span><span style="color: #1c1c1c; background-color: #e8e8e8"> Ctrl+P </span><span style="color: #777777; background-color: #1c1c1c"> <span class="fw">命令面板</span>   </span><span style="color: #1c1c1c; background-color: #e8e8e8"> Tab </span><span style="color: #777777; background-color: #1c1c1c"> <span class="fw">焦点轮转</span>   </span><span style="color: #1c1c1c; background-color: #e8e8e8"> ? </span><span style="color: #777777; background-color: #1c1c1c"> <span class="fw">快捷键</span>   </span>                                                                    
- <span style="color: #1c1c1c; background-color: #e8e8e8"> Migrate </span><span style="color: #777777; background-color: #1c1c1c"> │ </span><span style="color: #a4a4a4; background-color: #1c1c1c">mode:auto</span><span style="color: #777777; background-color: #1c1c1c"> │ </span><span style="color: #a4a4a4; background-color: #1c1c1c">model:pangu</span><span style="color: #777777; background-color: #1c1c1c"> │ </span><span style="color: #a4a4a4; background-color: #1c1c1c">ctx:</span><span style="color: #ffaa3b; background-color: #1c1c1c">72%</span><span style="color: #ffaa3b; background-color: #1c1c1c">⚠</span><span style="color: #777777; background-color: #1c1c1c"> │ </span><span style="color: #ffaa3b; background-color: #1c1c1c"><span class="hw">⏸</span> 1 <span class="fw">任务待配置</span></span><span style="color: #7c8db8; background-color: #1c1c1c"> [↵] <span class="fw">去处理</span></span>                                                                                      </pre>
+ <span style="color: #1c1c1c; background-color: #e8e8e8"> Migrate </span><span style="color: #777777; background-color: #1c1c1c"> │ </span><span style="color: #a4a4a4; background-color: #1c1c1c">mode:auto</span><span style="color: #777777; background-color: #1c1c1c"> │ </span><span style="color: #a4a4a4; background-color: #1c1c1c">model:pangu</span><span style="color: #777777; background-color: #1c1c1c"> │ </span><span style="color: #a4a4a4; background-color: #1c1c1c">ctx:</span><span style="color: #ffaa3b; background-color: #1c1c1c">72%</span><span style="color: #ffaa3b; background-color: #1c1c1c">⚠</span><span style="color: #777777; background-color: #1c1c1c"> │ </span><span style="color: #ffaa3b; background-color: #1c1c1c">■ 1 <span class="fw">任务待配置</span></span><span style="color: #7c8db8; background-color: #1c1c1c"> [↵] <span class="fw">去处理</span></span>                                                                                      </pre>
 <p class="rule">
       <b>Dock 从顶通到底</b>，品牌标识在它的头部，tab 带缩回主区——屏幕上
       <b>一条垂直分割贯穿全屏、一条水平分割横贯全屏，两条线各只出现一次</b>。
@@ -2370,10 +3070,10 @@ bun run screenshots</pre>
 <pre><span class="pr">❯</span> Add ARM optimized memcpy
 
 Agent
- <span class="ok">✓</span> Search knowledge base
- <span class="ok">✓</span> Find existing implementation
- <span class="ok">✓</span> Generate NEON code        <span class="cm">+ memcpy_arm64.c</span>
- <span class="pr">▶</span> Run benchmark
+ <span class="ok" role="img" aria-label="完成" title="完成">■</span> Search knowledge base
+ <span class="ok" role="img" aria-label="完成" title="完成">■</span> Find existing implementation
+ <span class="ok" role="img" aria-label="完成" title="完成">■</span> Generate NEON code        <span class="cm">+ memcpy_arm64.c</span>
+ <span class="pr" role="img" aria-label="进行中" title="进行中">■</span> Run benchmark
 
 Benchmark   before <span class="er">8 GB/s</span> → after <span class="ok">15 GB/s</span></pre>
 </section>
@@ -2429,12 +3129,12 @@ Collect → Analyze → Root Cause → <span class="pr">Evidence</span> → Sugg
 ┌<span class="pr">operator</span>─<span class="cm">attention_fwd</span>────────────────────────────────────────────────┐
 │ Compute <span class="o5">███████</span><span class="cm">░░░</span> 70%   Memory <span class="er">██████████</span> 98%   <span class="er">◀ <span class="fw">瓶颈维度</span></span>          │
 │ AI Proposal                              Expected                    │
-│  <span class="ok">✓</span> FlashAttention <span class="fw">融合</span>                  18.2ms → <span class="ok">9.6ms</span>  <span class="ok">−47%</span>         │
-│  <span class="ok">✓</span> KV Cache INT8 <span class="fw">量化</span>                    HBM   <span class="er">98%</span> → <span class="ok">61%</span>             │
-│  <span class="ok">✓</span> tiling 128×128 <span class="fw">适配</span> 910B L2          <span class="cm">Evidence: <span class="fw">知识库</span> #2213</span>       │
+│  <span class="ok" role="img" aria-label="完成" title="完成">■</span> FlashAttention <span class="fw">融合</span>                  18.2ms → <span class="ok">9.6ms</span>  <span class="ok">−47%</span>         │
+│  <span class="ok" role="img" aria-label="完成" title="完成">■</span> KV Cache INT8 <span class="fw">量化</span>                    HBM   <span class="er">98%</span> → <span class="ok">61%</span>             │
+│  <span class="ok" role="img" aria-label="完成" title="完成">■</span> tiling 128×128 <span class="fw">适配</span> 910B L2          <span class="cm">Evidence: <span class="fw">知识库</span> #2213</span>       │
 │ <span class="pr">[Y] Apply &amp; Benchmark</span>  [R] Review  [E] <span class="fw">编辑参数</span>                      │
 └──────────────────────────────────────────────────────────────────────┘
-Before <span class="er">████████████████████</span> 120ms │ After <span class="ok">███████████</span> 70ms <span class="ok">−42% ✓</span></pre>
+Before <span class="er">████████████████████</span> 120ms │ After <span class="ok">███████████</span> 70ms <span class="ok">−42% <span role="img" aria-label="通过">■</span></span></pre>
 </section>
 
 <section id="s-obs">
@@ -2501,18 +3201,21 @@ A: Use <span class="pr">yield</span> instruction instead of <span class="er">pau
 
 <div class="pat"><div class="hd"><span class="no">P13</span><span class="nm">Model / Quota Switcher</span><span class="sc">源：/model</span></div><div class="bd">
 <pre><span class="pr">❯</span> /mo▌
-┌ Models ─────────────────────────────────┐
-│ Pool A<span class="fw">（共享额度池）</span>                    │
-│  <span class="ok">✓</span> pangu-72b        <span class="cm">current</span>              │
-│    deepseek-v3                          │
-├─────────────────────────────────────────┤
-│ 5h  <span class="ok">████</span><span class="cm">░░░░░░</span> 38%   reset 14:00        │
-│ 7d  <span class="wn">███████</span><span class="cm">░░░</span> 72%   reset <span class="fw">周一</span>         │
-└─────────────────────────────────────────┘</pre>
-<p class="rule">用量四级风险色（0–49 / 50–69 / 70–84 / 85–100）——<strong>提醒但不替用户做决策</strong>，接近上限仍可切换。</p></div></div>
+┌ Models ─────────────────────────────────────┐
+│ <span class="ok" role="img" aria-label="已鉴权，可用" title="已鉴权，可用">■</span> <span class="fw">devkit-gateway</span><span class="cm">  3 个模型 · 已鉴权 · 共享额度池</span> │
+│   <span class="pr" role="img" aria-label="当前选中的模型" title="当前选中的模型">■</span> pangu2.5-72b     <span class="cm">current</span>               │
+│     deepseek-v3-671b                       │
+│     qwen2.5-coder-32b                      │
+│ <span class="ok" role="img" aria-label="已就绪，可用" title="已就绪，可用">■</span> <span class="fw">kunpeng-local</span><span class="cm">   1 个模型 · 已就绪 · 独占配额</span>   │
+│ <span class="wn" role="img" aria-label="未配置密钥" title="未配置密钥">□</span> <span class="fw">private-cloud</span><span class="cm">   2 个模型 · 未配置密钥</span>       │
+├─────────────────────────────────────────────┤
+│ 5h  <span class="ok">████</span><span class="cm">░░░░░░</span> 38%   reset 14:00            │
+│ 7d  <span class="wn">███████</span><span class="cm">░░░</span> 72%   reset <span class="fw">周一</span>             │
+└─────────────────────────────────────────────┘</pre>
+<p class="rule">用量四级风险色（0–49 / 50–69 / 70–84 / 85–100）——<strong>提醒但不替用户做决策</strong>，接近上限仍可切换。<strong>分组分的是供应商</strong>（组头 = 名字 + 模型数 + 状态方块 + 状态字，一次只摊开一组）：<code>private-cloud</code> 没配密钥时用空心金方块 <strong>可见但不可选</strong>，因为「有这条路由、缺 <code>API_KEY</code>」和「没有这条路由」是两件事；同名模型靠组头区分——命令侧因此必须能写 <code>供应商/模型</code> 全名。额度条挂在当前供应商的账号下，换供应商换的是另一套数字。</p></div></div>
 
 <div class="pat"><div class="hd"><span class="no">P14</span><span class="nm">Index / Asset State</span><span class="sc">源：/codebase</span></div><div class="bd">
-<pre><span class="fw">状态机：未构建</span> → <span class="hv"><span class="fw">构建中</span> ◉</span> → <span class="ok"><span class="fw">已构建</span> ● + <span class="fw">时间戳</span></span></pre>
+<pre><span class="fw">状态机：未构建</span> → <span class="pr"><span class="fw">构建中</span> <span role="img" aria-label="进行中">■</span></span> → <span class="ok"><span class="fw">已构建</span> <span role="img" aria-label="完成">■</span> + <span class="fw">时间戳</span></span></pre>
 <p class="rule">上传等非关键步骤对用户隐藏；异常统一 warning 色 + 建议方案，不滥用 danger；破坏性操作 Y/N 二次确认。</p></div></div>
 
 <div class="pat"><div class="hd"><span class="no">P15</span><span class="nm">Run Mode</span><span class="sc">源：/RunMode</span></div><div class="bd">
@@ -2520,7 +3223,7 @@ A: Use <span class="pr">yield</span> instruction instead of <span class="er">pau
 <span class="fw">底栏永驻：</span><span class="cm">[mode:auto] [model:pangu] [ctx:38%]</span></pre></div></div>
 
 <div class="pat"><div class="hd"><span class="no">P16</span><span class="nm">Side Question（/btw）</span><span class="sc">源：/btw</span></div><div class="bd">
-<pre>│ <span class="pr">▶</span> Generate Migration Patch <span class="fw">⠹</span>   <span class="cm">← <span class="fw">主任务继续</span></span>
+<pre>│ <span class="pr" role="img" aria-label="进行中" title="进行中">■</span> Generate Migration Patch <span class="fw">⠹</span>   <span class="cm">← <span class="fw">主任务继续</span></span>
 │ <span class="hv">┃ /btw yield <span class="fw">和</span> pause <span class="fw">的语义差异？</span></span>
 │ <span class="hv">┃ <span class="fw">侧链回答流式渲染（</span>fork <span class="fw">上下文）</span></span>
 │ <span class="cm"><span class="fw">主任务输出缓冲中</span>… esc <span class="fw">后一次性刷入，零污染</span></span></pre></div></div>
@@ -2528,7 +3231,7 @@ A: Use <span class="pr">yield</span> instruction instead of <span class="er">pau
 <div class="pat"><div class="hd"><span class="no">P17</span><span class="nm">State-Gated Toggle</span><span class="sc">源：/lsp-toggle</span></div><div class="bd">
 <pre>Off→On<span class="fw">：</span><span class="wn">┃ <span class="fw">警示（内存</span> 150–500MB/<span class="fw">服务）</span></span> → <span class="fw">二次确认</span>
 On→Off<span class="fw">：直接写配置</span>
-Sidebar<span class="fw">：</span><span class="ok">● <span class="fw">运行中</span></span> · <span class="wn"><span class="hw">⟳</span> <span class="fw">待重启生效</span></span> · <span class="cm"><span class="fw">灰</span> <span class="fw">未启用</span></span></pre>
+Sidebar<span class="fw">：</span><span class="ok" role="img" aria-label="运行中" title="运行中">■</span> <span class="fw">运行中</span> · <span class="wn"><span class="hw">⟳</span> <span class="fw">待重启生效</span></span> · <span class="cm"><span class="fw">灰</span> <span class="fw">未启用</span></span></pre>
 <p class="rule">非对称确认；配置分级 enabled / pendingEnabled。适用于 Profiler 采集、Trace 埋点等耗资源开关。</p></div></div>
 
 <div class="pat"><div class="hd"><span class="no">P18</span><span class="nm">Output Collapsing</span><span class="sc">源：HAI CLI</span></div><div class="bd">
@@ -2561,13 +3264,13 @@ P15 RunMode P16 /btw     P18 Collapse    P04 Graph
                          P20 Context     P17 Gated Toggle · P19 Permission</pre>
 
 <div class="pat"><div class="hd"><span class="no">P01</span><span class="nm">Agent Timeline</span><span class="sc">所有 Agent 执行过程</span></div><div class="bd">
-<pre><span class="ok">●</span> Understand Request
-<span class="ok">●</span> Scan Project              <span class="cm">1.2s</span>
-<span class="ok">●</span> Search Knowledge Base     <span class="cm">3 hits</span>
-<span class="pr">▶</span> Generate Migration Patch  <span class="pr"><span class="fw">⠹</span></span>
-<span class="cm">○</span> Compile Verify
-<span class="cm">○</span> Performance Test</pre>
-<p class="rule">每步可展开工具输入/输出；失败步 ✕ danger 色并给跳转；Esc 可中断。</p></div></div>
+<pre><span class="ok" role="img" aria-label="完成" title="完成">■</span> Understand Request
+<span class="ok" role="img" aria-label="完成" title="完成">■</span> Scan Project              <span class="cm">1.2s</span>
+<span class="ok" role="img" aria-label="完成" title="完成">■</span> Search Knowledge Base     <span class="cm">3 hits</span>
+<span class="pr" role="img" aria-label="进行中" title="进行中">■</span> Generate Migration Patch  <span class="pr"><span class="fw">⠹</span></span>
+<span class="cm" role="img" aria-label="未开始" title="未开始">□</span> Compile Verify
+<span class="cm" role="img" aria-label="未开始" title="未开始">□</span> Performance Test</pre>
+<p class="rule">每步可展开工具输入/输出；失败步读作「受阻」，画<strong>金色状态方块</strong>并给跳转（红只用于「失败」这两个字，不用红方块）；Esc 可中断。</p></div></div>
 
 <div class="pat"><div class="hd"><span class="no">P02</span><span class="nm">AI Plan</span><span class="sc">复杂任务先出计划</span></div><div class="bd">
 <pre>Goal: Migrate nginx x86 project → Kunpeng ARM64
@@ -2636,7 +3339,7 @@ Out:  3 incompatible instructions found</pre>
 
 <div class="pat"><div class="hd"><span class="no">P12</span><span class="nm">Session Summary</span><span class="sc">任务收尾</span></div><div class="bd">
 <pre>Session Summary · migrate nginx
-<span class="ok">✓ 21 issues fixed</span>   <span class="wn">⚠ 2 need manual review</span>
+<span class="ok" role="img" aria-label="完成" title="完成">■</span> <span class="ok">21 issues fixed</span>   <span class="wn" role="img" aria-label="受阻，需人工" title="受阻，需人工">■</span> <span class="wn">2 need manual review</span>
 Build: <span class="ok">PASS</span>    Benchmark: 100ms → <span class="ok">70ms (−30%)</span>
 <span class="pr">[S]ave report</span>   [N]ew task   [Q]uit</pre></div></div>
 </section>
@@ -2683,7 +3386,7 @@ Build: <span class="ok">PASS</span>    Benchmark: 100ms → <span class="ok">70m
         </a>
         <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/UX-SPEC.md" target="_blank" rel="noopener">
           <span class="dn">UX-SPEC.md</span>
-          <span class="dd">布局、交互循环、命令体系、快捷键、状态符号体系 ✓ ▶ ○ ⚠ ✕</span>
+          <span class="dd">布局、交互循环、命令体系、快捷键、状态符号体系 ✓ ▶ ○ ⚠ ✕（状态符号部分已被本页 <a href="#convo">Status Square</a> 取代）</span>
           <span class="dw">154 行</span>
         </a>
         <a class="doc" href="https://github.com/Cinnnnnnndy/DevKit/blob/main/kunpeng-devkit-ai-tui/docs/PRD.md" target="_blank" rel="noopener">
@@ -2720,6 +3423,7 @@ Build: <span class="ok">PASS</span>    Benchmark: 100ms → <span class="ok">70m
 <tr><td>Phase 3</td><td>插件生态 + 研发映射（Pattern → OpenTUI Component → Backend API）</td><td><span class="badge">Later</span></td></tr>
 </table>
 <div class="note"><b>为什么 Phase 0 要先行：</b>本规范最有价值的几个 pattern（P21 Live Canvas、P26 AI Annotation、NUMA 热力）全部依赖渲染底座能力。如果先做业务 Demo 再补渲染，大概率退化成"带框线的 CLI"。建议两周先把 token 文件 + 三个原语跑通，再往上叠场景。</div>
+<div class="note"><b>Phase 2 的「多 Agent 协作」已有对应的交互规格：</b><a href="./interaction-spec.html">并发编排 + 模型/Token 会话内配置 · 交互规格与功能对照</a>——它把「子 Agent 并发 / 多级嵌套 / 工具调用并发 / 会话内改模型与 token」四组能力的命令语法、状态矩阵、键盘路径、降级与验收条件写全，并逐行对照了需求方给出的 18 行功能表单。<strong>动手实现这一阶段前先读它</strong>，它才是这一块的可执行口径。</div>
 <pre>Kunpeng DevKit AI = <span class="pr">设计系统</span> + <span class="ac">React 19 + OpenTUI <span class="fw">渲染底座</span></span>
               + <span class="wn">OpenCode Agent Loop</span> + <span class="er">DevKit Intelligence</span></pre>
 </section>

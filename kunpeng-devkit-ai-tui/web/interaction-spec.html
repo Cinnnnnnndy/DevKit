@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>并发编排 + 模型/Token 会话内配置 · 交互规格与功能对照</title>
+<!-- ══════════════════════════════════════════════════════════════════════
+     这份文档是「功能表单 → 已交付产物」的对照与交互详规，不是效果图。
+     对照基线 = 用户给出的 18 行功能表单（三代功能轨道 × 阶段）。
+     落点有两个，改任意一处都要回来同步本文档：
+       · agent-workspace.html —— 可运行 demo（真实 HTML/CSS/JS，能点能敲）
+       · index.html#convo     —— 规范性元件定义（对话流基元 / 编排类 / 输入区单元）
+     与 index.html 的分工：那边定义「一个元件长什么样、为什么」，
+     这边定义「一条操作怎么走完、边界在哪、怎么验收」。两边出现分歧即视为缺陷。
+     ══════════════════════════════════════════════════════════════════════ -->
+<style>
+/* ═══ tokens —— 与 index.html :root 同源，只取本文档用得到的部分 ═══ */
+:root{
+  --ark-neutral-1:#0a0a0a; --ark-neutral-2:#141414; --ark-blue-500:#0077ff; --ark-blue-600:#3d98ff;
+  --ark-green-500:#04d793; --ark-orange-500:#ffaa3b; --ark-red-500:#ff4b7b; --ark-domain-aux:#7c8db8;
+  --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px;
+  --radius-sm:4px; --radius-md:6px; --radius-lg:8px; --radius-xl:12px; --radius-pill:999px;
+  --duration-fast:.12s; --easing-default:cubic-bezier(.4,0,.2,1);
+  --font-sans:'Inter','Source Han Sans SC','PingFang SC','Noto Sans SC',-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono','Fira Code','SFMono-Regular',Consolas,monospace;
+  --fs-display:28px; --fs-title-md:20px; --fs-title-sm:16px; --fs-body:14px; --fs-body-sm:12px; --fs-label:11px;
+}
+:root[data-theme="dark"],:root{
+  --background:var(--ark-neutral-1); --background-elevated:var(--ark-neutral-2);
+  --surface-1:#161616; --surface-2:#1c1c1c; --surface-3:#262626; --surface-4:#313131;
+  --foreground:rgba(255,255,255,.90); --foreground-secondary:rgba(255,255,255,.60);
+  --foreground-muted:rgba(255,255,255,.40); --foreground-disabled:rgba(255,255,255,.25);
+  --border-subtle:rgba(255,255,255,.06); --border-default:rgba(255,255,255,.10); --border-strong:rgba(255,255,255,.16);
+  --primary:var(--ark-blue-500); --primary-hover:var(--ark-blue-600); --accent:var(--ark-domain-aux);
+  --success:var(--ark-green-500); --warning:var(--ark-orange-500); --danger:var(--ark-red-500);
+  --state-hover:rgba(255,255,255,.06); --state-selected:rgba(0,119,255,.14);
+  --tone-info-bg:rgba(0,119,255,.16); --tone-warning-bg:rgba(255,170,59,.16); --tone-critical-bg:rgba(255,75,123,.14);
+  --focus-ring:rgba(0,119,255,.42);
+  /* 行内强调六色：与 index.html --hl-* 同值 */
+  --hl-code:#9ece6a; --hl-file:#7dcfff; --hl-metric:#e0af68; --hl-tool:#bb9af7; --hl-proj:#2ac3de; --hl-link:#3d98ff;
+}
+:root[data-theme="light"]{
+  --background:#f5f5f5; --background-elevated:#ffffff;
+  --surface-1:#ffffff; --surface-2:#f2f2f2; --surface-3:#e6e6e6; --surface-4:#cccccc;
+  --foreground:rgba(0,0,0,.88); --foreground-secondary:rgba(0,0,0,.58);
+  --foreground-muted:rgba(0,0,0,.42); --foreground-disabled:rgba(0,0,0,.26);
+  --border-subtle:rgba(0,0,0,.07); --border-default:rgba(0,0,0,.12); --border-strong:rgba(0,0,0,.20);
+  --state-hover:rgba(0,0,0,.04); --state-selected:rgba(0,119,255,.10);
+  --hl-code:#1f7a2b; --hl-file:#0e7fb0; --hl-metric:#92600a; --hl-tool:#7c3aed; --hl-proj:#0f766e; --hl-link:#0d5fd6;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{background:var(--background);color:var(--foreground);font-family:var(--font-sans);
+  font-size:var(--fs-body);line-height:1.65;-webkit-font-smoothing:antialiased}
+::selection{background:var(--state-selected)}
+a{color:var(--primary-hover);text-decoration:none}
+a:hover{color:var(--primary);text-decoration:underline}
+code{font-family:var(--font-mono);font-size:.92em;background:var(--surface-2);border:1px solid var(--border-subtle);
+  border-radius:3px;padding:1px 5px;color:var(--hl-code)}
+kbd{font-family:var(--font-mono);font-size:11px;background:var(--surface-3);border:1px solid var(--border-default);
+  border-bottom-width:2px;border-radius:4px;padding:1px 5px;color:var(--foreground-secondary)}
+:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px}
+
+/* ═══ shell ═══ */
+.topbar{position:fixed;top:0;left:0;right:0;height:56px;background:var(--background-elevated);
+  border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:var(--space-3);
+  padding:0 var(--space-5);z-index:60}
+.logo{width:26px;height:26px;border-radius:var(--radius-md);background:var(--primary);
+  display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:6px;flex-shrink:0}
+.logo i{background:#fff;border-radius:1px;display:block}
+.logo i:nth-child(1){opacity:.95}.logo i:nth-child(2){opacity:.62}
+.logo i:nth-child(3){opacity:.62}.logo i:nth-child(4){opacity:.35}
+.brand{font-weight:700;font-size:15px}
+.vchip{font-family:var(--font-mono);font-size:var(--fs-label);color:var(--foreground-muted);
+  background:var(--surface-2);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:2px 7px}
+.tagline{font-size:var(--fs-body-sm);color:var(--foreground-muted)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:var(--space-3)}
+.tb-right a{font-size:var(--fs-body-sm);color:var(--foreground-muted)}
+.tbtn{font:500 12px/1 var(--font-sans);color:var(--foreground);background:var(--surface-2);
+  border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:7px 13px;cursor:pointer}
+.tbtn:hover{background:var(--surface-3)}
+.wrap{display:flex;max-width:1400px;margin:0 auto;padding-top:56px}
+nav{width:250px;flex-shrink:0;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;
+  padding:var(--space-5) var(--space-4);border-right:1px solid var(--border-subtle)}
+nav .ngrp{font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--foreground-muted);margin:var(--space-4) 0 var(--space-2)}
+nav .ngrp:first-child{margin-top:0}
+nav a{display:block;font-size:var(--fs-body-sm);color:var(--foreground-secondary);padding:4px 8px;
+  border-radius:var(--radius-sm);margin-bottom:1px}
+nav a:hover{background:var(--state-hover);color:var(--foreground);text-decoration:none}
+main{flex:1;min-width:0;padding:var(--space-5) var(--space-5) 96px}
+section{margin-bottom:56px}
+.eyebrow{font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--primary-hover);margin-bottom:var(--space-2)}
+h1{font-size:var(--fs-display);font-weight:700;letter-spacing:-.01em;margin-bottom:var(--space-3)}
+h2{font-size:var(--fs-title-md);font-weight:700;margin-bottom:var(--space-3)}
+h3{font-size:var(--fs-title-sm);font-weight:700;margin:var(--space-5) 0 var(--space-2)}
+h4{font-size:14px;font-weight:700;margin:var(--space-4) 0 var(--space-2);color:var(--foreground)}
+.desc{color:var(--foreground-secondary);margin-bottom:var(--space-3);max-width:96ch}
+.desc strong,.rule strong,.note strong{color:var(--foreground)}
+.sublabel{font-family:var(--font-mono);font-size:var(--fs-body-sm);letter-spacing:.06em;color:var(--primary-hover);
+  margin:var(--space-5) 0 var(--space-2);padding-bottom:4px;border-bottom:1px solid var(--border-subtle)}
+.rule{font-size:var(--fs-body-sm);color:var(--foreground-secondary);background:var(--surface-1);
+  border-left:2px solid var(--border-strong);border-radius:0 var(--radius-md) var(--radius-md) 0;
+  padding:var(--space-2) var(--space-3);margin:var(--space-3) 0}
+.note{font-size:var(--fs-body-sm);color:var(--foreground-secondary);background:var(--tone-info-bg);
+  border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:var(--space-3);margin:var(--space-3) 0}
+.note.warn{background:var(--tone-warning-bg);border-color:rgba(255,170,59,.35)}
+.note.crit{background:var(--tone-critical-bg);border-color:rgba(255,75,123,.35)}
+table{width:100%;border-collapse:collapse;margin:var(--space-3) 0;font-size:var(--fs-body-sm)}
+th{text-align:left;font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:.08em;text-transform:uppercase;
+  color:var(--foreground-muted);font-weight:700;padding:6px 10px;border-bottom:1px solid var(--border-default);white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid var(--border-subtle);color:var(--foreground-secondary);vertical-align:top}
+tbody tr:hover{background:var(--state-hover)}
+td b{color:var(--foreground);font-weight:600}
+td.nw{white-space:nowrap}
+ul,ol{margin:var(--space-2) 0 var(--space-3) 20px;color:var(--foreground-secondary)}
+li{margin-bottom:4px}
+li b,li strong{color:var(--foreground)}
+pre{margin:var(--space-3) 0;overflow-x:auto}
+pre.frame{font-family:var(--font-mono);font-size:12px;line-height:1.55;background:var(--surface-1);
+  border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:var(--space-3);
+  color:var(--foreground-secondary);white-space:pre}
+pre.frame b{color:var(--foreground)}
+/* 字符帧内的注释与高亮值：只借颜色，不引新 token */
+pre.frame .cmt{color:var(--foreground-muted)}
+pre.frame .bar{color:var(--primary-hover)}
+
+
+/* ═══ 统计格 / 状态标签 / 验收清单 ═══ */
+.grid{display:grid;gap:var(--space-3);margin:var(--space-3) 0}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.stat{background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);
+  padding:var(--space-3) var(--space-4)}
+.stat b{display:block;font-size:24px;font-weight:700;line-height:1.2}
+.stat span{font-size:var(--fs-body-sm);color:var(--foreground-muted)}
+.st{display:inline-block;font-size:11px;font-weight:600;line-height:1.5;padding:0 7px;border-radius:var(--radius-pill);
+  white-space:nowrap;border:1px solid transparent}
+.st.ok{background:rgba(4,215,147,.14);color:var(--success);border-color:rgba(4,215,147,.3)}
+.st.part{background:rgba(255,170,59,.14);color:var(--warning);border-color:rgba(255,170,59,.3)}
+.st.demo{background:rgba(0,119,255,.16);color:var(--primary-hover);border-color:rgba(0,119,255,.32)}
+.st.todo{background:var(--surface-3);color:var(--foreground-muted);border-color:var(--border-default)}
+.st.ask{background:rgba(255,75,123,.14);color:var(--danger);border-color:rgba(255,75,123,.32)}
+/* 状态方块：全站唯一的状态形状，本文档中的状态说明一律用它 */
+.stq{display:inline-block;width:9px;height:9px;border-radius:2px;flex:none}
+.stq.done{background:var(--success)}
+.stq.doing{background:var(--primary)}
+.stq.wait{background:var(--warning)}
+.stq.hold{border:1.5px solid var(--warning);background:transparent}
+.stq.todo{border:1.5px solid var(--foreground-disabled);background:transparent}
+/* 受阻说明块（与 index.html / demo 同形状） */
+.blocker{margin:var(--space-3) 0;padding:var(--space-2) var(--space-3);border-left:2px solid var(--warning);
+  border-radius:var(--radius-md);background:rgba(255,170,59,.07)}
+.blocker .bt{font-size:14px;font-weight:700;color:var(--warning)}
+.blocker .bl{font-size:13.5px;color:var(--foreground-secondary);line-height:1.7;padding:1px 0}
+.blocker .bl b{color:var(--foreground)}
+/* 验收清单 */
+.ac{list-style:none;margin:var(--space-2) 0 var(--space-4)}
+.ac li{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-subtle);font-size:13px}
+.ac li:before{content:'□';color:var(--foreground-muted);flex:none;font-family:var(--font-mono)}
+.ac li .id{font-family:var(--font-mono);font-size:11px;color:var(--primary-hover);flex:none;min-width:74px;padding-top:1px}
+/* 字符帧里的进度条 */
+.bar{display:inline-block;font-family:var(--font-mono);color:var(--primary-hover)}
+@media (max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}}
+@media (max-width:860px){
+  nav{display:none}
+  .wrap{padding-top:56px}
+  main{padding:var(--space-4) var(--space-4) 72px}
+  .g4{grid-template-columns:1fr}
+  table{display:block;overflow-x:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo"><i></i><i></i><i></i><i></i></span>
+  <span class="brand">Kunpeng DevKit AI</span>
+  <span class="vchip">interaction-spec</span>
+  <span class="tagline">并发编排 · 会话内配置模型与 token · 交互规格与功能对照</span>
+  <span class="tb-right">
+    <a href="./index.html#convo">元件规范 ↗</a>
+    <a href="./agent-workspace.html">可运行 demo ↗</a>
+    <a href="./launch.html">Landing ↗</a>
+    <button class="tbtn" onclick="tt()">◐ <span id="tl">Light</span></button>
+  </span>
+</div>
+
+<div class="wrap">
+<nav id="nav">
+  <div class="ngrp">对照 · Scope</div>
+  <a href="#scope">① 对照什么</a>
+  <a href="#summary">② 结论摘要</a>
+  <a href="#map">③ 功能逐行对照</a>
+  <a href="#f-model">　模型与 Token</a>
+  <a href="#f-tool">　工具调用并发</a>
+  <a href="#f-agent">　子 Agent 并发</a>
+  <a href="#f-multi">　多级子 Agent</a>
+  <div class="ngrp">交互详规 · Spec</div>
+  <a href="#spec-model">A · 模型与 Token</a>
+  <a href="#spec-tool">B · 工具调用并发</a>
+  <a href="#spec-agent">C · 子 Agent 并发</a>
+  <a href="#spec-multi">D · 多级嵌套</a>
+  <a href="#spec-cfg">E · 配置管理与落点</a>
+  <div class="ngrp">收束 · Close out</div>
+  <a href="#primitives">基元映射</a>
+  <a href="#gaps">缺口与待裁决</a>
+  <a href="#accept">验收清单</a>
+  <a href="#files">文件索引</a>
+</nav>
+
+<main>
+
+<!-- ══════ ① SCOPE ══════ -->
+<section id="scope">
+<div class="eyebrow">Scope</div>
+<h1>并发编排 + 模型/Token 会话内配置</h1>
+<p class="desc">本文档回答两个问题：<strong>用户给的 18 行功能表单，现在做到了哪一步、落在哪个文件里</strong>；以及<strong>每条操作具体怎么走完</strong>——命令语法、边界、拒绝、回执、键盘与鼠标等价路径、降级、验收条件。它是设计交付的收口文档，不是新功能的提案。</p>
+
+<div class="sublabel">对照基线 —— 功能表单原文（18 行）</div>
+<pre class="frame">【模型与 Token】            【工具调用并发】            【子 Agent 并发】        【多级子 Agent】
+ 1 model 草图设计             7  草图                     12 草图                   17 UI 设计
+ 2 model UX 设计              8  UX 设计                  13 设计                   18 前端支持
+ 3 model 接口设计             9  前端支持                 14 前端支持
+ 4 model 接口后端实现          10 后端支持                 15 后端支持
+ 5 model 接口前端实现          11 前后端对接               16 前后端对接
+ 6 model 接口前后端对接</pre>
+
+<div class="sublabel">本文档的判定口径</div>
+<table>
+<tr><th>状态</th><th>含义</th><th>判定依据</th></tr>
+<tr><td class="nw"><span class="st ok">设计已交付</span></td><td>设计侧（草图 / UX / UI）完成，且规范条目 + 可运行 demo 场景 + 验收条件三者齐备</td><td>本文档 §4 对应小节有完整状态矩阵与验收条件，且 demo 里能点能敲</td></tr>
+<tr><td class="nw"><span class="st part">部分交付</span></td><td>设计给出的语法、字段、边界、错误文案已定；完整接口契约（事件结构、序列化、错误码）留给实现阶段</td><td>§4A / §4E 的字段表已列全，但没有正式的 interface 定义文件</td></tr>
+<tr><td class="nw"><span class="st demo">demo 已实现</span></td><td><code>agent-workspace.html</code> 里已经跑起来（HTML/CSS/JS），但工程实现（<code>tui/</code> React + OpenTUI）尚未开始</td><td>demo 场景可交互；<code>tui/</code> 受 <code>UI-SPEC.md</code> 门禁约束，当前仍为 draft</td></tr>
+<tr><td class="nw"><span class="st todo">未开始</span></td><td>属实现轨道，等设计批准后按 <code>tui/AGENTS.md</code> 的工程约束排期</td><td>仓库内无对应实现文件</td></tr>
+<tr><td class="nw"><span class="st ask">待裁决</span></td><td>存在明确的设计歧义或规范/实现分歧，需人工裁决后才能定稿</td><td>见 <a href="#gaps">缺口与待裁决</a></td></tr>
+</table>
+
+<div class="note"><b>为什么「前端支持」标 demo 已实现而不是已交付：</b>demo 是<strong>用真实 HTML/CSS/JS 写的</strong>，圆角、渐变、进度条、折叠都是真的，不是字符画——它证明这套交互在浏览器/Electron 面上可行。但产品的前端是 <code>tui/</code> 里的 React 19 + <code>@opentui/core</code>，那份实现的准入条件是 <code>UI-SPEC.md</code> 状态为 <code>approved</code>，目前是 <code>draft</code>。所以 demo 只能证明「设计可落地」，不能算「前端已交付」。</div>
+</section>
+
+<!-- ══════ ② SUMMARY ══════ -->
+<section id="summary">
+<div class="eyebrow">Summary</div>
+<h2>结论摘要</h2>
+<div class="grid g4">
+  <div class="stat"><b style="color:var(--success)">7</b><span>行 · 设计已交付</span></div>
+  <div class="stat"><b style="color:var(--warning)">1</b><span>行 · 部分交付（接口设计）</span></div>
+  <div class="stat"><b style="color:var(--primary-hover)">5</b><span>行 · demo 已实现 / 工程未开始</span></div>
+  <div class="stat"><b style="color:var(--foreground-muted)">5</b><span>行 · 未开始（实现轨道）</span></div>
+</div>
+<ol>
+<li><b>18 行里，凡是「设计」阶段的行全部完成</b>：三条轨道的草图 / UX / UI 都落成了 demo 场景 + 规范条目，每一部分都能回答「它对应哪个对话流基本单元」。<strong>真正新增的元件只有 3 个</strong>（受阻说明块 / 行内强调 / 调优曲线容器），其余 20 项都是既有元件的复用或受约束变体——比例见 <a href="#primitives">基元映射</a>。</li>
+<li><b>「接口设计」只做到一半，这是本轮最明确的一处未完成</b>：命令语法、配置字段、取值范围、拒绝文案、生效范围都已经定死（§4A / §4E），但没有正式的接口清单——事件名、payload 结构、错误码、并发上限如何下发，都还要在实现阶段补。这一行标「部分交付」而不是「已交付」，就是为了不把口径放水。</li>
+<li><b>模型与 token 的入口落在输入框，不落在右上角</b>：这一条是参照 opencode 与 Claude Code 做的决策——两家都在 prompt <em>下方</em>给常驻提示行，没有一家做右上角浮标。理由与降级阶梯见 §4A4。</li>
+<li><b>模型是「供应商 → 模型」两层，不是一张平铺列表</b>：端点、密钥、额度、计费主体都是<strong>供应商账号</strong>的属性，同名模型可以在多个供应商下存在（本轮 <code>deepseek-v3-671b</code> / <code>qwen2.5-coder-32b</code> 各有两个）。因此命令与配置一律写 <code>供应商/模型</code>，只给模型名时多义即拒绝、不猜选；供应商分组与「未配密钥可见不可选」的规格见 §4A5 / §4E1，这一条<strong>没有新增任何组件</strong>。</li>
+</ol>
+</section>
+
+<!-- ══════ ③ MAP ══════ -->
+<section id="map">
+<div class="eyebrow">Mapping</div>
+<h2>③ 功能逐行对照</h2>
+<p class="desc">每行给四件事：<strong>落点</strong>（在哪个文件的哪个场景 / 哪个锚点）、<strong>对应基元</strong>（它是哪个已登记的对话流基本单元）、<strong>交互规格摘要</strong>（一句话说清怎么走）、<strong>验收条件</strong>（可勾选的判定）。详细规格见 §4。</p>
+
+<div class="sublabel" id="f-model">模型与 Token（表单第 1–6 行）</div>
+<table>
+<tr><th>表单要求</th><th>落点</th><th>对应基元</th><th>交互规格摘要</th><th>验收条件</th><th>状态</th></tr>
+<tr>
+<td class="nw">1 model 草图设计</td>
+<td><code>agent-workspace.html</code> · <code>develop:model-token</code>（现状 / 用量 + 就地改配置）</td>
+<td>Model Switcher · Quota Bar · Status Bar Metrics · Token 明细表</td>
+<td>一屏里两段：先回答「现在用了多少、还剩多少」，再回答「想换的话在哪换、换错了会怎样」——<strong>看与改同屏</strong>，因为用的是同一批数字、同一个输入框、同一个 <code>config.toml</code>。草图形态 = 流内卡片，不是浮层</td>
+<td>场景能在侧栏「开发 Agent」下直接选中；模型列表按<strong>供应商</strong>分三组（devkit-gateway 3 个 · kunpeng-local 1 个 · private-cloud 2 个可见不可选）；改配置的回执（1 条成功 + 4 种被拒）与现状数字出现在同一条流里</td>
+<td class="nw"><span class="st ok">设计已交付</span></td>
+</tr>
+<tr>
+<td class="nw">2 model UX 设计</td>
+<td><code>index.html#convo</code> · Model Switcher（供应商分组）/ Quota Bars / Status Bar Metrics 卡与规则<br>本文档 §4A</td>
+<td>Command Hint Bar · Command Candidate Menu · Command Echo</td>
+<td>三个入口指向同一个写入口（<code>setModel()</code>）：流内候选行点选、输入框 <code>/model</code> 命令、<code>config.toml</code>。任一处改，另外两处立即是新值；模型一律用 <code>供应商/模型</code> 全名寻址</td>
+<td>从候选行点选与敲 <code>/model &lt;供应商&gt;/&lt;模型&gt;</code> 产生<strong>同一条回执</strong>；无「应用」按钮、无「同步」状态；同名模型不会被静默猜选</td>
+<td class="nw"><span class="st ok">设计已交付</span></td>
+</tr>
+<tr>
+<td class="nw">3 model 接口设计</td>
+<td>本文档 §4A2（命令语法）、§4E（配置字段）；<code>agent-workspace.html</code> 的 <code>runCommand()</code> / <code>setModel()</code> / <code>appendCmdEcho()</code> 作为参考实现</td>
+<td>—（不是 UI 元件，是命令契约）</td>
+<td>命令语法、取值范围、拒绝文案、生效范围已定；<strong>事件结构 / payload / 错误码 / 上限下发方式未定</strong></td>
+<td>§4A2 的语法表与 §4E 的字段表逐格可核对；拒绝分支 5 种全部有确定文案（见 §4A3）</td>
+<td class="nw"><span class="st part">部分交付</span></td>
+</tr>
+<tr>
+<td class="nw">4 model 接口后端实现</td>
+<td>—</td>
+<td>—</td>
+<td>待实现：命令解析已由 demo 给出参考（三态返回值：非命令 / 已执行 / 保留输入），后端需实现同一套语义</td>
+<td>实现后按 §4A2 的三态语义与 §4A3 的五种回执文案逐条核对</td>
+<td class="nw"><span class="st todo">未开始</span></td>
+</tr>
+<tr>
+<td class="nw">5 model 接口前端实现</td>
+<td><code>agent-workspace.html</code>（HTML/CSS/JS 演示）</td>
+<td>Command Hint Bar · Command Candidate Menu · Command Echo</td>
+<td>demo 里全链路可跑：敲命令 → 回执进流 → 底栏与提示行同步 → 与 config.toml 同值</td>
+<td>工程实现（<code>tui/</code> React + OpenTUI）待 <code>UI-SPEC.md</code> approved</td>
+<td class="nw"><span class="st demo">demo 已实现</span></td>
+</tr>
+<tr>
+<td class="nw">6 model 接口前后端对接</td>
+<td>—</td>
+<td>—</td>
+<td>待实现：对接时的关键约束已在 §4A2 写死（命令是配置文件的另一个写入口，不引入第二份状态）</td>
+<td>对接后核对：命令改一处，配置文件与 UI 三处同值（AC-A2 / AC-E1 / AC-E2）</td>
+<td class="nw"><span class="st todo">未开始</span></td>
+</tr>
+</table>
+
+<div class="sublabel" id="f-tool">工具调用并发（表单第 7–11 行）</div>
+<table>
+<tr><th>表单要求</th><th>落点</th><th>对应基元</th><th>交互规格摘要</th><th>验收条件</th><th>状态</th></tr>
+<tr>
+<td class="nw">7 工具调用并发 草图</td>
+<td><code>agent-workspace.html</code> · <code>develop:subagent</code> 内 sub-3 卡片的展开区</td>
+<td>Concurrent Tool Row（Tool Call Line 的并发变体）· Status Square</td>
+<td>同一子 Agent 内并行的工具各自一行、左端对齐；<strong>只有「进行中」的行画进度条</strong>，完成的只给耗时</td>
+<td>sub-3 展开后能同时看到 3 条带进度条的行（88% / 41% / 64%）+ 2 条已完成的耗时行</td>
+<td class="nw"><span class="st ok">设计已交付</span></td>
+</tr>
+<tr>
+<td class="nw">8 工具调用并发 UX 设计</td>
+<td><code>index.html#convo</code> · Concurrent Tool Row 台账行 + 编排类表第 3 行<br>本文档 §4B</td>
+<td>Concurrent Tool Row</td>
+<td>入口形状不变（仍是紧凑单行），并发只体现在「多行同时有进度」；起点落同一条竖线表示同时开始，长度差即进度差</td>
+<td>并发与串行的行形态一致，不引入第二种行的画法；峰值并发数在收口区可读（「峰值并发 3」）</td>
+<td class="nw"><span class="st ok">设计已交付</span></td>
+</tr>
+<tr>
+<td class="nw">9 工具调用并发 前端支持</td>
+<td><code>agent-workspace.html</code>（进度条 <code>.tb i</code> + 三种前缀 <code>∗ → $</code>）</td>
+<td>Concurrent Tool Row · ProgressBar</td>
+<td>进度条宽度即进度百分比；终端面退回字形进度（§4B4）</td>
+<td>进行中的行有进度条、已完成的行没有——这条判定在 demo 里可直接对照</td>
+<td class="nw"><span class="st demo">demo 已实现</span></td>
+</tr>
+<tr>
+<td class="nw">10 工具调用并发 后端支持</td>
+<td>—</td>
+<td>—</td>
+<td>待实现：并发上限 4、资源独占工具（profiler）全局串行——这两条规则要在调度层兑现</td>
+<td>实现后核对：profiler 类全局不重叠；峰值并发不超过上限（AC-B4 / AC-B5）</td>
+<td class="nw"><span class="st todo">未开始</span></td>
+</tr>
+<tr>
+<td class="nw">11 工具调用并发 前后端对接</td>
+<td>—</td>
+<td>—</td>
+<td>待实现：每行需要后端提供工具名、参数摘要、状态、进度、耗时五个字段（§4B3）</td>
+<td>字段齐备且 <code>progress</code> 可空（AC-B3）</td>
+<td class="nw"><span class="st todo">未开始</span></td>
+</tr>
+</table>
+
+<div class="sublabel" id="f-agent">子 Agent 并发（表单第 12–16 行）</div>
+<table>
+<tr><th>表单要求</th><th>落点</th><th>对应基元</th><th>交互规格摘要</th><th>验收条件</th><th>状态</th></tr>
+<tr>
+<td class="nw">12 子 Agent 并发 草图</td>
+<td><code>agent-workspace.html</code> · <code>develop:subagent</code>（3 子 Agent 并行 + 收口）</td>
+<td>Orchestration Lane · Sub-Agent Block · Concurrency Slot Gauge · Token Badge</td>
+<td>泳道同屏并置对齐同一时间轴；每张子 Agent 卡有独立内部排版；卡片头部即收起态全部内容</td>
+<td>泳道 4 行（main + 3 子）+ 时间刻度；收口区给出「14 次工具调用 · 峰值并发 3 · 0 合并冲突」</td>
+<td class="nw"><span class="st ok">设计已交付</span></td>
+</tr>
+<tr>
+<td class="nw">13 子 Agent 并发 设计</td>
+<td><code>index.html#convo</code> · 编排类表（8 行）+ Sub-Agent Block / Concurrency Slots 卡<br>本文档 §4C</td>
+<td>Sub-Agent Block · Concurrent Tool Row · Report Card 横幅</td>
+<td>默认收起不必要的信息：已完成默认收起（只留头部一行），进行中 / 受阻默认展开——判据是「还需不需要你看」，不是深度</td>
+<td>同一屏内 3 张卡呈现「收起 / 收起 / 展开」两态；<kbd>Enter</kbd>·<kbd>Space</kbd>·点击头部都能开合</td>
+<td class="nw"><span class="st ok">设计已交付</span></td>
+</tr>
+<tr>
+<td class="nw">14 子 Agent 并发 前端支持</td>
+<td><code>agent-workspace.html</code>（<code>.sa</code> 卡片、<code>.lanes</code> 泳道、<code>.slots</code> 槽位）</td>
+<td>同 12/13</td>
+<td>折叠用 <code>aria-expanded</code>，键盘可达；头部摘要行开合之间一字不变</td>
+<td>收起态与展开态的头部文字逐字相同（demo 中可直接对照）</td>
+<td class="nw"><span class="st demo">demo 已实现</span></td>
+</tr>
+<tr>
+<td class="nw">15 子 Agent 并发 后端支持</td>
+<td>—</td>
+<td>—</td>
+<td>待实现：并发上限 4（16 逻辑核）、单子 Agent 内工具并发上限 4、worktree 隔离、共享只读并发</td>
+<td>实现后核对：槽位继承不新开池、只读资源不排队（AC-C4）</td>
+<td class="nw"><span class="st todo">未开始</span></td>
+</tr>
+<tr>
+<td class="nw">16 子 Agent 并发 前后端对接</td>
+<td>—</td>
+<td>—</td>
+<td>待实现：卡片需要「谁 / 在干什么 / 多久 / 几个工具 / 多少 token」五字段（§4C1）</td>
+<td>五字段齐备，且头部一行即为收起态全部内容（AC-C2）</td>
+<td class="nw"><span class="st todo">未开始</span></td>
+</tr>
+</table>
+
+<div class="sublabel" id="f-multi">多级子 Agent（表单第 17–18 行）</div>
+<table>
+<tr><th>表单要求</th><th>落点</th><th>对应基元</th><th>交互规格摘要</th><th>验收条件</th><th>状态</th></tr>
+<tr>
+<td class="nw">17 多级子 Agent UI 设计</td>
+<td><code>agent-workspace.html</code> · <code>develop:subagent-tree</code>（9 Agent · 最大深度 4）<br><code>index.html#convo</code> · Hierarchy Tree / Nested Sub-Agent Block 卡<br>本文档 §4D</td>
+<td>Hierarchy Tree · Sub-Agent Block（嵌套）· Depth Badge · Token Badge · Blocker Note</td>
+<td>层级只走一个通道：<strong>缩进 16px 一格 + <code>SUB-2.2.1</code> 编号</strong>；不给卡片画状态导轨；超过 3 层收成可交互的 <code>…</code> 节点</td>
+<td>总览 9 行、缩进逐层累加、<code>…</code> 节点可点开；深度上限 4 触顶时「收住回退基线，不留半成品」有明确文案</td>
+<td class="nw"><span class="st ok">设计已交付</span></td>
+</tr>
+<tr>
+<td class="nw">18 多级子 Agent 前端支持</td>
+<td><code>agent-workspace.html</code>（<code>.sa.lv2/3/4</code> 缩进、<code>#treeFold</code> 折叠节点）</td>
+<td>Hierarchy Tree · Nested Sub-Agent Block</td>
+<td>折叠节点带 <code>role=button</code> + <code>tabindex</code> + <code>aria-expanded</code>，<kbd>Enter</kbd>/<kbd>Space</kbd> 就地展开</td>
+<td>4 层嵌套在 58 格窄屏下仍可读（缩进不封顶，最坏 64px 约定不变）</td>
+<td class="nw"><span class="st demo">demo 已实现</span></td>
+</tr>
+</table>
+</section>
+
+<!-- ══════ ④A 模型与 TOKEN ══════ -->
+<section id="spec-model">
+<div class="eyebrow">Spec A</div>
+<h2>A · 模型与 Token 的会话内管理与配置</h2>
+<p class="desc">这一节定义：模型和 token 告警线<strong>能在会话里看、也能在会话里改</strong>，改完立刻生效、痕迹留在对话流里。<strong>权限边界</strong>：只看不改（浮层点选不算回执）、改了要留痕、改错了要说明为什么。<strong>模型的身份是「供应商 + 模型名」</strong>——同一节里 A2 定命令语法（含同名与未配密钥两种拒绝）、A4 定提示行、A5 定候选菜单与供应商分组、A6 定状态矩阵。</p>
+
+<div class="sublabel">A1 位置与顺序 —— 输入区四件套（自上而下）</div>
+<pre class="frame">输入区（bottom-input）· <b>整块不进对话流、不随流滚动</b>
+
+ ①  ▾ 调优曲线    Round 9/30   <span class="bar">●</span> LIVE          [ 图表 | 表格 ]
+ ②  [ 看诊断报告 ] [ 跑性能基线 ] [ 看下一个文件 ]
+ ③  ┌ 候选菜单 —— 打 <b>/model</b> 或 <b>/model q</b> 时出现，贴输入框正上方
+    │  ■ pangu2.5-72b-instruct     devkit-gateway  通用推理 · 当前
+    │  □ deepseek-v3-671b          devkit-gateway  128k 长上下文
+    │  □ qwen2.5-coder-32b         devkit-gateway  代码专精 · 低延迟
+    │  □ pangu2.5-7b-instruct      kunpeng-local   轻量 · 心跳与日志摘要
+    │  □ qwen2.5-coder-32b         private-cloud   同名 · 走客户账号 · 需密钥
+    └  <b>↑↓</b> 选择 · <b>Tab/Enter</b> 切换 · <b>Esc</b> 关闭
+ ④  ❯ 描述你想让 Agent 做什么，输入 / 唤出命令…
+ ⑤  <b>/model</b> pangu2.5-72b-instruct   devkit-gateway  ·  <b>/tokens</b> 1.24M   告警线 70%</pre>
+<table>
+<tr><th>序</th><th>单元</th><th>出现条件</th><th>焦点</th><th>本轮的改动</th></tr>
+<tr><td class="nw">①</td><td>Tune Chart 调优曲线容器</td><td>仅 HPO 场景（无 <code>hpo</code> 数据则 <code>display:none</code>）</td><td>头部可聚焦，收起后不占位</td><td>登记为「输入区单元」，硬规则：<strong>收起即暂停动效</strong></td></tr>
+<tr><td class="nw">②</td><td>Suggested Actions 下一步建议</td><td>有建议时（0–3 个）</td><td>原生按钮，<kbd>Tab</kbd> 可达</td><td>从「系统与容器类」挪进输入区单元（按位置归类）</td></tr>
+<tr><td class="nw">③</td><td>Command Candidate Menu 候选菜单</td><td>输入 <code>/</code> 或 <code>/model …</code> 时</td><td><strong>不抢焦点</strong>，键位由输入框代理</td><td>候选行新增<strong>供应商</strong>列（替换原来的「额度池」列）；联想同时认模型名与 <code>供应商/</code> 前缀；未配密钥的行可见但不可选</td></tr>
+<tr><td class="nw">④</td><td>输入框</td><td>始终</td><td><strong>全页唯一焦点</strong></td><td>命令执行（三态返回值）</td></tr>
+<tr><td class="nw">⑤</td><td>Command Hint Bar 命令提示行</td><td>该场景真有命令可改时</td><td><strong>不可点、不抢焦点</strong>（路标）</td><td>重排版为三档层次 + 定死降级阶梯</td></tr>
+</table>
+<div class="rule"><b>为什么不做右上角浮标：</b>Claude Code 与 opencode 都把这类提示放在 prompt <em>下方</em>单独一行——<strong>和输入内容物理隔离，输入多长都不冲突</strong>，窄屏时整行收起也不损失功能。右上角是 Web 的习惯：输入一长必然和正文打架，窄屏时右上角也最先没地方放。所以本轮明确否掉右上角方案（用户最初考虑过），选「输入框下方一行」。<br>
+<b>顺序为什么是这五层：</b>从下往上离输入框越远的东西越「可有可无」——调优曲线可以没有（只在 HPO 场景出现），建议操作可以没有（只有结果后有），候选菜单只在打字时出现；只有输入框和提示行始终在。</div>
+
+<div class="sublabel">A2 命令语法规格</div>
+<table>
+<tr><th>输入</th><th>识别</th><th>结果</th><th>回执</th><th>生效范围</th></tr>
+<tr><td class="nw"><code>/model &lt;供应商&gt;/&lt;模型&gt;</code></td><td>供应商与模型都精确匹配（全名写法，<strong>无歧义</strong>）</td><td>切换会话模型，底栏与提示行立即刷新（底栏显示 <code>供应商/模型</code>）</td><td>用户消息 + AI 文本（<span class="st ok">成功</span>）</td><td>新起的子 Agent 继承；<strong>运行中的保持原模型跑完</strong></td></tr>
+<tr><td class="nw"><code>/model &lt;模型名&gt;</code></td><td>按模型名精确匹配；命中 <strong>1 个</strong>供应商时切换</td><td>切换会话模型</td><td>用户消息 + AI 文本（<span class="st ok">成功</span>）</td><td>同上</td></tr>
+<tr><td class="nw"><code>/model</code>（无参）</td><td>参数为空</td><td><strong>列候选，不报错</strong>：输入框填入 <code>/model </code>（光标在第 7 位）并打开候选菜单</td><td>无回执；输入留在框里等选</td><td>—</td></tr>
+<tr><td class="nw"><code>/model &lt;多义模型名或前缀&gt;</code></td><td>同一模型名在 <strong>&gt;1 个供应商</strong>下存在（如 <code>qwen</code>）</td><td>视为未命中，走拒绝分支；<strong>不猜一个切过去</strong>——换供应商会换掉计费主体</td><td>用户消息 + Checklist Row（<span class="st ask">拒绝</span>），值列列出全部 <code>供应商/模型</code> 写法</td><td>—</td></tr>
+<tr><td class="nw"><code>/model &lt;未知供应商&gt;/…</code></td><td>供应商 id 不在 <code>model.PROVIDERS</code> 内</td><td>拒绝，列出当前已配置的供应商 id</td><td>用户消息 + Checklist Row（<span class="st ask">拒绝</span>）</td><td>—</td></tr>
+<tr><td class="nw"><code>/model &lt;未配密钥供应商&gt;/&lt;模型&gt;</code></td><td>供应商存在但 <code>API_KEY</code> 未配置</td><td>拒绝，说明缺什么、并给出可用的替代写法</td><td>用户消息 + Checklist Row（<span class="st ask">拒绝</span>）</td><td>—</td></tr>
+<tr><td class="nw"><code>/tokens &lt;20-95&gt;</code></td><td>数值解析（可带 <code>%</code>）</td><td>改 <code>budget.WARN_AT</code>，立即生效、不用重开对话</td><td>用户消息 + AI 文本（<span class="st ok">成功</span>）</td><td>只改「到第几个点提醒你」，<strong>不改水位本身</strong></td></tr>
+<tr><td class="nw"><code>/tokens</code>（无参）</td><td>参数为空</td><td>拒绝，并回报当前阈值</td><td>用户消息 + Checklist Row（<span class="st ask">拒绝</span>）</td><td>—</td></tr>
+<tr><td class="nw">其余输入</td><td>不匹配 <code>/model</code>、<code>/tokens</code></td><td><strong>原样保留在输入框</strong>，交给 Agent 任务解析——命令识别不能吃掉用户敲的任务描述</td><td>无</td><td>—</td></tr>
+</table>
+<div class="note"><b>为什么模型名要带供应商前缀：</b>模型名会在供应商之间重名（<code>deepseek-v3-671b</code> 在两个供应商下都有），而「用哪个供应商」决定了<strong>走哪个端点、从哪个账号扣额度、按谁的账单计费</strong>。只给模型名时若静默挑一个，用户以为只是换了个模型、实际上连计费主体一起换了——这种错误在事后极难发现。所以规则是：<strong>唯一命中就切，多义就拒绝并列出全部写法</strong>；前缀匹配逻辑随之下沉到「模型名或全名」两种写法都支持（见 §4A5）。</div>
+<div class="note"><b>参考实现的三态返回值（<code>runCommand()</code>）：</b><code>false</code> = 不是这两条命令，输入原样留着；<code>true</code> = 已执行或已拒绝，输入可以清空；<code>'keep'</code> = 命令认了但要留着输入（光敲 <code>/model</code> 时列候选等选）。后端实现需要兑现同一套语义，否则会出现「回车后输入被吃掉」或「拒了但输入被清空」这类边界不一致。</div>
+
+<div class="sublabel">A3 回执规格 —— 复用既有基元，不为命令造组件</div>
+<table>
+<tr><th>情形</th><th>基元组合</th><th>内容必须回答的问题</th><th>示例文案（demo 原文）</th></tr>
+<tr><td class="nw">成功 · 换模型</td><td>User Message + AI Text</td><td>换成了什么（<code>--hl-code</code>，带供应商全名）· 对正在跑的任务有什么影响 · 额度仍走哪个账号 · 落到哪个文件</td><td>「已切到 devkit-gateway/qwen2.5-coder-32b。<b>新起的子 Agent 继承这个模型</b>；正在跑的 3 个保持原模型跑完。额度仍走 devkit-gateway 那个账号，改动已写入 .devkitai/config.toml。」</td></tr>
+<tr><td class="nw">成功 · 改告警线</td><td>User Message + AI 文本</td><td>改前 → 改后（<code>--hl-metric</code>）· 立即生效 · 哪一项数字不动</td><td>「告警线 70% → 85%，立即生效。当前用量不变，提醒点改到 85%。」</td></tr>
+<tr><td class="nw">成功但无变化</td><td>User Message + AI 文本</td><td>明说「本来就是它，没有变化」——静默成功会被读成「没生效」</td><td>「已切到 devkit-gateway/pangu2.5-72b-instruct——本来就是它，没有变化。」</td></tr>
+<tr><td class="nw">被拒 · 越界</td><td>User Message + Checklist Row（<code>wrap</code> 变体 + 实心金方块 + 「没有改」）</td><td>没改 · 边界是多少 · 那该怎么敲</td><td>「120 超出可选范围 20–95。要关掉提示可以用 /tokens 95」</td></tr>
+<tr><td class="nw">被拒 · 模型名多义</td><td>同上</td><td>没改 · 列出全部 <code>供应商/模型</code> 写法</td><td>「qwen 在多个供应商下都有，得写全：devkit-gateway/qwen2.5-coder-32b 或 private-cloud/qwen2.5-coder-32b」</td></tr>
+<tr><td class="nw">被拒 · 供应商不可用</td><td>同上</td><td>没改 · 缺的是什么（<code>API_KEY</code>）· 补齐后就能用 · 眼下可以先选谁</td><td>「private-cloud 还没配密钥，切不过去。补上 API_KEY 之后它就能用；眼下可以先选 devkit-gateway/deepseek-v3-671b」</td></tr>
+<tr><td class="nw">被拒 · 无匹配模型</td><td>同上</td><td>没改 · 给出下一步怎么敲</td><td>「没有匹配 nope 的模型。敲 /model 出全部候选」</td></tr>
+<tr><td class="nw">被拒 · 供应商下无此模型</td><td>同上</td><td>没改 · 列出该供应商<strong>实际有</strong>的模型</td><td>「devkit-gateway 下没有 deepseek。它有 pangu2.5-72b-instruct / deepseek-v3-671b / qwen2.5-coder-32b」</td></tr>
+</table>
+<div class="rule"><b>被拒也要回执，而且要给出正确写法：</b>静默失败会被读成「我是不是没按对回车」，用户会反复敲同一条命令。拒绝回执必须同时回答三件事：<b>没改</b>（用状态方块的实心金，与「受阻」同色）、<b>边界/原因是什么</b>、<b>那该怎么敲</b>。<strong>四种拒绝理由（越界 / 多义 / 不可用 / 无匹配）共用一个形状</strong>，区别只在值列里说清是什么理由——不为新理由造新组件。<br>
+<b>为什么进对话流而不是 toast：</b>「我什么时候把它改成 85 的」是一个会被追问的问题，答案必须在滚动历史里查得到；toast 三秒后消失，翻历史时它从来没存在过。<b>写入位置在流末尾并自动滚到底</b>，回执只进当前场景的那条流，翻历史不串场。</div>
+<div class="note crit"><b>回执只说业务，不说设计：</b>回执的职责是「这次发生了什么、你该怎么改」，不是解释产品语义。所以 demo 里 <code>/tokens 120</code> 只回「超出可选范围 20–95 · 要关掉提示用 /tokens 95」，<strong>不回</strong>「告警线是『你想在第几个点被告知』、超过 100% 等于不提醒自己」这类产品语义；同理 <code>/model qwen</code> 只列两种全名写法，不回「换个供应商额度与计费也跟着换」这句设计理由。<br>
+这些语义与理由<strong>归 <code>index.html</code> 的对应单元定义</strong>（Checklist Row / Model Switcher / Command Echo 卡里写全），<strong>不重复进业务流</strong>——demo 复刻的是用户真实使用场景，业务流里只能有业务事实与产品 UI 文案。判断标准：<strong>这句话如果换成另一个模型、另一个项目就不成立，它是业务；只跟「本产品怎么设计」有关的，是标注</strong>。<br>
+两类最容易漏掉的标注，都已按此收回：<strong>位置自述</strong>——「底栏的 ctx 当前值不变」→「当前用量不变」（数字显示在哪是单元的事，回执只报数字）；<strong>行为自述</strong>——「其余可直接切」→ 删（候选列表怎么操作属 Model Switcher，不属这次会话的业务状态）。同理，子 Agent 收口语里「你可以在会话列表里点开它、也可以让它单独停下来」也已删除，只留「跑完会自动并入并向你汇报」。</div>
+<div class="note warn"><b>两个入口只留一份痕迹：</b>敲完整命令、从候选菜单选一行，是同一个动作的两个入口，<b>都要写回执</b>；但流内浮层里点一行（Model Switcher）不算——那是同一屏「看现状」段的就地操作，浮层自己的 <code>current</code> 标记就是它的反馈，再写一条回执只会把流撑长。</div>
+
+<div class="sublabel">A4 提示行（Command Hint Bar）规格与降级</div>
+<table>
+<tr><th>层次</th><th>内容</th><th>样式</th><th>为什么这么排（参照 opencode <code>Build · Big Pickle  OpenCode Zen</code>）</th></tr>
+<tr><td class="nw">第一档 · 命令</td><td><code>/model</code> · <code>/tokens</code></td><td>品牌蓝 + 加粗，当标签用</td><td>命令名本身就是标签，<b>不写「模型：」「当前」「已用」这类前缀</b>——多一层标签只是多一层要读的字</td></tr>
+<tr><td class="nw">第二档 · 值</td><td>模型名 · token 数</td><td>正文色 + 加粗（最大声）</td><td>用户真正要看的就是这两个数，它们才是决定要不要敲命令的依据</td></tr>
+<tr><td class="nw">第三档 · 解释</td><td>供应商 <code>devkit-gateway</code> · <code>告警线 70%</code></td><td>最弱灰字</td><td>灰字只放「解释这个值」的东西：供应商解释额度从哪个账号扣、也提醒换模型时可能要写全名，告警线解释这个 token 数离哪条线还有多远</td></tr>
+</table>
+<table>
+<tr><th>断点</th><th>动作</th><th>理由</th></tr>
+<tr><td class="nw">&gt; 1200px</td><td>五项全给（一行 ≈ 550px）</td><td>—</td></tr>
+<tr><td class="nw">≤ 820px</td><td>隐去供应商名；模型名允许自截断（<code>…</code>）</td><td>供应商只是「从哪个账号扣额度」的解释，去掉不影响「我现在用哪个模型」</td></tr>
+<tr><td class="nw">≤ 560px</td><td>模型项连同它的分隔符<strong>整项去掉</strong></td><td>再窄就塞不下模型名了；<strong><code>/tokens 1.24M 告警线 70%</code> 永不在降级里丢</strong>。分隔符跟着它分开的那一项一起走，否则行首会剩一个孤立的 <code>·</code></td></tr>
+</table>
+<div class="rule">提示行与底栏常驻计量<strong>不重复</strong>：<b>底栏是全局事实</b>（任何场景都看得见），<b>提示行是「就地可改」的入口</b>，只在真有命令可改的场景出现。做成常驻，它会从「这里能改」退化成一条没人再读的说明文字。窄屏降级顺序必须与底栏一致——两个面同一个牺牲顺序，用户才不会在窄屏和宽屏看到两套优先级。</div>
+
+<div class="sublabel">A5 候选菜单规格（Command Candidate Menu）</div>
+<table>
+<tr><th>模式</th><th>触发</th><th>每行结构</th><th>选中行为</th></tr>
+<tr><td class="nw"><code>cmd</code> 命令列表</td><td>输入 <code>/</code> 或 <code>/&lt;前缀&gt;</code></td><td>命令名（等宽、固定宽度列）+ 说明</td><td>补全到输入框（<code>/model</code> 这类带 picker 的补全后立即切到 <code>model</code> 模式）</td></tr>
+<tr><td class="nw"><code>model</code> 模型列表</td><td>输入 <code>/model </code> 或 <code>/model &lt;q&gt;</code>（<code>q</code> 可以是模型名，也可以是 <code>供应商/</code> 前缀）</td><td>状态方块（当前 = 实心绿）+ 模型名 + <strong>供应商</strong> + 描述（未配密钥的补「需密钥」）</td><td>立即切换（按 <code>供应商/模型</code> 全名写入）+ 写回执；选完清空输入并保持焦点。<strong>未配密钥的行选了不切换，改为写一条「没有改」回执</strong></td></tr>
+<tr><td class="nw"><code>session</code> 会话列表</td><td>输入 <code>/session </code> 等</td><td>状态方块 + 会话名 + 「Agent · 状态」</td><td>跳到该场景</td></tr>
+</table>
+<ul>
+<li><b>候选行多一列供应商</b>：换模型前最该先知道的两件事都在这一列里——「它从哪个账号扣额度、会不会挤掉正在跑的活」，以及「这个名字是不是唯一的」。同名模型会在列表里出现两行、来源不同，用户一眼就能看出必须写全名。这句话放在选择发生的地方，而不是等切完再去额度面板查。</li>
+<li><b>联想同时认两种输入</b>：模型名（打 <code>qwen</code>）与供应商前缀（打 <code>devkit-</code>）都能筛——两种都是人会打的写法，只支持一种会让用户以为「搜不到就是没有」。</li>
+<li><b>用不了的行可见但不可选</b>：未配密钥的模型仍然列出（灰一档 + 「需密钥」），点它给一条「没有改」回执说明缺什么。<strong>不隐藏</strong>——「有这条路由、缺 <code>API_KEY</code>」和「没有这条路由」是两件事，隐藏会让用户以为配置里没有它。</li>
+<li><b>唯一数据源是配置文件</b>（<code>.devkitai/config.toml</code> 的 <code>model.PROVIDERS</code> 与 <code>model.providers.&lt;id&gt;.MODELS</code>）：命令不是配置文件的快捷方式，是它的<b>另一个写入口</b>——两边写同一个值，所以在哪边改另一边就是新值，因此<b>不需要「应用」按钮，也不需要「同步」状态</b>。</li>
+<li><b>空结果也是一个确定状态</b>：无匹配时给「没有匹配的模型 / 命令」单行提示，<b>不静默关闭菜单</b>——菜单突然消失会被读成「按键没生效」。</li>
+<li>选中行为与键位：<kbd>↑</kbd><kbd>↓</kbd> 移动（循环）· <kbd>Tab</kbd>/<kbd>Enter</kbd> 确认 · <kbd>Esc</kbd> 关闭 · 鼠标等价路径 = 点候选行（<code>mousedown</code>，避免 blur 抢先关闭）。</li>
+</ul>
+
+<div class="sublabel">A6 状态矩阵 —— 输入区四件套</div>
+<table>
+<tr><th>单元</th><th>default</th><th>focused</th><th>selected / 命中</th><th>empty</th><th>error / 拒绝</th><th>disabled</th></tr>
+<tr><td class="nw">调优曲线容器</td><td>收起（无 HPO 场景 <code>display:none</code>）</td><td>头部可获得焦点环</td><td>展开 = <code>open</code>，动画恢复</td><td>无数据不出现</td><td>—</td><td>—</td></tr>
+<tr><td class="nw">下一步建议</td><td>随场景给的 0–3 个按钮</td><td>首个按钮可聚焦（原生 <code>button</code>）</td><td>首个按钮为主按钮样式</td><td>无建议则不渲染该行</td><td>—</td><td>不可用时整行不出现（不做灰按钮）</td></tr>
+<tr><td class="nw">模型浮层</td><td>按供应商分组的候选：当前供应商组展开、其余收起（组头仍可见）</td><td>组头可聚焦（<kbd>Enter</kbd>/<kbd>Space</kbd> 开合）</td><td>当前模型行 <code>.cur</code> 底色 + 行尾 <code>current</code> 徽标；焦点供应商组 <code>.open</code></td><td>读不到额度时不给空条，改一句「为什么读不到」</td><td>点未配密钥的行 → 写一条「没有改」回执，不切换</td><td>不可用供应商的模型行灰一档（仍可见）</td></tr>
+<tr><td class="nw">候选菜单</td><td>隐藏</td><td>输入框持有焦点，菜单不抢</td><td>当前项 <code>.sel</code> 底色；当前模型行带实心绿方块</td><td>「没有匹配的模型 / 命令」单行</td><td>—（拒绝走后置回执，不在菜单里报错）</td><td>未配密钥的行可选中但按「拒绝」处理（灰一档 + 「需密钥」）</td></tr>
+<tr><td class="nw">命令提示行</td><td>该场景有命令时才渲染</td><td><strong>不抢焦点</strong>（路标，不可点）</td><td>—</td><td>无命令的场景整行不出现</td><td>—</td><td>—</td></tr>
+</table>
+
+<div class="sublabel">A7 键盘与鼠标等价路径</div>
+<table>
+<tr><th>场景</th><th>键盘</th><th>鼠标等价</th><th>备注</th></tr>
+<tr><td class="nw">候选菜单开启</td><td><kbd>↑</kbd><kbd>↓</kbd> 移动 · <kbd>Tab</kbd>/<kbd>Enter</kbd> 确认 · <kbd>Esc</kbd> 关闭</td><td>点候选行</td><td>菜单开时 <kbd>Enter</kbd> 是「确认选中」，不是「执行输入」</td></tr>
+<tr><td class="nw">候选菜单关闭</td><td><kbd>Enter</kbd> 执行命令 · <kbd>Shift</kbd>+<kbd>Enter</kbd> 换行</td><td>—</td><td>只认得出命令才执行；认不出则保留输入</td></tr>
+<tr><td class="nw">切模型（流内）</td><td>焦点进浮层后 <kbd>Enter</kbd>；组头 <kbd>Enter</kbd>/<kbd>Space</kbd> 开合</td><td>点 <code>.model-row</code> 一行 / 点组头开合</td><td>与命令共享同一写入口 <code>setModel()</code>；切换后目标供应商组展开、其余收起</td></tr>
+<tr><td class="nw">全局（焦点不在输入框）</td><td><kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> 切 Agent · <kbd>↑</kbd><kbd>↓</kbd> 切场景 · <kbd>c</kbd> 折叠代码列 · <kbd>p</kbd> 收 AI PLAN · <kbd>Esc</kbd> 回 Landing</td><td>点侧栏会话节点</td><td>输入框有焦点时这些键不生效（不抢打字）</td></tr>
+</table>
+
+<div class="sublabel">A8 验收条件</div>
+<ul class="ac">
+<li><span class="id">AC-A1</span><span>在 <code>develop:model-token</code> 场景输入 <code>/model</code> 回车：不报错，输入框保留 <code>/model </code> 且候选菜单打开，光标在第 7 位。</span></li>
+<li><span class="id">AC-A2</span><span>输入 <code>/model devkit-gateway/qwen2.5-coder-32b</code> 回车：切换成功，底栏模型名、提示行模型名与供应商、候选菜单 <code>current</code> 标记三处同步；额度条仍是 devkit-gateway 的数字。</span></li>
+<li><span class="id">AC-A3</span><span>输入 <code>/tokens 120</code> · <code>/tokens abc</code> · <code>/tokens</code> 三种越界/非法输入：均产生「没有改」回执，且文案包含边界值与正确写法；阈值不变。</span></li>
+<li><span class="id">AC-A4</span><span>输入 <code>/tokens 85</code>：提示行灰字立即变 85%，底栏 ctx 的<strong>当前值不变</strong>、分母由 70% 变 85%；回执里不出现「底栏」「当前值不变」这类位置自述，只说「当前用量不变」。</span></li>
+<li><span class="id">AC-A5</span><span>敲入非命令文本（如「把 BRPC 迁移到鲲鹏」）回车：输入<strong>不被清空</strong>、不产生回执。</span></li>
+<li><span class="id">AC-A6</span><span>从候选菜单点一行切换模型，与直接敲 <code>/model &lt;供应商&gt;/&lt;模型&gt;</code>：两者产生<strong>同一条回执</strong>文案结构，回执里的模型名都带供应商前缀。</span></li>
+<li><span class="id">AC-A7</span><span>窗口收窄到 820px 以下：供应商名消失、模型名可自截断；收窄到 560px 以下：模型项与分隔符一起消失，<code>/tokens</code> 项与告警线仍在。</span></li>
+<li><span class="id">AC-A8</span><span>提示行整行不可点、不抢焦点（<kbd>Tab</kbd> 遍历不会停在它上面）。</span></li>
+<li><span class="id">AC-A9</span><span>浅色主题下模型的「行内强调」六色与受阻块标题都满足正文可读对比度（不得直接沿用深色底那套色值）。</span></li>
+<li><span class="id">AC-A10</span><span>输入 <code>/model qwen</code>（同名出现在 2 个供应商）：产生「没有改」回执，值列列出 <code>devkit-gateway/qwen2.5-coder-32b</code> 与 <code>private-cloud/qwen2.5-coder-32b</code> 两种写法；模型<strong>不发生任何变化</strong>。</span></li>
+<li><span class="id">AC-A11</span><span>输入 <code>/model private-cloud/deepseek-v3-671b</code>（供应商未配密钥）：产生「没有改」回执，说明缺 <code>API_KEY</code>，并给出可用的替代写法（同一模型在可用供应商下的全名）。</span></li>
+<li><span class="id">AC-A12</span><span>输入 <code>/model 不存在的供应商/x</code> 与 <code>/model devkit-gateway/不存在的模型</code>：两条都拒绝，前者列出已配置的供应商、后者列出该供应商下的模型。</span></li>
+<li><span class="id">AC-A13</span><span>切换供应商后（<code>devkit-gateway</code> → <code>kunpeng-local</code>）：额度条换成该账号的两行（<code>GPU</code> / <code>队列</code>，不再是 <code>5h</code> / <code>7d</code>），额度说明行的供应商名同步；底栏仍显示 <code>供应商/模型</code>。</span></li>
+<li><span class="id">AC-A14</span><span>候选菜单联想同时支持两种输入：打 <code>devkit-</code> 只列该供应商的 3 个模型，打 <code>qwen</code> 命中 2 个供应商下的同名模型。</span></li>
+<li><span class="id">AC-A15</span><span>一次只摊开一组：切换后目标供应商组展开、其余组只有组头一行；组头点一下能就地开合，组头一行始终带状态方块与状态字。</span></li>
+<li><span class="id">AC-A16</span><span>模型浮层里点未配密钥的模型行：不切换，写一条与命令路径<strong>同样文案结构</strong>的「没有改」回执。</span></li>
+</ul>
+</section>
+
+<!-- ══════ ④B 工具调用并发 ══════ -->
+<section id="spec-tool">
+<div class="eyebrow">Spec B</div>
+<h2>B · 工具调用并发（同一 Agent 内）</h2>
+<p class="desc">同一子 Agent 内部可以有多个工具同时跑。<strong>设计上的克制点</strong>：并发不新造一种行的画法——入口形状不变，还是那个紧凑单行；「同时」这件事只体现在「多行同时有进度」。</p>
+
+<div class="sublabel">B1 行的形态 —— 与串行时同一个形状</div>
+<pre class="frame">   ∗ tiancheng    --flamegraph settlement_hotspot.svg --top=12            2.8s        ← 已完成：只给耗时
+   → read_file    settlement_kernel.c                                      0.2s
+   $ apply_patch  settlement_kernel.c · [103-106]                          1.4s
+   $ perf_record  -F 99 -g -- reconcile_pass                               3.4s
+   $ apply_patch  reconcile.c · [77-82]                                    1.1s
+   → read_file    reconcile.c · 读取 [140-260]      ████████░░ 88%  <b>进行中</b>    ← 只有进行中画条
+   ∗ grep         prefetch · 全工程引用点           ████░░░░░░ 41%  进行中
+   $ bench_compare --baseline --verify-bits        ██████░░░░ 64%  进行中</pre>
+<table>
+<tr><th>列</th><th>字段</th><th>内容规则</th></tr>
+<tr><td class="nw">前缀字形</td><td><code>∗</code> 搜索 · <code>→</code> 读取 · <code>$</code> 执行</td><td>同为 accent 色，<strong>只换字形不换色相</strong>；三张卡定的只是「一眼认出是哪种调用」</td></tr>
+<tr><td class="nw">工具名</td><td>等宽字体、固定宽度列</td><td>用工具名（<code>read_file</code> / <code>apply_patch</code> / <code>bench_compare</code>），不是自然语言描述</td></tr>
+<tr><td class="nw">参数摘要</td><td>单行、超长省略</td><td>够识别「在动哪个文件 / 哪一段」即可，不铺完整命令</td></tr>
+<tr><td class="nw">进度 / 耗时</td><td>右端固定宽度列</td><td><strong>进行中 = 进度条；已完成 = 耗时</strong>——已完成的行不该继续占着进度条的位置，那是持续噪声</td></tr>
+</table>
+
+<div class="sublabel">B2 并发规则</div>
+<table>
+<tr><th>规则</th><th>值 / 行为</th><th>理由</th></tr>
+<tr><td class="nw">单 Agent 内工具并发上限</td><td>4</td><td>与子 Agent 并发上限同量级，避免一个子 Agent 把整机吃满</td></tr>
+<tr><td class="nw">资源独占工具全局串行</td><td><code>profiler</code> 类（<code>perf_record</code> 等）<strong>不并发</strong></td><td>同机同时采集会互相抢 CPU 与 PMU 计数器，采出来的性能数据<b>是失真的</b>——这是刻意的取舍：并行度换吞吐，但不拿性能数据的可信度去换。<strong>这句话只写在这里</strong>（规范），不进会话流：换个项目它依然成立，属产品的价值取向；会话里只说这次发生了什么事，见下方受阻说明块</td></tr>
+<tr><td class="nw">串行时其余工具</td><td>照常并发</td><td>串行是<strong>按工具类别</strong>打的标记，不是整条流水停下来</td></tr>
+<tr><td class="nw">峰值并发要可读</td><td>收口区给「14 次工具调用 · 峰值并发 3」</td><td>并发度是这次编排的成本与收益的解释项，不能只在动画里表现</td></tr>
+</table>
+<div class="blocker">
+<div class="bt">⚠ 并发采集会互相干扰</div>
+<div class="bl">sub-1 与 sub-3 都要跑 <b>perf</b> 采样。同机同时采集会互相抢 CPU 与 PMU 计数器，采出来的性能数据是失真的 —— 所以我把 <b>profiler 类工具串起来跑</b>，其余工具照常并行。</div>
+</div>
+<div class="rule"><b>说明行只写这次任务的因果，不写产品的价值取向：</b>这一块原来还有第二行「宁可这一轮少一点并行度，也不拿性能数据的可信度去换」，已删——它换个项目依然成立，属规范（上面 B2 那条「资源独占工具全局串行」就是它的落点），在会话里复述一遍等于把规范读给用户听。会话里的受阻块只答「谁在抢什么、我因此改了什么、接下来怎么办」，到了 1–3 行封顶。</div>
+<div class="rule"><b>为什么用「受阻说明块」而不是折叠日志：</b>这不是错误，也不是日志——它是<b>一条会被用户追问「为什么不能一起跑」的规则</b>。说明块回答「为什么、后果是什么」，日志回答「刚才发生了什么」，两者的读者和寿命都不同。放在编排区顶部，是因为它影响的是整屏的解读（看到两条 profiler 行为什么不并行，答案就在上面一行）。</div>
+
+<div class="sublabel">B3 数据字段（对接用）</div>
+<table>
+<tr><th>字段</th><th>类型</th><th>来源</th><th>缺失时</th></tr>
+<tr><td class="nw">tool</td><td>string</td><td>后端工具名（唯一标识）</td><td>不可缺失——行没有工具名就无法识别</td></tr>
+<tr><td class="nw">kind</td><td><code>search</code> | <code>read</code> | <code>exec</code></td><td>决定前缀字形 <code>∗ → $</code></td><td>缺省按 <code>exec</code> 处理（最保守）</td></tr>
+<tr><td class="nw">arg_summary</td><td>string</td><td>参数摘要（后端裁剪到单行）</td><td>留空，不显示该列</td></tr>
+<tr><td class="nw">state</td><td><code>running</code> | <code>done</code> | <code>failed</code></td><td>决定画进度条还是给耗时</td><td>缺省 <code>running</code></td></tr>
+<tr><td class="nw">progress</td><td>0–1 或 null</td><td><strong>只有能算出百分比的工具给</strong>（读取字节数、grep 扫描进度）</td><td><code>null</code> = 确定进度不可知，此时<b>宁可只显示「进行中」也不给假进度条</b></td></tr>
+<tr><td class="nw">elapsed_ms</td><td>number</td><td>耗时；进行中 = 已耗时</td><td>显示 <code>—</code></td></tr>
+<tr><td class="nw">agent_ref</td><td>string</td><td>归属的子 Agent（<code>sub-2.2.1</code>）</td><td>缺省 = 主 Agent</td></tr>
+</table>
+
+<div class="sublabel">B4 降级与状态矩阵</div>
+<table>
+<tr><th>状态</th><th>Workspace 面（demo 实际渲染）</th><th>TUI 面（终端）</th></tr>
+<tr><td class="nw">running</td><td>进度条 <code>████░░░░</code> + 「进行中」</td><td>字形进度 <code>▓▓▓▓░░░░</code>（Braille 缺失时退回 <code>[####----]</code>），右侧「进行中」保留</td></tr>
+<tr><td class="nw">done</td><td>无进度条，只给耗时</td><td>同上，耗时列保留</td></tr>
+<tr><td class="nw">failed</td><td>前缀字形改为警示黄 + 行末状态词</td><td>同色降级：16 色 / <code>NO_COLOR</code> 时改用 <code>!</code> 前缀，不靠颜色</td></tr>
+<tr><td class="nw">并发但不可知进度</td><td>行末只写「进行中」，不画条</td><td>同</td></tr>
+<tr><td class="nw">并发 &gt; 屏宽</td><td>行仍逐行给出，不横向滚动</td><td>同——<strong>并发不是并排，是逐行同时</strong></td></tr>
+</table>
+
+<div class="sublabel">B5 验收条件</div>
+<ul class="ac">
+<li><span class="id">AC-B1</span><span>同一 Agent 内出现 ≥2 个 running 工具时，行形态与串行时完全一致（不新增列、不加边框）。</span></li>
+<li><span class="id">AC-B2</span><span>任何 done 状态的行<strong>不显示进度条</strong>，只显示耗时。</span></li>
+<li><span class="id">AC-B3</span><span><code>progress</code> 为 null 时显示「进行中」而非 0% 或满格假进度。</span></li>
+<li><span class="id">AC-B4</span><span>profiler 类工具与其它工具同时在跑时，受阻说明块出现在能解释该现象的位置（编排区顶部），且文案给出规则名与后果。</span></li>
+<li><span class="id">AC-B5</span><span>收口区能读到「工具调用次数」与「峰值并发」两个数。</span></li>
+<li><span class="id">AC-B6</span><span>16 色 / <code>NO_COLOR</code> 下三种前缀字形仍可区分（字形本身不依赖颜色）。</span></li>
+<li><span class="id">AC-B7</span><span>进行中的工具行<strong>不闪烁</strong>：任一静态瞬间都能读出「这一行在跑、跑到哪了」（条长 + 文字），动画不是唯一信号源。</span></li>
+</ul>
+</section>
+
+<!-- ══════ ④C 子 AGENT 并发 ══════ -->
+<section id="spec-agent">
+<div class="eyebrow">Spec C</div>
+<h2>C · 子 Agent 并发（主 Agent 编排）</h2>
+<p class="desc">这一节定义：主 Agent 把工作拆给多个子 Agent 并行推进时，<strong>对话流怎么不变成一团乱麻</strong>。核心决策只有一条——<strong>子 Agent 给独立块、块内有自己完整的一套排版</strong>，且<strong>默认收起一切不需要你现在看的东西</strong>。</p>
+
+<div class="sublabel">C1 卡片结构 —— 头部即收起态的全部内容</div>
+<pre class="frame"><b>收起态（已完成）</b>
+▸ SUB-1   settlement_kernel.c   结算矩阵向量化 · 收益 342→96ms      完成 · 6.2s · 4 工具
+
+<b>展开态（进行中）</b>
+▾ SUB-3   reconcile.c           对账重算内存布局 · 第 3 处验证中      进行中 · 11.3s · 5 工具 · 并发 3
+   ● 改写 + 等价性验证                     2 处已应用 · 第 3 处验证中        ← 当前(或最后)一步
+   $ perf_record   -F 99 -g -- reconcile_pass                    3.4s
+   $ apply_patch   reconcile.c · [77-82]                         1.1s
+   → read_file     reconcile.c · 读取 [140-260]     ████████░░ 88% 进行中
+   ∗ grep          prefetch · 全工程引用点          ████░░░░░░ 41% 进行中
+   $ bench_compare --baseline --verify-bits        ██████░░░░ 64% 进行中
+   说明：profiler 类已串行，其余 3 个工具仍并发…                            ← 一条说明收尾</pre>
+<table>
+<tr><th>部位</th><th>内容包括</th><th>规则</th></tr>
+<tr><td class="nw">头部（收起态全部）</td><td>编号 · 目标名 · 在干什么 · <strong>状态 · 耗时 · 工具数 · token</strong></td><td><strong>开合之间这一行一字不变</strong>——头部是「收起态下的完整信息」，展开只是把「现在在干什么」补在下面</td></tr>
+<tr><td class="nw">展开区 · 三段</td><td>当前步 → 工具行（含并发）→ 一条说明</td><td><strong>只给「现在在干什么」，不铺完整历史</strong>：已完成的前置步骤压进头部摘要；要看回放，走左侧会话列表那条完整轨迹</td></tr>
+<tr><td class="nw">不画的东西</td><td>左侧状态导轨</td><td>状态色只落在头部的状态词与状态方块上——多层嵌套下导轨会同时重复状态与缩进两件事</td></tr>
+</table>
+
+<div class="sublabel">C2 默认收起规则 —— 判据是「还需不需要你看」，不是深度</div>
+<table>
+<tr><th>卡片状态</th><th>默认</th><th>理由</th></tr>
+<tr><td class="nw"><span class="stq done"></span> 已完成</td><td><strong>收起</strong>（只留头部一行）</td><td>结论已经在头部摘要里了（收益、耗时、工具数），过程不需要你现在读</td></tr>
+<tr><td class="nw"><span class="stq doing"></span> 进行中</td><td><strong>展开</strong></td><td>「现在在干什么」是你要盯的唯一一件事</td></tr>
+<tr><td class="nw"><span class="stq wait"></span> 受阻待裁决</td><td><strong>展开</strong></td><td>它需要你现在做决定，收起等于把待办藏起来</td></tr>
+<tr><td class="nw"><span class="stq hold"></span> 已收住（触顶回退）</td><td>收起</td><td>已止损，不需要动作；但它<b>不能从树上消失</b>——收起的卡片头部仍写「已收住回退基线」</td></tr>
+</table>
+<div class="rule"><b>为什么判据不写成「按深度收起」：</b>如果按深度收，最深的那个<b>受阻项会被父级一起藏掉</b>——而它恰恰是唯一需要人看的东西。反过来，一个已经跑到第 4 层的进行中分支，藏起来也没意义。<strong>收不收，只由「还需不需要你看」决定。</strong><br>
+<b>可收起 ≠ 只收嵌套的那些：</b>所有卡片都可收起（头部即开关），而不是只给多层嵌套的卡片加收起——同一屏里两种卡片行为不同，用户会先花时间判断「这张能不能点」。</div>
+
+<div class="sublabel">C3 编排泳道 · 槽位 · 隔离</div>
+<table>
+<tr><th>要素</th><th>规格</th><th>理由</th></tr>
+<tr><td class="nw">泳道（Orchestration Lane）</td><td>同屏并置、对齐同一条时间轴，右端给耗时与状态；main 在最上</td><td><strong>并发不靠动效表达「同时」</strong>——静态帧、SSH、截图里都要读得出来</td></tr>
+<tr><td class="nw">并发上限</td><td>4 子 Agent（16 逻辑核）</td><td>与「单子 Agent 内工具并发上限 4」同源，避免两级并发相乘把机器打满</td></tr>
+<tr><td class="nw">槽位（Concurrency Slot Gauge）</td><td>给「还剩几个」而不是「现在几个」；<code>■■■□ 3 / 4</code></td><td>会耗尽的是槽位，不是并发数；<strong>子级继承父级剩余槽位，不单独开池</strong>（否则嵌套会绕过全局上限）</td></tr>
+<tr><td class="nw">隔离方式</td><td>每个子 Agent 独立 git worktree，完成后由主 Agent 合并</td><td>并行的前提是改动不互相踩；合并冲突为 0 是这套编排的验收指标之一</td></tr>
+<tr><td class="nw">共享只读</td><td>tiancheng 策略库 20523 案例 · 知识库检索<strong>并发读、不排队</strong></td><td>只读资源不需要串行——把只读也排队是白白浪费并行度</td></tr>
+</table>
+
+<div class="sublabel">C4 token 归属 —— 父子不双算</div>
+<table>
+<tr><th>规则</th><th>算法</th><th>为什么必须这么算</th></tr>
+<tr><td class="nw">归属</td><td>每个 Agent 只计<strong>自己的调用</strong>；父级汇总 = 自身 + 全部后代，按 Agent 去重</td><td>否则每加一层就重复计一次，<strong>越深的编排越显得贵</strong>，用户会因此不敢用深编排</td></tr>
+<tr><td class="nw">算例（单级）</td><td>main 总计 268.8k = 自身 168k + sub-1 18.4k + sub-2 支 82.4k</td><td>—</td></tr>
+<tr><td class="nw">算例（多级）</td><td>sub-2 小计 82.4k = 自身 41.2k + sub-2.1 9.6k + sub-2.2 21.8k + sub-2.2.1 9.8k</td><td>已回退的分支（sub-2.3）成本计入发起它那一方的一轮，不再单独成项</td></tr>
+<tr><td class="nw">呈现</td><td>头部 <strong>Token Badge</strong> 就地挂在卡片上；父级汇总额用一行文字说清算法</td><td>数字要能就地验证——用户会问「你这 268.8k 怎么算的」</td></tr>
+<tr><td class="nw">并发成本提示</td><td>「子 Agent 占比 63.7% —— 并行度越高，token 放大越明显，这是并发编排的真实成本」</td><td>并发不是免费的，成本要显式说出来，而不是藏在总数里</td></tr>
+</table>
+
+<div class="sublabel">C5 收口（主 Agent 合并）</div>
+<pre class="frame">主 Agent 收口
+  3 个子 Agent 中 2 个已完成并合入主干 · sub-3 仍在运行，不阻塞其余交付        ← 收口横幅（Report Card 横幅段）
+  统计格   子 Agent 3（2 完成 · 1 进行中） · 工具调用 14（峰值并发 3） · 合并冲突 0（worktree 隔离）
+  ■ 已合并   sub-1 settlement_kernel.c · sub-2 risk_score.c
+  ■ 待合并   sub-3 reconcile.c（进行中，完成后自动合入）</pre>
+<div class="rule"><b>部分完成也要有收口横幅：</b>多子 Agent 并行时，最常见的状态是「一部分好了、一部分还在跑」——这正是最需要一句话说清「现在能交付什么、什么不阻塞」的时刻。横幅不写「完成」，写<strong>完成几个 / 合入几个 / 是否阻塞</strong>。</div>
+
+<div class="sublabel">C6 状态矩阵</div>
+<table>
+<tr><th>状态</th><th>头部</th><th>默认开合</th><th>槽位占用</th><th>说明区</th></tr>
+<tr><td class="nw">未开始（排队）</td><td>状态词「待处理」+ 空心灰方块</td><td>收起</td><td>不占（等待获槽）</td><td>—</td></tr>
+<tr><td class="nw">进行中</td><td>状态词「进行中」+ 实心蓝方块</td><td><strong>展开</strong></td><td>占 1</td><td>当前步 + 工具行</td></tr>
+<tr><td class="nw">受阻待裁决</td><td>状态词「受阻」+ 实心金方块</td><td><strong>展开</strong></td><td>占 1（保留现场）</td><td>受阻说明块（<code>⚠</code> 标题 + 1–3 行）</td></tr>
+<tr><td class="nw">已完成</td><td>状态词「完成」+ 实心绿方块</td><td>收起</td><td>释放</td><td>折叠（收益与结论在头部）</td></tr>
+<tr><td class="nw">已收住（触顶回退）</td><td>状态词「已收住」+ <strong>空心金</strong>方块</td><td>收起</td><td>释放</td><td>—</td></tr>
+<tr><td class="nw">失败</td><td>状态词「失败」+ 实心红方块</td><td>展开</td><td>释放</td><td>失败原因；<strong>父级不继承失败色</strong>（见 §4D4）</td></tr>
+</table>
+
+<div class="sublabel">C7 验收条件</div>
+<ul class="ac">
+<li><span class="id">AC-C1</span><span>同一屏内可同时看到收起与展开两种卡片，且<strong>所有</strong>卡片（不限嵌套层）都能用点击 / <kbd>Enter</kbd> / <kbd>Space</kbd> 开合。</span></li>
+<li><span class="id">AC-C2</span><span>卡片开合前后，头部那行文字逐字相同。</span></li>
+<li><span class="id">AC-C3</span><span>进行中与受阻的卡片默认展开；已完成与已收住的默认收起。</span></li>
+<li><span class="id">AC-C4</span><span>槽位显示的是「还剩几个」，父子共享同一个池，嵌套不新开池。</span></li>
+<li><span class="id">AC-C5</span><span>token 徽标之和与父级汇总额一致（按 §4C4 算例可逐项核对，无重复计数）。</span></li>
+<li><span class="id">AC-C6</span><span>收口区在「部分完成」时仍给出横幅，且明确写「不阻塞其余交付」。</span></li>
+<li><span class="id">AC-C7</span><span>窄屏（58 格）下泳道不横向滚动，时间轴刻度可降级为起止两个刻度。</span></li>
+<li><span class="id">AC-C8</span><span><strong>进行中的状态不靠闪烁表达</strong>：方块、进度条、泳道条三者静止时都能读出「在跑」（颜色 + 位置 + 条长），动效只作补充。</span></li>
+<li><span class="id">AC-C9</span><span><strong>卡内不套卡</strong>：子 Agent 卡内的说明文字无底色、无金线（卡外 AI 文本才有中性面）；卡内受阻块只留金左线、不收底色与圆角。金左线在整条流里只出现在受阻块上，别的单元一律没有。</span></li>
+<li><span class="id">AC-C10</span><span>受阻块说明行 ≤ 3 行，且只写这次任务的因果与取舍；不出现「宁可…也不…」这类换个项目依然成立的价值宣言（那属规范）。</span></li>
+</ul>
+<div class="rule"><b>状态与进度不靠闪烁（本轮明确的一条纪律）：</b>「进行中」这个信息已经有三个静态通道——<strong>颜色</strong>（实心蓝方块）· <strong>位置</strong>（泳道条落在时间轴上，左端对齐读「同时开始」，长度差读「谁快谁慢」）· <strong>文字</strong>（状态词）。闪烁是第四个通道，<strong>它说的和前三个是同一件事，但代价是静态帧读不出来</strong>（截图、SSH、录屏、导出报告里全是一个瞬间）。所以子 Agent 方块用常亮外发光而非脉冲、进度条不闪、输入框光标用常亮实心方块——整个项目已删除 <code>@keyframes</code> 闪烁动效（仅保留 Loading 的旋进字形 <code>⠋⠙⠹</code>，那是逐帧换字符，不是透明度闪烁）。</div>
+</section>
+
+<!-- ══════ ④D 多级嵌套 ══════ -->
+<section id="spec-multi">
+<div class="eyebrow">Spec D</div>
+<h2>D · 多级子 Agent 嵌套</h2>
+<p class="desc">子 Agent 可以再派子 Agent。<strong>设计上的克制点</strong>：层级<strong>只走一个通道</strong>——缩进加编号。凡是「用第二种方式再说一遍深度或状态」的做法，本轮全部否掉。</p>
+
+<div class="sublabel">D1 深度通道 —— 缩进 + 编号，只有一个</div>
+<pre class="frame">        <b>层级编排总览</b>   9 个 Agent · 最大深度 4
+  L1  main          编排与收口 · 扇出 2 个一级                                  <span class="stq doing"></span>
+  ├─ L2  sub-1      settlement_kernel.c · 结算矩阵向量化                         <span class="stq done"></span>
+  └─ L2  sub-2      risk_score.c · 风控评分 · 扇出 2 个二级                       <span class="stq doing"></span>
+     ├─ L3  sub-2.1 分支提示改写                                               <span class="stq done"></span>
+     ├─ L3  sub-2.2 冗余调用消除 · 扇出 1 个三级                                 <span class="stq doing"></span>
+     │  └─ L4  sub-2.2.1 内联比较函数 · 验证未通过                              <span class="stq wait"></span>
+     ├─ L3  sub-2.3 继续下钻 · 触达深度上限，已收住                              <span class="stq hold"></span>
+     └─ … 更深 2 层已折叠     <b>[点击展开]</b>                                       ← 可交互折叠节点
+</pre>
+<table>
+<tr><th>通道</th><th>用不用</th><th>说明</th></tr>
+<tr><td class="nw">缩进 16px / 格</td><td><strong>用</strong>（唯一深度通道）</td><td>不封顶——深度上限 4 层，最坏 64px；封顶会把第 3、4 层压平、废掉缩进这个信号</td></tr>
+<tr><td class="nw">编号 <code>SUB-2.2.1</code></td><td><strong>用</strong>（唯一标识通道）</td><td>用来指代（「让 sub-2.2.1 停下」）与回溯来源链</td></tr>
+<tr><td class="nw">左侧状态导轨（彩条）</td><td><strong>不用</strong></td><td>多层嵌套会长出一排平行彩条，而状态在头部已经写了；终端面还会退化成 <code>│</code> 列</td></tr>
+<tr><td class="nw">深度徽标 × 颜色</td><td><strong>不用</strong></td><td>颜色通道归了状态方块（蓝 / 绿 / 金 / 灰），深度与状态是正交维度，不该抢同一个通道</td></tr>
+</table>
+<div class="rule"><b>推翻过的方案（记录在案）：</b>早期版本同时用了「缩进 + 导轨线宽 + 深度徽标」三条通道，再给每张卡加一条状态导轨——4 层嵌套 = 4 条线 + 4 个徽标 + 4 条彩条，<strong>状态色反而要看半天</strong>。现在只剩一条通道，代价是深度信息变弱，用编号补回来（编号可被引用，导轨不能）。</div>
+
+<div class="sublabel">D2 画不下怎么办 —— 显式说画不下</div>
+<table>
+<tr><th>情形</th><th>处理</th><th>理由</th></tr>
+<tr><td class="nw">超过 3 层</td><td>中间层收成一个可交互的 <code>…</code> 节点，<kbd>Enter</kbd> / <kbd>Space</kbd> / 点击<strong>就地展开</strong>，节点文字写明「更深 N 层已折叠」</td><td><strong>画不下就显式说画不下，不能悄悄吞掉</strong>——沿用工程树那条既有决策</td></tr>
+<tr><td class="nw">深度触顶（第 4 层还想往下）</td><td><strong>不下钻，收住并回退基线，不留半成品</strong></td><td>再往下，协调成本与 token 放大盖不住收益；触顶必须是一条有明确终态的规则，不是「跑到超时」</td></tr>
+</table>
+
+<div class="sublabel">D3 「没做完」的三种样子 —— 必须长得不一样</div>
+<table>
+<tr><th>状态</th><th>方块</th><th>含义</th><th>下一步由谁做</th></tr>
+<tr><td class="nw">受阻待裁决</td><td><strong>实心金</strong></td><td>有问题，需要人来决定</td><td>人（<strong>不静默重试</strong>——受阻原因是语义冲突，重试只会重复烧 token）</td></tr>
+<tr><td class="nw">触顶收住</td><td><strong>空心金</strong></td><td>没做，但是主动止损，不是失败</td><td>无人；已回退到基线</td></tr>
+<tr><td class="nw">画不下（折叠）</td><td>无方块</td><td>有内容，只是屏幕放不下</td><td>用户点开</td></tr>
+</table>
+<div class="rule">三种的区分落在<strong>状态方块的填充</strong>上：受阻是实心金（还在等你），已收住是空心金（已经停下来了），同一个色相靠填充就分得开，不必再看文字。折叠的 <code>…</code> 不标方块——<strong>它不是状态，是「画不下」</strong>。三种的中文解释仍由说明列给全（「验证未通过」「触达深度上限，已收住」），颜色只负责说「这里需要你看一眼」。</div>
+
+<div class="sublabel">D4 状态传播 —— 父级不继承子级失败色</div>
+<table>
+<tr><th>规则</th><th>行为</th><th>理由</th></tr>
+<tr><td class="nw">父级不自动失败</td><td><code>sub-2.2.1</code> 受阻 → <code>sub-2</code> 仍是「进行中」</td><td>父级<strong>只认自己那一行的事实</strong>。一旦继承，越往上颜色越脏，最后 main 永远是红的，颜色就失去了指示作用</td></tr>
+<tr><td class="nw">受阻必上抛</td><td>冒泡到 main 的收口清单</td><td>不能烂在第 4 层没人看见——收口横幅要报出「1 受阻待裁决」</td></tr>
+<tr><td class="nw">不静默重试</td><td>受阻项停下等人</td><td>语义冲突类问题重试只会重复烧 token</td></tr>
+<tr><td class="nw">本地阻塞不扩散</td><td>某支文件的改动不与其它支重叠时，其余支可先交付</td><td>这是并行的意义：<strong>不让一个慢支拖住全部</strong></td></tr>
+</table>
+
+<div class="sublabel">D5 验收条件</div>
+<ul class="ac">
+<li><span class="id">AC-D1</span><span>4 层嵌套下，深度只用「缩进 + 编号」两个可验证信号；不存在状态导轨或第二套深度色。</span></li>
+<li><span class="id">AC-D2</span><span>超过 3 层的部分收为 <code>…</code> 节点，节点文字含被折叠的层数，且可键盘展开。</span></li>
+<li><span class="id">AC-D3</span><span>受阻 / 已收住 / 折叠三种「没做完」在方块填充或无方块上互不相同，且各自有中文解释列。</span></li>
+<li><span class="id">AC-D4</span><span>子级受阻时父级状态色不变；受阻项出现在 main 收口清单里。</span></li>
+<li><span class="id">AC-D5</span><span>深度触顶时的文案明确写出「已收住 / 回退基线」，且不存在半成品改动被合入。</span></li>
+<li><span class="id">AC-D6</span><span>窄屏下缩进不封顶、不换行折断；最坏 64px 缩进时仍能读完目标名。</span></li>
+</ul>
+</section>
+
+<!-- ══════ ④E 配置管理 ══════ -->
+<section id="spec-cfg">
+<div class="eyebrow">Spec E</div>
+<h2>E · 配置管理与落点（命令 ↔ 配置文件）</h2>
+<p class="desc">用户在会话里改的两项设置，<strong>本身就是配置文件里的两行</strong>。这一节把「命令改了什么、在哪生效、什么不该做」写清楚——它是对接阶段最需要的一份对照。</p>
+
+<div class="sublabel">E1 命令 ↔ config.toml 对照</div>
+<table>
+<tr><th>命令</th><th>写入</th><th>取值范围</th><th>生效范围</th><th>拒绝条件</th></tr>
+<tr><td class="nw"><code>/model &lt;供应商&gt;/&lt;模型&gt;</code></td><td><code>[model] PRIMARY</code></td><td><code>model.PROVIDERS</code> × <code>model.providers.&lt;id&gt;.MODELS</code> 的笛卡尔积内，且该供应商 <code>API_KEY</code> 已配置</td><td>新起的子 Agent 继承 · 运行中的不换</td><td>未知供应商 / 该供应商下无此模型 / 未配密钥 → 拒绝 + 列出可用写法</td></tr>
+<tr><td class="nw"><code>/model &lt;模型名&gt;</code></td><td><code>[model] PRIMARY</code></td><td>同一模型名在 <strong>恰好一个</strong>供应商下存在</td><td>同上</td><td>多义（≥2 个供应商）→ 拒绝 + 列出全部 <code>供应商/模型</code>；无匹配 → 拒绝 + 提示敲 <code>/model</code> 看候选</td></tr>
+<tr><td class="nw"><code>/tokens &lt;20-95&gt;</code></td><td><code>[budget] WARN_AT</code></td><td><code>0.20 – 0.95</code>（命令接受带 <code>%</code>）</td><td>立即生效 · 不需要重开对话</td><td>越界 / 非数 / 空参 → 拒绝 + 给出正确写法</td></tr>
+</table>
+<pre class="frame"><span class="cmt"># .devkitai/config.toml —— 这份清单就是 /model 候选的来源</span>
+[model]
+PRIMARY   = <span class="bar">"devkit-gateway/qwen2.5-coder-32b"</span>   <span class="cmt"># ← /model 写这一行</span>
+PROVIDERS = ["devkit-gateway", "kunpeng-local", "private-cloud"]
+
+[model.providers.devkit-gateway]     <span class="cmt"># 内部推理网关 · 团队共享额度池</span>
+BASE_URL = "https://devkit-gateway.internal/v1"
+MODELS   = [
+  "pangu2.5-72b-instruct",
+  "deepseek-v3-671b",
+  "qwen2.5-coder-32b",
+]
+
+[model.providers.kunpeng-local]      <span class="cmt"># 本机昇腾推理 · 独占配额，不排队</span>
+BASE_URL = "http://127.0.0.1:8000/v1"
+MODELS   = ["pangu2.5-7b-instruct"]
+
+[model.providers.private-cloud]      <span class="cmt"># 客户私有云 · 走客户侧账号</span>
+BASE_URL = "https://llm.private.internal/v1"
+MODELS   = ["deepseek-v3-671b", "qwen2.5-coder-32b"]
+<span class="cmt"># API_KEY 未配置 —— 该供应商下的模型暂不可用</span>
+
+[subagent]
+INHERIT        = true            <span class="cmt"># 新起的子 Agent 继承主模型</span>
+MODEL_OVERRIDE = "devkit-gateway/qwen2.5-coder-32b"   <span class="cmt"># 检索/打补丁类子 Agent 用更轻的模型</span>
+
+[budget]
+WARN_AT            = <span class="bar">0.85</span>        <span class="cmt"># ← /tokens 写这一行 · 可选 0.20–0.95</span>
+MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># 单个子 Agent 上限，超了停下汇报</span></pre>
+<div class="rule"><b>命令不是配置文件的快捷方式，是它的另一个写入口。</b>两边写的是同一个值，所以在哪边改，另一边马上就是新值——正因为如此，这里<strong>不需要「应用」按钮，也不需要「同步」状态</strong>。任何形式的「命令改了一份内存状态、配置文件还是旧的」都是缺陷。<br>
+<b>为什么模型写在供应商下面：</b>端点、密钥、额度、计费主体都是<strong>供应商账号</strong>的属性，不是模型的属性；同一个模型名可以在多个供应商下存在。所以 <code>PRIMARY</code> 与 <code>MODEL_OVERRIDE</code> 一律写 <code>供应商/模型</code> 全名——只写模型名时，配置本身就无法表达「走谁的账号」。<br>
+<b>与 demo 的差异只有排版：</b><code>agent-workspace.html</code> 右侧代码列更窄，同一份文件把分组注释单独起了一行、<code>PROVIDERS</code> 折成两行；<strong>字段名、值与结构完全一致</strong>，对照时以字段为准。</div>
+
+<div class="sublabel">E2 同一屏里的「看」与「改」</div>
+<table>
+<tr><th>段</th><th>回答的问题</th><th>主要单元</th><th>关键约束</th></tr>
+<tr><td class="nw"><code>develop:model-token</code> · 看现状段</td><td>现在用的是哪个供应商的哪个模型、用了多少、还剩多少额度、谁能用</td><td>模型浮层（流内卡片，供应商分组）· Quota Bar（挂在当前供应商账号下）· Token 明细表 · Checklist Row</td><td>只读为主；点击切换是就地操作，浮层自己的 <code>current</code> 标记即反馈，<strong>不写回执</strong>；点不可用的行例外（要给「没有改」回执，否则等于静默失败）</td></tr>
+<tr><td class="nw"><code>develop:model-token</code> · 改配置段</td><td>想换的话在哪换、换错了会怎样</td><td>Command Echo · Checklist Row（拒绝）· 命令↔字段对照表</td><td><strong>是「改」不是「看」</strong>：命令行 + 回执进流，右侧代码列同时显示 <code>config.toml</code> 的改动前后</td></tr>
+</table>
+<div class="note"><b>看与改合并成一屏，不是少了一屏，而是删掉了一条本来就不该存在的约束。</b>原先拆成 <code>model-token</code>（看）与 <code>cfg-cmd</code>（改）两个场景，代价是两屏的 <code>tokens 1.24M · ctx 38%</code> 必须<strong>强行对齐</strong>——一旦不一致，「改完立刻生效」看起来就是假的。既然两屏必须共享同一批数字、同一个输入框、同一个 <code>config.toml</code>，它们本来就是<strong>同一场会话</strong>；合并后 demo 的 <code>METRICS</code> 表里也只剩一行，不再需要「两行必须相等」的注释。</div>
+
+<div class="sublabel">E3 额度与水位（Quota Bar）</div>
+<p class="desc"><strong>额度挂在供应商账号上</strong>：切供应商就换一整套数字与重置语义。共享网关给的是时间窗（<code>5h</code> / <code>7d</code>），本机推理给的是资源占用（<code>GPU</code> / <code>队列</code>）——两者不是同一个东西，不该硬凑成同一组标签。读不到额度时（例如没配密钥）不给空条，改一句「为什么读不到」。</p>
+<table>
+<tr><th>行</th><th>示例</th><th>风险档</th><th>说明列写什么</th></tr>
+<tr><td class="nw">5h 窗口</td><td><code>5h ▓▓▓░░░░ 38% · 充裕 · reset 14:00</code></td><td>lv-1（正常）</td><td>状态词 + <strong>重置时间</strong>——用户要知道额度什么时候回来</td></tr>
+<tr><td class="nw">7d 窗口</td><td><code>7d ▓▓▓▓▓▓░░ 72% · 偏高 · reset 周一 09:00</code></td><td>lv-3（warnAt 触发）</td><td>同左</td></tr>
+<tr><td class="nw">GPU 占用<br>（kunpeng-local）</td><td><code>GPU ▓▓▓░░░░ 37% · 已用 · 本机独占，不占共享池</code></td><td>lv-1</td><td>本机推理没有「额度重置」，说明列改为讲占用与排队</td></tr>
+<tr><td class="nw">ctx 水位</td><td><code>ctx ▓▓▓▓░ 72% /70%</code>（底栏与提示行）</td><td>≥ warnAt → 变黄；≥ warnAt+15 → 变红</td><td><strong>当前值 / 阈值一起给</strong>：只给当前值用户没法判断「72% 算不算高」；只给阈值又看不到离它多远</td></tr>
+<tr><td class="nw">读不到额度</td><td><code>没有改</code> 形状的一行：「额度读不到 · 该供应商没有配置密钥」</td><td>—</td><td>不画 0% 的空条假装有数据——那会被读成「额度用完了」</td></tr>
+</table>
+<div class="rule"><b>四级风险色降为三档：</b>额度与水位在概念上是四个级别（充裕 / 正常 / 偏高 / 危险），但实际取色只给三档——「充裕」与「正常」不做颜色区分，避免同屏出现两种都表示「没事」的颜色，把注意力浪费在无差别信息上。</div>
+
+<div class="sublabel">E4 验收条件</div>
+<ul class="ac">
+<li><span class="id">AC-E1</span><span>命令改动的字段与 <code>config.toml</code> 中的行一一对应，右侧代码列能看到改动前后（diff 形态）。</span></li>
+<li><span class="id">AC-E2</span><span>不存在「应用 / 保存 / 同步」按钮或状态条。</span></li>
+<li><span class="id">AC-E3</span><span>候选菜单的模型清单 = <code>model.providers.&lt;id&gt;.MODELS</code> 的并集；改配置文件后候选即时变化。</span></li>
+<li><span class="id">AC-E4</span><span><code>subagent.MODEL_OVERRIDE</code> 生效时，卡片头部能看出该子 Agent 用的是哪个模型（可覆盖而不静默），写法为 <code>供应商/模型</code>。</span></li>
+<li><span class="id">AC-E5</span><span>「看」与「改」的数字同源：<code>develop:model-token</code> 一屏里的 token / ctx 水位与底栏、提示行三处完全一致（同一个 <code>METRICS</code> 记录、同一个 <code>setModel()</code> 写入口），不存在第二个数据源。</span></li>
+<li><span class="id">AC-E6</span><span>阈值越界时回执给出可选范围与「正确写法」，且阈值保持不变。</span></li>
+<li><span class="id">AC-E7</span><span><code>[model]</code> 段只允许 <code>供应商/模型</code> 全名；配置文件里出现不带供应商前缀的 <code>PRIMARY</code> / <code>MODEL_OVERRIDE</code> 视为配置错误（不能靠运行时的「猜一个」兜底）。</span></li>
+<li><span class="id">AC-E8</span><span>额度条、供应商分组、候选菜单三处展示的供应商状态与配置一致：未配 <code>API_KEY</code> 的供应商在三处都是「可见但不可用」。</span></li>
+</ul>
+</section>
+
+<!-- ══════ 基元映射 ══════ -->
+<section id="primitives">
+<div class="eyebrow">Primitives</div>
+<h2>基元映射 —— 每个部分对应哪个对话流基本单元</h2>
+<p class="desc">规范侧的同一张表在 <a href="./index.html#convo">index.html#convo</a>（本轮新增 → 基元映射）。这里是<strong>按本文档的功能分组</strong>再列一遍，方便对照表单逐行查：有对应基元的一律复用并保持形状一致，标 <span class="st ask">新增</span> 的才算新单元。</p>
+<table>
+<tr><th>功能部分</th><th>对应基元</th><th>结论</th></tr>
+<tr><td class="nw">命令行本身（<code>/model …</code>）</td><td>User Message</td><td>复用——它确实是用户说的话</td></tr>
+<tr><td class="nw">改配置的回执（成功）</td><td>AI Text + Inline Highlight</td><td>复用——AI 文本是默认态，关键值靠行内强调分色</td></tr>
+<tr><td class="nw">改配置的回执（被拒）</td><td>Checklist Row（<code>wrap</code> 变体 · 实心金方块 · 「没有改」）</td><td>复用 + 变体</td></tr>
+<tr><td class="nw">输入框下方的命令提示</td><td>Command Hint Bar</td><td>已有（本轮重排版 + 定死降级阶梯）</td></tr>
+<tr><td class="nw">候选菜单 / 候选行的「当前」标记 / 供应商列</td><td>Command Candidate Menu · Status Square · Candidate Menu 的字段</td><td><span class="st ask">新增</span>菜单；后两者为复用</td></tr>
+<tr><td class="nw">模型浮层里的供应商分组（组头 + 缩进模型行 + 一次只摊开一组）</td><td>Model Switcher 的受约束变体</td><td>变体——不新立组件，形状差异见 §4A5 与 §4E2</td></tr>
+<tr><td class="nw">切换被拒的两种新理由（同名多义 / 未配密钥）</td><td>Checklist Row（与「越界被拒」同一形状）</td><td>复用——区别只在值列的文案</td></tr>
+<tr><td class="nw">下一步建议按钮</td><td>Suggested Actions</td><td>已有（本轮从「系统与容器类」挪进输入区单元）</td></tr>
+<tr><td class="nw">子 Agent 卡片与其内部排版</td><td>Sub-Agent Block</td><td>已有（本轮补：头部即收起态全部内容、默认开合判据）</td></tr>
+<tr><td class="nw">卡内并发的工具行</td><td>Concurrent Tool Row</td><td>已有</td></tr>
+<tr><td class="nw">卡片 / 嵌套层收起</td><td>P18 折叠外壳</td><td>复用——摘要行折叠后仍可见</td></tr>
+<tr><td class="nw">层级编号 + 缩进 / 层级总览 / <code>…</code> 节点</td><td>Depth Badge + 缩进 · Hierarchy Tree</td><td>已有</td></tr>
+<tr><td class="nw">槽位 / token 徽标 / 泳道</td><td>Concurrency Slot Gauge · Token Badge · Orchestration Lane</td><td>已有</td></tr>
+<tr><td class="nw">流内模型切换 / 额度条 / 底栏三项</td><td>Model Switcher · Quota Bar · Status Bar Metrics</td><td>已有</td></tr>
+<tr><td class="nw">收口总结</td><td>Report Card 的横幅段 + 统计格 + Checklist Row</td><td>复用——不新造「总结条」</td></tr>
+<tr><td class="nw">「为什么卡住、要不要人裁决」</td><td>Blocker Note</td><td><span class="st ask">新增</span>（金左线 + <code>⚠</code>/<code>?</code> 标题 + 1–3 行）</td></tr>
+<tr><td class="nw">正文里的六色关键词强调</td><td>Inline Highlight</td><td><span class="st ask">新增</span>（六个 <code>--hl-*</code> token）</td></tr>
+<tr><td class="nw">输入框上方的曲线区</td><td>Tune Chart Container</td><td><span class="st ask">新增</span>（可收起 · 双视图 · 收起即暂停）</td></tr>
+</table>
+<div class="rule"><b>比例本身就是结论：</b>本轮的 18 行功能里，真正需要的<strong>新单元只有 3 个</strong>（受阻说明块 / 行内强调 / 调优曲线容器）+ 1 个已登记待并（候选菜单）；后加的「供应商」维度<strong>一个组件都没新增</strong>——它是 Model Switcher 的受约束变体（组头可收起）+ Command Candidate Menu 换掉一列（额度池 → 供应商）+ Checklist Row 多两种拒绝理由。多级并发与「会话内改配置」这两个能力最容易诱人再发明一套进度通知、状态标记、总结条；实际上它们全都落在已登记的基元上。</div>
+</section>
+
+<!-- ══════ 缺口 ══════ -->
+<section id="gaps">
+<div class="eyebrow">Gaps</div>
+<h2>缺口与待裁决</h2>
+<p class="desc">下面每一条都是<strong>需要人工裁决或有明确缺失</strong>的事项。未裁决前，相关条目不能标「已交付」。</p>
+
+<div class="note crit"><b>待裁决 1 · <code>/tokens</code> 的语义歧义（最高优先级）</b><br>
+现状：<code>/tokens 85</code> 改的是 <strong>ctx 水位告警线</strong>，不是 token 计数；但提示行把它排成 <code>/tokens 1.24M 告警线 70%</code>——<strong>用户会以为 <code>/tokens</code> 能改「1.24M」这个数</strong>（那是本会话已消耗量，不可改）。这是真实存在的误导。<br>
+<b>A 方案（推荐）</b>：<code>/tokens</code> 只管 token 预算线（新增概念），水位告警线拆给新命令 <code>/ctx</code>。代价：斜杠命令表、提示行、底栏、<code>index.html</code> 规范页四处同步改；收益是语义与名字一一对应。<br>
+<b>B 方案</b>：保留现状，把提示行的 token 数改成 <code>已用 1.24M</code> 字样以避开误读。代价小，但 <code>/tokens</code> 这个名字与它所改的东西仍然不一致。<br>
+<b>未裁决前</b>：本文档所有涉及 <code>/tokens</code> 的验收条件按「改告警线」执行，提示行排版保持现状并已在 index.html 登记该歧义。</div>
+
+<div class="note warn"><b>待裁决 2 · Console Block 的规范 / 实现分歧</b><br>
+<code>index.html</code> 在「系统与容器类」一节写下过「Console Log 因与 Checklist Row 形状太像已删除」，但 <code>agent-workspace.html</code> 的 <code>tune</code> 场景<strong>仍在用 <code>.console</code> 折叠块</strong>渲染调优日志——按仓库纪律（规范与实现互为约束，分歧即缺陷）需要裁决。<br>
+<b>A</b> · 删实现：调优日志并入 Tool Call Line 与 P18 折叠输出；<b>B（倾向）</b> · 收回规范：把 Console 重新登记为「Console Block 日志块」，硬约束为「只用于行数多但结构弱的输出，必须可收起、默认收起」。详见 index.html 对应位置的待裁决块。</div>
+
+<div class="note"><b>缺口 3 · 「接口设计」还未成文</b><br>
+命令语法、字段、边界、拒绝文案已经定死（§4A2 / §4B3 / §4E1），但<strong>没有一份正式的接口清单</strong>：事件名、payload 结构、错误码、并发上限如何下发、中断/回收如何通知，都留给实现阶段。表单第 3 行标「部分交付」即为此。建议在 <code>tui/</code> 进入实现前补一份 <code>interface.md</code>，与本文档的字段表对齐。</div>
+
+<div class="note"><b>缺口 4 · 实现轨道的门禁</b><br>
+表单第 4/5/6/9/10/11/14/15/16/18 行为实现轨道，其入口条件是 <code>UI-SPEC.md</code> 状态为 <code>approved</code>（当前 <code>draft</code>）且页面 <code>ui-spec-version</code> 与全局版本完全相等。本文档与 index.html 的增补<strong>不改变这一门禁</strong>，也不代表实现已排期。</div>
+
+<div class="note"><b>已修正 · 引用错位</b><br>
+demo 的受阻说明块原文引用「按 P29『资源提示』规则」，但 <code>index.html</code> 的 P29 是「多任务管理」——引用错位已改为「按『资源独占工具』规则」。仅此一处，其余 pattern 引用未见错位。</div>
+</section>
+
+<!-- ══════ 验收清单 ══════ -->
+<section id="accept">
+<div class="eyebrow">Acceptance</div>
+<h2>验收清单（汇总）</h2>
+<p class="desc">逐条可勾。设计与 demo 的验收条件按「当前 demo 已可核对」写；实现轨道的条目在实现阶段用同一组编号复查。</p>
+<h3>模型与 Token（§4A）</h3>
+<ul class="ac">
+<li><span class="id">AC-A1</span><span><code>/model</code> 无参 → 列候选、不报错、输入保留</span></li>
+<li><span class="id">AC-A2</span><span><code>/model 供应商/模型</code> 全名 → 切换成功，底栏 / 提示行 / 候选标记三处同步（都带供应商）</span></li>
+<li><span class="id">AC-A3</span><span>三种非法输入 → 「没有改」回执 + 正确写法</span></li>
+<li><span class="id">AC-A4</span><span><code>/tokens 85</code> → 提示行变 85%、当前用量不变，回执不含位置自述</span></li>
+<li><span class="id">AC-A5</span><span>非命令文本 → 输入不被清空、无回执</span></li>
+<li><span class="id">AC-A6</span><span>两个入口 → 同一条回执</span></li>
+<li><span class="id">AC-A7</span><span>820 / 560 两档降级按序执行，<code>/tokens</code> 永不丢</span></li>
+<li><span class="id">AC-A8</span><span>提示行不可点、不抢焦点</span></li>
+<li><span class="id">AC-A9</span><span>浅色主题下六色强调与受阻块标题对比度达标</span></li>
+<li><span class="id">AC-A10</span><span><code>/model qwen</code> 多义 → 拒绝 + 列出全部全名写法，模型不变</span></li>
+<li><span class="id">AC-A11</span><span>未配密钥的供应商 → 拒绝 + 说明缺 <code>API_KEY</code> + 给替代写法</span></li>
+<li><span class="id">AC-A12</span><span>未知供应商 / 该供应商下无此模型 → 拒绝 + 列出实际有值的清单</span></li>
+<li><span class="id">AC-A13</span><span>切供应商 → 额度条换一套数字（<code>5h/7d</code> ↔ <code>GPU/队列</code>），说明行同步</span></li>
+<li><span class="id">AC-A14</span><span>联想支持 <code>devkit-</code>（按供应商）与 <code>qwen</code>（按模型名）两种输入</span></li>
+<li><span class="id">AC-A15</span><span>一次只摊开一组，组头可键盘开合且始终带状态方块</span></li>
+<li><span class="id">AC-A16</span><span>浮层里点不可用的行 → 与命令路径同文案结构的「没有改」回执</span></li>
+</ul>
+<h3>工具调用并发（§4B）</h3>
+<ul class="ac">
+<li><span class="id">AC-B1</span><span>并发与串行行形态一致</span></li>
+<li><span class="id">AC-B2</span><span>done 的行不画进度条</span></li>
+<li><span class="id">AC-B3</span><span>进度不可知时不给假进度条</span></li>
+<li><span class="id">AC-B4</span><span>profiler 串行有受阻说明块解释</span></li>
+<li><span class="id">AC-B5</span><span>收口可读「工具调用次数 + 峰值并发」</span></li>
+<li><span class="id">AC-B6</span><span>16 色 / <code>NO_COLOR</code> 下三种前缀仍可辨</span></li>
+<li><span class="id">AC-B7</span><span>进行中的行不闪烁，静态帧可读</span></li>
+</ul>
+<h3>子 Agent 并发与多级嵌套（§4C / §4D）</h3>
+<ul class="ac">
+<li><span class="id">AC-C1</span><span>所有卡片可收起（不限嵌套层），键盘可达</span></li>
+<li><span class="id">AC-C2</span><span>头部一行开合前后逐字相同</span></li>
+<li><span class="id">AC-C3</span><span>默认开合按「还需不需要你看」</span></li>
+<li><span class="id">AC-C4</span><span>槽位给「还剩几个」，子级继承不新开池</span></li>
+<li><span class="id">AC-C5</span><span>token 父子不双算，可逐项核对</span></li>
+<li><span class="id">AC-C6</span><span>部分完成也有收口横幅</span></li>
+<li><span class="id">AC-C7</span><span>窄屏泳道不横向滚动</span></li>
+<li><span class="id">AC-C8</span><span>状态与进度不靠闪烁表达（静态帧可读）</span></li>
+<li><span class="id">AC-C9</span><span>卡内不套卡：卡内说明无底色无线，卡内受阻块只留金线；金线只属于受阻块</span></li>
+<li><span class="id">AC-C10</span><span>受阻块说明只写这次的因果，不写价值宣言</span></li>
+<li><span class="id">AC-D1</span><span>深度只用缩进 + 编号一个通道</span></li>
+<li><span class="id">AC-D2</span><span><code>…</code> 折叠节点写明层数且可键盘展开</span></li>
+<li><span class="id">AC-D3</span><span>三种「没做完」形状互不相同</span></li>
+<li><span class="id">AC-D4</span><span>父级不继承子级失败色，受阻上抛到收口</span></li>
+<li><span class="id">AC-D5</span><span>触顶收住有明确文案，无半成品合入</span></li>
+<li><span class="id">AC-D6</span><span>缩进不封顶、不折断</span></li>
+</ul>
+<h3>配置管理与落点（§4E）</h3>
+<ul class="ac">
+<li><span class="id">AC-E1</span><span>命令字段 ↔ config.toml 行一一对应，右侧可见 diff</span></li>
+<li><span class="id">AC-E2</span><span>无「应用 / 保存 / 同步」</span></li>
+<li><span class="id">AC-E3</span><span>候选列表 = <code>model.providers.&lt;id&gt;.MODELS</code> 的并集</span></li>
+<li><span class="id">AC-E4</span><span><code>MODEL_OVERRIDE</code> 在卡片上可见，写法为 <code>供应商/模型</code></span></li>
+<li><span class="id">AC-E5</span><span>看与改的数字同源（一屏内 / 底栏 / 提示行三处一致）</span></li>
+<li><span class="id">AC-E6</span><span>越界回执给范围与正确写法</span></li>
+<li><span class="id">AC-E7</span><span><code>PRIMARY</code> / <code>MODEL_OVERRIDE</code> 只接受 <code>供应商/模型</code> 全名</span></li>
+<li><span class="id">AC-E8</span><span>未配密钥的供应商在额度条 / 分组 / 候选菜单三处一致地「可见但不可用」</span></li>
+</ul>
+</section>
+
+<!-- ══════ 文件 ══════ -->
+<section id="files">
+<div class="eyebrow">Files</div>
+<h2>文件索引</h2>
+<table>
+<tr><th>文件</th><th>角色</th><th>本文档引用的位置</th></tr>
+<tr><td class="nw"><a href="./agent-workspace.html">agent-workspace.html</a></td><td>可运行 demo（真实 HTML/CSS/JS）</td><td><code>develop:subagent</code> · <code>develop:model-token</code>（看现状 + 就地改配置）· <code>develop:subagent-tree</code>；<code>runCommand()</code> / <code>setModel()</code> / <code>appendCmdEcho()</code> / <code>.sa</code> / <code>.slots</code> / <code>.blocker</code> / <code>.bi-hintbar</code></td></tr>
+<tr><td class="nw"><a href="./index.html#convo">index.html#convo</a></td><td>规范性元件定义（对话流基元 / 编排类 / 输入区单元 / 基元映射 / 台账）</td><td>14 类基元表 · 编排类 8 类表 · 输入区 4 类表 · 本轮新增 → 基元映射表 · Blocker Note / Inline Highlight / Tune Chart 卡</td></tr>
+<tr><td class="nw"><a href="./launch.html">launch.html</a></td><td>Landing（<kbd>Esc</kbd> 的返回目标）</td><td>—</td></tr>
+<tr><td class="nw"><code>UI-SPEC.md</code> · <code>tui/AGENTS.md</code></td><td>工程实现的准入条件与约束（仓库根 <code>kunpeng-devkit-ai-tui/</code>）</td><td>§2 的口径判定</td></tr>
+</table>
+<p class="rule"><b>改哪一处要回来同步本文档：</b>命令语义（<code>runCommand</code>）、输入区四件套的 DOM 顺序、卡片默认开合、槽位与 token 算法、<code>config.toml</code> 字段名——这五处是本轮所有交互规格的事实源，任何一处改动都会让本文档的对应条目失效。</p>
+</section>
+
+</main>
+</div>
+
+<script>
+function tt(){
+  const r=document.documentElement, d=r.getAttribute('data-theme')==='dark';
+  r.setAttribute('data-theme', d?'light':'dark');
+  document.getElementById('tl').textContent = d?'Dark':'Light';
+}
+/* 侧栏高亮当前小节：与 index.html 同做法，不引第三方库 */
+const links=[...document.querySelectorAll('nav a')];
+const secs=links.map(a=>document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+function paint(){
+  let cur=null;
+  secs.forEach(s=>{ if(s.getBoundingClientRect().top<=120) cur=s; });
+  links.forEach(a=>{
+    const on=cur&&a.getAttribute('href')==='#'+cur.id;
+    a.style.color=on?'var(--foreground)':'';
+    a.style.background=on?'var(--state-hover)':'';
+  });
+}
+document.addEventListener('scroll',paint,{passive:true}); paint();
+</script>
+</body>
+</html>
