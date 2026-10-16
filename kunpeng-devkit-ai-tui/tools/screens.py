@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """字符帧排版底座 —— 给 gen_screens.py 用。
 
 为什么要有这一层：160 列的整屏字符帧不可能手写对齐。
@@ -8,9 +9,9 @@
 
 所以这里把两件事都交给程序：
   ① 宽度按终端单元格算（CJK=2，Braille=1，其余=1），每块渲染前断言等宽；
-  ② 输出 HTML 时给 CJK 包 `.fw`（2ch 字号 → 恰好 2 格），给 Braille 与 ⏸ 族包
-     `.hw`（width:1ch 的行内块 → 恰好 1 格）。两类分开治：CJK 是 1 em 方块，
-     字号法可靠；后者的步进由回退字体决定，只能硬钉宽度。
+  ② 输出 HTML 时按 `cell_class()` 给每个字形封盒子：`.fw` 用字号把 1 em 方块顶成 2 格，
+     `.fw2` 把「字体只画半宽的全角标点」按宽度硬钉 2 格，`.hw` 把等宽字体不覆盖的字形
+     按宽度硬钉 1 格。三类分开治，是因为它们的失效原因各不相同。
 
 渲染结果由 check_frames.py 在真浏览器里逐行复核，不靠肉眼。
 
@@ -28,10 +29,14 @@ import unicodedata
 # ── 字符宽度 ────────────────────────────────────────────────────────────
 # Braille 在终端里占 1 格；`.fw`（2ch 字号）下 0.5em 的点阵正好落回 1 格。
 BRAILLE = (0x2800, 0x28FF)
-# 等宽字体不覆盖的字形。回退字体给它们的步进各不相同——实测 Chromium/Linux 下
-# Braille 是 1.217 格、⏸ 是 0.830 格——**换字体就换一个值**，所以不能靠调字号凑，
-# 只能在 CSS 里用 width:1ch 的行内块把它们硬钉成一格（见 page_css.py 的 .hw）。
-HALFWIDTH_GLYPHS = "⏸⏵⏹⏺"
+# 等宽字体不覆盖的字形。回退字体给它们的步进各不相同——**换字体就换一个值**，
+# 所以不能靠调字号凑，只能在 CSS 里用 width:1ch 的行内块把它们硬钉成一格
+# （见 page_css.py 的 .hw）。
+#
+# 这份清单不靠人记：`tools/check_frames.py` 会在真浏览器里量每个帧字符的步进，
+# 凡是「按终端单元格算 1 格、实际渲染不是 1 格」的字符都会被它点名。把点名的字符
+# 加到这里，再跑一次门禁——它转绿就说明清单齐了。
+NARROW_GLYPHS = "⏸⏵⏹⏺①②③④⑤⟳⧉⬡✎↵"
 
 
 def char_width(ch: str) -> int:
@@ -39,7 +44,7 @@ def char_width(ch: str) -> int:
         return 0
     if BRAILLE[0] <= ord(ch) <= BRAILLE[1]:
         return 1
-    if ch in HALFWIDTH_GLYPHS:
+    if ch in NARROW_GLYPHS:
         return 1
     return 2 if unicodedata.east_asian_width(ch) in ("W", "F") else 1
 
@@ -244,16 +249,47 @@ def bar(ratio: float, cells: int, fill_cls: str, rest_cls: str = "cm") -> str:
 
 
 # ── 输出 HTML ───────────────────────────────────────────────────────────
-# CJK 一律 1 em 方块，2ch 字号后必然是 2 格——这一类可以靠字号解决。
-FW = re.compile(r"[　-〿぀-ヿ㐀-䶿一-鿿！-｠]+")
-# Braille 与暂停/播放族靠固定宽度的行内块解决，逐字符包，避免连排时误差累积。
-HW = re.compile(f"[⠀-⣿{HALFWIDTH_GLYPHS}]")
+def cell_class(ch: str) -> str:
+    """这个字形该用哪个盒子钉住它的格子；返回 "" 表示字体自己就画对了。
+
+    判据是「字体实际给了它多宽」，不是 Unicode 说的多宽 —— 两者在 CJK 标点上分了岔：
+    汉字是 1 em 方块，字号抬到 2ch 就是实打实的 2 格；而 `，。：「」（）` 这类全角标点，
+    回退字体只画半个字宽（实测 `.fw` 下 1.016 格、裸排 0.5 格），**字号法在这里失效**，
+    只能按宽度硬钉。
+    """
+    if BRAILLE[0] <= ord(ch) <= BRAILLE[1] or ch in NARROW_GLYPHS:
+        return "hw"
+    if unicodedata.east_asian_width(ch) in ("W", "F"):
+        return "fw2" if unicodedata.category(ch)[0] in "PS" else "fw"
+    return ""
 
 
-def _wrap_special(text: str) -> str:
+def _flush_box(chars: list[str], cls: str) -> str:
+    if not cls:
+        return "".join(chars)
+    if cls == "fw":
+        # 字号法：一个 span 罩住一串汉字，步进跟着字号走，连排不会累积误差。
+        return f'<span class="fw">{"".join(chars)}</span>'
+    # 宽度法：必须逐字符一个盒子，否则 N 个字形挤在 1ch（或 2ch）里。
+    return "".join(f'<span class="{cls}">{c}</span>' for c in chars)
+
+
+def wrap_cells(text: str) -> str:
+    """把一行纯文本按单元格宽度封好盒子，顺带做 HTML 转义。"""
     text = html.escape(text, quote=False)
-    text = FW.sub(lambda m: f'<span class="fw">{m.group(0)}</span>', text)
-    return HW.sub(lambda m: f'<span class="hw">{m.group(0)}</span>', text)
+    out: list[str] = []
+    buf: list[str] = []
+    buf_cls: str | None = None
+    for ch in text:
+        cls = cell_class(ch)
+        if cls != buf_cls:
+            if buf:
+                out.append(_flush_box(buf, buf_cls or ""))
+            buf, buf_cls = [], cls
+        buf.append(ch)
+    if buf:
+        out.append(_flush_box(buf, buf_cls or ""))
+    return "".join(out)
 
 
 def to_html(src: str) -> str:
@@ -268,7 +304,7 @@ def to_html(src: str) -> str:
             out.append("</span>")
             depth -= 1
         else:
-            out.append(_wrap_special(value))
+            out.append(wrap_cells(value))
     return "".join(out) + "</span>" * max(0, depth)
 
 

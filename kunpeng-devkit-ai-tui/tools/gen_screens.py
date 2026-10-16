@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """生成 web/screens.html —— 五个典型页面的整屏字符帧。
 
 五屏：启动页 / Agent Workspace / Agent 执行中（Tool + Diff）/ 任务结果页 /
@@ -140,7 +141,7 @@ def screen_launch() -> str:
         + "⟦pr|[F]⟧ 修复    ⟦pr|[C]⟧ 连接远程鲲鹏服务器"
     )
     f.add(
-        pad("  ⟦cm|模型⟧    ⟦ok|●⟧ devkit-gateway · qwen2.5-72b-instruct", col)
+        pad("  ⟦cm|模型⟧    ⟦ok|●⟧ devkit-gateway · pangu2.5-72b-instruct", col)
         + "⟦ok|✓⟧ 连接正常 218ms    ⟦ac|/model⟧ 切换"
     )
     f.blank()
@@ -164,10 +165,10 @@ def screen_launch() -> str:
     f.blank()
     f.add(
         "  ⟦cm|命令⟧    ⟦ac|/help⟧  ⟦ac|/skill⟧  ⟦ac|/view-skills⟧  ⟦ac|/sessions⟧  "
-        "⟦ac|/model⟧  ⟦ac|/provider⟧  ⟦ac|/connect-server⟧"
+        "⟦ac|/model⟧  ⟦ac|/tokens⟧  ⟦ac|/connect-server⟧"
     )
     f.foot(
-        "⟦bs4| home ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:qwen2.5-72b │ ctx:0%⟧",
+        "⟦bs4| home ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:pangu2.5-72b │ ctx:0%⟧",
         "⟦cm|[Ctrl+P] 命令面板 · [Tab] 切换区域 · 0 任务运行⟧",
     )
     return check(f.render(), W, "launch")
@@ -182,7 +183,7 @@ def screen_launch_narrow() -> str:
     f.add("  鲲鹏智能助手 · 迁移 / 开发 / 诊断 / 调优      ⟦ac|/info⟧")
     f.blank()
     f.add("  ⟦cm|环境⟧  ⟦ok|●⟧ Kunpeng 920 · aarch64      ⟦wn|⚠⟧ 缺工具链 ⟦pr|[F]⟧")
-    f.add("  ⟦cm|模型⟧  ⟦ok|●⟧ qwen2.5-72b · ⟦ok|✓⟧ 218ms      ⟦ac|/model⟧")
+    f.add("  ⟦cm|模型⟧  ⟦ok|●⟧ pangu2.5-72b · ⟦ok|✓⟧ 218ms      ⟦ac|/model⟧")
     f.blank()
     f.add("  ⟦pr|❯⟧ 想做什么？直接说▌")
     f.blank()
@@ -319,7 +320,7 @@ def screen_workspace() -> str:
         )
     )
     f.foot(
-        "⟦bs4| migrate nginx ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:qwen2.5-72b │ ctx:⟧⟦wn|72% ⚠⟧",
+        "⟦bs4| migrate nginx ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:pangu2.5-72b │ ctx:⟧⟦wn|72% ⚠⟧",
         "⟦wn|⟧⟦hw|⏸⟧⟦wn| 1 waiting⟧⟦cm| · patch 3/12 · 12:09⟧",
     )
     return check(f.render(), W, "workspace")
@@ -462,7 +463,7 @@ def screen_exec() -> str:
         )
     )
     f.foot(
-        "⟦bs4| migrate nginx ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:qwen2.5-72b │ ctx:⟧⟦wn|72% ⚠⟧",
+        "⟦bs4| migrate nginx ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:pangu2.5-72b │ ctx:⟧⟦wn|72% ⚠⟧",
         "⟦cm|已接受 ⟧⟦ok|9⟧⟦cm| · 待审 ⟧⟦wn|3⟧⟦cm| · patch 3/12 · 12:09⟧",
     )
     return check(f.render(), W, "exec")
@@ -603,7 +604,7 @@ def screen_result() -> str:
     for line in hcat([lp, rp]):
         f.add(line)
     f.foot(
-        "⟦bs4| hotspot ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:qwen2.5-72b │ ctx:38%⟧",
+        "⟦bs4| hotspot ⟧ ⟦cm|mode:⟧⟦ok|auto⟧⟦cm| │ model:pangu2.5-72b │ ctx:38%⟧",
         "⟦cm|[↵] 下钻 · [E] 导出 · Session #1031 · 丢样 ⟧⟦ok|0.2%⟧",
     )
     return check(f.render(), W, "result")
@@ -671,11 +672,11 @@ def settings_categories(active: str) -> Pane:
 
 
 MODELS = [
-    # (名称, 上下文, 工具调用, 结构化输出, 实测延迟, 是否当前)
-    ("qwen2.5-72b-instruct", "128k", "✓", "✓", "218ms", True),
-    ("qwen2.5-32b-instruct", "64k", "✓", "✓", "140ms", False),
-    ("deepseek-v3", "128k", "✓", "✓", "— 未测", False),
-    ("embed-v2", "8k", "✕", "✕", "— 仅向量", False),
+    # (别名, 上下文, 工具调用, 结构化输出, 实测延迟, 是否激活)
+    ("pangu2.5-72b-instruct", "128k", "✓", "✓", "218ms", True),
+    ("deepseek-v3-671b", "128k", "✓", "✓", "— 未测", False),
+    ("qwen2.5-coder-32b", "128k", "✓", "✓", "140ms", False),
+    ("私有云-coder", "32k", "✓", "✓", "— 未配密钥", False),
 ]
 
 
@@ -688,7 +689,9 @@ def model_table() -> list[str]:
     )
     out = [head]
     for name, ctx, tool, so, lat, current in MODELS:
-        cells = pad(name, cols[0] - 2) + "".join(
+        # 行前缀固定 3 格（" ▶ " / "   "），首列总宽必须和表头的 "  " + cols[0] 对齐，
+        # 所以名称字段补到 cols[0] - 1。之前写 cols[0] - 2，整表右移错开一格。
+        cells = pad(name, cols[0] - 1) + "".join(
             pad(v, w, "right") for v, w in zip((ctx, tool, so, lat), cols[1:])
         )
         out.append(
@@ -701,49 +704,48 @@ def screen_settings_model() -> str:
     f = Frame(
         W,
         "⟦br|▪⟧ ⟦t|DevKit AI⟧ ⟦cm|· 管理配置⟧",
-        "⟦cm|模型⟧ ⟦ok|●⟧ ⟦cm|已连接 · ⟧⟦t|qwen2.5-72b⟧",
+        "⟦cm|模型⟧ ⟦ok|●⟧ ⟦cm|激活 ⟧⟦t|pangu2.5-72b⟧",
     )
     f.sep(colsep([CAT, LIST, DET], mid="┬"))
 
     lst = Pane(LIST).add(
-        " ⟦t|Provider⟧              ⟦cm|[n] 新增  [Del] 删除⟧",
-        " ⟦sel|▶ devkit-gateway   ⟧ ⟦ok|●⟧ ⟦cm|已连接 · 4 模型⟧",
-        " ⟦cm|  openai-compat     ○ 未验证⟧",
-        " ⟦cm|  vllm@10.10.3.21   ⟧⟦ok|●⟧ ⟦cm|已连接 · 1 模型⟧",
-        " ⟦cm|  ollama (本地)     ⟧⟦er|✕⟧ ⟦er|连接失败⟧",
+        spread(" ⟦t|模型列表⟧", "⟦cm|[n] 新增模型⟧ ", LIST),
+        " ⟦sel|▶ pangu2.5-72b ⟧ ⟦ok|●⟧ ⟦cm|激活⟧",
+        " ⟦cm|  deepseek-v3-671b⟧",
+        " ⟦cm|  qwen2.5-coder-32b⟧",
+        spread(" ⟦cm|  私有云-coder⟧", "⟦wn|□ 未配密钥⟧ ", LIST),
         "",
-        " ⟦t|当前使用⟧",
-        " ⟦ok|●⟧ qwen2.5-72b-instruct",
-        "   ⟦cm|devkit-gateway · ctx 128k⟧",
-        " ⟦cm|兜底⟧ qwen2.5-32b ⟦cm|（主模型不可用时）⟧",
+        " ⟦t|当前激活⟧",
+        " ⟦ok|●⟧ pangu2.5-72b-instruct",
+        "   ⟦cm|devkit-gateway.internal · ctx 128k⟧",
+        " ⟦cm|兜底⟧ deepseek-v3-671b ⟦cm|（主模型不可用时）⟧",
         "",
-        " ⟦t|用量⟧               ⟦cm|本月⟧",
+        spread(" ⟦t|额度⟧", "⟦cm|devkit-gateway.internal⟧", LIST),
         " ⟦cm|请求⟧  12,480",
         " ⟦cm|配额⟧  " + bar(0.18, 14, "g4") + " ⟦cm|18%⟧",
         "",
-        " ⟦wn|⚠⟧ ⟦cm|ollama 连接失败⟧",
+        " ⟦wn|⚠⟧ ⟦cm|私有云-coder 未配置密钥⟧",
         " ⟦cm|  已自动跳过，不影响当前任务⟧",
-        " ⟦cm|  [↵] 看诊断⟧",
+        " ⟦cm|  [↵] 去配置⟧",
     )
 
     det = Pane(DET).add(
-        spread(" ⟦t|devkit-gateway⟧", "⟦cm|[e] 编辑   [t] 重测   [s] 设为默认⟧ ", DET),
+        spread(" ⟦t|pangu2.5-72b⟧", "⟦cm|[e] 编辑   [c] 复制   [Del] 删除⟧ ", DET),
+        spread(" ⟦cm|模型 ID⟧      pangu2.5-72b-instruct", "⟦cm|传给 API 的请求名⟧ ", DET),
+        spread(" ⟦cm|Provider⟧     ⟦sel| openai-compat ▾ ⟧", "⟦cm|OpenAI Compatible / Ollama⟧ ", DET),
+        spread(" ⟦cm|别名⟧         pangu2.5-72b", "⟦cm|界面展示用，默认等于模型 ID⟧ ", DET),
+        spread(" ⟦cm|Base URL⟧     https://devkit-gateway.internal⟦t|/v1⟧", "⟦cm|由用户自己填，无默认值⟧ ", DET),
+        spread(" ⟦cm|API Key⟧      ⟦cm|****************⟧", "⟦cm|密文，回显全 ✱⟧   [s] 显示 ", DET),
+        spread(" ⟦cm|深度思考⟧     ⟦ok|● 开⟧", "⟦cm|请求里带 reasoning 参数⟧ ", DET),
+        " ⟦cm|上下文上限⟧   128000 tokens",
+        " ⟦cm|单次最大输出⟧ 50000 tokens",
+        spread(" ⟦t|就地验证⟧", "⟦cm|刚刚 · [t] 测试连通性（超时 10s）⟧ ", DET),
+        spread(" ⟦ok|✓⟧ ⟦ok|连通成功！⟧", "⟦cm|218ms · 首 token 96ms⟧ ", DET),
+        spread(" ⟦ok|✓⟧ 工具调用可用", "⟦cm|function calling⟧ ", DET),
         "",
-        " ⟦cm|Base URL⟧  https://devkit-ai.example.com⟦t|/v1⟧",
-        "            ⟦ok|✓⟧ ⟦cm|格式正确 · 含 /v1 · https⟧",
-        spread(" ⟦cm|API Key ⟧  sk-a1f2⟦cm|****************⟧9c4d", "⟦cm|[r] 轮换   [x] 删除⟧ ", DET),
-        "            ⟦cm|只回显首尾，粘贴后不再明文出现；90 天后过期⟧",
-        " ⟦cm|代理    ⟧  ⟦cm|继承系统 HTTPS_PROXY⟧",
-        "",
-        spread(" ⟦t|就地验证⟧", "⟦cm|刚刚 · [t] 重测全部⟧ ", DET),
-        " ⟦ok|✓⟧ 地址可达          ⟦cm|42ms⟧",
-        " ⟦ok|✓⟧ 鉴权通过          ⟦cm|账号 dev-team · 配额剩余 82%⟧",
-        " ⟦ok|✓⟧ 拉取模型列表      ⟦cm|4 个⟧",
-        " ⟦ok|✓⟧ 测试对话          ⟦cm|218ms · 首 token 96ms⟧",
-        " ⟦ok|✓⟧ 工具调用          ⟦cm|function calling 可用⟧",
         "",
         *model_table(),
-        " ⟦pr|[↵] 设为当前⟧   ⟦cm|[b] 设为兜底   [i] 看能力详情⟧",
+        " ⟦pr|[↵] 设为激活⟧   ⟦cm|[t] 测试连通性   [i] 看能力详情⟧",
     )
 
     for line in hcat([settings_categories("模型"), lst, det]):
@@ -757,8 +759,8 @@ def screen_settings_model() -> str:
         )
     )
     f.foot(
-        "⟦cm|[Tab]⟧ 切换区域  ⟦cm|[↑↓]⟧ 选择  ⟦cm|[↵]⟧ 应用",
-        "⟦cm|凭据加密存储 · ⟧⟦ok|●⟧ ⟦cm|已连接⟧",
+        "⟦cm|[Tab]⟧ 切换区域  ⟦cm|[↑↓]⟧ 选择  ⟦cm|[↵]⟧ 设为激活  ⟦cm|[t]⟧ 测试连通性",
+        "⟦cm|凭据加密存储 · API Key 不回显⟧",
     )
     return check(f.render(), W, "settings-model")
 
@@ -922,7 +924,7 @@ def screen_settings_narrow() -> str:
     f = Frame(80, "⟦t|管理配置⟧", "⟦wn|⚠⟧ ⟦cm|1 项待处理⟧")
     f.add(" ⟦cm|服务器⟧  ⟦cm|账号⟧  ⟦sel| 模型 ⟧  ⟦cm|Skill⟧  ⟦cm|通用⟧  ⟦cm|更新⟧   ⟦cm|[Tab] 切分类⟧")
     f.sep()
-    f.add(" ⟦t|Provider⟧  ⟦sel| devkit-gateway ⟧ ⟦ok|●⟧      ⟦cm|[↵] 换一个⟧")
+    f.add(spread(" ⟦t|模型别名⟧  ⟦sel| pangu2.5-72b ⟧ ⟦ok|●⟧", "⟦cm|[↵] 切换⟧ ", f.inner))
     f.add(" ⟦cm|Base URL⟧  ⟦cm|…/devkit-ai/⟧⟦t|v1⟧            ⟦ok|✓⟧")
     f.add(" ⟦cm|API Key ⟧  sk-a1f2⟦cm|****⟧9c4d          ⟦cm|[r] 轮换⟧")
     f.sep()
@@ -930,7 +932,7 @@ def screen_settings_narrow() -> str:
     f.add(" ⟦ok|✓⟧ ⟦cm|可达 42ms⟧   ⟦ok|✓⟧ ⟦cm|鉴权⟧   ⟦ok|✓⟧ ⟦cm|模型 4 个⟧")
     f.add(" ⟦ok|✓⟧ ⟦cm|对话 218ms⟧  ⟦ok|✓⟧ ⟦cm|工具调用⟧")
     f.sep()
-    f.add(" ⟦t|当前模型⟧ qwen2.5-72b-instruct ⟦cm|· 128k · 工具 ✓⟧")
+    f.add(" ⟦t|当前模型⟧ pangu2.5-72b-instruct ⟦cm|· 128k · 工具 ✓⟧")
     f.add(" ⟦cm|窄屏隐藏模型对比表，[↵] 进列表逐个看⟧")
     f.foot("⟦cm|[Esc]⟧ 返回", "⟦cm|<100 列 · 三栏塌为分类页签⟧")
     return check(f.render(), 80, "settings-narrow")
@@ -959,14 +961,14 @@ def fig(title: str, frame: str, foot: str = "", cls: str = "dense screen") -> st
         f'<span class="tag">{cols} × {rows}</span>'
         f'<span class="tag">{mode}</span>'
         '<span class="tag on">truecolor</span></span></div>\n'
-        f'  <div class="win-scroll"><pre class="{cls}" data-check="1" data-label="{title}">'
+        f'  <div class="win-scroll"><pre class="{cls}" data-check="1" data-cols="{cols}" data-label="{title}">'
         f"{to_html(frame)}</pre></div>\n"
         + (f'  <div class="win-foot">{foot}</div>\n' if foot else "")
         + "</div>"
     )
 
 
-FOOT = {'s1': '<b>可实现性</b> <code>LandingScreen</code> src/components/ui/landing.tsx · <code>KunpengBrand</code> brand.tsx · <code>PromptBar</code> prompt-bar.tsx · <code>Keybar/StatusBar</code> keybar.tsx <b>待新增</b> 环境探测行 · 最近 Session 列表', 's1n': '<b>降级</b> <code>layoutForWidth(80)</code> → single-canvas；<code>brandVariantFor()</code> 在 &lt;10 列不画字标', 's2': '<b>可实现性</b> <code>Shell</code> shell.tsx · <code>Dock</code> dock.tsx（宽度 27 取自 <code>layoutForWidth(160)</code>）· <code>TaskTabs</code> task-tabs.tsx · <code>PlanCard/EvidenceList/ContextGauge</code> component-library.tsx · <code>AgentConsole</code> agent-console.tsx（consoleHeight 8）· <code>Inspector</code> canvas.tsx', 's2n': '<b>降级</b> single-canvas：dockWidth 3，图标字形 <code>▮ ▯ ◇ ?</code> 与 dock.tsx 折叠态一致，consoleHeight 6', 's3': '<b>可实现性</b> <code>DiffView</code> component-library.tsx（现为纯前景色，本稿的整行底色带需要给 <code>&lt;text&gt;</code> 加 <code>bg</code>，StatusBar 已在用同一手法）· <code>AgentTimeline/ToolCard/ApprovalBar</code> component-library.tsx · <code>Overlay</code> 承载高危确认 <b>待补 token</b> <code>successBackground</code>（tokens.ts 现只有 info/warning/danger 三档）', 's3n': '<b>降级</b> 三栏轮播；接受/拒绝键位不随宽度挪位', 's4': '<b>可实现性</b> <code>SortableTable</code> component-library.tsx（热点表）· <code>FlameChart</code> charts/FlameChart.tsx · <code>SummaryCard</code> · <code>MetricBar</code> charts/ <b>待新增</b> 源码级逐行百分比视图 · 产出清单', 's4n': '<b>降级</b> 列按优先级砍，占比列永远保留；火焰图降到 3 层并显式标注未显示帧数', 's5': '<b>可实现性</b> <code>SplitContainer</code> + <code>SelectorPopup</code> component-library.tsx 可拼出三栏主从结构 <b>待新增</b> Settings 外壳 · 服务器条目与环境探测 · 凭据掩码输入 · 就地验证结果行', 's5b': '<b>可实现性</b> <code>SortableTable</code> 可承载模型对比表 <b>待新增</b> Provider 表单与就地验证', 's5c': '<b>可实现性</b> 错误三件套复用 <code>infoBackground/warningBackground/dangerBackground</code> 三档底色 <b>待新增</b> 凭据字段组件', 's5n': '<b>降级</b> 三栏塌为分类页签 + 单栏详情；就地验证五行压两行但一项不删'}
+FOOT = {'s1': '<b>可实现性</b> <code>LandingScreen</code> src/components/ui/landing.tsx · <code>KunpengBrand</code> brand.tsx · <code>PromptBar</code> prompt-bar.tsx · <code>Keybar/StatusBar</code> keybar.tsx <b>待新增</b> 环境探测行 · 最近 Session 列表', 's1n': '<b>降级</b> <code>layoutForWidth(80)</code> → single-canvas；<code>brandVariantFor()</code> 在 &lt;10 列不画字标', 's2': '<b>可实现性</b> <code>Shell</code> shell.tsx · <code>Dock</code> dock.tsx（宽度 27 取自 <code>layoutForWidth(160)</code>）· <code>TaskTabs</code> task-tabs.tsx · <code>PlanCard/EvidenceList/ContextGauge</code> component-library.tsx · <code>AgentConsole</code> agent-console.tsx（consoleHeight 8）· <code>Inspector</code> canvas.tsx', 's2n': '<b>降级</b> single-canvas：dockWidth 3，图标字形 <code>▮ ▯ ◇ ?</code> 与 dock.tsx 折叠态一致，consoleHeight 6', 's3': '<b>可实现性</b> <code>DiffView</code> component-library.tsx（现为纯前景色，本稿的整行底色带需要给 <code>&lt;text&gt;</code> 加 <code>bg</code>，StatusBar 已在用同一手法）· <code>AgentTimeline/ToolCard/ApprovalBar</code> component-library.tsx · <code>Overlay</code> 承载高危确认 <b>待补 token</b> <code>successBackground</code>（tokens.ts 现只有 info/warning/danger 三档）', 's3n': '<b>降级</b> 三栏轮播；接受/拒绝键位不随宽度挪位', 's4': '<b>可实现性</b> <code>SortableTable</code> component-library.tsx（热点表）· <code>FlameChart</code> charts/FlameChart.tsx · <code>SummaryCard</code> · <code>MetricBar</code> charts/ <b>待新增</b> 源码级逐行百分比视图 · 产出清单', 's4n': '<b>降级</b> 列按优先级砍，占比列永远保留；火焰图降到 3 层并显式标注未显示帧数', 's5': '<b>可实现性</b> <code>SplitContainer</code> + <code>SelectorPopup</code> component-library.tsx 可拼出三栏主从结构 <b>待新增</b> Settings 外壳 · 服务器条目与环境探测 · 凭据掩码输入 · 就地验证结果行', 's5b': '<b>可实现性</b> <code>SortableTable</code> 可承载模型对比表 <b>待新增</b> 模型表单 8 字段（含 Provider 协议选择）· 密钥掩码输入 · 「设为激活」与就地验证', 's5c': '<b>可实现性</b> 错误三件套复用 <code>infoBackground/warningBackground/dangerBackground</code> 三档底色 <b>待新增</b> 凭据字段组件', 's5n': '<b>降级</b> 三栏塌为分类页签 + 单栏详情；就地验证五行压两行但一项不删'}
 
 
 def build() -> str:
@@ -996,7 +998,7 @@ def build() -> str:
         s4=fig("屏 4 · 任务结果页", rows["s4"][0]),
         s4n=fig("窄屏降级", rows["s4"][1]),
         s5=fig("屏 5 · 管理配置 · 服务器管理", rows["s5"][0]),
-        s5b=fig("同屏 · 分类切到「模型 / Provider」", screen_settings_model()),
+        s5b=fig("同屏 · 分类切到「模型」", screen_settings_model()),
         s5c=fig("同屏 · 分类切到「账号与凭据」", screen_settings_account()),
         s5n=fig("窄屏降级", rows["s5"][1]),
     )

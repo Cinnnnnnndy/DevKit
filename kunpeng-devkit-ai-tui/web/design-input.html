@@ -139,9 +139,13 @@ pre .bkp{background:#ED1C24;color:#fff;font-weight:600}
 pre .kr{color:#ED1C24} pre .kg{color:#c9c9c9}
 pre .krg{color:#ED1C24;background:#c9c9c9} pre .kgr{color:#c9c9c9;background:#ED1C24}
 pre .fw{font-size:2ch}
-/* 回退字体给 Braille / ⏸ 的步进因字体而异（实测 1.217 / 0.830 格），调字号治不了。
-   钉成 width:1ch 的行内块：无论用哪个回退字体，它都只占一格，整行不会被推歪。 */
-pre .hw{display:inline-block;width:1ch;overflow:hidden;vertical-align:bottom;line-height:inherit}
+/* 全角标点/符号（，。：「」（）【】；）在回退字体里只画半个字宽：裸排 0.5 格、`.fw`
+   下也只有 1.016 格。字号法对它失效，只能按宽度硬钉 2 格——逐字符一个盒子。 */
+pre .fw2{display:inline-block;width:2ch;text-align:center;vertical-align:bottom;line-height:inherit}
+/* 回退字体给 Braille / ⏸ / ① 这些字形的步进因字体而异（实测 1.14 / 1.05 / 1.667 格），
+   调字号治不了。钉成 width:1ch 的行内块：无论用哪个回退字体，它都只占一格，整行不会被
+   推歪。居中且不裁剪——① 比一格宽，裁掉右半边比轻微溢出更难看。 */
+pre .hw{display:inline-block;width:1ch;text-align:center;vertical-align:bottom;line-height:inherit}
 :root[data-theme="light"] pre.dense,:root[data-theme="light"] pre.screen{background:#0b0b0b;color:#E8E8E8}
 .fig{position:relative;margin:var(--space-4) 0}
 .fig-t{position:absolute;top:-0.6em;left:var(--space-4);padding:0 var(--space-2);
@@ -341,7 +345,7 @@ footer{margin-top:72px;padding-top:var(--space-5);border-top:1px solid var(--bor
    <span class="cm">│</span>           <span class="cm">│</span>          <span class="cm">│</span>          <span class="cm">│</span>         <span class="cm">│</span>          <span class="cm">│</span>
 <span class="cm"><span class="fw">二选一</span></span>      <span class="cm"><span class="fw">格式示例</span></span>    <span class="cm"><span class="fw">掩码回显</span></span>   <span class="cm"><span class="fw">传给</span> API</span>   <span class="cm"><span class="fw">消歧用</span></span>  <span class="cm">10s <span class="fw">超时</span></span>
 
-<span class="wn"><span class="fw">每一步都可就地验证。</span></span><span class="cm"><span class="fw">不允许「只能保存、不能测」</span>——<span class="fw">那等于把失败推迟到第一次真正用的时候。</span></span></pre>
+<span class="wn"><span class="fw">每一步都可就地验证</span><span class="fw2">。</span></span><span class="cm"><span class="fw">不允许</span><span class="fw2">「</span><span class="fw">只能保存</span><span class="fw2">、</span><span class="fw">不能测</span><span class="fw2">」</span>——<span class="fw">那等于把失败推迟到第一次真正用的时候</span><span class="fw2">。</span></span></pre>
 </div>
 <table>
 <tr><th>输入项</th><th>要求</th></tr>
@@ -373,10 +377,10 @@ footer{margin-top:72px;padding-top:var(--space-5);border-top:1px solid var(--bor
 <div class="fig"><span class="fig-t">冷启动追问</span>
 <pre class="dense"><span class="pr">❯</span> <span class="t"><span class="fw">帮我看看这个项目</span></span>
 
-<span class="cm">Agent</span>  <span class="wn"><span class="fw">意图不足以直接执行</span></span><span class="cm"> —— <span class="fw">先识别再问，而不是先跑起来</span></span>
-       <span class="cm"><span class="fw">已扫描：</span>C/C++ <span class="fw">工程</span> · 1,204 <span class="fw">文件</span> · <span class="fw">检出</span> x86 <span class="fw">内联汇编</span> 3 <span class="fw">处</span></span>
+<span class="cm">Agent</span>  <span class="wn"><span class="fw">意图不足以直接执行</span></span><span class="cm"> —— <span class="fw">先识别再问</span><span class="fw2">，</span><span class="fw">而不是先跑起来</span></span>
+       <span class="cm"><span class="fw">已扫描</span><span class="fw2">：</span>C/C++ <span class="fw">工程</span> · 1,204 <span class="fw">文件</span> · <span class="fw">检出</span> x86 <span class="fw">内联汇编</span> 3 <span class="fw">处</span></span>
 
-<span class="cm"><span class="fw">我可以从以下方向帮你分析：</span></span>
+<span class="cm"><span class="fw">我可以从以下方向帮你分析</span><span class="fw2">：</span></span>
   <span class="pr">[1] <span class="fw">迁移兼容性</span></span>   <span class="cm">[2] <span class="fw">代码优化</span></span>   <span class="cm">[3] <span class="fw">性能诊断</span></span>   <span class="cm">[4] <span class="fw">依赖分析</span></span>   <span class="cm">[5] <span class="fw">鲲鹏适配检查</span></span>
 <span class="pr">❯</span> <span class="cm"><span class="fw">或直接说你想干什么</span>▌</span></pre>
 </div>
@@ -398,7 +402,7 @@ footer{margin-top:72px;padding-top:var(--space-5);border-top:1px solid var(--bor
    <span class="cm">↓</span>                                        <span class="cm">↓</span>                                                    
 <span class="er"><span class="fw">进程终止</span></span>                                 <span class="pr"><span class="fw">暂停当前动作</span></span> <span class="cm">·</span> <span class="pr"><span class="fw">保留上下文</span></span>                               
    <span class="cm">↓</span>                                        <span class="cm">↓</span>                                                    
-<span class="er"><span class="fw">上下文全丢，重来一遍</span></span>                     <span class="ok"><span class="fw">用户纠偏</span> → <span class="fw">从断点继续（不杀进程）</span></span>                       </pre>
+<span class="er"><span class="fw">上下文全丢</span><span class="fw2">，</span><span class="fw">重来一遍</span></span>                     <span class="ok"><span class="fw">用户纠偏</span> → <span class="fw">从断点继续</span><span class="fw2">（</span><span class="fw">不杀进程</span><span class="fw2">）</span></span>                       </pre>
 </div>
 <p class="rule"><kbd>Esc</kbd> 不只是快捷键，而是<strong>人机协同机制</strong>。中断后输入框必须立即可用并给出提示，否则用户不知道自己已经拿回控制权。</p>
 <div class="sublabel">6.7 – 6.8 多任务与长尾对话</div>
@@ -457,7 +461,7 @@ footer{margin-top:72px;padding-top:var(--space-5);border-top:1px solid var(--bor
 ├── <span class="t">Home / Welcome</span>              <span class="cm"><span class="fw">环境</span> · <span class="fw">模型</span> · <span class="fw">输入</span> · <span class="fw">最近</span></span>
 ├── <span class="t">Agent Workspace</span>            <span class="cm">Conversation · Agent Status · Tool/Skill · Diff · Ask User</span>
 ├── <span class="t">Task Manager</span>               <span class="cm">Running · Waiting · Suspended · Completed</span>
-├── <span class="t">File Explorer</span>              <span class="cm"><span class="fw">工程树，跟随</span> Agent <span class="fw">当前文件</span></span>
+├── <span class="t">File Explorer</span>              <span class="cm"><span class="fw">工程树</span><span class="fw2">，</span><span class="fw">跟随</span> Agent <span class="fw">当前文件</span></span>
 ├── <span class="t">Session</span>                    <span class="cm"><span class="fw">历史上下文</span> · resume · fork</span>
 ├── <span class="t">Skill</span>                      <span class="cm"><span class="fw">安装</span> · <span class="fw">卸载</span> · <span class="fw">查看源码</span></span>
 ├── <span class="t">Model / Provider</span>           <span class="cm"><span class="fw">配置</span> · <span class="fw">诊断</span> · <span class="fw">切换</span></span>
@@ -550,7 +554,7 @@ footer{margin-top:72px;padding-top:var(--space-5);border-top:1px solid var(--bor
 <span class="ok">✓ <span class="fw">已完成</span></span>       <span class="cm"><span class="fw">状态</span>/<span class="fw">错误</span>/<span class="fw">键位</span>/<span class="fw">降级</span></span>    <span class="cm"><span class="fw">双帧</span> + <span class="fw">验收条件</span></span>    <span class="cm">160 / 120 / 80 <span class="fw">三档</span></span>    <span class="cm"><span class="fw">规范与实现互为约束</span></span>        
                                                                                                           
 <span class="wn"><span class="fw">并行验证</span></span><span class="cm"> ── Q1 <span class="fw">宽度分布</span> · Q2 <span class="fw">键位冲突</span> · Q3/Q4/Q7 <span class="fw">图元降级</span> · Q9 <span class="fw">错误样本</span></span>                                   
-<span class="cm">           <span class="fw">结论必须在</span> S1 <span class="fw">结束前给出，否则</span> S2 <span class="fw">无法定帧</span></span>                                                     </pre>
+<span class="cm">           <span class="fw">结论必须在</span> S1 <span class="fw">结束前给出</span><span class="fw2">，</span><span class="fw">否则</span> S2 <span class="fw">无法定帧</span></span>                                                     </pre>
 </div>
 <div class="sublabel">阶段划分</div>
 <table>

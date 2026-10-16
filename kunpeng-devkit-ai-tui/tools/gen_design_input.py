@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """生成 web/design-input.html —— 《DevKit AI TUI 设计输入》评审版单页。
 
 正文真值在 docs/DESIGN-INPUT.md，这一页是它的评审转录：同一套结论，

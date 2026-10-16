@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """从真实标识位图重采样出 demo splash 用的半块点阵标识。
 
 背景

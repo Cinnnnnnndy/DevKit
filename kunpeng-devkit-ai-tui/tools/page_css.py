@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """设计系统页面外壳 —— screens.html / design-input.html 共用。
 
 色值与间距全部照抄 web/index.html 的 token 定义（唯一真值仍是 docs/VISUAL.md），
@@ -138,9 +139,13 @@ pre .bkp{background:#ED1C24;color:#fff;font-weight:600}
 pre .kr{color:#ED1C24} pre .kg{color:#c9c9c9}
 pre .krg{color:#ED1C24;background:#c9c9c9} pre .kgr{color:#c9c9c9;background:#ED1C24}
 pre .fw{font-size:2ch}
-/* 回退字体给 Braille / ⏸ 的步进因字体而异（实测 1.217 / 0.830 格），调字号治不了。
-   钉成 width:1ch 的行内块：无论用哪个回退字体，它都只占一格，整行不会被推歪。 */
-pre .hw{display:inline-block;width:1ch;overflow:hidden;vertical-align:bottom;line-height:inherit}
+/* 全角标点/符号（，。：「」（）【】；）在回退字体里只画半个字宽：裸排 0.5 格、`.fw`
+   下也只有 1.016 格。字号法对它失效，只能按宽度硬钉 2 格——逐字符一个盒子。 */
+pre .fw2{display:inline-block;width:2ch;text-align:center;vertical-align:bottom;line-height:inherit}
+/* 回退字体给 Braille / ⏸ / ① 这些字形的步进因字体而异（实测 1.14 / 1.05 / 1.667 格），
+   调字号治不了。钉成 width:1ch 的行内块：无论用哪个回退字体，它都只占一格，整行不会被
+   推歪。居中且不裁剪——① 比一格宽，裁掉右半边比轻微溢出更难看。 */
+pre .hw{display:inline-block;width:1ch;text-align:center;vertical-align:bottom;line-height:inherit}
 :root[data-theme="light"] pre.dense,:root[data-theme="light"] pre.screen{background:#0b0b0b;color:#E8E8E8}
 .fig{position:relative;margin:var(--space-4) 0}
 .fig-t{position:absolute;top:-0.6em;left:var(--space-4);padding:0 var(--space-2);
