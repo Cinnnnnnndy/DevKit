@@ -85,27 +85,23 @@ body>*{position:relative;z-index:1}
   box-shadow:0 0 10px rgba(52,94,231,.55),0 0 22px rgba(102,206,250,.3),inset 0 1px 0 rgba(255,255,255,.3)}
 
 /* ══ Nav bar：场景 tab（取自 .tab 文档标签语汇）══ */
-.nav-bar{flex:none;display:flex;align-items:stretch;background:transparent;
-  border-bottom:1px solid rgba(255,255,255,.04);height:34px;overflow:hidden}
-
-/* ══ Scenario tabs（PTO 风格圆角标签页）══ */
-.scenario-bar{flex:1;min-width:0;display:flex;align-items:center;gap:2px;padding:0 var(--sp-lg);
-  overflow-x:auto;height:100%;scrollbar-width:none}
-.scenario-bar::-webkit-scrollbar{display:none}
-.stab{font-family:var(--mono);font-size:12px;color:var(--fg3);
-  padding:0 4px 0 9px;height:25px;cursor:pointer;white-space:nowrap;
-  border:1px solid transparent;border-radius:6px;
-  flex:none;display:flex;align-items:center;gap:5px;background:transparent;
-  transition:background .12s ease,color .12s ease,border-color .12s ease}
-.stab:hover{color:var(--fg2);background:rgba(41,46,66,.7);border-color:rgba(255,255,255,.06)}
-.stab.on{background:rgba(52,94,231,.22);border-color:rgba(52,94,231,.42);color:var(--fg)}
-/* .stab 这组 5px 圆点状态已删除：它是「状态」的第二套写法（圆点 + 四色），
-   和下面的状态方块互相矛盾。全项目状态只在「状态方块」一节里定义一次 */
-.stab .tc{width:18px;height:18px;display:flex;align-items:center;justify-content:center;
-  border:none;background:transparent;color:var(--fg4);border-radius:3px;cursor:pointer;
-  font-size:14px;line-height:1;opacity:0;transition:opacity .1s,background .1s}
-.stab:hover .tc,.stab.on .tc{opacity:.55}
-.stab .tc:hover{opacity:1;background:var(--s4);color:var(--fg)}
+/* ══ 页内分类 tab（.stab）══
+   .stab 现在只有一处用例：管理配置页页头的「模型 / Agent / Skill」。
+   它曾经是底栏那一排场景标签的样式，那排已经拆成侧栏的会话列表，
+   于是这批旧规则（.nav-bar / .scenario-bar / 圆点 .tc）一并退休——
+   留着会出现「同一批选择器里两套选中写法」的读法。
+   选中态 = 文字提亮 + 一条 2px 底部划线（见 .mm-tabs 一节），
+   与列表行的「选中」（淡蓝底）和常驻定位行的「当前」（实心蓝）分开，
+   三档语汇登记在 index.html 的「选中 / 当前 / 分类 三档」一节。 */
+.stab{font-family:var(--mono);font-size:12px;color:var(--fg3);cursor:pointer;
+  white-space:nowrap;flex:none;display:flex;align-items:center;
+  padding:0 10px;height:28px;border:0;border-radius:0;background:transparent;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:color .12s ease,border-color .12s ease}
+.stab:hover{color:var(--fg2)}
+.stab.on{color:var(--fg);border-bottom-color:var(--pri)}
+.stab[aria-disabled="true"],.stab[aria-disabled="true"]:hover{
+  color:var(--fg4);border-bottom-color:transparent;cursor:not-allowed}
 
 /* ══ Workspace（侧栏 + 主内容 + 代码列） ══ */
 .workspace{flex:1;min-height:0;display:flex;gap:8px;padding:0 8px;background:transparent}
@@ -760,7 +756,8 @@ table.cmp tr.ttl td{color:var(--fg);font-weight:700}
    环用 --focus-ring（品牌蓝 42%），套在元素自身轮廓上，不改布局尺寸。 */
 .sa-head:focus-visible,.tree-row.fold:focus-visible,.sd-node:focus-visible,
 .tc-chead:focus-visible,.stab:focus-visible,.cfold:focus-visible,.ap-head:focus-visible,
-.bi-btn:focus-visible,.ss-btn:focus-visible,button:focus-visible{
+.bi-btn:focus-visible,.ss-btn:focus-visible,.mp-prov:focus-visible,
+button:focus-visible{
   outline:2px solid var(--focus-ring);outline-offset:2px;border-radius:6px}
 /* 玻璃质感高光：模拟左上角一处光斑 */
 .bi-row::before{content:'';position:absolute;top:-14px;left:-14px;width:64px;height:56px;
@@ -859,20 +856,8 @@ html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
 /* 页头下面的分类 tab：模型 / Agent / Skill。本轮只交付「模型」，
    另外两个按「占位但不编内容」处理——保留 aria-disabled 与 Tab 可达性，
    让读屏用户听见分类存在，而不是干脆藏掉 */
-/* 选中态是「文字提亮 + 一条 2px 底部划线」，不是填充胶囊：这一行是页内的分类导航，
-   不是一排按钮——填充底色会和页标题抢同一处视觉重量，也读成「点了会弹东西」。
-   划线压住页头原有的 1px 分隔线，所以给 tab 一个 -1px 的下外边距让它盖上去。
-   归属：页头 .mm-head 之下的独立一行，只在窄屏跟随页头收缩。 */
 .mm-tabs{flex:none;display:flex;align-items:flex-end;gap:0;padding:0 var(--sp-lg);
   border-bottom:1px solid var(--bd1);font-family:var(--mono)}
-.mm-tabs .stab{padding:0 10px;height:28px;border:0;border-radius:0;
-  border-bottom:2px solid transparent;margin-bottom:-1px}
-.mm-tabs .stab:hover{background:transparent;border-color:transparent;color:var(--fg2)}
-.mm-tabs .stab.on{background:transparent;border-color:transparent;
-  border-bottom-color:var(--pri);color:var(--fg)}
-.mm-tabs .stab[aria-disabled="true"],
-.mm-tabs .stab[aria-disabled="true"]:hover{color:var(--fg4);background:transparent;
-  border-color:transparent;border-bottom-color:transparent;cursor:not-allowed}
 .mm-body{flex:1;min-height:0;display:flex}
 
 /* 左：模型列表。每行 = 别名 + 行尾「使用中」 + 三个操作（编辑 / 复制 / 删除）。
