@@ -852,10 +852,10 @@ html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
 .mm-head kbd{background:var(--s4);color:var(--fg);padding:0 5px;border-radius:3px;font-family:var(--mono);font-size:11px}
 .mm-body{flex:1;min-height:0;display:flex}
 
-/* 左：模型列表。每行 = 激活方块 + 别名 + 三个操作（编辑 / 复制 / 删除）。
-   归行状态只用一个方块（全项目唯一的状态形状），激活 = 实心蓝「在跑」，
-   未激活 = 空心灰「还没开始」——与侧栏会话列表读的是同一套 */
-.mm-side{width:286px;flex:none;display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--bd1)}
+/* 左：模型列表。每行 = 别名 + 行尾「使用中」 + 三个操作（编辑 / 复制 / 删除）。
+   名字前不放状态形状——那一格看起来像单选钮，而行本身答的是「读进右侧」而不是「选中」，
+   两件事会打架；激活与否交给行尾的状态词，与 /session 列表「名字在前、状态词在后」同一套读法 */
+.mm-side{width:340px;flex:none;display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--bd1)}
 .mm-side-top{flex:none;padding:9px var(--sp-md);border-bottom:1px solid var(--bd1)}
 .mm-items{flex:1;min-height:0;overflow-y:auto;padding:6px}
 .mm-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:6px;cursor:pointer}
@@ -864,6 +864,9 @@ html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
 .mm-item .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   font-size:12.5px;color:var(--fg)}
 .mm-item.sel .nm{font-weight:700}
+/* 行尾状态词：只出现在激活的那一行。写成词而不是形状，是因为这里的「激活」
+   必须能被读出来——颜色和形状在 16 色 / NO_COLOR 下都会掉，词不会 */
+.mm-item .mm-on{flex:none;font-family:var(--mono);font-size:11px;line-height:1;color:var(--pri-h)}
 /* 行内"选中这一项"是真按钮而不是整行 div：键盘用户 Tab 得到它、Enter 加载它，
    不用为了"点一行"先学会鼠标。整行的 hover 命中区仍然保留 */
 .mm-item .pick{display:flex;align-items:center;gap:9px;flex:1;min-width:0;padding:0;
@@ -3486,8 +3489,9 @@ function mmSyncConfigured(){
 }
 
 /* ── 左栏：已保存的模型 ──
-   激活状态只用一个方块（全项目唯一的状态形状）：实心蓝 = 正在用，空心灰 = 没用它。
-   不额外加"当前"角标：一句话说一件事，方块已经说完了 */
+   名字前不放状态形状：那一格看起来像单选钮，而行答的是"把配置读进右侧"，
+   与"是不是当前激活"是两件事。激活只在行尾写一个状态词「使用中」，
+   加到名字后面而不是前面——扫读时先认名字，再认状态 */
 function renderModelList(){
   const box=mmEl('mmItems');
   if(!mmStore.length){
@@ -3501,8 +3505,8 @@ function renderModelList(){
     return `<div class="mm-item ${e.key===mmSelKey?'sel':''}" role="listitem" data-key="${e.key}">
       <button class="pick" type="button" data-a="load" aria-current="${on?'true':'false'}"
         title="${on?'当前激活，点一下只加载配置':'点一下把配置读进右侧'}">
-        <span class="stq ${on?'doing':'todo'}" role="img" aria-label="${on?'当前激活':'未激活'}"></span>
         <span class="nm">${mmEsc(e.name)}</span>
+        ${on?'<span class="mm-on">使用中</span>':''}
       </button>
       <span class="acts">
         <button class="mm-act" type="button" data-a="edit" title="编辑" aria-label="编辑 ${mmEsc(e.name)}">✎</button>
@@ -4022,7 +4026,7 @@ function setModel(sel){
   });
   curModel=hit.name;
   curEp=hit.ep||'—';
-  /* 就地切换也要落到同一份配置上：管理页里的激活方块、底栏、提示行读的都是
+  /* 就地切换也要落到同一份配置上：管理页行尾的「使用中」、底栏、提示行读的都是
      mmActiveKey，这里不写它就会变成"卡上标了 A，底栏显示的是 B" */
   const ent=mmEntryOfModel(hit);
   if(ent){ mmActiveKey=ent.key; renderModelList(); }

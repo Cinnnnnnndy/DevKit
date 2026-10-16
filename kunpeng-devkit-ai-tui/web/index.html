@@ -2070,14 +2070,14 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <table>
 <tr><th>元件</th><th>回答什么问题</th><th>来源 / 复用关系</th></tr>
 <tr><td>Settings Page</td><td>「整页设置怎么摆」：<strong>左列可滚动列表 + 右侧详情表单</strong>两栏；宽屏并排，窄屏上下堆叠（列表在上、表单占一屏高）。顶栏留标题与退出路径，<strong>底栏不遮</strong></td><td><span class="badge p">新</span> 整页容器；沿用 <a href="#frame">#frame</a> 的页面骨架与 <a href="#p1">焦点模型</a></td></tr>
-<tr><td>Setting Row</td><td>「一个配置项长什么样」：<strong>标签 + 控件 + 第三行帮助/错误文案</strong>三段固定，标签列宽在全页统一（同屏对齐，不逐项自适应）。列表里的一行是它的表亲：同一套行高与 hover/focus 态，只是右侧换成「激活方块 + 图标动作」</td><td><span class="badge p">新</span>，但控件全部复用——开关复用<a href="#comp">皮肤开关</a>、下拉复用既有 Select、文本/数字用 <a href="#frame">Input</a></td></tr>
+<tr><td>Setting Row</td><td>「一个配置项长什么样」：<strong>标签 + 控件 + 第三行帮助/错误文案</strong>三段固定，标签列宽在全页统一（同屏对齐，不逐项自适应）。列表里的一行是它的表亲：同一套行高与 hover/focus 态，只是右侧换成「状态词 + 图标动作」</td><td><span class="badge p">新</span>，但控件全部复用——开关复用<a href="#comp">皮肤开关</a>、下拉复用既有 Select、文本/数字用 <a href="#frame">Input</a></td></tr>
 <tr><td>Masked Field</td><td>「密文怎么给」：<strong>Setting Row 的受约束变体</strong>——用 <code>*</code> 逐字符遮蔽，<strong>重新打开已保存的配置同样显示全 <code>*</code></strong>，只有按「显示/隐藏」时才是明文；空值给占位文案「未配置」而不是空框，因为它不是漏填、是还没填</td><td>Setting Row 的 <span class="badge s">变体</span>，不新立输入控件</td></tr>
 <tr><td>Icon Action</td><td>「行尾那几个小动作」：编辑 / 复制 / 删除。<strong>用图标不用文字</strong>（每行挂三个词会把别名挤断），但<strong>必须带 <code>aria-label</code> 与 <code>title</code></strong>，终端面降级为 <code>[e] [c] [d]</code> 单字符</td><td><span class="badge p">新</span>；危险动作（删除）沿用<a href="#color">危险色</a>，但不整行变红</td></tr>
 <tr><td>Confirm Dialog</td><td>「不可逆的单点动作怎么问」：遮罩 + 居中卡片 + 两句正文（删谁 / 后果），<strong>取消在左、危险在右</strong>，<strong>初始焦点落在「取消」</strong>，<kbd>Esc</kbd> = 取消</td><td><span class="badge p">新</span>；<strong>与 <a href="#p1">Approval Bar</a> 不合并</strong>——后者管「一批已定的动作放不放行」（可批量、可排队），弹窗只管一个动作，所以不做批量</td></tr>
 <tr><td>Page Footer Status</td><td>「表单底部的动作与结果」：左侧动作成组（设为激活 / 测试连通性 / 保存），右侧一行结果。<strong>结果留在原地、不弹 toast</strong>——「连通成功」与「认证失败：API Key 无效」是这次操作唯一的产出，飘走的提示等于逼用户重测一次；测试中按钮就地进加载态、可取消</td><td><span class="badge p">新</span>；着色沿用<a href="#color">语义色</a>与 <a href="#comp">Checklist Row</a> 的「说清为什么」纪律</td></tr>
 <tr><td>Guidance Chip</td><td>「一个能用的模型都没有时，怎么让人找到出口」：顶栏里一枚<strong>可点</strong>的提示胶囊「未配置模型，请通过 /model 命令进行配置」，点它等同敲一条 <code>/model</code></td><td><span class="badge p">新</span>；文案纪律同 <a href="#convo">Suggested Actions</a>（动宾短句、结尾不写句号）</td></tr>
 </table>
-<p class="rule"><strong>整页里没有新控件，只有新排布</strong>：开关、下拉、单行文本、数字输入、状态方块、空状态卡、按钮——七样东西全都在上面登记过。这一组真正新增的是<strong>它们的容器与字段纪律</strong>（标签列宽统一、错误文案固定第三行、结果留原地），以及两枚只有整页才会出现的标记（激活方块与提示胶囊）。<strong>评审门槛同样适用</strong>：想往配置页加一个新控件之前，先回答「它是不是某一样已有控件的变体」，多数时候答案是「是，只是没对齐」。</p>
+<p class="rule"><strong>整页里没有新控件，只有新排布</strong>：开关、下拉、单行文本、数字输入、状态方块、空状态卡、按钮——七样东西全都在上面登记过。这一组真正新增的是<strong>它们的容器与字段纪律</strong>（标签列宽统一、错误文案固定第三行、结果留原地），以及两枚只有整页才会出现的标记（行尾状态词与提示胶囊）。<strong>评审门槛同样适用</strong>：想往配置页加一个新控件之前，先回答「它是不是某一样已有控件的变体」，多数时候答案是「是，只是没对齐」。</p>
 
 <div class="cv-fig"><span class="fig-t">Settings Page 整页骨架（宽屏：左列列表 + 右侧详情；底栏留在页外）</span>
 <pre class="dense">┌ <span class="br">◢</span> KUNPENG <span class="t">DEVKIT AI</span> ── <span class="fw">模型管理与配置</span> ─────────── <span class="cm">[Esc] <span class="fw">返回会话</span></span> ┐
@@ -2136,7 +2136,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <tr><td>正文里的六色关键词强调</td><td>Inline Highlight</td><td><span class="badge p">新</span> 本轮登记：六个 <code>--hl-*</code> token，只上关键词不上整句</td></tr>
 <tr><td>输入框上方的调优曲线区</td><td>Tune Chart Container</td><td><span class="badge p">新</span> 本轮登记：可收起、双视图、收起即暂停</td></tr>
 <tr><td><code>/model</code> 回车打开的整页管理</td><td>Settings Page</td><td><span class="badge p">新</span> 本轮登记为<strong>页面级</strong>元件——不属于对话流、编排、输入区三组，单列第四组</td></tr>
-<tr><td>左列每一行（别名 + 激活方块 + 编辑/复制/删除）</td><td>Setting Row + Status Square + Icon Action</td><td>行复用 Setting Row（本轮<span class="badge p">新</span>），激活标记复用状态方块（<strong>激活 = 实心蓝 doing，未激活 = 空心灰 todo</strong>），行尾图标是 <span class="badge p">新</span> 的 Icon Action</td></tr>
+<tr><td>左列每一行（别名 + 状态词 + 编辑/复制/删除）</td><td>Setting Row + Row Status Word + Icon Action</td><td>行复用 Setting Row（本轮<span class="badge p">新</span>），激活写成行尾状态词「使用中」（复用 <code>/session</code> 列表的读法，<strong>不新增形状</strong>），行尾图标是 <span class="badge p">新</span> 的 Icon Action</td></tr>
 <tr><td>右侧 8 个配置字段</td><td>Setting Row / Masked Field</td><td><span class="badge p">新</span> 行结构与字段纪律；控件全部复用——开关复用皮肤开关、下拉复用既有 Select、文本与数字复用 Input。<strong>API Key 用 Masked Field 变体</strong></td></tr>
 <tr><td>「测试连通性」与它的结果</td><td>Page Footer Status</td><td><span class="badge p">新</span> 动作成组 + 结果<strong>留在原地不弹 toast</strong>；失败给具体原因（「认证失败：API Key 无效」这类），并给对应字段标 <code>aria-invalid</code></td></tr>
 <tr><td>删除的二次确认</td><td>Confirm Dialog</td><td><span class="badge p">新</span>；与 <a href="#p1">Approval Bar</a> 分工清楚——弹窗管一个不可逆动作，不做批量、不排队</td></tr>
@@ -2185,7 +2185,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <tr><td>Command Hint Bar</td><td>输入框下方的场景命令路标（命令 + 当前值 + 端点，不可点）；<strong>本轮改为常驻</strong>——它扛的是「模型别名 / token 与告警线」两个当前值，不再是纯说明文字</td><td>T0</td><td>P13 · P15</td></tr>
 <tr><td>Tune Chart Container</td><td>输入框上方<strong>可收起</strong>的调优曲线容器：图表／表格双视图，收起即暂停动效，不进对话流</td><td>T4</td><td>P20 · <a href="#primlib">图表单元</a></td></tr>
 <tr><td>Settings Page</td><td>整页设置容器：左列可滚动列表 + 右侧详情表单，宽屏并排、窄屏上下堆叠；<strong>底栏不遮</strong>（进设置仍看得见模型与用量）</td><td>T0</td><td>P13 · <a href="#frame">#frame</a> 页骨架</td></tr>
-<tr><td>Setting Row</td><td>一个配置项的标准行：标签 + 控件 + 帮助/错误文案三段固定，标签列宽全页统一；左列列表行是它的表亲（右侧换成激活方块 + 图标动作）</td><td>T0</td><td>P13 · P27 配置补齐</td></tr>
+<tr><td>Setting Row</td><td>一个配置项的标准行：标签 + 控件 + 帮助/错误文案三段固定，标签列宽全页统一；左列列表行是它的表亲（右侧换成状态词 + 图标动作）</td><td>T0</td><td>P13 · P27 配置补齐</td></tr>
 <tr><td>Masked Field</td><td>Setting Row 的受约束变体：逐字符 <code>*</code> 遮蔽，重新打开已保存配置同样全遮蔽，只有显式「显示」时是明文；空值显示「未配置」</td><td>T0</td><td>P19 风险色</td></tr>
 <tr><td>Icon Action</td><td>行尾编辑 / 复制 / 删除图标动作，必须带 <code>aria-label</code> 与 <code>title</code>，终端面降级为 <code>[e] [c] [d]</code>；危险动作只用危险色，不整行变色</td><td>T0</td><td>P19 · 降级链</td></tr>
 <tr><td>Confirm Dialog</td><td>不可逆单点动作的二次确认：遮罩 + 居中卡 + 两句正文（删谁 / 后果），取消在左、危险在右、初始焦点在取消，<kbd>Esc</kbd> = 取消；<strong>不做批量、不排队</strong>（批量归 Approval Bar）</td><td>T0</td><td>P10 · P19</td></tr>

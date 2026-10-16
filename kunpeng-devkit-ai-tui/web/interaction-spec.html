@@ -892,24 +892,21 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <p class="desc">新 PRD 要求：<code>/model</code> 回车打开<strong>整页</strong>模型管理界面，左列已保存模型、右侧 8 字段表单、底部「设为激活 / 测试连通性」，外加「未配置模型」缺省引导。<strong>它与 §4A 的关系是本轮最关键的一条：</strong>§4A 定的是<strong>会话里的就地切换</strong>（快，只选不配），本节定的是<strong>管理配置</strong>（慢，增删改 + 测通 + 设激活）——两者写同一份配置，所以只有一处写入口。</p>
 
 <div class="sublabel">F1 位置与形态 —— 为什么是整页而不是浮层</div>
-<pre class="frame"><span class="fw">宽屏</span><span class="fw2">（</span>1600×50 <span class="fw">字符帧的等效布局</span><span class="fw2">）</span>· <span class="fw">底栏留在页外</span><span class="fw2">，</span><span class="fw">模型与</span> token <span class="fw">计量始终可见</span>
-
-┌ <span class="fw">模型管理</span> ────────────────────────────────────── <span class="fw">点左列只把配置读进右侧</span><span class="fw2">，</span><span class="fw">不会切换正在用的模型</span>   <b>Esc</b> <span class="fw">返回对话</span> ┐
-│ ┌ <span class="fw">已保存的模型</span> ────────┐ ┌ <span class="fw">模型</span> ID * ────────────────────────────────────────────────┐ │
-│ │ [ + <span class="fw">新增模型</span>        ] │ │   deepseek-reasoner            <span class="fw">请求里真正发给</span> API <span class="fw">的名字</span>      │ │
-│ │ ■ pangu2.5-72b-…   <span class="hw">✎</span><span class="hw">⧉</span>✕│ │ Provider *   [ OpenAI Compatible ▾ ]  <span class="fw">只有两种</span><span class="fw2">：</span>……           │ │
-│ │ □ deepseek-v3-671b <span class="hw">✎</span><span class="hw">⧉</span>✕│ │ <span class="fw">别名</span><span class="fw2">（</span><span class="fw">选填</span><span class="fw2">）</span>  pangu2.5-72b-instruct   <span class="fw">最多</span> 32 <span class="fw">字</span><span class="fw2">，</span><span class="fw">从</span> ID <span class="fw">自动带来</span> │ │
-│ │ □ qwen2.5-coder-…  <span class="hw">✎</span><span class="hw">⧉</span>✕│ │ Base URL *  [ https://api.example.com/v1 ]  <span class="fw">不预填默认值</span> ……  │ │
-│ │ □ pangu2.5-7b-…    <span class="hw">✎</span><span class="hw">⧉</span>✕│ │ API Key *   [ •••••••••••• ] [<span class="fw">显示</span>]   <span class="fw">重开这一页同样是掩码</span>   │ │
-│ │ □ <span class="fw">私有云</span>-v3        <span class="hw">✎</span><span class="hw">⧉</span>✕│ │ <span class="fw">深度思考</span>    [ ●——— <span class="fw">开启</span> ]                                  │ │
-│ │ □ <span class="fw">私有云</span>-coder     <span class="hw">✎</span><span class="hw">⧉</span>✕│ │ <span class="fw">上下文上限</span>  [ 128000 ] Tokens   <span class="fw">默认</span> 128000                 │ │
-│ └──────────────────────┘ │ <span class="fw">单次最大输出</span> [ 50000 ] Tokens   <span class="fw">默认</span> 50000                  │ │
-│                          └────────────────────────────────────────────────────────────┘ │
-│                          <span class="fw">已保存</span> · pangu2.5-72b-instruct        [<span class="fw">保存</span>] [<span class="fw">测试连通性</span>] [<span class="fw">已是激活</span>] │
-└──────────────────────────────────────────────────────────────────────────────────────────┘
-
-<span class="fw">窄屏</span><span class="fw2">（</span>≤900px<span class="fw2">）</span><span class="fw2">：</span><span class="fw">左右两栏改上下</span>——<span class="fw">列变压到</span> 168px <span class="fw">的滚动条</span><span class="fw2">（</span><span class="fw">它只是选择器</span><span class="fw2">）</span><span class="fw2">，</span><span class="fw">表单占满剩余高度</span><span class="fw2">；</span>
-<span class="fw">字段的标签从左侧固定列改为上下一行</span><span class="fw2">（</span><span class="fw">窄屏没有</span> 124px <span class="fw">给标签列</span><span class="fw2">）</span><span class="fw2">。</span></pre>
+<p class="desc">宽屏（1600×50 字符帧的等效布局）· 底栏留在页外，模型与 token 计量始终可见。</p>
+<pre class="frame" data-label="模型管理 · 宽屏两栏表单" data-check="1" data-cols="107">┌ <span class="fw">模型管理</span> ────────────────────────────────── <span class="fw">点左列只把配置读进右侧</span><span class="fw2">，</span><span class="fw">不会切换正在用的模型</span>   <b>Esc</b> <span class="fw">返回对话</span> ┐
+│ ┌ <span class="fw">已保存的模型</span> ───────────────┐ ┌ <span class="fw">模型</span> ID * ──────────────────────────────────────────────────────────┐ │
+│ │ [ + <span class="fw">新增模型</span>        ]       │ │   deepseek-reasoner            <span class="fw">请求里真正发给</span> API <span class="fw">的名字</span>            │ │
+│ │ pangu2.5-72b-…   <span class="fw">使用中</span> <span class="hw">✎</span><span class="hw">⧉</span>✕ │ │ Provider *   [ OpenAI Compatible ▾ ]  <span class="fw">只有两种</span><span class="fw2">：</span>……                  │ │
+│ │ deepseek-v3-671b <span class="hw">✎</span><span class="hw">⧉</span>✕        │ │ <span class="fw">别名</span><span class="fw2">（</span><span class="fw">选填</span><span class="fw2">）</span>  pangu2.5-72b-instruct   <span class="fw">最多</span> 32 <span class="fw">字</span><span class="fw2">，</span><span class="fw">从</span> ID <span class="fw">自动带来</span>    │ │
+│ │ qwen2.5-coder-…  <span class="hw">✎</span><span class="hw">⧉</span>✕        │ │ Base URL *  [ https://api.example.com/v1 ]  <span class="fw">不预填默认值</span> ……         │ │
+│ │ pangu2.5-7b-…    <span class="hw">✎</span><span class="hw">⧉</span>✕        │ │ API Key *   [ •••••••••••• ] [<span class="fw">显示</span>]   <span class="fw">重开这一页同样是掩码</span>          │ │
+│ │ <span class="fw">私有云</span>-v3        <span class="hw">✎</span><span class="hw">⧉</span>✕        │ │ <span class="fw">深度思考</span>    [ ●——— <span class="fw">开启</span> ]                                           │ │
+│ │ <span class="fw">私有云</span>-coder     <span class="hw">✎</span><span class="hw">⧉</span>✕        │ │ <span class="fw">上下文上限</span>  [ 128000 ] Tokens   <span class="fw">默认</span> 128000                         │ │
+│ └─────────────────────────────┘ │ <span class="fw">单次最大输出</span> [ 50000 ] Tokens   <span class="fw">默认</span> 50000                          │ │
+│                                 └─────────────────────────────────────────────────────────────────────┘ │
+│                                  <span class="fw">已保存</span> · pangu2.5-72b-instruct        [<span class="fw">保存</span>] [<span class="fw">测试连通性</span>] [<span class="fw">已是激活</span>]   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────┘</pre>
+<p class="desc">窄屏（≤900px）：左右两栏改上下——列变压到 168px 的滚动条（它只是选择器），表单占满剩余高度；字段的标签从左侧固定列改为上下一行（窄屏没有 124px 给标签列）。</p>
 <table>
 <tr><th>候选形态</th><th>结论</th><th>理由</th></tr>
 <tr><td class="nw">右上角浮标 + 弹出小面板</td><td><span class="st ask">否掉</span></td><td>8 个字段 + 左列列表塞不进浮标；浮标已在本轮被否过一次（§4A4 理由同：与正文抢位置）</td></tr>
@@ -922,7 +919,7 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <tr><th>PRD 条款</th><th>落点 / 实现</th><th>对应基元</th><th>结论</th></tr>
 <tr><td class="nw">界面常驻显示当前激活模型</td><td>底栏模型位（别名）+ 提示行 <code>/model &lt;别名&gt; &lt;端点&gt;</code> + 侧栏 <code>Settings › Model</code> 节点</td><td>Status Bar Metrics · Command Hint Bar · Sidebar Node</td><td><span class="st ok">已定</span> 三处同源，别名来自激活记录</td></tr>
 <tr><td class="nw">输入 <code>/model</code> 回车弹出管理页</td><td><code>runCommand()</code> 无参分支 → <code>mmOpenModelPage()</code></td><td>User Message + AI Text（回执）· Settings Page</td><td><span class="st ok">已定</span> 回执仍进对话流（见 F6 注）</td></tr>
-<tr><td class="nw">左栏：别名 + 是否激活标记；顶部「新增模型」</td><td><code>#mmItems</code> 渲染；激活 = <strong>实心蓝方块</strong>，未激活 = 空心灰方块</td><td>Status Square（唯一状态形状，无第二形状）· 列表行</td><td><span class="st ok">已定</span> 不额外加「当前」角标</td></tr>
+<tr><td class="nw">左栏：别名 + 是否激活标记；顶部「新增模型」</td><td><code>#mmItems</code> 渲染；激活 = <strong>行尾状态词「使用中」</strong>；名字前不放状态形状</td><td>Row Status Word（行尾状态词）· 列表行</td><td><span class="st ok">已定</span> 不额外加「当前」角标</td></tr>
 <tr><td class="nw">点一行只加载配置，<strong>不改变激活状态</strong></td><td>行内 <code>.pick</code> 按钮 → <code>mmLoad()</code>；激活只在「设为激活」里发生</td><td>列表行 · Page Footer Status（反馈「已加载」）</td><td><span class="st ok">已定</span> 本页最容易被做错的一条，单列验收 AC-F4</td></tr>
 <tr><td class="nw">每项支持编辑 / 复制 / 删除</td><td>行尾三个图标按钮（<code>✎ ⧉ ✕</code>），常显但压暗，hover / 聚焦时提亮</td><td>Icon Action（新增登记）</td><td><span class="st ok">已定</span> <strong>不用「hover 才出现」</strong>：键盘用户 Tab 得到但看不见</td></tr>
 <tr><td class="nw">删除需二次确认；删激活项自动切下一个；清空回缺省态</td><td><code>mmAskDelete()</code> → 唯一模态 <code>#mmMask</code>；确认后取列表下一条，末尾则取上一条</td><td>Confirm Dialog（新增登记）</td><td><span class="st ok">已定</span> 弹窗正文写明「它当前正在使用」/「它是唯一一个」</td></tr>
@@ -1011,7 +1008,7 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <div class="sublabel">F8 状态矩阵</div>
 <table>
 <tr><th>单元</th><th>default</th><th>focused</th><th>selected / 命中</th><th>empty</th><th>error</th><th>disabled</th></tr>
-<tr><td class="nw">模型列表行</td><td>空心灰方块 + 别名</td><td>行内按钮出现焦点环</td><td><code>.sel</code> 底色 + 加粗；<strong>激活行</strong>实心蓝方块</td><td>列表空 → 一句「还没有任何模型配置」+ 指引（不给空按钮）</td><td>—</td><td>—</td></tr>
+<tr><td class="nw">模型列表行</td><td>别名（名字前不放状态形状）</td><td>行内按钮出现焦点环</td><td><code>.sel</code> 底色 + 加粗；<strong>激活行</strong>行尾状态词「使用中」</td><td>列表空 → 一句「还没有任何模型配置」+ 指引（不给空按钮）</td><td>—</td><td>—</td></tr>
 <tr><td class="nw">行内操作</td><td>压暗 50%</td><td>同 default + 焦点环</td><td>hover / 选中行内提亮到 100%</td><td>—</td><td>删除按钮 hover 转危险色</td><td>—</td></tr>
 <tr><td class="nw">表单字段</td><td>标签 + 控件 + 灰色说明</td><td>蓝色边框 + 焦点环</td><td>—</td><td>新增时全空（数字项给默认值）</td><td><code>aria-invalid</code> 红边 + 说明文字转红并换成「为什么错」</td><td>Ollama 时 API Key 的必填标记消失（字段本身仍可填）</td></tr>
 <tr><td class="nw">脚部状态字</td><td>空</td><td>—</td><td>成功绿 / 未保存金 / 失败红 / 测试中带进行中方块</td><td>—</td><td>见 F5</td><td>—</td></tr>
@@ -1024,7 +1021,7 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <tr><th>环境</th><th>降级</th></tr>
 <tr><td class="nw">窄屏 ≤900px</td><td>两栏改上下：列表压到 168px 滚动区，表单占满；字段标签从左侧列改为上一行；脚部按钮可换行</td></tr>
 <tr><td class="nw">窄屏 ≤820px</td><td>顶栏胶囊只留「未配置模型」；页头右侧的说明文字与 <kbd>Esc</kbd> 提示按剩余宽度收缩</td></tr>
-<tr><td class="nw">16 色 / <code>NO_COLOR</code></td><td>状态方块降为字形（<code>■ □</code>），激活与未激活仍可区分；错误字段用行首 <code>✕</code> 标注，不靠红色单独承载语义</td></tr>
+<tr><td class="nw">16 色 / <code>NO_COLOR</code></td><td>激活与否本来就写成词（「使用中」），降级不掉信息；错误字段用行首 <code>✕</code> 标注，不靠红色单独承载语义</td></tr>
 <tr><td class="nw">纯键盘</td><td>全流程无鼠标可完成：四入口打开 → <kbd>Tab</kbd> 遍历列表与表单 → <kbd>Enter</kbd> 加载 / 保存 / 激活 → <kbd>Esc</kbd> 逐层退出；行内操作不做 hover 隐藏</td></tr>
 <tr><td class="nw">SSH / 低能力终端</td><td>不依赖 hover、不做动画；测试中状态用方块而不是旋转图标</td></tr>
 </table>
@@ -1044,8 +1041,8 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <li><span class="id">AC-F1</span><span>输入 <code>/model</code> 回车：管理页打开，覆盖对话区与输入框，<strong>底栏仍可见</strong>；<kbd>Esc</kbd> 关闭后焦点回到输入框。</span></li>
 <li><span class="id">AC-F2</span><span>页内按 <kbd>Esc</kbd> 一次只退一层：弹窗开着时先关弹窗（页面仍在），再按才关页面，第三次才退出到 Landing。</span></li>
 <li><span class="id">AC-F3</span><span>页面打开时 <kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> 不切场景、<kbd>c</kbd>/<kbd>p</kbd> 不折叠面板。</span></li>
-<li><span class="id">AC-F4</span><span>点左侧一行只把配置读进右侧：底栏模型别名、激活方块、提示行<strong>三处均不变</strong>。</span></li>
-<li><span class="id">AC-F5</span><span>点「设为激活」后：底栏别名、提示行别名与端点、侧栏 <code>Settings › Model</code>、列表里的实心蓝方块、旧浮层 <code>current</code> 五处同步；对话流里出现一条「已切到 …」回执；正在跑的任务不受影响。</span></li>
+<li><span class="id">AC-F4</span><span>点左侧一行只把配置读进右侧：底栏模型别名、行尾「使用中」、提示行<strong>三处均不变</strong>。</span></li>
+<li><span class="id">AC-F5</span><span>点「设为激活」后：底栏别名、提示行别名与端点、侧栏 <code>Settings › Model</code>、列表里的「使用中」状态词、旧浮层 <code>current</code> 五处同步；对话流里出现一条「已切到 …」回执；正在跑的任务不受影响。</span></li>
 <li><span class="id">AC-F6</span><span>表单有未保存改动时点「设为激活」：先保存再激活，激活后的模型参数就是表单上的值（不存在「激活成功但参数还是旧的」）。</span></li>
 <li><span class="id">AC-F7</span><span>API Key 字段：输入时逐字符掩码；点「显示」可临时看到明文，按钮文案变「隐藏」且 <code>aria-pressed=true</code>；<strong>重新打开该条配置时回到掩码态</strong>，明文不回显。</span></li>
 <li><span class="id">AC-F8</span><span>Provider 切到 <code>Ollama</code>：API Key 的必填标记消失、说明文案改为「本机服务不需要密钥」；切回 <code>OpenAI Compatible</code> 必填标记恢复；此时不填 Key 点保存会被拒绝并指到该字段。</span></li>
@@ -1093,7 +1090,7 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <tr><td class="nw">F · 底部「未保存 / 测试中 / 成功 / 失败」</td><td>Page Footer Status</td><td><span class="st ask">新增登记</span>（状态在左、动作在右，三种动作按后果分开）</td></tr>
 <tr><td class="nw">F · 顶栏「未配置模型」胶囊</td><td>Guidance Chip</td><td><span class="st ask">新增登记</span>（只承载「我该干什么」，与底栏「现在什么状态」分工）</td></tr>
 <tr><td class="nw">F · 缺省态居中引导卡</td><td>Empty State（变体）</td><td>复用——「空且给出下一步」是 Empty State 的既有契约</td></tr>
-<tr><td class="nw">F · 列表行的激活标记</td><td>Status Square</td><td>复用——实心蓝 = 在用，空心灰 = 没用它；<strong>不为「激活」新增第二种形状</strong></td></tr>
+<tr><td>F · 列表行的激活标记</td><td>Row Status Word</td><td>复用「名字在前、状态词在后」这条既有读法（与 <code>/session</code> 列表同构）。<strong>名字前不放状态形状</strong>：那一格看起来像单选钮，会和「读进右侧」抢同一处读法</td></tr>
 <tr><td class="nw">F · 深度思考开关</td><td>Switch</td><td>复用——与皮肤 / 圆角开关同一个控件与开态样式</td></tr>
 <tr><td class="nw">F · Provider 下拉</td><td>Select（既有控件）</td><td>复用</td></tr>
 </table>
