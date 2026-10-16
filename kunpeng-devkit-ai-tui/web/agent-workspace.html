@@ -3392,9 +3392,13 @@ function applySlash(i){
      区别很清楚：要切模型的人一定会带上名字或空格（那时走上面 smMode==='model' 那条），
      光敲命令名的人是冲着这个功能来的。 */
   if(c.cmd==='/model'&&biInput.value.trim()==='/model'){
+    /* 这里必须走 openModelPageWithEcho 而不是 mmOpenModelPage：从联想浮层回车是"敲命令"的
+       另一个入口，回执只能有一份、两个入口都要有。曾经直连 mmOpenModelPage，
+       结果"我什么时候改的配置"在对话史里是空白，和 runCommand 那条路径对不上。 */
+    const typed=biInput.value.trim();
     biInput.value='';
     closeSlashMenu();
-    mmOpenModelPage();
+    openModelPageWithEcho(typed);
     return;
   }
   const pos=biInput.selectionStart;
