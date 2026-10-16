@@ -123,10 +123,16 @@ html[data-theme="light"] .main-col{border:1px solid var(--bd1)}
 .code-scene{display:none;flex-direction:column;flex:1;min-height:0}
 .code-scene.on{display:flex}
 
-/* 侧栏是一整块从上到下的圆角卡片，四个分组靠内部分隔线区分，而不是各自独立的卡片 */
-.sidebar{width:220px;flex:none;overflow-y:auto;
+/* 侧栏是一整块从上到下的圆角卡片，四个分组靠内部分隔线区分，而不是各自独立的卡片。
+   纵向拆两层：上面三组（Sessions / Project / Agents）在一个滚动区里随内容滚，
+   Settings 组固定在最下面不参与滚动——它是整页唯一一条「离开会话去配东西」的出口，
+   会话一多就被滚出视野，等于没有这个出口。 */
+.sidebar{width:220px;flex:none;display:flex;flex-direction:column;overflow:hidden;
   margin:8px 0;border:none;border-radius:8px;
   background:var(--col-solid)}
+.sd-scroll{flex:1;min-height:0;overflow-y:auto}
+/* 固定组的顶边自己带一条发丝线：它上面那一组滚走之后，这条线还得在 */
+.sd-pin{flex:none;border-top:1px solid var(--bd1)}
 html[data-theme="light"] .sidebar{border:1px solid var(--bd1)}
 .sd-sec{padding:6px 4px;border-bottom:1px solid var(--bd1)}
 .sd-sec:last-child{border-bottom:none}
@@ -1067,7 +1073,8 @@ table.cmp{border-left:2px solid var(--bd1)}
 /* ══ TUI box-drawing accents ══ */
 .sub-h::before{content:'├─ ';color:var(--bd3);font-weight:400;letter-spacing:normal;text-transform:none}
 .sd-sec .h::before{content:'├ ';color:var(--bd3);font-weight:400;letter-spacing:normal;text-transform:none}
-.sd-sec:first-child .h::before{content:'╭ '}
+.sd-scroll > .sd-sec:first-child .h::before,
+.sidebar > .sd-sec:first-child .h::before{content:'╭ '}
 .sd-sec:last-child .h::before{content:'╰ '}
 .rpt-banner::before{content:'├─ ';color:rgba(158,206,106,.4)}
 .status-bar .keys span:not(:first-child)::before{content:'│';color:var(--bd2);margin-right:6px}
@@ -1209,6 +1216,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
 
 <div class="workspace foldcode" id="workspace">
   <aside class="sidebar" id="sidebar">
+   <div class="sd-scroll" id="sdScroll">
     <div class="sd-sec">
       <div class="h">Sessions</div>
       <div class="sess-scroll" id="sessScroll"></div>
@@ -1244,7 +1252,9 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
       <div class="sd-node"><span class="ic"><span class="stq doing" role="img" aria-label="进行中" title="进行中"></span></span><span class="lb">param_tuner</span></div>
       <div class="sd-node"><span class="ic"><span class="stq done" role="img" aria-label="已完成" title="已完成"></span></span><span class="lb">boostkit_matcher</span></div>
     </div>
-    <div class="sd-sec">
+   </div>
+
+    <div class="sd-sec sd-pin">
       <div class="h">Settings</div>
       <!-- Model 这一行带状态（已配置 / 未配置），所以走状态方块；Server 那行没有状态可报，
            仍是菱形字形。同一组里两种指示列是有意的：有状态的用方块，纯入口用字形 -->
