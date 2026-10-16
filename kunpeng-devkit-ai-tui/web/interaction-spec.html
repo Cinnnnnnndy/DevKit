@@ -216,7 +216,7 @@ pre.frame .bar{color:var(--primary-hover)}
   <a href="#spec-agent">C · 子 Agent 并发</a>
   <a href="#spec-multi">D · 多级嵌套</a>
   <a href="#spec-cfg">E · 配置管理与落点</a>
-  <a href="#spec-page">F · 模型管理与配置页</a>
+  <a href="#spec-page">F · 模型管理页</a>
   <div class="ngrp">收束 · Close out</div>
   <a href="#primitives">基元映射</a>
   <a href="#gaps">缺口与待裁决</a>
@@ -885,16 +885,16 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 </ul>
 </section>
 
-<!-- ══════ ④F 模型管理与配置页（新 PRD） ══════ -->
+<!-- ══════ ④F 模型管理页（新 PRD） ══════ -->
 <section id="spec-page">
 <div class="eyebrow">Spec F</div>
-<h2>F · 模型管理与配置页（本轮新 PRD）</h2>
-<p class="desc">新 PRD 要求：<code>/model</code> 回车打开<strong>整页</strong>管理配置界面，左列已保存模型、右侧 8 字段表单、底部「设为激活 / 测试连通性」，外加「未配置模型」缺省引导。<strong>它与 §4A 的关系是本轮最关键的一条：</strong>§4A 定的是<strong>会话里的就地切换</strong>（快，只选不配），本节定的是<strong>管理配置</strong>（慢，增删改 + 测通 + 设激活）——两者写同一份配置，所以只有一处写入口。</p>
+<h2>F · 模型管理页（本轮新 PRD）</h2>
+<p class="desc">新 PRD 要求：<code>/model</code> 回车打开<strong>整页</strong>模型管理界面，左列已保存模型、右侧 8 字段表单、底部「设为激活 / 测试连通性」，外加「未配置模型」缺省引导。<strong>它与 §4A 的关系是本轮最关键的一条：</strong>§4A 定的是<strong>会话里的就地切换</strong>（快，只选不配），本节定的是<strong>管理配置</strong>（慢，增删改 + 测通 + 设激活）——两者写同一份配置，所以只有一处写入口。</p>
 
 <div class="sublabel">F1 位置与形态 —— 为什么是整页而不是浮层</div>
 <pre class="frame"><span class="fw">宽屏</span><span class="fw2">（</span>1600×50 <span class="fw">字符帧的等效布局</span><span class="fw2">）</span>· <span class="fw">底栏留在页外</span><span class="fw2">，</span><span class="fw">模型与</span> token <span class="fw">计量始终可见</span>
 
-┌ <span class="fw">管理配置</span> · <span class="fw">模型</span> ─────────────────────────────── <span class="fw">点左列只把配置读进右侧</span><span class="fw2">，</span><span class="fw">不会切换正在用的模型</span>   <b>Esc</b> <span class="fw">返回对话</span> ┐
+┌ <span class="fw">模型管理</span> ────────────────────────────────────── <span class="fw">点左列只把配置读进右侧</span><span class="fw2">，</span><span class="fw">不会切换正在用的模型</span>   <b>Esc</b> <span class="fw">返回对话</span> ┐
 │ ┌ <span class="fw">已保存的模型</span> ────────┐ ┌ <span class="fw">模型</span> ID * ────────────────────────────────────────────────┐ │
 │ │ [ + <span class="fw">新增模型</span>        ] │ │   deepseek-reasoner            <span class="fw">请求里真正发给</span> API <span class="fw">的名字</span>      │ │
 │ │ ■ pangu2.5-72b-…   <span class="hw">✎</span><span class="hw">⧉</span>✕│ │ Provider *   [ OpenAI Compatible ▾ ]  <span class="fw">只有两种</span><span class="fw2">：</span>……           │ │
@@ -1085,7 +1085,7 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <tr><td class="nw">「为什么卡住、要不要人裁决」</td><td>Blocker Note</td><td><span class="st ask">新增</span>（金左线 + <code>⚠</code>/<code>?</code> 标题 + 1–3 行）</td></tr>
 <tr><td class="nw">正文里的六色关键词强调</td><td>Inline Highlight</td><td><span class="st ask">新增</span>（六个 <code>--hl-*</code> token）</td></tr>
 <tr><td class="nw">输入框上方的曲线区</td><td>Tune Chart Container</td><td><span class="st ask">新增</span>（可收起 · 双视图 · 收起即暂停）</td></tr>
-<tr><td class="nw">（本轮 F · 模型管理页）整页管理配置界面</td><td><strong>Settings Page（页面级组件，不属于对话流基元）</strong></td><td><span class="st ask">新增登记</span>——它不在流里，不该塞进对话流基元表；登记口径见 <a href="./index.html#convo">index.html#convo</a></td></tr>
+<tr><td class="nw">（本轮 F · 模型管理页）整页模型管理界面</td><td><strong>Settings Page（页面级组件，不属于对话流基元）</strong></td><td><span class="st ask">新增登记</span>——它不在流里，不该塞进对话流基元表；登记口径见 <a href="./index.html#convo">index.html#convo</a></td></tr>
 <tr><td class="nw">F · 表单的一行（标签 + 控件 + 说明）</td><td>Setting Row</td><td><span class="st ask">新增登记</span>（含 error 态：<code>aria-invalid</code> + 说明转红换成原因）</td></tr>
 <tr><td class="nw">F · 密文字段 + 显示 / 隐藏</td><td>Masked Field</td><td><span class="st ask">新增登记</span>（重开不回显明文是它的硬规则）</td></tr>
 <tr><td class="nw">F · 行尾三个操作图标</td><td>Icon Action</td><td><span class="st ask">新增登记</span>（常显压暗，不做 hover 隐藏）</td></tr>
@@ -1161,7 +1161,7 @@ demo 的受阻说明块原文引用「按 P29『资源提示』规则」，但 <
 <li><span class="id">AC-A16</span><span>模型卡里点不可用的行 → 与命令路径同文案结构的「没有改」回执</span></li>
 <li><span class="id">AC-A17</span><span><strong>（本轮改动）</strong>提示行常驻：无命令可改的场景也显示模型别名 / token / 告警线；未配置模型时模型位显示「未配置」、端点位留空</span></li>
 </ul>
-<h3>模型管理与配置页（§4F · 本轮新 PRD）</h3>
+<h3>模型管理页（§4F · 本轮新 PRD）</h3>
 <ul class="ac">
 <li><span class="id">AC-F1–F3</span><span>打开 / 逐层 Esc / 页内全局键让位（含底栏仍可见）</span></li>
 <li><span class="id">AC-F4</span><span>点左列只加载、<strong>不改激活</strong>（底栏 / 方块 / 提示行三处不变）</span></li>

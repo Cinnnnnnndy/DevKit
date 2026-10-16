@@ -831,7 +831,7 @@ table.cmp tr.ttl td{color:var(--fg);font-weight:700}
    它跟着当前值一起变色，越线时两个数字同时亮起来，不必回看配置。 */
 .status-bar .ctxw{color:var(--fg4);font-weight:400;font-size:11px;margin-left:-2px}
 
-/* ══ 模型管理页（模型管理与配置）══
+/* ══ 模型管理页 ══
    入口两条：输入框敲 /model 回车，或侧栏 Settings → Model。Esc 退回对话。
    形态是「页」不是「浮层」：要填 8 个字段、要连测、要增删改，塞进会话流会把流撑成
    一堆控件；而全屏接管本来就是这台 TUI 的产品形态（见 screens.html 屏 5 管理配置，
@@ -848,7 +848,6 @@ html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
 .mm-head{flex:none;display:flex;align-items:center;gap:10px;padding:9px var(--sp-lg);
   border-bottom:1px solid var(--bd1);font-family:var(--mono)}
 .mm-head .t{font-size:13px;font-weight:700;color:var(--fg)}
-.mm-head .cat{font-size:12px;color:var(--fg4)}
 .mm-head .rt{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--fg4)}
 .mm-head kbd{background:var(--s4);color:var(--fg);padding:0 5px;border-radius:3px;font-family:var(--mono);font-size:11px}
 .mm-body{flex:1;min-height:0;display:flex}
@@ -2403,9 +2402,9 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
          只有值在变；静态写死的好处是 Tab 顺序、label 关联、必填标记都不用 JS 再拼一遍。
          字段顺序 = PRD 第 3 节的顺序，没有重排：前四行是「连什么、怎么连」，
          后四行是「怎么用」，用户第一次配模型就是从下往上填。 -->
-    <div class="mm-page" id="mmPage" role="region" aria-label="模型管理与配置">
+    <div class="mm-page" id="mmPage" role="region" aria-label="模型管理">
       <div class="mm-head">
-        <span class="t">管理配置</span><span class="cat">· 模型</span>
+        <span class="t">模型管理</span>
         <span class="rt">
           <span id="mmHeadNote">点左列只把配置读进右侧，不会切换正在用的模型</span>
           <span><kbd>Esc</kbd> 返回对话</span>
@@ -3406,7 +3405,7 @@ rToggle.addEventListener('click',()=>{
 /* ══ 模型配置（管理页的数据源与全部行为）══
    这一块是新 PRD（模型管理与配置）的落地。它和上面那套「端点 → 模型」浮层的关系必须说清：
      · 浮层 + 上面的 /model 命令 = 会话里的**就地切换**（快，只选不配）
-     · 本页 = **管理配置**（慢，增删改 + 测通 + 设激活）
+     · 本页 = **模型管理**（慢，增删改 + 测通 + 设激活）
    两者写的是同一份配置，所以只有一处写入口：任何一条路最终都落到 mmActiveKey。
    PRD 里的 Provider 只有两个取值（OpenAI Compatible / Ollama），它是**协议**；
    "从哪个账号扣额度、key 配没配、端点通不通"由**端点**（Base URL + API Key）承担。
