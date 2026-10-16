@@ -575,7 +575,7 @@ pre .hw{font-size:1ch}
 <span class="pv-dim">│</span> <span class="pv-run">AC-A1 … AC-E8</span> <span class="pv-dim">可勾验收</span>
 <span class="pv-dim">└──────────────────────────────────</span></pre>
           </div>
-          <p class="card-desc">本轮新增能力的<b>交互合同</b>：先把用户给的功能表单逐行对照（哪一条落在哪个对话流基本单元、是新增还是复用），再给五份交互详规——<b>模型与 token（含供应商）· 工具调用并发 · 子 Agent 并发 · 多级嵌套 · 命令改配置</b>，每份带字符帧、键鼠路径、状态矩阵与验收条件（<span class="mono">AC-A1…E8</span>）。它和设计系统页的分工：<b>设计系统页定义单元长什么样，这一页定义这些单元在这五个场景里怎么动</b>。缺口与待裁决项也留在文内，没有藏进正文。</p>
+          <p class="card-desc">本轮新增能力的<b>交互合同</b>：先把用户给的功能表单逐行对照（哪一条落在哪个对话流基本单元、是新增还是复用），再给五份交互详规——<b>模型与 token· 工具调用并发 · 子 Agent 并发 · 多级嵌套 · 命令改配置</b>，每份带字符帧、键鼠路径、状态矩阵与验收条件（<span class="mono">AC-A1…E8</span>）。它和设计系统页的分工：<b>设计系统页定义单元长什么样，这一页定义这些单元在这五个场景里怎么动</b>。缺口与待裁决项也留在文内，没有藏进正文。</p>
           <div class="card-links">
             <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/interaction-spec.html">打开交互规格</a>
             <a class="lnk" href="./kunpeng-devkit-ai-tui/web/agent-workspace.html">配对的 demo</a>
@@ -654,9 +654,9 @@ pre .hw{font-size:1ch}
 <span class="pv-dim">├ PROJECT ──────────┤</span> <span class="pv-wn">│</span> <span class="pv-fg">∗</span> <span class="pv-dim">grep  prefetch · 全工程引用点</span>
 <span class="pv-dim">│</span> <span class="pv-fg">reconcile.c</span> <span class="pv-er">M</span>  <span class="pv-dim">│</span> <span class="pv-fg">profiler 类已串行，其余 3 个工具仍并发</span>
 <span class="pv-dim">│</span> <span class="pv-fg">risk_score.c</span> <span class="pv-er">M</span> <span class="pv-dim">│</span> <span class="pv-dim">3 子 Agent · 上限 4 · 峰值并发 3</span>
-<span class="pv-dim">└──────────────────┴──</span><span class="pv-run">模型 devkit-gateway/ pangu2.5-72b</span><span class="pv-dim">──</span></pre>
+<span class="pv-dim">└──────────────────┴──</span><span class="pv-run">模型 pangu2.5-72b-instruct</span><span class="pv-dim">──</span></pre>
           </div>
-          <p class="card-desc">完整 Agent Workspace：<b>迁移 · 开发 · 调优</b>三个 Agent 域共 <b>12 个场景</b>，三栏布局（侧栏导航 · AI 对话主区 · 代码面板）。本轮重点是把「主 Agent 编排多个子 Agent 并发」与「会话内改模型 / token」这两件事画成一条能纵向扫视的对话流：<b>子 Agent 并发编排 · 模型与 Token · 多级子 Agent 嵌套</b>三屏排在最前。用的全是同一套既有基元——<b>状态方块</b>（只此一种状态形状，不闪）、AI 文本、受阻说明块、Checklist 行，加编排类元件（Sub-Agent Block / 并发槽位 / 层级树 / token 徽标）与输入区单元（<span class="mono">/</span> 命令、提示行、候选菜单）；<b>模型与 token 可以在对话框里用 <span class="mono">/model</span> · <span class="mono">/tokens</span> 直接改</b>，当前模型与用量常驻底栏。深浅双主题 + 可切角色主题，键盘与鼠标路径等价。</p>
+          <p class="card-desc">完整 Agent Workspace：<b>迁移 · 开发 · 调优</b>三个 Agent 域共 <b>12 个场景</b>，三栏布局（侧栏导航 · AI 对话主区 · 代码面板）。本轮重点是把「主 Agent 编排多个子 Agent 并发」与「会话内改模型 / token」这两件事画成一条能纵向扫视的对话流：<b>子 Agent 并发编排 · 模型与 Token · 多级子 Agent 嵌套</b>三屏排在最前。用的全是同一套既有基元——<b>状态方块</b>（只此一种状态形状，不闪）、AI 文本、受阻说明块、Checklist 行，加编排类元件（Sub-Agent Block / 并发槽位 / 层级树 / token 徽标）与输入区单元（<span class="mono">/</span> 命令、提示行、命令候选）；<b>模型与 token 可以在对话框里用 <span class="mono">/model</span> · <span class="mono">/tokens</span> 直接改</b>，当前模型与用量常驻底栏。深浅双主题 + 可切角色主题，键盘与鼠标路径等价。</p>
           <div class="card-links">
             <a class="lnk lnk--primary" href="./kunpeng-devkit-ai-tui/web/agent-workspace.html">打开工作台</a>
             <a class="lnk" href="./kunpeng-devkit-ai-tui/web/interaction-spec.html">交互规格</a>

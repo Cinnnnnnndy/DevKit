@@ -585,8 +585,9 @@ td.mono,th.mono{font-family:var(--font-mono)}
 .cv-slots .nt{color:var(--foreground-muted);flex:1;min-width:0;overflow:hidden;
   text-overflow:ellipsis;white-space:nowrap}
 
-/* 模型切换：候选列表内嵌在对话流里不弹浮层——跟 P13 Selector Popup 的分工是：
-   浮层服务「输入时联想」，用完即走；这里的切换结果要留在会话记录里可回看 */
+/* 模型切换：模型卡内嵌在对话流里不弹浮层——跟 P13 Selector Popup 的分工是：
+   浮层只做命令名补全与会话选择，用完即走；这里的切换结果要留在会话记录里可回看。
+   （模型候选浮层本轮删除：换模型是管理页里的写操作，不再有「打字时挑一行就切」。） */
 .cv-model{margin:var(--space-3) 0;border:1px solid var(--border-default);
   border-radius:var(--radius-md);background:var(--surface-1);overflow:hidden}
 .cv-model-h{display:flex;align-items:center;gap:var(--space-2);padding:6px 11px;
@@ -695,14 +696,13 @@ td.mono,th.mono{font-family:var(--font-mono)}
 .cv-chk.wrap .ic{margin-top:4px}
 .cv-chk.wrap .v{flex:1;min-width:0}
 
-/* 命令候选菜单（打 /model 唤出）：P13 的内嵌变体，贴在输入框正上方。
-   行结构与 .sm-item 同源——状态方块 + 等宽别名 + 端点 + 描述 */
+/* 命令候选菜单（打 / 唤出）：P13 的内嵌变体，贴在输入框正上方。
+   本轮只列命令名与说明——模型候选、端点列、当前标记随候选浮层一起删除（迁到管理页与模型卡） */
 .cv-menu{background:var(--surface-1);border:1px solid var(--border-subtle);border-radius:var(--radius-md);
   padding:4px;font-family:var(--font-mono)}
 .cv-menu-row{display:flex;align-items:center;gap:10px;padding:6px 9px;border-radius:var(--radius-sm);font-size:12.5px}
 .cv-menu-row.on{background:rgba(0,119,255,.16)}
 .cv-menu-row .cmd{color:var(--primary-hover);font-weight:700;flex:none;min-width:172px}
-.cv-menu-row .src{color:var(--foreground-muted);font-size:11px;flex:none;min-width:44px}
 .cv-menu-row .desc{color:var(--foreground-secondary);font-size:12px;flex:1;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cv-menu-hint{display:flex;gap:10px;padding:6px 12px;border-top:1px solid var(--border-subtle);
@@ -1777,7 +1777,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <tr><td>嵌套深度</td><td>无——Claude Code 明确禁止子 agent 再生子 agent</td><td>深度走<strong>一个通道：缩进（16px 一格，按层累加）+ <code>SUB-2.2.1</code> 编号</strong>，<strong>刻意不占颜色</strong>——颜色通道归了状态方块（蓝 / 绿 / 金 / 灰），深度与状态是正交维度。<strong>不给每张卡画状态导轨</strong>：那会同时重复状态与缩进两件已经说过的事，多层嵌套下还长出一排平行彩条。<strong>缩进不封顶</strong>——深度上限 4 层所以最坏 64px，封顶会把第 3、4 层压平、废掉缩进这个信号；触顶不下钻、收住并回退基线，不留半成品</td></tr>
 <tr><td>画不下的层级</td><td>直接省略</td><td>折叠成可交互的 <code>…</code> 节点，点击 / <kbd>Enter</kbd> 就地展开。<strong>画不下就显式说画不下，不能悄悄吞掉</strong>——沿用 index.html 工程树那条既有决策</td></tr>
 <tr><td>并发槽位</td><td>无</td><td>显式露出<strong>「还剩几个」而不是「现在几个」</strong>——会耗尽的是槽位，不是并发数。子级只能继承父级的剩余槽位、不单独开池，否则嵌套会绕过全局上限</td></tr>
-<tr><td>模型切换</td><td>统一走 <code>/model</code> 浮层（<a href="#p2">P13</a>）</td><td>会话内切换的候选列表<strong>内嵌在对话流里</strong>，不弹浮层——切换结果要留在会话记录里可回看。与 P13 的分工是「输入时联想，用完即走」对「事后可回看」，两者不互相替代</td></tr>
+<tr><td>模型切换</td><td>统一走 <code>/model</code> 命令与模型卡（<a href="#p2">P13</a>）</td><td>会话内切换的模型卡<strong>内嵌在对话流里</strong>，不弹浮层——切换结果要留在会话记录里可回看。<strong>本轮改动</strong>：模型候选浮层删除，切模型只剩三条路——点模型卡的一行、敲<strong>完整别名</strong>的 <code>/model &lt;别名&gt;</code>、在管理页点「设为激活」</td></tr>
 <tr><td>Token / 额度计量</td><td>各家收进底栏或 <code>/status</code></td><td>模型 · ctx 水位 · tokens 三项<strong>常驻底栏</strong>；子 agent 的消耗用徽标就地挂在块头，父级汇总额用一行文字说清算法——<strong>父子不双算</strong>。ctx 给 <code>当前值/阈值</code>，阈值可由命令改</td></tr>
 </table>
 <p class="rule">本组原有第 9 行「场景命令入口」（输入框下方那行命令提示），已随 Suggested Actions 一起挪进下方<a href="#convo">输入区单元</a>——它不是「谁派给谁」的问题，而是「贴着输入框的东西有哪些」的问题，按位置归类比按能力归类更好查。决策结论一字未改，只是换了组。</p>
@@ -1925,7 +1925,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <div class="cv-model-pool">
 <div class="pv"><span class="stq wait" role="img" aria-label="未配置密钥" title="未配置密钥"></span><span class="pn">llm.private.internal</span><span class="pd">OpenAI Compatible · /v1 · 2 个模型</span><span class="ps off">未配置密钥</span></div>
 <div class="cv-mdrow off"><span class="ck"></span><span class="mn">私有云-v3</span><span class="md">这个模型 ID 在 devkit-gateway.internal 上已有一条 · 靠别名区分</span><span class="mt">需密钥</span></div>
-<div class="cv-mdrow off"><span class="ck"></span><span class="mn">私有云-coder</span><span class="md">这个模型 ID 在 devkit-gateway.internal 上已有一条 · 靠别名区分</span><span class="mt">需密钥</span></div>
+<div class="cv-mdrow off"><span class="ck"></span><span class="mn">私有云-coder</span><span class="md">客户私有云 · 换过去就换一份账单，与网关那台不是同一个账号</span><span class="mt">需密钥</span></div>
 </div>
 </div>
 </div>
@@ -1956,7 +1956,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <tr><th>单元</th><th>跨产品现状</th><th>DevKit AI 决策</th></tr>
 <tr><td>下一步建议</td><td>Codex CLI 会话末尾给 follow-up 建议 · Claude Code 在结果后给回车建议 · opencode 无此形态</td><td>输入框上方一行 2–3 个按钮，<strong>随结果状态变化而变化，不是固定菜单</strong>；文案必须是短句（中文 ≤8 字），理由与写法见下方卡。它<strong>不进流</strong>——点了就当作一条用户消息落进流里，建议本身不占流的位置</td></tr>
 <tr><td>命令提示行</td><td>Claude Code 在 prompt 下方常驻一行模式提示（<code>? for shortcuts</code> · <code>⏵⏵ accept edits on</code>）；opencode 同样在 prompt 下方给 keybinding——<strong>两家都没有「右上角浮标」这种 Web 式做法</strong></td><td>场景里可改的设置（模型、token 告警线）<strong>在输入框下方单独一行常驻</strong>给命令提示，命令就在上面那个框里敲。<strong>不做右上角浮层</strong>（用户最初考虑过这个方案，否掉）：输入一长就和正文打架，窄屏时右上角也最先没地方放。排版与降级见下方卡</td></tr>
-<tr><td>命令候选菜单</td><td>四家的 <code>/</code> 补全都弹在输入框上方，但<strong>只列命令名与说明</strong>，不告诉用户这个选择会动到什么资源</td><td>贴输入框上方、<kbd>↑↓</kbd> 移动 / <kbd>Tab</kbd>·<kbd>Enter</kbd> 确认 / <kbd>Esc</kbd> 关闭；<strong>候选行内多出「端点」</strong>——换模型前最该先知道的是「它从哪个账号扣额度、会不会挤掉正在跑的活」，以及「这个别名是不是唯一的」。是 <a href="#p2">P13</a> 的内嵌变体，不新立组件</td></tr>
+<tr><td>命令候选菜单</td><td>四家的 <code>/</code> 补全都弹在输入框上方，但<strong>只列命令名与说明</strong>，不告诉用户这个选择会动到什么资源</td><td>贴输入框上方、<kbd>↑↓</kbd> 移动 / <kbd>Tab</kbd>·<kbd>Enter</kbd> 确认 / <kbd>Esc</kbd> 关闭。是 <a href="#p2">P13</a> 的内嵌变体，不新立组件。<strong>本轮改动</strong>：模型候选整块退休，这里<strong>只列命令名与说明</strong>——「会动到什么资源」改由命令自己的说明与回执回答（<code>/model</code> 行内就写着「不带参数打开模型配置页；带别名直接切」）</td></tr>
 <tr><td>调优曲线容器</td><td>无此形态——HPO 曲线通常只在最终报告里出现一次</td><td>输入框上方<strong>可收起</strong>的一块：图表／表格双视图，<strong>收起时暂停动效</strong>（不收起来就一直在画的曲线是白烧 CPU，也违反 <a href="#motion">Motion</a> 只把动效当补充的纪律）。它不属于对话流——曲线是过程量，结论才进流（走 <a href="#p2">P18</a> 折叠的高价值输出）</td></tr>
 </table>
 
@@ -1983,19 +1983,19 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <strong>位置选输入框下方单独一行，不是右上角浮层</strong>：右上角是 Web 的惯例，输入一长就必然和正文打架；窄屏时右上角也最先没地方放。opencode 与 Claude Code 都是把提示放在 prompt 下面一行——和输入内容物理隔离，<strong>输入多长都不冲突，窄屏时整行收起也不损失任何功能</strong>。它是<strong>路标不是按钮</strong>：不抢焦点、不可点，命令的唯一入口永远是上面那个输入框。<br>
 <strong>窄屏降级：先丢来源，再截值，最后整项去</strong>。1200px 以下没什么要动（一行 ≈ 550px）；到 820px 先去掉池名——它只是「从哪扣额度」的解释，去掉不影响「我现在用的哪个模型」；再窄就让模型名自己截断（<code>…</code>），命令留住，tokens 与告警线不被挤走；到 560px 塞不下模型名了，才把整个模型项连同它的分隔符一起去掉（<strong><code>/tokens 1.24M 告警线 70%</code> 永不在降级里丢</strong>）。<strong>降级顺序必须与底栏一致</strong>：两个面同一个牺牲顺序，用户才不会在窄屏和宽屏看到两套优先级。</p>
 
-<div class="cv-fig"><span class="fig-t">Command Candidate Menu 命令候选（打 <code>/model</code> 唤出，行内带端点）</span>
+<div class="cv-fig"><span class="fig-t">Command Candidate Menu 命令候选（打 <code>/</code> 唤出，只列命令名与说明）</span>
 <div class="cv-menu">
-<div class="cv-menu-row on"><span class="stq done" role="img" aria-label="当前模型" title="当前模型"></span><span class="cmd">pangu2.5-72b-instruct</span><span class="src">devkit-gateway.internal</span><span class="desc">通用推理 · 迁移与 SQL 改造默认 · 当前</span></div>
-<div class="cv-menu-row"><span class="stq todo" role="img" aria-label="未选中" title="未选中"></span><span class="cmd">deepseek-v3-671b</span><span class="src">devkit-gateway.internal</span><span class="desc">128k 长上下文 · 跨模块重构</span></div>
-<div class="cv-menu-row"><span class="stq todo" role="img" aria-label="未选中" title="未选中"></span><span class="cmd">qwen2.5-coder-32b</span><span class="src">devkit-gateway.internal</span><span class="desc">代码专精 · 低延迟，适合子 Agent</span></div>
-<div class="cv-menu-row"><span class="stq todo" role="img" aria-label="未选中" title="未选中"></span><span class="cmd">pangu2.5-7b-instruct</span><span class="src">127.0.0.1:8000</span><span class="desc">轻量 · 心跳与日志摘要等低价值调用</span></div>
-<div class="cv-menu-row"><span class="stq todo" role="img" aria-label="未选中" title="未选中"></span><span class="cmd">私有云-coder</span><span class="src">llm.private.internal</span><span class="desc">模型 ID 也是 qwen2.5-coder-32b · 靠别名区分 · 需密钥</span></div>
-<div class="cv-menu-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 切换模型</span><span><b>Esc</b> 关闭</span></div>
+<div class="cv-menu-row on"><span class="cmd">/model</span><span class="desc">不带参数打开模型配置页；带别名直接切，例如 /model qwen2.5-coder-32b</span></div>
+<div class="cv-menu-row"><span class="cmd">/tokens</span><span class="desc">查看 / 修改 token 告警线，例如 /tokens 85</span></div>
+<div class="cv-menu-row"><span class="cmd">/session</span><span class="desc">会话管理 · list / delete</span></div>
+<div class="cv-menu-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 补全</span><span><b>Esc</b> 关闭</span></div>
 </div>
 </div>
-<p class="rule">候选菜单是 <a href="#p2">P13 Model / Quota Switcher</a> 的<strong>内嵌变体</strong>，不新立组件：位置贴在输入框正上方（补全完接着选，视线不用跳）、<kbd>↑↓</kbd> 移动 / <kbd>Enter</kbd> 确认 / <kbd>Esc</kbd> 关闭、当前项用状态方块标出来。<strong>命中多条时谁也不高亮</strong>（见下）——此时 <kbd>Enter</kbd> 不是「确认第一条」，而是关掉菜单走命令路径，给一条「没有改 + 列出候选」的回执。<br>
-<strong>端点进候选行</strong>：换模型前最该先知道的两件事都在这儿——「它从哪个账号扣额度、会不会挤掉正在跑的活」，以及「这个名字是唯一的吗」。同一个模型 ID 会在两行里出现、端点不同（<code>私有云-coder</code> 与 <code>qwen2.5-coder-32b</code> 是同一个 ID），用户一眼就能看出必须用别名区分；<strong>联想同时认别名、模型 ID 与端点主机名</strong>（打 <code>私有云</code> / <code>qwen</code> / <code>127.0</code> 都能筛），三种输入都是人会打的，不该只支持一种。<br>
-<strong>多义时谁也不高亮</strong>（本轮新增的纪律）：查询为空时高亮当前那条（方便对照着换）；打了字之后，命中 1 条就高亮它，<strong>命中多条则没有一行被高亮</strong>。理由是打了一个同时说得通两条的名字（既是 A 的别名、又是 B 的模型 ID）时，<strong>高亮哪一条都等于替用户做了「走哪个账号、按谁的账单计费」这个决定</strong>——菜单负责让人选，命令负责说清为什么选不了；用户可以 <kbd>↓</kbd> 自己选好再回车。<br>
+</div>
+</div>
+<p class="rule">命令候选是 <a href="#p2">P13 Model / Quota Switcher</a> 的<strong>内嵌变体</strong>，不新立组件：位置贴在输入框正上方（补全完接着用，视线不用跳）、<kbd>↑↓</kbd> 移动 / <kbd>Tab</kbd>·<kbd>Enter</kbd> 确认 / <kbd>Esc</kbd> 关闭。<strong>它只服务「补全一个命令名」</strong>：只列命令名与说明，行里不带资源信息。<br>
+<strong>模型候选整块退休（本轮删除）</strong>：原来的 <code>model</code> 变体（按端点分组的模型列表、端点列、空查询即摊开、多义谁也不高亮）不再存在。理由是<strong>手势冲突</strong>——PRD 定下 <code>/model</code> 回车即打开管理页，而浮层把同一个手势占了去做「挑一行就切」；两件事都要「回车」，只能留一件。换模型是<strong>管理页里的写操作</strong>，不是打字时的就地选择。<br>
+<strong>原来靠这一层回答的两件事各有新归属</strong>：「这个模型从哪个账号扣额度」在<a href="#settings">管理页</a>（端点分组 + 额度）与下面的 Model Switcher 卡上回答；「这个名字是不是唯一的」由<strong>命令回执</strong>回答：多义时列出候选的别名与端点（<code>deepseek-v3-671b</code> 一例）。<strong>随之而来的一条硬规则：别名必须写全</strong>——前缀不再算命中，因为前缀的可见性本来就依赖这一层。
 <strong>唯一来源是配置文件</strong>（<code>.devkitai/config.toml</code> 的 <code>[model.entries.*]</code>）：命令不是配置文件的快捷方式，而是它的<strong>另一个写入口</strong>——两边写同一个值，所以在哪边改另一边马上是新值，因此<strong>不需要「应用」按钮，也不需要「同步」状态</strong>。<br>
 <strong>它只在输入框这一带存在，不落进流</strong>：选定之后留下的痕迹是上一条<a href="#convo">命令回执</a>（用户消息 + AI 细节），菜单自己随 <kbd>Esc</kbd> 或选择消失——菜单是「选择发生的地方」，回执是「选择之后的历史」，两者分工不重叠。</p>
 
@@ -2014,9 +2014,9 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <p class="rule"><strong>为什么要进对话流，而不是弹 toast、弹窗、或在右上角冒一条：</strong>「我什么时候把它改成 85 的」是一个会被追问的问题，答案必须在滚动历史里查得到；toast 三秒后消失，翻历史时它从来没存在过。<br>
 <strong>被拒也要回执，而且要给出正确写法</strong>：静默失败会被读成「我是不是没按对回车」，用户会反复敲同一条命令。拒绝回执必须同时回答三件事——<strong>没改</strong>（用 <a href="#convo">状态方块</a>的实心金，和「受阻」同色）、<strong>边界/原因是什么</strong>（数值范围、名字为什么有歧义、缺哪个配置）、<strong>那该怎么敲</strong>。<strong>四种拒绝理由共用这一个形状</strong>：范围越界、名字多义（列出候选的别名与端点）、端点不可用（缺 <code>API_KEY</code>）、无匹配项——不为新理由造新组件。<br>
 <strong>回执只说业务，产品语义归本页的单元定义</strong>：回执的职责是「这次发生了什么、你该怎么改」。所以「告警线是『你想在第几个点被告知』、它是阈值不是水位、超过 100% 等于不提醒自己」这类<strong>产品语义不由回执承担</strong>（本页上面 Quota Bars 与 Status Bar Metrics 两条已经把阈值 ≠ 水位写清楚了），业务流里只留数值边界与正确写法。判断标准很简单：<strong>同一句话换个项目还成不成立——成立的是业务，只跟本产品怎么设计有关的，是标注</strong>，标注一律收进本页的单元定义，不混进用户的真实会话。<strong>两类最常犯的标注</strong>：<strong>位置自述</strong>——「底栏的 ctx 当前值不变」→「当前用量不变」（数字在哪看是单元的事，回执只报数字本身）；<strong>行为自述</strong>——「其余可直接切」→ 删（候选列表怎么操作属 Model Switcher 单元，不属这次会话的业务状态）。<br>
-<strong>两个入口只留一份痕迹</strong>：敲完整命令、从候选菜单选一行，是同一个动作的两个入口，都要写回执；浮层里点一行（<a href="#convo">Model Switcher</a>）不算——那是面板内的就地操作，浮层自己的 current 标记就是它的反馈，再写一条回执只会把流撑长。<br>
+<strong>两个入口只留一份痕迹</strong>：敲完整命令、点模型卡的一行，是同一个动作的两个入口，都要写回执；管理页里点「设为激活」也写同一条结构的回执。只有<strong>同一屏内的就地操作</strong>不重复写（卡上的 <code>current</code> 标记本身就是它的反馈）。<br>
 <strong>写入位置在对话流末尾、并自动滚到底</strong>：改完立刻看到结果，不用自己往下找；回执只进当前场景的那条流，翻历史不会串场。<br>
-<strong>光敲命令名不带参数 = 打开配置页，不报错</strong>（本轮改动，原为「列候选」）：<code>/model</code> 回车不是"参数漏了"，而是"我要配模型"——它直接打开整页的<a href="#settings">模型管理与配置页</a>，并在流里留一条回执说明「当前用哪个模型、改成别处要点设为激活」。<strong>要切模型还有两条更快的路</strong>：打 <code>/model </code>（带空格）或 <code>/model &lt;前缀&gt;</code> 时候选菜单随打字出现、回车即切；或者点输入框上方的候选行。三条路写同一份配置，痕迹也只有一份（管理页里点「设为激活」同样写一条回执）。</p>
+<strong>光敲命令名不带参数 = 打开配置页，不报错</strong>（本轮改动，原为「列候选」）：<code>/model</code> 回车不是"参数漏了"，而是"我要配模型"——它直接打开整页的<a href="#settings">模型管理与配置页</a>，并在流里留一条回执说明「当前用哪个模型、改成别处要点设为激活」。<strong>要切模型还有两条更快的路</strong>：敲<strong>完整别名</strong>的 <code>/model &lt;别名&gt;</code>，或点模型卡的一行（<strong>本轮改动</strong>：模型候选浮层删除，打字时不再弹候选，前缀也不再算命中）。</p>
 
 <div class="sublabel">拼起来 —— 多条决策落进同一条对话流</div>
 <div class="cv-fig"><span class="fig-t">migrate 场景 · 从输入到收尾（节选，Agent Workspace 真实渲染）</span>
@@ -2115,10 +2115,8 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <tr><td>成功回执正文（「告警线 70% → 85%，立即生效」）</td><td>AI Text Line + Inline Highlight</td><td>复用——AI 文本是默认态，关键值靠行内强调分色，不加前缀不加底</td></tr>
 <tr><td>被拒回执（「没有改 / 为什么 / 该怎么敲」）</td><td>Checklist Row</td><td><span class="badge s">变体</span> 实心金方块 + <code>wrap</code>（值多行时方块与标签顶对齐第一行），值列自动折行</td></tr>
 <tr><td>输入框下方的命令提示行</td><td>Command Hint Bar</td><td>已有，本轮重排版（命令当标签 / 值最大声 / 灰字只作解释）+ 定死降级阶梯</td></tr>
-<tr><td>输入框上方的 <code>/model</code> 候选列表</td><td>Command Candidate Menu（P13 内嵌变体）</td><td><span class="badge p">新</span> 本轮登记；行为契约见输入区单元那张表</td></tr>
-<tr><td>候选行的「当前项」标记</td><td>Status Square（实心绿）</td><td>复用——<strong>状态统一用方块，不新增形状</strong>（本轮明确的一条纪律）</td></tr>
-<tr><td>候选行的端点列（<code>devkit-gateway.internal</code> / <code>127.0.0.1:8000</code>）</td><td>Command Candidate Menu 的一个字段</td><td>复用——它不是一个单元，是「从哪个账号扣额度、这个名字是否唯一」</td></tr>
-<tr><td>模型浮层里的端点分组（组头 + 缩进的模型行）</td><td>Model Switcher 的受约束变体</td><td><span class="badge s">变体</span> 组头一行 = 端点主机名 + 协议 + 模型数 + 状态方块 + 状态字；<strong>一次只摊开一组</strong>，深度只走缩进、不画导轨；未配密钥的组用空心金方块 + 「未配置密钥」，行可见但不可选</td></tr>
+<tr><td>输入框上方的命令候选菜单（只列命令名与说明）</td><td>Command Candidate Menu（P13 内嵌变体）</td><td><span class="badge p">新</span> 本轮登记；模型候选、候选行「当前项」标记、候选行端点列<strong>本轮删除</strong>——前两件迁到流内 Model Switcher 卡，第三件迁到管理页</td></tr>
+<tr><td>流内模型卡里的端点分组（组头 + 缩进的模型行）</td><td>Model Switcher 的受约束变体</td><td><span class="badge s">变体</span> 组头一行 = 端点主机名 + 协议 + 模型数 + 状态方块 + 状态字；<strong>一次只摊开一组</strong>，深度只走缩进、不画导轨；未配密钥的组用空心金方块 + 「未配置密钥」，行可见但不可选</td></tr>
 <tr><td>切换被拒的两种新理由（同名多义 / 未配密钥）</td><td>Checklist Row</td><td><span class="badge s">变体</span> 与「越界被拒」同一个形状、同一句「没有改」，区别只在值列里把正确写法列出来</td></tr>
 <tr><td>额度条随端点变的那一行说明</td><td>Sub Header 的注解位</td><td>复用——额度是账号的属性，换端点就换一套数字与重置时间</td></tr>
 <tr><td>下一步建议按钮行</td><td>Suggested Actions</td><td>已有，本轮从「系统与容器类」挪进输入区单元（按位置归类），文案纪律随卡一起搬</td></tr>
@@ -2179,9 +2177,9 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <tr><td>Hierarchy Tree</td><td>多级从属总览 + 可展开折叠节点</td><td>T0</td><td>P07 · P18</td></tr>
 <tr><td>Concurrency Slot Gauge</td><td>剩余并发槽位（还剩几个）</td><td>T1</td><td>P20</td></tr>
 <tr><td>Token Badge</td><td>单 Agent 消耗，父子不双算</td><td>T1</td><td>P20</td></tr>
-<tr><td>Model Switcher</td><td>会话内切模型：<strong>端点 → 模型</strong>两层（组头可收起、一次只摊开一组），结果留在流里可回看；候选菜单与完整命令两个入口共用同一个写入口。<strong>本轮保留不退休</strong>：它是「就地切换」的快路径，与整页管理页的「增删改 + 测通 + 设激活」职责不重合</td><td>T4</td><td>P13（内嵌变体）</td></tr>
+<tr><td>Model Switcher</td><td>会话内切模型：<strong>端点 → 模型</strong>两层（组头可收起、一次只摊开一组），结果留在流里可回看；与完整命令、管理页「设为激活」共用同一个写入口。<strong>本轮保留不退休</strong>：它是「就地切换」的快路径，与整页管理页的「增删改 + 测通 + 设激活」职责不重合</td><td>T4</td><td>P13（内嵌变体）</td></tr>
 <tr><td>Command Echo</td><td>命令回执：<strong>组合而非新组件</strong>——命令行=User Message，成功=AI Text，被拒=Checklist Row（实心金 +「没有改」+ 为什么 + 正确写法，含「同名要写全名」「密钥没配」两种理由）</td><td>T0</td><td>P13 · P28</td></tr>
-<tr><td>Command Candidate Menu</td><td>打 <code>/model</code> 唤出的候选列表，行内带端点；联想同时认别名、模型 ID 与端点主机名；<strong>命中多条时谁也不高亮</strong>（回车走命令路径给「没有改 + 列候选」）；P13 内嵌变体</td><td>T0</td><td>P13</td></tr>
+<tr><td>Command Candidate Menu</td><td>打 <code>/</code> 唤出的命令候选：<strong>只列命令名与说明</strong>；<kbd>Tab</kbd>/<kbd>Enter</kbd> 补全命令名后菜单关闭。模型候选、端点列、多义不高亮<strong>本轮删除</strong>（换模型走模型卡 / 完整别名命令 / 管理页）；P13 内嵌变体</td><td>T0</td><td>P13</td></tr>
 <tr><td>Quota Bar</td><td>额度 / 上下文水位，四级风险色降为三档；<strong>额度挂在端点账号上</strong>（分组键 = 端点主机名，由 Base URL 推出），切端点就换一套数字与重置时间</td><td>T1</td><td>P13 · P20</td></tr>
 <tr><td>Status Bar Metrics</td><td>模型 + ctx 水位 + tokens 三项常驻；<strong>本轮改口径：模型位显示别名</strong>（不是供应商/模型 ID），未配置时写「未配置」</td><td>T0</td><td>P20</td></tr>
 <tr><td>Command Hint Bar</td><td>输入框下方的场景命令路标（命令 + 当前值 + 端点，不可点）；<strong>本轮改为常驻</strong>——它扛的是「模型别名 / token 与告警线」两个当前值，不再是纯说明文字</td><td>T0</td><td>P13 · P15</td></tr>
@@ -2229,7 +2227,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <tr><td>Model Switcher</td><td>会话内模型切换，内嵌不弹层</td><td>T4</td><td>P13</td><td class="mono">OptionList（内嵌变体）</td></tr>
 <tr><td>Token / Quota Meter</td><td>分来源 token 与额度水位</td><td>T1</td><td>P20</td><td class="mono">ProgressBar + Text</td></tr>
 <tr><td>Command Hint Bar</td><td>输入框下方的场景命令路标（不可点）</td><td>T0</td><td>P13 · P15</td><td class="mono">Text（Composer 内一行）</td></tr>
-<tr><td>Command Candidate Menu</td><td>打 <code>/model</code> 唤出的候选列表（贴输入框上方，行内带端点）</td><td>T0</td><td>P13</td><td class="mono">OptionList（内嵌变体）</td></tr>
+<tr><td>Command Candidate Menu</td><td>打 <code>/</code> 唤出的命令候选（贴输入框上方，只列命令名与说明）</td><td>T0</td><td>P13</td><td class="mono">OptionList（内嵌变体）</td></tr>
 <tr><td>Blocker Note</td><td>受阻说明块（金左线 + <code>⚠</code>/<code>?</code> 标题 + 1–3 行说明）</td><td>T0</td><td>P07 · P19</td><td class="mono">Container + Text</td></tr>
 <tr><td>Inline Highlight</td><td>AI 文本内部行内强调（六个语义色 token）</td><td>T0</td><td>—</td><td class="mono">Text（内联着色规则）</td></tr>
 <tr><td>Tune Chart Container</td><td>输入框上方可收起的调优曲线区（双视图，收起即暂停）</td><td>T2</td><td>P20</td><td class="mono">Collapsible + Live Canvas</td></tr>

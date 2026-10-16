@@ -615,8 +615,9 @@ td.fnname{color:var(--ok)}
 .slots .note{color:var(--fg4);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ══ 模型切换 + 额度（develop · model-token）══
-   候选列表内嵌在对话流里，不弹浮层——跟 .slash-menu 的分工是：浮层服务于"输入时联想"，
+   模型卡内嵌在对话流里，不弹浮层——跟 .slash-menu 的分工是：浮层只做命令名补全与会话选择，
    用完即走；这里的切换结果要留在会话记录里可回看，所以做成实体内嵌块。
+   （模型候选浮层本轮删除：换模型是管理页里的写操作，不再有"打字时挑一行就切"这条入口。）
    是否切换由用户定，接近上限仍可切（P13），只提示不阻断。 */
 .model-pop{margin:12px 0;border:1px solid var(--bd1);border-radius:8px;
   background:var(--surf-4);overflow:hidden}
@@ -731,9 +732,8 @@ table.cmp tr.ttl td{color:var(--fg);font-weight:700}
 .sm-item:hover{background:var(--s2)}
 .sm-item.sel{background:rgba(52,94,231,.22)}
 .sm-item .cmd{color:var(--pri-h);font-weight:700;font-size:12.5px;flex:none;min-width:172px}
-/* 候选行里的额度池：和输入框下方提示行里模型名后面那个灰字是同一件事、同一个写法。
-   换模型前最该先看的就是"这个模型从哪个池子扣额度"，所以它进候选行而不是塞进描述里 */
-.sm-item .src{color:var(--fg4);font-size:11px;flex:none;min-width:44px}
+/* 候选行只有命令名 + 说明两列：模型候选删除后不再有端点列（原来那列在这里解释"从哪个
+   账号扣额度"）。端点与额度现在只在模型卡与提示行上回答，不在这层重复一遍 */
 .sm-item .desc{color:var(--fg3);font-size:12px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sm-empty{padding:10px 12px;font-size:12px;color:var(--fg4)}
 .sm-hint{display:flex;gap:10px;padding:6px 12px;border-top:1px solid var(--bd1);font-size:11px;color:var(--fg4)}
@@ -1879,7 +1879,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
          命令改配置的部分没有为新功能造组件：命令行走 usr-msg、成功走 ai-msg、
          被拒走 chk 行，全部是既有对话流单元——命令的结果就是这一轮对话的一部分，
          翻历史时能连着上下文看。
-         本轮把 /model 回执的尾句删了：「其余可直接切」描述的是那张候选列表怎么操作
+         本轮把 /model 回执的尾句删了：「其余可直接切」描述的是那张模型列表怎么操作
          （本产品行为），不是这次会话的业务状态；业务到「llm.private.internal 还没配密钥」为止。
          /tokens 回执里的「底栏的 ctx 当前值不变」同理，改成「当前用量不变」，static 与
          运行时两处同步。 -->
@@ -1947,7 +1947,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
                 <span class="ps off">未配置密钥</span>
               </div>
               <div class="model-row off" data-key="m5"><span class="mp-ck"></span><span class="mp-nm">私有云-v3</span><span class="mp-desc">这个模型 ID 在 devkit-gateway.internal 上已有一条 · 靠别名区分</span><span class="mp-tag">需密钥</span></div>
-              <div class="model-row off" data-key="m6"><span class="mp-ck"></span><span class="mp-nm">私有云-coder</span><span class="mp-desc">这个模型 ID 在 devkit-gateway.internal 上已有一条 · 靠别名区分</span><span class="mp-tag">需密钥</span></div>
+              <div class="model-row off" data-key="m6"><span class="mp-ck"></span><span class="mp-nm">私有云-coder</span><span class="mp-desc">客户私有云 · 换过去就换一份账单，与网关那台不是同一个账号</span><span class="mp-tag">需密钥</span></div>
             </div>
           </div>
 
@@ -1979,10 +1979,9 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
           <div class="ai-msg">按当前编排，3 个并行子 Agent 里有 <b>2 个只是检索和打补丁</b>，用 <b class="hl-code">qwen2.5-coder-32b</b> 就够，没必要都占 72b 的共享额度。把它们指到 <b class="hl-code">subagent.MODEL_OVERRIDE</b>，是这个项目里最容易捡回来的一笔 token —— 要我改配置吗？</div>
 
           <!-- ── 以下就是「改」：同一个会话、同一个输入框，不跳屏、不弹窗。
-               这里刻意不再重复演示一遍"敲 /model 列候选"（那是上一段的开场），
                改直接从"真的改一个值"开始，否则一屏里同一句话要说两遍。
-               候选菜单的可视状态由 selectScenario() 预置（进场景即敲好 /model 并展开），
-               用户不用读文案就能看见"候选长在输入框上方"。 ── -->
+               进这一屏时 selectScenario() 会把 /model 预先敲进输入框（不带空格、不展开候选——
+               模型候选浮层本轮删除），用户按一次回车就进管理页。 ── -->
           <div class="sub-h">就地改配置 <span class="cm">不用重开会话</span></div>
 
           <div class="usr-msg"><span class="p">&gt;</span> /model qwen2.5-coder-32b</div>
@@ -2811,7 +2810,7 @@ const SCENARIOS={
     {key:'model-token',label:'模型与 Token',status:'done',file:'devkitai.toml',code:true,
      goal:'查看当前端点的额度、上下文水位与按来源拆分的 token；并用 /model · /tokens 就地改配置（含子 Agent 的继承/覆盖策略）',
      plan:[{t:'读当前端点的额度与水位',d:'devkit-gateway.internal · 5h 38% · 7d 72% · ctx 38%',s:'done'},{t:'按来源拆 token',d:'主 Agent 36.3% · 子 Agent 63.7%',s:'done'},
-       {t:'列候选并切模型',d:'qwen2.5-coder-32b',s:'done'},{t:'改告警线 / 越界被拒',d:'70% → 85% · 120 超范围没改',s:'done'}],
+       {t:'敲完整别名切模型',d:'qwen2.5-coder-32b',s:'done'},{t:'改告警线 / 越界被拒',d:'70% → 85% · 120 超范围没改',s:'done'}],
      sugg:['试 /tokens 60','看命令清单','切回 72b']},
     {key:'subagent-tree',label:'多级子 Agent 嵌套',status:'doing',file:'RiskScore',code:true,
      goal:'分层编排：主 Agent 拆 2 个一级，一级再拆二级；深度上限 4 层，触顶收住回退基线；槽位逐级继承不另开池',
@@ -3073,15 +3072,16 @@ function selectScenario(agentKey,scenarioKey){
      当前值不会因为一直看得见而失去意义——`/model` 与 `/tokens` 两个命令反而是
      靠这一行被发现的（命令要能自己介绍自己，而不是写进帮助文档）。 */
   document.getElementById('biHint').classList.add('on');
-  /* 「模型与 Token」这一屏里有"在输入框里敲命令"的戏，所以进来就把命令敲好、把候选列开——
-     不预置的话，用户得自己猜这一屏该敲什么，改配置那一段就退化成静态文案。
+  /* 「模型与 Token」这一屏里有"在输入框里敲命令"的戏，所以进来就把命令敲好——
+     预置成 /model 且不带参数：回车即进管理页（PRD 的主手势），输入框上方的命令候选只剩这一条，
+     行内正好写着"不带参数打开配置页"。模型候选浮层本轮删除，这里不再预置展开。
      离开时如果输入框还停在我们预置的那句就清掉，别把演示用的字留给下一个场景；
      用户自己改过的内容一律不动。 */
   if(agentKey==='develop'&&scenarioKey==='model-token'){
-    biInput.value='/model ';
-    biInput.setSelectionRange(7,7);
+    biInput.value='/model';
+    biInput.setSelectionRange(6,6);
     renderSlashMenu();
-  }else if(biInput.value==='/model '){
+  }else if(biInput.value==='/model'){
     biInput.value='';
     closeSlashMenu();
   }
@@ -3226,7 +3226,7 @@ const SLASH_COMMANDS=[
   {cmd:'/help',desc:'显示帮助信息'},
   {cmd:'/quit',desc:'退出程序（同 /exit）'},
   {cmd:'/config',desc:'查看 / 修改配置信息'},
-  {cmd:'/model',desc:'切换会话模型（用别名），不带参数打开配置页，例如 /model qwen2.5-coder-32b',picker:true},
+  {cmd:'/model',desc:'不带参数打开模型配置页；带别名直接切，例如 /model qwen2.5-coder-32b'},
   {cmd:'/tokens',desc:'查看 / 修改 token 告警线，例如 /tokens 85'},
   {cmd:'/skills',desc:'管理 Agent 已启用的技能'},
   {cmd:'/session',desc:'会话管理 · list / delete',picker:true},
@@ -3267,29 +3267,20 @@ function sessionQuery(){
   const m=before.match(/(?:^|\n)\/(?:session|resume)[ \t]+([^\n]*)$/i);
   return m?m[1]:null;
 }
-/* /model 同理：补全后不关闭「/」联想，换成模型选择器接力 —— 同一个 P13 Selector Popup 决策 */
-function modelQuery(){
-  const pos=biInput.selectionStart;
-  const before=biInput.value.slice(0,pos);
-  const m=before.match(/(?:^|\n)\/model[ \t]+([^\n]*)$/i);
-  return m?m[1]:null;
-}
+/* 此处原来是 modelQuery()：`/model ` 补全后不关「/」联想，换成模型候选浮层接力。
+   本轮删除——换模型是管理页里的写操作（PRD：/model 回车打开管理页），不是打字时的就地选择。
+   删掉接力后行为反而更整齐：slashQuery 的正则不认带空格的 `/model `，所以敲完空格浮层自己关闭，
+   回车落回命令路径（无参进管理页、带别名直接切）。会话选择器（sessionQuery）仍按 P13 接力。 */
 function paintSlashMenu(){
   const rows=smMode==='session'
     ? smMatches.map((s,i)=>
         `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="stq ${s.status}" role="img" aria-label="${STATUS_LABEL[s.status]}"></span><span class="cmd">${s.label}</span><span class="desc">${AGENT_LABEL[s.agentKey]} · ${STATUS_LABEL[s.status]}</span></div>`
-      ).join('')
-    : smMode==='model'
-    ? smMatches.map((m,i)=>
-        `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="stq ${m.key===mmActiveKey?'done':'todo'}" role="img" aria-label="${m.key===mmActiveKey?'当前模型':'未选中'}"></span><span class="cmd">${m.name}</span><span class="src">${m.ep}</span><span class="desc">${m.desc}${(m.key===mmActiveKey?' · 当前':'')}${m.usable?'':' · 需密钥'}</span></div>`
       ).join('')
     : smMatches.map((c,i)=>
         `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="cmd">${c.cmd}</span><span class="desc">${c.desc}</span></div>`
       ).join('');
   const hint=smMode==='session'
     ? '<div class="sm-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 切换会话</span><span><b>Esc</b> 关闭</span></div>'
-    : smMode==='model'
-    ? '<div class="sm-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 切换模型</span><span><b>Esc</b> 关闭</span></div>'
     : '<div class="sm-hint"><span><b>↑↓</b> 选择</span><span><b>Tab/Enter</b> 补全</span><span><b>Esc</b> 关闭</span></div>';
   slashMenu.innerHTML='<div class="sm-list">'+rows+'</div>'+hint;
 }
@@ -3299,31 +3290,6 @@ function closeSlashMenu(){
   smMatches=[];smSel=-1;smMode='cmd';
 }
 function renderSlashMenu(){
-  const mq=modelQuery();
-  if(mq!==null){
-    smMode='model';
-    const q=mq.trim().toLowerCase();
-    /* 联想同时认「别名」「模型 ID」和「端点」：打 127.0 是在按端点筛（本机那几个），
-       打 qwen 是在按模型名筛，打 私有云 是在按别名筛——三种输入都是用户会打的。
-       —— 端点能当筛选词，是因为它由 Base URL 推出来，用户本来就认得这个主机名。 */
-    smMatches=q?MODELS.filter(m=>m.name.toLowerCase().includes(q)||(m.modelId||'').toLowerCase().includes(q)||(m.ep||'').toLowerCase().includes(q)):MODELS;
-    if(!smMatches.length){
-      slashMenu.innerHTML='<div class="sm-empty">没有匹配的模型</div>';
-      slashMenu.classList.add('show');
-      smSel=-1;
-      return;
-    }
-    /* 高亮谁：空查询（刚敲完 `/model `）= 高亮当前那条，方便对照着换；
-       打了字之后——命中 1 条就高亮它（无歧义），命中多条**谁也不高亮**。
-       后者是本节最重要的一处纪律：打了一个同时说得通两条的名字（既是 A 的别名、
-       又是 B 的模型 ID）时，产品不替用户挑一条——高亮哪条都等于替他做了"走哪个账号"的决定。
-       用户可以 ↑↓ 自己选，也可以直接回车，那时会给出"没有改 + 列出候选"的回执。
-       候选列表与命令路径不打架：**菜单负责让人选，命令负责说清为什么选不了**。 */
-    smSel=q?(smMatches.length>1?-1:0):Math.max(0,smMatches.findIndex(m=>m.key===mmActiveKey));
-    paintSlashMenu();
-    slashMenu.classList.add('show');
-    return;
-  }
   const sq=sessionQuery();
   if(sq!==null){
     smMode='session';
@@ -3363,34 +3329,9 @@ function applySlash(i){
     biInput.focus();
     return;
   }
-  if(smMode==='model'){
-    const m=smMatches[i]; if(!m) return;
-    const prev=curModel;
-    /* 联想里点到"需密钥"的那家，不切换、给理由——静默失败会让人以为点了没反应 */
-    if(!m.usable){
-      const alt=MODELS.find(x=>x.usable&&x.modelId===m.modelId);
-      appendCmdEcho('/model '+m.name,{ok:false,msg:'<b>'+m.ep+'</b> 还没配密钥，这个模型现在选不了。补上 <b>API_KEY</b> 之后它就能用'+
-        (alt?'；眼下可以先选 <b>'+alt.name+'</b>':'')});
-      biInput.value='';
-      closeSlashMenu();
-      biInput.focus();
-      return;
-    }
-    setModel(m);
-    /* 从候选里选和敲完整命令是同一个动作的两个入口，所以也要留回执：
-       入口可以有两个，痕迹只能有一份——不然"我什么时候换的模型"在两种操作下答案不一样。
-       （浮层里点一行不算：那是同一屏"看现状"那一段的就地操作，浮层自己已经给了反馈。） */
-    appendCmdEcho('/model '+m.name,{ok:true,msg:'已切到 <b class="hl-code">'+m.name+'</b>'+
-      (m.name===prev?' —— 本来就是它，没有变化':'')+'。<b>新起的子 Agent 继承这个模型</b>；正在跑的保持原模型跑完。改动已写入 <b class="hl-file">.devkitai/config.toml</b>。'});
-    biInput.value='';
-    closeSlashMenu();
-    biInput.focus();
-    return;
-  }
   const c=smMatches[i]; if(!c) return;
   /* 一字不差地敲了 `/model` 再回车 = 想改配置，不是想切模型（PRD：这一下打开管理页）。
-     区别很清楚：要切模型的人一定会带上名字或空格（那时走上面 smMode==='model' 那条），
-     光敲命令名的人是冲着这个功能来的。 */
+     换模型的人敲的是完整别名，那条路走 runCommand，不经过浮层——所以这里只剩这一个判断。 */
   if(c.cmd==='/model'&&biInput.value.trim()==='/model'){
     /* 这里必须走 openModelPageWithEcho 而不是 mmOpenModelPage：从联想浮层回车是"敲命令"的
        另一个入口，回执只能有一份、两个入口都要有。曾经直连 mmOpenModelPage，
@@ -3490,7 +3431,7 @@ const mmStore=[
   /* 客户私有云：密钥还没配，所以这一条现在用不了——"用不了"由 Base URL + 缺 Key 解释 */
   {key:'m5',id:'deepseek-v3-671b',name:'私有云-v3',prov:'openai-compat',
    url:'https://llm.private.internal/v1',keyv:'',think:true,ctx:128000,max:50000},
-  {key:'m6',id:'qwen2.5-coder-32b',name:'私有云-coder',prov:'openai-compat',
+{key:'m6',id:'qwen3-coder-30b',name:'私有云-coder',prov:'openai-compat',
    url:'https://llm.private.internal/v1',keyv:'',think:true,ctx:128000,max:50000}
 ];
 let mmActiveKey='m1';      // 激活模型：全产品唯一的事实源
@@ -3503,7 +3444,7 @@ let mmTesting=false,mmTestTimer=null;
    1.2 秒后给结论，但超时文案里的数字仍然是这个常量——数字对不上比慢更糟 */
 const TEST_TIMEOUT_MS=10000;
 const MM_NEW={prov:'openai-compat',think:true,ctx:128000,max:50000};
-let mmLegacyReady=false;   // 候选浮层（MODELS）就绪后由 setModel 一段置 true
+let mmLegacyReady=false;   // 流内模型卡（MODELS）就绪后由 setModel 一段置 true
 
 function mmActiveEntry(){ return mmStore.find(e=>e.key===mmActiveKey)||null; }
 function mmByKey(k){ return mmStore.find(e=>e.key===k)||null; }
@@ -3717,13 +3658,13 @@ function mmActivate(){
   /* 激活不改任何正在跑的东西：运行中的子 Agent 保持原模型跑完（与场景里的说明一致） */
 }
 
-/* 把激活状态同步到旧的候选浮层（它也有一个 current 标记）。
-   同一个设置不能有两处各写各的，否则"浮层标了 A、底栏显示 B"迟早出现。
-   浮层里没有对应行（例如用户新建的模型）就只清掉标记，不造假行 */
+/* 把激活状态同步到对话流里的模型卡（它也有一个 current 标记）。
+   同一个设置不能有两处各写各的，否则"卡上标了 A、底栏显示 B"迟早出现。
+   卡里没有对应行（例如用户新建的模型）就只清掉标记，不造假行 */
 function mmLinkLegacy(e){
   curModel=e.name;                       // 界面上、命令里认的都是**别名**（PRD 规定）
   curEp=mmEndpoint(e);
-  /* 候选浮层那份标在脚本后面才解析出来（MODELS 是 const，早读会撞 TDZ），
+  /* 模型卡那份标在脚本后面才解析出来（MODELS 是 const，早读会撞 TDZ），
      所以用这个闸门明说"还没就绪"，而不是靠 typeof 去探一个 const */
   if(!mmLegacyReady) return;
   MODELS.forEach(m=>{
@@ -3967,8 +3908,9 @@ function mmNoModelScene(agentKey,scenarioKey){
   return agentKey==='develop'&&scenarioKey==='no-model';
 }
 
-/* ══ 模型切换：两个入口，同一个动作 ══
-   入口一：点候选列表里的一行；入口二：在输入框敲 /model。两条路都走 setModel()——
+/* ══ 模型切换：三个入口，同一个动作 ══
+   入口三：管理页里点「设为激活」。三条路都落到 setModel() 与 mmLinkLegacy()——
+   入口一：点对话流里模型卡的一行；入口二：在输入框敲完整别名（/model qwen2.5-coder-32b）；
    同一个设置只能有一处写入口，否则"点了列表但底栏没变"这种不一致迟早会出现。
    演示的是"改完马上生效"，不是一张静态截图。切换只改标记与底栏，
    不打断任何正在跑的任务——运行中的子 Agent 保持原模型跑完（见场景内的说明）。 */
@@ -3983,7 +3925,7 @@ function mmNoModelScene(agentKey,scenarioKey){
    2) key 配没配、额度还剩多少，是端点账号的属性，不是模型的属性；
    3) 换端点与换模型是两件事：同一个模型换个端点跑（比价格、比延迟）是个真实诉求。
    组头直接从 HTML 读（名称 / 说明 / 状态字 / 状态方块），不在 JS 里再抄一份——
-   否则改了标记忘了改数据，候选菜单和命令回执就会各说一套。 */
+   否则改了标记忘了改数据，模型卡和命令回执就会各说一套。 */
 const ENDPOINTS=[...document.querySelectorAll('#modelPop .mp-pool')].map(pool=>({
   id:pool.dataset.ep,
   el:pool,
@@ -4013,19 +3955,17 @@ const MODELS=[...document.querySelectorAll('#modelPop .model-row')].map(row=>{
   return m;
 });
 MODELS.forEach(m=>{ if(m.tag) m.tag.dataset.orig=m.tag.textContent; });
-/* 命令里怎么指一个模型：先按**别名或模型 ID**做精确匹配，再退化到前缀匹配。
+/* 命令里怎么指一个模型：**只认完整的别名或模型 ID**，不再退化到前缀匹配。
+   前缀匹配（`/model q` 这种）本来就靠候选浮层才能用——边打边看得到剩下几条；
+   浮层本轮删除后它既看不见也没有出口，而且命中多条时会报出"q 是模型 ID"这种假话。
    关键在于精确命中可能**不止一条**——用户写的 `deepseek-v3-671b` 既是 A 的别名、
    又是 B 的模型 ID，这时**不猜**，把候选连端点一起交回给调用方。
    这正是"别名"这个字段存在的理由：给重名的那条起个不同的展示名，命令就能唯一指到它。 */
-const MODELS_OF=sel=>{
-  const exact=MODELS.filter(m=>m.name===sel||m.modelId===sel);
-  if(exact.length) return exact;
-  return MODELS.filter(m=>m.name.startsWith(sel)||(m.modelId||'').startsWith(sel));
-};
-/* 浮层这一份数据到这儿才算就绪；此前 mmLinkLegacy 只能先记下 curModel/curEp */
+const MODELS_OF=sel=>MODELS.filter(m=>m.name===sel||m.modelId===sel);
+/* 模型卡这一份数据到这儿才算就绪；此前 mmLinkLegacy 只能先记下 curModel/curEp */
 mmLegacyReady=true;
-/* 浮层的每一行都对应管理页里的一条配置（key 一一对应），两边靠它找到对方。
-   找不到 = 浮层里这一行不是从配置来的，那就别硬造 */
+/* 模型卡的每一行都对应管理页里的一条配置（key 一一对应），两边靠它找到对方。
+   找不到 = 卡里这一行不是从配置来的，那就别硬造 */
 const mmEntryOfModel=m=>(m&&m.key?mmByKey(m.key):null)||null;
 
 /* 每个端点的额度。额度是账号（Base URL + API Key）的属性，所以换端点就换一套数字——
@@ -4082,10 +4022,10 @@ function setModel(sel){
   curModel=hit.name;
   curEp=hit.ep||'—';
   /* 就地切换也要落到同一份配置上：管理页里的激活方块、底栏、提示行读的都是
-     mmActiveKey，这里不写它就会变成"浮层标了 A，底栏显示的是 B" */
+     mmActiveKey，这里不写它就会变成"卡上标了 A，底栏显示的是 B" */
   const ent=mmEntryOfModel(hit);
   if(ent){ mmActiveKey=ent.key; renderModelList(); }
-  /* 切完把目标端点那组展开、其余收起：候选菜单一次只摊开一组，
+  /* 切完把目标端点那组展开、其余收起：模型卡一次只摊开一组，
      要看别家的时候再点开——满屏模型的列表比分组更难找。 */
   ENDPOINTS.forEach(p=>{
     const open=p.id===curEp;
@@ -4174,8 +4114,9 @@ function runCommand(text){
     const prev=curModel;
     if(!arg){
       /* 光敲 /model 不带名字 = 要配模型，不是要切模型（PRD：/model 回车打开管理页）。
-         要切模型还有两条更快的路：打 /model 加个前缀从候选里选，或点右侧的候选列表。
-         —— 列候选这条不再挂在这里：它和"管理页"抢同一个手势，而管理页里能选能改 */
+         要切模型还有两条更快的路：敲完整别名（如 /model qwen2.5-coder-32b）直接切，
+         或点对话流里模型卡的一行。模型候选浮层本轮删除：打字时不再弹，
+         "挑一行就切"这条入口回到管理页里（点「设为激活」）*/
       openModelPageWithEcho(line);
       return true;
     }
@@ -4192,7 +4133,8 @@ function runCommand(text){
     }
     const hit=cands[0]||null;
     if(!hit){
-      appendCmdEcho(line,{ok:false,msg:'没有匹配 <b>'+esc(arg)+'</b> 的模型或别名。敲 <b>/model</b> 打开配置页看全部'});
+      appendCmdEcho(line,{ok:false,msg:'没有匹配 <b>'+esc(arg)+'</b> 的模型或别名。别名要写全，例如 <b>/model qwen2.5-coder-32b</b>；'+
+        '敲 <b>/model</b> 打开配置页看全部'});
       return true;
     }
     if(!hit.usable){
