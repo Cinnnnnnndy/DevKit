@@ -853,12 +853,20 @@ html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
 /* 页头下面的分类 tab：模型 / Agent / Skill。本轮只交付「模型」，
    另外两个按「占位但不编内容」处理——保留 aria-disabled 与 Tab 可达性，
    让读屏用户听见分类存在，而不是干脆藏掉 */
-.mm-tabs{flex:none;display:flex;align-items:center;gap:2px;padding:4px var(--sp-lg) 0;
+/* 选中态是「文字提亮 + 一条 2px 底部划线」，不是填充胶囊：这一行是页内的分类导航，
+   不是一排按钮——填充底色会和页标题抢同一处视觉重量，也读成「点了会弹东西」。
+   划线压住页头原有的 1px 分隔线，所以给 tab 一个 -1px 的下外边距让它盖上去。
+   归属：页头 .mm-head 之下的独立一行，只在窄屏跟随页头收缩。 */
+.mm-tabs{flex:none;display:flex;align-items:flex-end;gap:0;padding:0 var(--sp-lg);
   border-bottom:1px solid var(--bd1);font-family:var(--mono)}
-.mm-tabs .stab{padding:0 10px;height:24px}
+.mm-tabs .stab{padding:0 10px;height:28px;border:0;border-radius:0;
+  border-bottom:2px solid transparent;margin-bottom:-1px}
+.mm-tabs .stab:hover{background:transparent;border-color:transparent;color:var(--fg2)}
+.mm-tabs .stab.on{background:transparent;border-color:transparent;
+  border-bottom-color:var(--pri);color:var(--fg)}
 .mm-tabs .stab[aria-disabled="true"],
 .mm-tabs .stab[aria-disabled="true"]:hover{color:var(--fg4);background:transparent;
-  border-color:transparent;cursor:not-allowed}
+  border-color:transparent;border-bottom-color:transparent;cursor:not-allowed}
 .mm-body{flex:1;min-height:0;display:flex}
 
 /* 左：模型列表。每行 = 别名 + 行尾「使用中」 + 三个操作（编辑 / 复制 / 删除）。

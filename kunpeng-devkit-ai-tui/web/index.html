@@ -263,6 +263,7 @@ pre .fw2{display:inline-block;width:2ch;text-align:center;vertical-align:bottom;
 pre .hw{display:inline-block;width:1ch;text-align:center;vertical-align:bottom;line-height:inherit}
 pre .s2{color:#a2a2a2}   /* foreground secondary on surface-1 —— 图元标签列 */
 pre .sel{background:#18293C}
+pre .ul{color:#3d98ff;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}  /* 分类 tab 的选中态：底部划线 */
 pre .t{color:#E8E8E8;font-weight:600}
 pre .as{font-style:italic;opacity:.6}   /* 过程性旁白 —— 斜体 + 降透明度，不加前缀 */
 
@@ -2075,14 +2076,14 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <tr><td>Icon Action</td><td>「行尾那几个小动作」：编辑 / 复制 / 删除。<strong>用图标不用文字</strong>（每行挂三个词会把别名挤断），但<strong>必须带 <code>aria-label</code> 与 <code>title</code></strong>，终端面降级为 <code>[e] [c] [d]</code> 单字符</td><td><span class="badge p">新</span>；危险动作（删除）沿用<a href="#color">危险色</a>，但不整行变红</td></tr>
 <tr><td>Confirm Dialog</td><td>「不可逆的单点动作怎么问」：遮罩 + 居中卡片 + 两句正文（删谁 / 后果），<strong>取消在左、危险在右</strong>，<strong>初始焦点落在「取消」</strong>，<kbd>Esc</kbd> = 取消</td><td><span class="badge p">新</span>；<strong>与 <a href="#p1">Approval Bar</a> 不合并</strong>——后者管「一批已定的动作放不放行」（可批量、可排队），弹窗只管一个动作，所以不做批量</td></tr>
 <tr><td>Page Footer Status</td><td>「表单底部的动作与结果」：左侧动作成组（设为激活 / 测试连通性 / 保存），右侧一行结果。<strong>结果留在原地、不弹 toast</strong>——「连通成功」与「认证失败：API Key 无效」是这次操作唯一的产出，飘走的提示等于逼用户重测一次；测试中按钮就地进加载态、可取消</td><td><span class="badge p">新</span>；着色沿用<a href="#color">语义色</a>与 <a href="#comp">Checklist Row</a> 的「说清为什么」纪律</td></tr>
-<tr><td>Settings Tabs</td><td>「一个页面里怎么分几类」：页头下方一行分类 tab，当前类提亮、未交付类压暗并带 <code>aria-disabled</code>。<strong>分类不做成左右分栏或下拉</strong>——分类是要被一眼数清的（现在是三类），下拉会把「还有别的」藏起来</td><td><span class="badge p">新</span>；视觉沿用场景 tab 的既有语汇（同尺寸、同圆角、同选中底色）</td></tr>
+<tr><td>Settings Tabs</td><td>「一个页面里怎么分几类」：页头下方一行分类 tab，当前类提亮、未交付类压暗并带 <code>aria-disabled</code>。<strong>分类不做成左右分栏或下拉</strong>——分类是要被一眼数清的（现在是三类），下拉会把「还有别的」藏起来</td><td><span class="badge p">新</span>；<strong>视觉不复用场景 tab</strong>——分类 tab 只有文字，选中态是<strong>文字提亮 + 一条 2px 底部划线</strong>，不是填充胶囊（分类是页内导航，不是一排按钮）；未交付类压暗且无划线</td></tr>
 <tr><td>Guidance Chip</td><td>「一个能用的模型都没有时，怎么让人找到出口」：顶栏里一枚<strong>可点</strong>的提示胶囊「未配置模型，请通过 /model 命令进行配置」，点它等同敲一条 <code>/model</code></td><td><span class="badge p">新</span>；文案纪律同 <a href="#convo">Suggested Actions</a>（动宾短句、结尾不写句号）</td></tr>
 </table>
 <p class="rule"><strong>整页里没有新控件，只有新排布</strong>：开关、下拉、单行文本、数字输入、状态方块、空状态卡、按钮——七样东西全都在上面登记过。这一组真正新增的是<strong>它们的容器与字段纪律</strong>（标签列宽统一、错误文案固定第三行、结果留原地），以及两枚只有整页才会出现的标记（行尾状态词与提示胶囊）。<strong>评审门槛同样适用</strong>：想往配置页加一个新控件之前，先回答「它是不是某一样已有控件的变体」，多数时候答案是「是，只是没对齐」。</p>
 
 <div class="cv-fig"><span class="fig-t">Settings Page 整页骨架（宽屏：左列列表 + 右侧详情；底栏留在页外）</span>
 <pre class="dense">┌ <span class="br">◢</span> KUNPENG <span class="t">DEVKIT AI</span> ── <span class="fw">管理配置</span> ────────────────── <span class="cm">[Esc] <span class="fw">返回会话</span></span> ┐
-│ <span class="sel"><span class="fw">模型</span></span>   <span class="cm">Agent</span>   <span class="cm">Skill</span>                                              │
+│ <span class="ul"><span class="fw">模型</span></span>   <span class="cm">Agent</span>   <span class="cm">Skill</span>                                              │
 │ <span class="s2"><span class="fw">模型</span> (6)</span>             │ <span class="s2"><span class="fw">详情</span></span>                                       │
 │ <span class="t"><span class="fw">通用推理</span> 72b</span> <span class="cm"><span class="fw">当前</span></span>    │ <span class="fw">别名</span>       <span class="sel"><span class="fw">通用推理</span> 72b</span>                    │
 │ <span class="fw">私有云</span>-v3            │ <span class="fw">模型</span> ID    <span class="sel">pangu2.5-72b-instruct</span>           │
@@ -2097,7 +2098,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 └──────────────────────┴────────────────────────────────────────────┘
 <span class="fw">通用推理</span> 72b   <span class="cm">ctx</span> 34%   <span class="cm">tokens</span> 268.8k  <span class="cm">← <span class="fw">底栏留在页外</span><span class="fw2">，</span><span class="fw">进设置也看得见</span></span></pre>
 <p class="rule"><strong>为什么是整页而不是右栏抽屉</strong>：抽屉塞不下 8 个字段加一个可增删的列表；更要紧的是<strong>「测试连通性」需要一个不被打扰的落点</strong>——结果要留在原地，抽屉一滚就把它带走了。<strong>为什么底栏留在页外</strong>：整页最容易犯的错是把状态栏一起盖掉，于是用户改模型时看不到自己正在用哪个、已经花了多少——而这两件事恰好是他在这一页做决定的依据。<br>
-<strong>列表行与表单的分工（PRD 的硬约束）</strong>：<strong>点左侧某一行只是把它读进右侧，不改变激活状态</strong>；<strong>「激活」与「加载」是两个独立操作</strong>，各有一个手势、各有各的痕迹——左列方块说的是「谁在用」，右表按钮说的是「改用谁」，左边读、右边写。若右表有未保存的改动就点「设为激活」，<strong>先保存再激活</strong>，不然改了一半的字段会静默丢掉。<br>
+<strong>列表行与表单的分工（PRD 的硬约束）</strong>：<strong>点左侧某一行只是把它读进右侧，不改变激活状态</strong>；<strong>「激活」与「加载」是两个独立操作</strong>，各有一个手势、各有各的痕迹——左列行尾的状态词「使用中」说的是「谁在用」，右表按钮说的是「改用谁」，左边读、右边写。若右表有未保存的改动就点「设为激活」，<strong>先保存再激活</strong>，不然改了一半的字段会静默丢掉。<br>
 <strong>删掉当前激活的模型</strong>：自动接管给列表里下一个可用模型，页脚给出结果行；<strong>列表被删空</strong>则回到缺省态。<strong>删除必须二次确认</strong>，卡片里写清删的是哪个别名<strong>并带上端点</strong>——重名条目（两个「私有云」）最容易在这里删错。删掉一个 <strong>未激活</strong>的模型不该动当前会话的任何东西：它只从列表里消失。</p>
 </div>
 
@@ -2105,8 +2106,8 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <div class="cv-chk"><span class="ic warn" role="img" aria-label="需要注意"></span><span class="lb">① 顶栏提示</span><span class="v">未配置模型，请通过 <b>/model</b> 命令进行配置　<b>[ 点它等同敲一条 /model ]</b></span></div>
 <div class="cv-chk"><span class="ic warn" role="img" aria-label="需要注意"></span><span class="lb">② 对话区居中卡</span><span class="v">需配置模型后方可开始对话　<b>[ 立即配置 ]</b></span></div>
 </div>
-<p class="rule"><strong>两处都是「没有任何模型处于激活状态」这一个指针的派生显示</strong>，不是两个独立的开关状态；此外还有三处派生：底栏模型位写「未配置」、提示行模型位留空、左列方块全为未激活。缺省态下<strong>顶栏提示可点</strong>（它是键盘用户与鼠标用户都能走的那条出路），对话区居中卡给同一件事的第二次机会——一个在页壳上、一个在内容区，滚动位置不同时至少有一个在视野里。</p>
-<p class="rule"><strong>缺省态的定义要写死：它是「没有任何模型处于激活状态」，不是「列表是空的」。</strong>配置可以一条不少地躺在列表里、只是没有一条被设为激活——这种状态下系统仍然不可用，所以判据必须挂在<strong>激活指针</strong>而不是列表长度上（否则「删掉激活模型」与「删掉最后一个模型」会走出两条不同的分支，其中一条没人测过）。<strong>缺省态的每一处显示都是同一个指针的派生</strong>：顶栏胶囊、对话区引导卡、底栏模型位写「未配置」、提示行模型位留空、左列方块全为未激活——<strong>不留任何一处硬编码的「已配置 / 未配置」布尔值</strong>，否则改一处就会剩下五处互相矛盾。<br>
+<p class="rule"><strong>两处都是「没有任何模型处于激活状态」这一个指针的派生显示</strong>，不是两个独立的开关状态；此外还有三处派生：底栏模型位写「未配置」、提示行模型位留空、左列没有一行带「使用中」状态词。缺省态下<strong>顶栏提示可点</strong>（它是键盘用户与鼠标用户都能走的那条出路），对话区居中卡给同一件事的第二次机会——一个在页壳上、一个在内容区，滚动位置不同时至少有一个在视野里。</p>
+<p class="rule"><strong>缺省态的定义要写死：它是「没有任何模型处于激活状态」，不是「列表是空的」。</strong>配置可以一条不少地躺在列表里、只是没有一条被设为激活——这种状态下系统仍然不可用，所以判据必须挂在<strong>激活指针</strong>而不是列表长度上（否则「删掉激活模型」与「删掉最后一个模型」会走出两条不同的分支，其中一条没人测过）。<strong>缺省态的每一处显示都是同一个指针的派生</strong>：顶栏胶囊、对话区引导卡、底栏模型位写「未配置」、提示行模型位留空、左列没有一行带「使用中」状态词——<strong>不留任何一处硬编码的「已配置 / 未配置」布尔值</strong>，否则改一处就会剩下五处互相矛盾。<br>
 <strong>缺省态下输入框仍然可聚焦但回车无效</strong>（给一条「先配置模型」的回执），<strong>不能直接禁用输入框</strong>——禁用之后键盘用户连 <code>/model</code> 这条出路都敲不出来，而这条出路恰好是唯一的出路。<strong>唯一的自动激活例外</strong>：列表里<strong>第一条</strong>保存成功的配置自动成为激活项（否则「配好了却还显示未配置」是条死路，用户会以为没保存成功）；此后新增的条目一律不自动激活。</p>
 
 <div class="sublabel">本轮新增 → 基元映射（每一部分分别落在哪个对话流基本单元上）</div>

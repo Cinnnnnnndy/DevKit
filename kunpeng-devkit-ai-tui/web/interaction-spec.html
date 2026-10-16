@@ -137,6 +137,10 @@ pre .hw{display:inline-block;width:1ch;text-align:center;vertical-align:bottom;l
 /* 字符帧内的注释与高亮值：只借颜色，不引新 token */
 pre.frame .cmt{color:var(--foreground-muted)}
 pre.frame .bar{color:var(--primary-hover)}
+/* 分类 tab 的选中态是底部划线：字符帧里用 text-decoration 表达，它不改字符宽度，
+   所以帧的 data-cols 逐格检查不受影响（不要改用边框或下划线字符去画） */
+pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
+  text-decoration-thickness:2px;text-underline-offset:3px}
 
 
 /* ═══ 统计格 / 状态标签 / 验收清单 ═══ */
@@ -894,7 +898,7 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <div class="sublabel">F1 位置与形态 —— 为什么是整页而不是浮层</div>
 <p class="desc">宽屏（1600×50 字符帧的等效布局）· 底栏留在页外，模型与 token 计量始终可见。</p>
 <pre class="frame" data-label="管理配置 › 模型 · 宽屏两栏表单" data-check="1" data-cols="107">┌ <span class="fw">管理配置</span> ────────────────────────────────── <span class="fw">点左列只把配置读进右侧</span><span class="fw2">，</span><span class="fw">不会切换正在用的模型</span>   <b>Esc</b> <span class="fw">返回对话</span> ┐
-│ <span class="fw">模型</span></span>   <span class="cmt">Agent</span>   <span class="cmt">Skill                                                                                    │
+│ <span class="ul"><span class="fw">模型</span></span>   <span class="cmt">Agent</span>   <span class="cmt">Skill</span>                                                                                    │
 │ ┌ <span class="fw">已保存的模型</span> ───────────────┐ ┌ <span class="fw">模型</span> ID * ──────────────────────────────────────────────────────────┐ │
 │ │ [ + <span class="fw">新增模型</span>        ]       │ │   deepseek-reasoner            <span class="fw">请求里真正发给</span> API <span class="fw">的名字</span>            │ │
 │ │ pangu2.5-72b-…   <span class="fw">使用中</span> <span class="hw">✎</span><span class="hw">⧉</span>✕ │ │ Provider *   [ OpenAI Compatible ▾ ]  <span class="fw">只有两种</span><span class="fw2">：</span>……                  │ │
@@ -1009,7 +1013,7 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <div class="sublabel">F8 状态矩阵</div>
 <table>
 <tr><th>单元</th><th>default</th><th>focused</th><th>selected / 命中</th><th>empty</th><th>error</th><th>disabled</th></tr>
-<tr><td class="nw">分类 tab 行</td><td>三类都在，当前类提亮；未交付类压暗</td><td>焦点环落在当前 tab（<code>tabindex="0"</code>，roving）</td><td><strong>模型</strong> = 当前类；<code>aria-selected="true"</code></td><td>—</td><td>—</td><td>Agent / Skill：<code>aria-disabled="true"</code> + <code>title</code> 写明「本轮未交付」，仍然可读、点不动</td></tr>
+<tr><td class="nw">分类 tab 行</td><td>三类都在，当前类<strong>文字提亮 + 2px 底部划线</strong>；未交付类压暗且无划线</td><td>焦点环落在当前 tab（<code>tabindex="0"</code>，roving）</td><td><strong>模型</strong> = 当前类；<code>aria-selected="true"</code></td><td>—</td><td>—</td><td>Agent / Skill：<code>aria-disabled="true"</code> + <code>title</code> 写明「本轮未交付」，仍然可读、点不动</td></tr>
 <tr><td class="nw">模型列表行</td><td>别名（名字前不放状态形状）</td><td>行内按钮出现焦点环</td><td><code>.sel</code> 底色 + 加粗；<strong>激活行</strong>行尾状态词「使用中」</td><td>列表空 → 一句「还没有任何模型配置」+ 指引（不给空按钮）</td><td>—</td><td>—</td></tr>
 <tr><td class="nw">行内操作</td><td>压暗 50%</td><td>同 default + 焦点环</td><td>hover / 选中行内提亮到 100%</td><td>—</td><td>删除按钮 hover 转危险色</td><td>—</td></tr>
 <tr><td class="nw">表单字段</td><td>标签 + 控件 + 灰色说明</td><td>蓝色边框 + 焦点环</td><td>—</td><td>新增时全空（数字项给默认值）</td><td><code>aria-invalid</code> 红边 + 说明文字转红并换成「为什么错」</td><td>Ollama 时 API Key 的必填标记消失（字段本身仍可填）</td></tr>
@@ -1035,12 +1039,12 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <div class="bl"><strong>裁决结果（本轮已执行，不再是"两套并存"）：</strong><br>① <strong>命令语法去掉 <code>供应商/</code> 前缀</strong>——只有一个写法：别名或模型 ID。重名靠<strong>别名</strong>消歧（PRD 里本来就有这个字段，默认等于模型 ID，重名的那几条才另起名字）。<br>② <strong>额度挂到端点</strong>：分组键 = 端点主机名（由 <code>BASE_URL</code> 推出来），不再要求用户填「供应商」；<code>PROVIDER_QUOTA</code> 更名 <code>EP_QUOTA</code>。<br>③ <strong>旧浮层保留，但分组头改成端点</strong>：它承担的是「会话内就地切换」这条快路径，与整页管理页职责不重合（快 vs 慢、只选 vs 增删改），因此不退休；它内部写的一直是同一份配置，不构成第二个事实源。</div>
 <div class="bl"><strong>配置文件随之一并改（§4E 已同步）：</strong><code>[model.providers.&lt;id&gt;]</code> 两层结构改成 <code>[model.entries.&lt;key&gt;]</code> 平铺，每条自带 <code>NAME</code>（别名）/ <code>ID</code> / <code>PROVIDER</code>（协议）/ <code>BASE_URL</code> / <code>API_KEY</code>；<code>PRIMARY</code> 与 <code>MODEL_OVERRIDE</code> 写别名。<br><strong>唯一保留的旧成果</strong>：额度条与「未配密钥可见不可选」——PRD 没提额度，但它不构成冲突，只是从「供应商账号」换挂到「端点账号」。自建端点读不到额度时明确说「无额度信息」，不算配置错误。</div>
 </div>
-<div class="rule"><b>本轮已经做掉的「唯一事实源」：</b>激活模型只存在一个地方（激活记录的 <code>key</code>），底栏、提示行、侧栏节点、管理页列表的方块、流内模型卡的 <code>current</code> 标记<strong>四处都是它的派生显示</strong>；任何一条切换路径（模型卡点行 / <code>/model &lt;别名&gt;</code> / 管理页「设为激活」）都写同一个入口。<em>为什么值得单独说：上一版底栏读的是「当前模型」、管理页读的是自己的激活项，两份状态在「删掉激活项」「在页面里激活」「复制一条」这三条路径上必然分叉——分叉之后最难查的不是显示错，而是「同一个设置有两处各写各的」。</em></div>
+<div class="rule"><b>本轮已经做掉的「唯一事实源」：</b>激活模型只存在一个地方（激活记录的 <code>key</code>），底栏、提示行、侧栏节点、管理页列表的行尾状态词「使用中」、流内模型卡的 <code>current</code> 标记<strong>四处都是它的派生显示</strong>；任何一条切换路径（模型卡点行 / <code>/model &lt;别名&gt;</code> / 管理页「设为激活」）都写同一个入口。<em>为什么值得单独说：上一版底栏读的是「当前模型」、管理页读的是自己的激活项，两份状态在「删掉激活项」「在页面里激活」「复制一条」这三条路径上必然分叉——分叉之后最难查的不是显示错，而是「同一个设置有两处各写各的」。</em></div>
 <div class="note"><b>startup 页的提示落在哪：</b>PRD 要求「启动页与主页面顶部状态栏高亮提示」。本轮在<strong>站点启动页</strong>（仓库根 <code>index.html</code>）加的是<strong>两个直达入口</strong>（<code>?page=model</code> 与 <code>?scene=develop/no-model</code>），<strong>没有</strong>加一条「未配置模型」的告警——启动页是文档入口页，在它上面挂产品的运行时状态会读成「这个文档站没配模型」。产品内的缺省态提示已完整落在演示页顶栏胶囊 + 引导卡 + 底栏三处。若需要启动页也出告警 banner，属于产品态与文档态的边界问题。<span class="cm">（已按「PRD 优先」向 PRD 靠：“启动页”被解释为产品或 demo 的入口屏——本交付面里没有独立的产品启动页，缺省态因此完整落在演示页顶栏 + 引导卡 + 底栏三处；站点启动页给的是能直达该状态的入口。）</span></div>
 
 <div class="sublabel">F11 验收条件</div>
 <ul class="ac">
-<li><span class="id">AC-F1a</span><span>页头页名是「管理配置」，其下三个 tab「模型 / Agent / Skill」同时可见；「模型」为当前类，Agent / Skill 带 <code>aria-disabled</code> 且点击无任何状态变化。</span></li>
+<li><span class="id">AC-F1a</span><span>页头页名是「管理配置」，其下三个 tab「模型 / Agent / Skill」同时可见；「模型」为当前类（<strong>文字提亮 + 2px 底部划线，且 tab 上没有填充底色</strong>），Agent / Skill 带 <code>aria-disabled</code>、无划线且点击无任何状态变化。</span></li>
 <li><span class="id">AC-F1</span><span>输入 <code>/model</code> 回车：管理页打开，覆盖对话区与输入框，<strong>底栏仍可见</strong>；<kbd>Esc</kbd> 关闭后焦点回到输入框。</span></li>
 <li><span class="id">AC-F2</span><span>页内按 <kbd>Esc</kbd> 一次只退一层：弹窗开着时先关弹窗（页面仍在），再按才关页面，第三次才退出到 Landing。</span></li>
 <li><span class="id">AC-F3</span><span>页面打开时 <kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> 不切场景、<kbd>c</kbd>/<kbd>p</kbd> 不折叠面板。</span></li>
@@ -1086,7 +1090,7 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <tr><td class="nw">正文里的六色关键词强调</td><td>Inline Highlight</td><td><span class="st ask">新增</span>（六个 <code>--hl-*</code> token）</td></tr>
 <tr><td class="nw">输入框上方的曲线区</td><td>Tune Chart Container</td><td><span class="st ask">新增</span>（可收起 · 双视图 · 收起即暂停）</td></tr>
 <tr><td class="nw">（本轮 F · 管理配置页）整页管理配置界面</td><td><strong>Settings Page（页面级组件，不属于对话流基元）</strong></td><td><span class="st ask">新增登记</span>——它不在流里，不该塞进对话流基元表；登记口径见 <a href="./index.html#convo">index.html#convo</a></td></tr>
-<tr><td class="nw">F · 页头的分类 tab（模型 / Agent / Skill）</td><td><strong>Settings Tabs（页面级，不属于对话流基元）</strong></td><td><span class="st ask">新增登记</span>——<code>role="tablist"</code> + <code>aria-selected</code>；<strong>未交付的分类用 <code>aria-disabled</code> 留在 tablist 里</strong>，不删不隐藏（读屏用户要能听见「以后会有 Agent / Skill」）</td></tr>
+<tr><td class="nw">F · 页头的分类 tab（模型 / Agent / Skill）</td><td><strong>Settings Tabs（页面级，不属于对话流基元）</strong></td><td><span class="st ask">新增登记</span>——<code>role="tablist"</code> + <code>aria-selected</code>；<strong>未交付的分类用 <code>aria-disabled</code> 留在 tablist 里</strong>，不删不隐藏（读屏用户要能听见「以后会有 Agent / Skill」）。<strong>选中态只靠「文字提亮 + 一条 2px 底部划线」</strong>——分类是页内导航，不是一排按钮，所以<strong>不复用场景 tab 的填充胶囊</strong>；划线压住页头那条 1px 分隔线，未交付分类压暗且无划线</td></tr>
 <tr><td class="nw">F · 表单的一行（标签 + 控件 + 说明）</td><td>Setting Row</td><td><span class="st ask">新增登记</span>（含 error 态：<code>aria-invalid</code> + 说明转红换成原因）</td></tr>
 <tr><td class="nw">F · 密文字段 + 显示 / 隐藏</td><td>Masked Field</td><td><span class="st ask">新增登记</span>（重开不回显明文是它的硬规则）</td></tr>
 <tr><td class="nw">F · 行尾三个操作图标</td><td>Icon Action</td><td><span class="st ask">新增登记</span>（常显压暗，不做 hover 隐藏）</td></tr>
@@ -1099,7 +1103,7 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <tr><td class="nw">F · Provider 下拉</td><td>Select（既有控件）</td><td>复用</td></tr>
 </table>
 <div class="rule"><b>比例本身就是结论：</b>本轮的 18 行功能里，真正需要的<strong>新单元只有 3 个</strong>（受阻说明块 / 行内强调 / 调优曲线容器）；后加的「端点」维度<strong>一个组件都没新增</strong>——它是 Model Switcher 的受约束变体（组头可收起）+ Command Candidate Menu 换掉一列（额度池 → 端点）+ Checklist Row 多两种拒绝理由。多级并发与「会话内改配置」这两个能力最容易诱人再发明一套进度通知、状态标记、总结条；实际上它们全都落在已登记的基元上。<br>
-<b>本轮（F · 管理配置页）的比例同样值得记下：</b>8 个字段 + 一列列表 + 一个确认弹窗，真正需要新登记的只有 <strong>5 类</strong>（Setting Row / Masked Field / Icon Action / Confirm Dialog / Page Footer Status），其余全部复用既有元件——<strong>开关复用皮肤开关、激活标记复用状态方块、空状态复用 Empty State、下拉复用既有 Select</strong>。管理页最容易滑向「为配置界面另起一套控件」，本轮明确没有：表单控件的外观与交互与设置面板里的开关、嵌套在流里的按钮保持一致。</div>
+<b>本轮（F · 管理配置页）的比例同样值得记下：</b>8 个字段 + 一列列表 + 一个确认弹窗，真正需要新登记的只有 <strong>5 类</strong>（Setting Row / Masked Field / Icon Action / Confirm Dialog / Page Footer Status），其余全部复用既有元件——<strong>开关复用皮肤开关、激活标记复用行尾状态词「使用中」、空状态复用 Empty State、下拉复用既有 Select</strong>。管理页最容易滑向「为配置界面另起一套控件」，本轮明确没有：表单控件的外观与交互与设置面板里的开关、嵌套在流里的按钮保持一致。</div>
 </section>
 
 <!-- ══════ 缺口 ══════ -->
