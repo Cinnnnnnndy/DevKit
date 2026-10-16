@@ -829,6 +829,152 @@ table.cmp tr.ttl td{color:var(--fg);font-weight:700}
    它跟着当前值一起变色，越线时两个数字同时亮起来，不必回看配置。 */
 .status-bar .ctxw{color:var(--fg4);font-weight:400;font-size:11px;margin-left:-2px}
 
+/* ══ 模型管理页（模型管理与配置）══
+   入口两条：输入框敲 /model 回车，或侧栏 Settings → Model。Esc 退回对话。
+   形态是「页」不是「浮层」：要填 8 个字段、要连测、要增删改，塞进会话流会把流撑成
+   一堆控件；而全屏接管本来就是这台 TUI 的产品形态（见 screens.html 屏 5 管理配置，
+   这一页是它「模型」分类的 Workspace 面可交互版）。
+   整屏覆盖主对话区（conv-title / AI Plan / 对话流 / 输入框都在里面），
+   底栏留在外面——Esc 出口与模型计量在页面开着时仍然看得见。
+   左 = 已保存的模型列表，右 = 当前加载（或新增中）的配置表单。
+   「加载」与「激活」是两件事：点左列只把配置读进右侧，激活必须显式点「设为激活」——
+   这条是 PRD 写死的，也是这个页面最容易被做错的地方：选着看 ≠ 切过去用了。 */
+.mm-page{position:absolute;inset:0;z-index:6;display:none;flex-direction:column;
+  background:var(--col-solid);border-radius:8px;overflow:hidden}
+.mm-page.on{display:flex}
+html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
+.mm-head{flex:none;display:flex;align-items:center;gap:10px;padding:9px var(--sp-lg);
+  border-bottom:1px solid var(--bd1);font-family:var(--mono)}
+.mm-head .t{font-size:13px;font-weight:700;color:var(--fg)}
+.mm-head .cat{font-size:12px;color:var(--fg4)}
+.mm-head .rt{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--fg4)}
+.mm-head kbd{background:var(--s4);color:var(--fg);padding:0 5px;border-radius:3px;font-family:var(--mono);font-size:11px}
+.mm-body{flex:1;min-height:0;display:flex}
+
+/* 左：模型列表。每行 = 激活方块 + 别名 + 三个操作（编辑 / 复制 / 删除）。
+   归行状态只用一个方块（全项目唯一的状态形状），激活 = 实心蓝「在跑」，
+   未激活 = 空心灰「还没开始」——与侧栏会话列表读的是同一套 */
+.mm-side{width:286px;flex:none;display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--bd1)}
+.mm-side-top{flex:none;padding:9px var(--sp-md);border-bottom:1px solid var(--bd1)}
+.mm-items{flex:1;min-height:0;overflow-y:auto;padding:6px}
+.mm-item{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:6px;cursor:pointer}
+.mm-item:hover{background:var(--s2)}
+.mm-item.sel{background:var(--sel)}
+.mm-item .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:12.5px;color:var(--fg)}
+.mm-item.sel .nm{font-weight:700}
+/* 行内"选中这一项"是真按钮而不是整行 div：键盘用户 Tab 得到它、Enter 加载它，
+   不用为了"点一行"先学会鼠标。整行的 hover 命中区仍然保留 */
+.mm-item .pick{display:flex;align-items:center;gap:9px;flex:1;min-width:0;padding:0;
+  background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.mm-item .pick:focus-visible{outline:0;box-shadow:0 0 0 2px var(--focus-ring);border-radius:4px}
+/* 操作常显、只是压暗——hover 才出现的按钮键盘用户永远够不到（Tab 进得去但看不见） */
+.mm-item .acts{display:flex;gap:2px;flex:none;opacity:.5}
+.mm-item:hover .acts,.mm-item.sel .acts,.mm-item:focus-within .acts{opacity:1}
+.mm-act{width:22px;height:22px;display:flex;align-items:center;justify-content:center;padding:0;
+  background:transparent;border:1px solid transparent;border-radius:4px;color:var(--fg3);
+  font-size:12px;line-height:1;cursor:pointer;-webkit-appearance:none;appearance:none}
+.mm-act:hover{color:var(--fg);background:var(--s3);border-color:var(--bd2)}
+.mm-act.del:hover{color:var(--dgr);border-color:rgba(247,118,142,.4)}
+.mm-act:focus-visible{outline:0;color:var(--fg);box-shadow:0 0 0 2px var(--focus-ring)}
+.mm-empty{padding:12px 10px;font-size:12.5px;color:var(--fg4);line-height:1.75}
+
+/* 右：配置表单 */
+.mm-main{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;position:relative}
+.mm-form{flex:1;min-height:0;overflow-y:auto;padding:8px var(--sp-xl) 2px}
+.mm-f{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--bd1)}
+.mm-f:last-child{border-bottom:none}
+.mm-f>.lb{width:124px;flex:none;font-size:12.5px;color:var(--fg2);padding-top:7px;line-height:1.45}
+.mm-f>.lb .req{color:var(--warn);margin-left:3px}
+.mm-f>.lb .opt{color:var(--fg4);font-size:11px;margin-left:4px}
+.mm-f>.ctl{flex:1;min-width:0}
+.mm-in{width:100%;height:30px;background:var(--input-bg);border:1px solid var(--input-bd);
+  border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:12.5px;padding:0 9px;outline:0;
+  -webkit-appearance:none;appearance:none}
+.mm-in:focus-visible{border-color:rgba(52,94,231,.65);box-shadow:0 0 0 3px var(--focus-ring)}
+.mm-in[aria-invalid="true"]{border-color:rgba(247,118,142,.6)}
+.mm-hint{margin-top:4px;font-size:11.5px;color:var(--fg4);font-family:var(--mono);line-height:1.55}
+.mm-hint.err{color:var(--dgr)}
+.mm-hint b{color:var(--fg3);font-weight:700}
+.mm-key{display:flex;gap:6px}
+.mm-key .mm-in{flex:1;min-width:0}
+.mm-eye{flex:none;height:30px;padding:0 10px;font-size:12px;color:var(--fg3);background:var(--s2);
+  border:1px solid var(--bd2);border-radius:6px;cursor:pointer;font-family:var(--sans)}
+.mm-eye:hover{color:var(--fg);background:var(--s3)}
+.mm-sw{display:flex;align-items:center;gap:8px;padding:6px 0 0;background:none;border:0;
+  color:var(--fg2);font-size:12.5px;cursor:pointer;font-family:var(--sans)}
+.mm-sw .st{font-family:var(--mono);font-size:11.5px;color:var(--fg4)}
+.mm-sw.on .st{color:var(--pri-h)}
+.mm-num{display:flex;align-items:center;gap:9px}
+.mm-num .u{flex:none;font-family:var(--mono);font-size:11.5px;color:var(--fg4)}
+
+/* 底部操作条：左侧恒定说明（未保存 / 测试结果 / 权限），右侧三个动作。
+   两个按钮不并排成一组而是分开：测试只对表单负责（不发请求改任何东西），
+   「设为激活」会真改系统默认——危险度不同，不该长得一样、也不该挨着 */
+.mm-foot{flex:none;display:flex;align-items:center;gap:9px;padding:9px var(--sp-xl);border-top:1px solid var(--bd1)}
+.mm-stat{display:flex;align-items:center;gap:7px;font-size:12px;font-family:var(--mono);min-width:0}
+.mm-stat.dirty{color:var(--warn)}
+.mm-stat.ok{color:var(--ok)}
+.mm-stat.err{color:var(--dgr)}
+.mm-stat.run{color:var(--fg3)}
+.mm-stat .tx{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mm-btn{height:30px;padding:0 12px;font-size:12.5px;font-family:var(--sans);color:var(--fg2);
+  background:var(--s2);border:1px solid var(--bd2);border-radius:6px;cursor:pointer;flex:none;
+  -webkit-appearance:none;appearance:none}
+.mm-btn:hover{color:var(--fg);background:var(--s3)}
+.mm-btn.pri{color:var(--sel-fg);background:rgba(52,94,231,.42);border-color:rgba(52,94,231,.55)}
+.mm-btn.pri:hover{background:rgba(52,94,231,.58)}
+.mm-btn:disabled{opacity:.42;cursor:not-allowed}
+.mm-btn:focus-visible{outline:0;box-shadow:0 0 0 3px var(--focus-ring)}
+
+/* 删除确认：唯一一处模态。走 .mm-mask 而不是窗口级遮罩——它只该挡住这一页 */
+.mm-mask{position:absolute;inset:0;z-index:7;display:none;align-items:center;justify-content:center;
+  background:rgba(8,9,14,.6)}
+.mm-mask.on{display:flex}
+.mm-dlg{width:min(420px,88%);background:var(--elev);border:1px solid var(--panel-bd2);
+  border-radius:8px;padding:13px 15px;box-shadow:0 18px 48px rgba(0,0,0,.5)}
+.mm-dlg .dt{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:700;color:var(--warn)}
+.mm-dlg .db{margin:8px 0 12px;font-size:12.5px;color:var(--fg2);line-height:1.75}
+.mm-dlg .db b{color:var(--fg);font-weight:700}
+.mm-dlg .da{display:flex;justify-content:flex-end;gap:8px}
+
+/* 窄屏：两栏改上下。列表压到固定高度（它只是选择器），表单占满剩余空间 */
+@media (max-width:900px){
+  .mm-body{flex-direction:column}
+  .mm-side{width:100%;max-height:168px;border-right:none;border-bottom:1px solid var(--bd1)}
+  .mm-f{flex-direction:column;gap:3px;padding:7px 0}
+  .mm-f>.lb{width:auto;padding-top:0}
+  .mm-form{padding:6px var(--sp-lg) 2px}
+  .mm-foot{flex-wrap:wrap;padding:8px var(--sp-lg)}
+}
+
+/* ══ 未配置模型（缺省引导）══
+   两个信号分工不同，不是同一句话说两遍：
+     顶栏胶囊 = 引导（可点，直接进管理页），回答「我该干什么」
+     底栏计量 = 状态（模型位显示「未配置」），回答「现在是什么状态」
+   对话区不留残缺的流：整块换成居中的引导卡——一条没有模型产出的会话流会让用户
+   以为「刷新一下就好了」，而它其实在等配置。输入框置灰（screens.html 屏 1 定过：
+   这是唯一允许禁用输入框的场景）。 */
+.mm-warn{display:none;align-items:center;gap:6px;margin-left:12px;padding:3px 9px;border-radius:4px;
+  font-family:var(--mono);font-size:11.5px;color:var(--warn);cursor:pointer;text-align:left;
+  background:rgba(224,175,104,.10);border:1px solid rgba(224,175,104,.32)}
+.mm-warn.on{display:inline-flex}
+/* 窄屏只留「未配置模型」这一句：怎么配置写在引导卡里，胶囊的职责是"这里有事"。
+   让它在窄屏折成两行，会把顶栏撑高、把底下的东西挤下去 */
+@media (max-width:820px){ .mm-warn .sub{display:none} }
+.mm-warn:hover{background:rgba(224,175,104,.18)}
+.mm-warn:focus-visible{outline:0;box-shadow:0 0 0 3px var(--focus-ring)}
+.nm-guide{margin:auto;max-width:560px;padding:0 22px;text-align:center}
+.nm-guide .gi{margin-bottom:10px;font-size:22px;line-height:1;color:var(--warn);opacity:.85}
+.nm-guide .gt{font-size:15px;font-weight:700;color:var(--fg)}
+.nm-guide .gd{margin:9px 0 14px;font-size:13px;color:var(--fg3);line-height:1.8}
+.nm-guide .gd code{font-family:var(--mono);background:var(--surf-1);padding:1px 5px;
+  border-radius:3px;color:var(--pri-h)}
+.nm-guide .ga{display:flex;justify-content:center;gap:9px}
+.bi-row.dis{opacity:.5;border-color:var(--bd1)}
+.bi-row.dis textarea{pointer-events:none}
+.bi-row.dis .p{color:var(--fg4)}
+
 /* ══ TUI 装饰 ══ */
 .particles{position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:
@@ -945,8 +1091,10 @@ table.cmp{border-left:2px solid var(--bd1)}
 .ss-toggle .ss-tl{font-family:var(--mono);font-size:11px;color:var(--fg4);white-space:nowrap}
 .ss-track{width:28px;height:14px;border-radius:7px;background:var(--bd2);position:relative;flex:none;transition:background .15s}
 .ss-track::after{content:'';position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--fg4);transition:transform .15s,background .15s}
-.ss-toggle.on .ss-track{background:rgba(52,94,231,.5)}
-.ss-toggle.on .ss-track::after{transform:translateX(14px);background:var(--pri-h)}
+/* 开关的「开」态只写这一份：右上角圆角开关与模型管理页的「深度思考」共用同一形状，
+   新开关一律加 .on 复用它，不另写一套 */
+.ss-toggle.on .ss-track,.mm-sw.on .ss-track{background:rgba(52,94,231,.5)}
+.ss-toggle.on .ss-track::after,.mm-sw.on .ss-track::after{transform:translateX(14px);background:var(--pri-h)}
 html[data-sharp] *{border-radius:0!important}
 html[data-sharp] .ss-track{border-radius:0!important}
 html[data-sharp] .ss-track::after{border-radius:0!important}
@@ -1023,6 +1171,9 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
 
 <div class="topbar">
   <span class="blogo"><img class="kpi" alt="Kunpeng" src="data:image/png;base64,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"><span class="g2">KUNPENG</span><span class="g1">DEVKIT<span class="ai-badge">AI</span></span></span>
+  <!-- 缺省态的引导胶囊：只在「未配置模型」时出现。它回答「我该干什么」，
+       与底栏那格「现在是什么状态」分工不同（见 .mm-warn 一段注释） -->
+  <button class="mm-warn" id="mmWarn" type="button"><span>⚠</span><span>未配置模型</span><span class="sub">· 点这里或用 /model 配置</span></button>
   <div class="skin-switch" id="skinSwitch">
     <span class="ss-lb">SKIN</span>
     <div class="ss-group">
@@ -1072,7 +1223,12 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
     </div>
     <div class="sd-sec">
       <div class="h">Settings</div>
-      <div class="sd-node"><span class="ic">◇</span><span class="lb">Model · pangu</span></div>
+      <!-- Model 这一行带状态（已配置 / 未配置），所以走状态方块；Server 那行没有状态可报，
+           仍是菱形字形。同一组里两种指示列是有意的：有状态的用方块，纯入口用字形 -->
+      <div class="sd-node" id="sdModel" role="button" tabindex="0" title="打开模型管理">
+        <span class="ic"><span class="stq done" id="sdModelSq" role="img" aria-label="模型已配置" title="模型已配置"></span></span>
+        <span class="lb">Model · <span id="sdModelName">pangu-72b</span></span>
+      </div>
       <div class="sd-node"><span class="ic">◇</span><span class="lb">Server · Kunpeng920 remote</span></div>
     </div>
   </aside>
@@ -1725,6 +1881,31 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
          （本产品行为），不是这次会话的业务状态；业务到「private-cloud 还没配密钥」为止。
          /tokens 回执里的「底栏的 ctx 当前值不变」同理，改成「当前用量不变」，static 与
          运行时两处同步。 -->
+    <!-- ═══ 开发 Agent · 未配置模型（缺省引导）═══
+         这一屏回答的不是「怎么配」，而是「为什么现在什么都干不了」。
+         对话区不留残流：一条没有模型产出的会话流会让用户以为再等等就好了，
+         而它其实在等配置——所以整块换成居中的引导卡，唯一的动作是去配置。
+         两个信号分工：顶栏胶囊 = 我该干什么（可点，直接进管理页）；
+         底栏模型位 = 现在是什么状态（未配置）。不是同一句话说两遍。 -->
+    <div class="scene" data-agent="develop" data-scenario="no-model">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="nm-guide">
+            <div class="gi" aria-hidden="true">⚠</div>
+            <div class="gt">需配置模型后方可开始对话</div>
+            <div class="gd">
+              还没有可用的模型配置，Agent 拿不到任何 LLM 就发不出第一条回复。<br>
+              先配一个：填 <b>模型 ID</b>、<b>Base URL</b> 和 <b>API Key</b>，点一次「测试连通性」确认能连上，
+              再「设为激活」。也可以随时敲 <code>/model</code> 回到这一页。
+            </div>
+            <div class="ga">
+              <button class="mm-btn pri" id="nmGo" type="button">立即配置</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <div class="scene" data-agent="develop" data-scenario="model-token">
       <section class="right-panel">
         <div class="panel-body">
@@ -2212,6 +2393,119 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
       <span class="it"><span class="c">/tokens</span> <b id="biTok">1.24M</b><span class="src">告警线 <span id="biWarn">70%</span></span></span>
     </div>
   </div>
+
+    <!-- ══ 模型管理页 ══
+         入口：输入框敲 /model 回车，或侧栏 Settings → Model。整屏覆盖主对话区（含输入框），
+         底栏留在外面。左列表由 JS 渲染（它随增删改变化），右侧表单是静态结构——字段就这 8 个，
+         只有值在变；静态写死的好处是 Tab 顺序、label 关联、必填标记都不用 JS 再拼一遍。
+         字段顺序 = PRD 第 3 节的顺序，没有重排：前四行是「连什么、怎么连」，
+         后四行是「怎么用」，用户第一次配模型就是从下往上填。 -->
+    <div class="mm-page" id="mmPage" role="region" aria-label="模型管理与配置">
+      <div class="mm-head">
+        <span class="t">管理配置</span><span class="cat">· 模型</span>
+        <span class="rt">
+          <span id="mmHeadNote">点左列只把配置读进右侧，不会切换正在用的模型</span>
+          <span><kbd>Esc</kbd> 返回对话</span>
+        </span>
+      </div>
+      <div class="mm-body">
+        <div class="mm-side">
+          <div class="mm-side-top">
+            <button class="mm-btn pri" id="mmAdd" type="button" style="width:100%">+ 新增模型</button>
+          </div>
+          <div class="mm-items" id="mmItems" role="list" aria-label="已保存的模型"></div>
+        </div>
+        <div class="mm-main">
+          <div class="mm-form">
+            <div class="mm-f">
+              <span class="lb">模型 ID<span class="req" role="img" aria-label="必填">*</span></span>
+              <span class="ctl">
+                <input class="mm-in" id="fId" type="text" spellcheck="false" autocomplete="off" placeholder="deepseek-reasoner">
+                <span class="mm-hint">请求里真正发给 API 的名字，不是界面上显示的那个</span>
+              </span>
+            </div>
+            <div class="mm-f">
+              <span class="lb">Provider<span class="req" role="img" aria-label="必填">*</span></span>
+              <span class="ctl">
+                <select class="mm-in" id="fProv">
+                  <option value="openai-compat">OpenAI Compatible</option>
+                  <option value="ollama">Ollama</option>
+                </select>
+                <span class="mm-hint">只有这两种：OpenAI 兼容协议走 HTTP + API Key，Ollama 是本机服务、不需要密钥</span>
+              </span>
+            </div>
+            <div class="mm-f">
+              <span class="lb">别名<span class="opt">选填</span></span>
+              <span class="ctl">
+                <input class="mm-in" id="fName" type="text" maxlength="32" spellcheck="false" autocomplete="off" placeholder="界面显示名">
+                <span class="mm-hint">最多 <b>32</b> 字。填模型 ID 时自动带过来，改过之后就不再跟着变</span>
+              </span>
+            </div>
+            <div class="mm-f">
+              <span class="lb">Base URL<span class="req" role="img" aria-label="必填">*</span></span>
+              <span class="ctl">
+                <input class="mm-in" id="fUrl" type="text" spellcheck="false" autocomplete="off" placeholder="https://api.example.com/v1">
+                <span class="mm-hint">不预填默认值：填错一个字符只会表现成「连不上」，而它比填错模型名更难查。格式如 <b>https://api.example.com/v1</b></span>
+              </span>
+            </div>
+            <div class="mm-f">
+              <span class="lb">API Key<span class="req" id="fKeyReq" role="img" aria-label="必填">*</span></span>
+              <span class="ctl">
+                <div class="mm-key">
+                  <input class="mm-in" id="fKey" type="password" spellcheck="false" autocomplete="off" placeholder="sk-…">
+                  <button class="mm-eye" id="fEye" type="button" aria-pressed="false">显示</button>
+                </div>
+                <span class="mm-hint" id="fKeyHint">输入时逐字符掩码；保存后重新打开这一页同样是掩码，明文不回显</span>
+              </span>
+            </div>
+            <div class="mm-f">
+              <span class="lb">深度思考</span>
+              <span class="ctl">
+                <button class="mm-sw" id="fThink" type="button" role="switch" aria-checked="true"><span class="ss-track"></span><span class="st">开启</span></button>
+                <span class="mm-hint">开启后请求里带思考/推理参数，思考内容在对话流里以可折叠块呈现</span>
+              </span>
+            </div>
+            <div class="mm-f">
+              <span class="lb">上下文上限</span>
+              <span class="ctl">
+                <div class="mm-num">
+                  <input class="mm-in" id="fCtx" type="number" min="1024" step="1024" value="128000">
+                  <span class="u">Tokens</span>
+                </div>
+                <span class="mm-hint">默认 <b>128000</b>；超出的会话会被压缩或拒绝，不是静默截断</span>
+              </span>
+            </div>
+            <div class="mm-f">
+              <span class="lb">单次最大输出</span>
+              <span class="ctl">
+                <div class="mm-num">
+                  <input class="mm-in" id="fMax" type="number" min="256" step="256" value="50000">
+                  <span class="u">Tokens</span>
+                </div>
+                <span class="mm-hint">默认 <b>50000</b>；被截断时对话流里会标出「输出达到上限」</span>
+              </span>
+            </div>
+          </div>
+          <div class="mm-foot">
+            <span class="mm-stat" id="mmStat"></span>
+            <span style="margin-left:auto"></span>
+            <button class="mm-btn" id="mmSave" type="button">保存</button>
+            <button class="mm-btn" id="mmTest" type="button">测试连通性</button>
+            <button class="mm-btn pri" id="mmAct" type="button">设为激活</button>
+          </div>
+        </div>
+      </div>
+      <div class="mm-mask" id="mmMask">
+        <div class="mm-dlg" role="dialog" aria-modal="true" aria-labelledby="mmDlgT" aria-describedby="mmDlgB">
+          <div class="dt" id="mmDlgT"></div>
+          <div class="db" id="mmDlgB"></div>
+          <div class="da">
+            <button class="mm-btn" id="mmDlgNo" type="button">取消</button>
+            <button class="mm-btn" id="mmDlgYes" type="button">删除</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="code-col" id="codeCol">
@@ -2501,6 +2795,12 @@ const SCENARIOS={
        这一轮在打磨的重点，放在列表顶部就不用为了点开它们先滚过两个旧场景。
        模型与 Token 这一屏里"看现状"和"改配置"是同一屏的两段——合并不是为了少一屏，
        而是因为看和改用的是同一批数字、同一个输入框、同一个文件，拆开反而要求两屏数字强行一致。 */
+    /* 缺省态排在最前：它是"什么都干不了"的那一屏，用户第一次进来最可能撞上它，
+       所以不该藏在列表底部。disabled:true 会让对话区与输入框一起关掉——
+       全产品只有这一个场景允许禁用输入（见 .bi-row.dis 一段注释） */
+    {key:'no-model',label:'未配置模型',status:'wait',file:null,code:false,disabled:true,
+     goal:'缺省态：还没有可用的模型配置，Agent 拿不到 LLM，发不出第一条回复',
+     plan:[]},
     {key:'subagent',label:'子 Agent 并发编排',status:'doing',file:'kernel',code:true,
      goal:'按热点域拆成 3 个子 Agent 并行推进，主 Agent 只做编排、冲突检测与收口；子 Agent 各自跑工具并发',
      plan:[{t:'拆分热点域',d:'3 域 · 互不依赖',s:'done'},{t:'派发子 Agent',d:'sub-1/2/3 · 独立 worktree',s:'done'},
@@ -2570,6 +2870,8 @@ const METRICS={
   'develop:vectorize':{tok:'734k',ctx:44},
   'develop:op-gen':{tok:'512k',ctx:28},
   'develop:subagent':{tok:'1.24M',ctx:38},
+  /* 未配置模型这一屏没有会话，也就没有 token 与水位——给 0 而不是编一个数 */
+  'develop:no-model':{tok:'—',ctx:0},
   /* 「模型与 Token」这一屏同时承担看现状和改配置（原来是两屏）：
      看和改用的是同一个会话、同一个输入框、同一个文件，拆成两屏反而要求两屏数字强行一致，
      索性并成一屏——所以这里只剩一行，不存在"两屏要对齐"的问题了 */
@@ -2594,10 +2896,20 @@ let warnAt=70;
 function renderMetrics(agentKey,scenarioKey){
   const m=METRICS[agentKey+':'+scenarioKey]||{tok:'—',ctx:0};
   const lv=m.ctx>=warnAt+15?'lv-4':(m.ctx>=warnAt?'lv-3':'');
-  /* 底栏：模型名带上供应商前缀。窄屏（≤1200）只留模型名——降级顺序和提示行一致：
-     先丢"从哪来"，模型本身永远不丢。 */
-  document.getElementById('mtModel').innerHTML=
-    `模型 <span class="mt-prov">${curProv}/</span><b>${curModel}</b>`;
+  /* 模型位显示的是**别名**（PRD 规定），而不是"供应商/模型 ID"：
+     别名是给人看的那个名字，模型 ID 是发给 API 的名字，后者在这一格没有用处。
+     来源（端点）挪到输入框下面那一行，那行本来就有一格 .src 在解释"这个值属于谁"。
+     没有可用配置时这一格换成告警色 + 「未配置」——状态与引导的另一个信号
+     （顶栏胶囊）分工见 .mm-warn 一段注释。 */
+  const ae=mmActiveEntry();
+  const cell=document.getElementById('mtModel');
+  if(ae){
+    cell.className='mt';
+    cell.innerHTML=`模型 <b>${ae.name}</b>`;
+  }else{
+    cell.className='mt warn';
+    cell.innerHTML='模型 <b>未配置</b>';
+  }
   const ctxEl=document.getElementById('mtCtx');
   ctxEl.className='mt'+(lv?' warn':'');
   /* 当前值 / 阈值一起给：只给当前值，用户没法判断"这个 72% 算不算高"；
@@ -2606,10 +2918,10 @@ function renderMetrics(agentKey,scenarioKey){
   document.getElementById('mtTok').innerHTML=`tokens <b>${m.tok}</b>`;
   const bw=document.getElementById('biWarn');
   if(bw) bw.textContent=warnAt+'%';
-  /* 提示行里的两个当前值跟底栏同一个来源；供应商位是 curModel 的派生值，只读不查表 */
-  const bm=document.getElementById('biModel'); if(bm) bm.textContent=curModel;
+  /* 提示行里的两个当前值跟底栏同一个来源；端点位是激活模型的派生值，只读不查表 */
+  const bm=document.getElementById('biModel'); if(bm) bm.textContent=ae?ae.name:'未配置';
   const bt=document.getElementById('biTok');  if(bt) bt.textContent=m.tok;
-  const bp=document.getElementById('biProv'); if(bp) bp.textContent=curProv;
+  const bp=document.getElementById('biProv'); if(bp) bp.textContent=ae?mmEndpoint(ae):'';
 }
 
 function renderSessionList(activeAgent,activeScenario){
@@ -2734,15 +3046,30 @@ function selectScenario(agentKey,scenarioKey){
   if(meta) document.getElementById('convTitle').textContent=meta.label;
   document.querySelectorAll('#sidebar .sd-node[data-file]').forEach(el=>
     el.classList.toggle('active',!!meta && el.dataset.file===meta.file));
+  /* 缺省态：把激活指针摘掉。离开时还回去——但用户如果在缺省态里挑了一个激活，
+     那个选择优先（他刚做的决定不该被还原冲掉） */
+  if(mmNoModelScene(agentKey,scenarioKey)){
+    mmActiveBackup=mmActiveKey;
+    mmActiveKey=null;
+  }else if(!mmByKey(mmActiveKey)){
+    mmActiveKey=(mmActiveBackup&&mmByKey(mmActiveBackup))?mmActiveBackup:(mmStore[0]?mmStore[0].key:null);
+    mmActiveBackup=null;
+  }
+  const dis=!!(meta&&meta.disabled);
+  document.querySelector('.bi-row').classList.toggle('dis',dis);
+  biInput.disabled=dis;
+  biInput.placeholder=dis?'需配置模型后方可开始对话':'描述你想让 Agent 做什么，输入 / 唤出命令...';
+  document.getElementById('aiPlan').style.display=dis?'none':'';
   renderAIPlan(agentKey,scenarioKey);
+  mmSyncConfigured();
   renderSuggestions(agentKey,scenarioKey);
   renderTuneChart(agentKey,scenarioKey);
   renderMetrics(agentKey,scenarioKey);
-  /* 命令提示只在"这个场景里真有命令可改"的时候出现。原先是「模型与 Token」「命令改配置」
-     两屏都露；两屏合并后条件自然收敛成一个场景就行。
-     做成常驻，它会从"这里能改"退化成一条没人再读的说明文字。 */
-  document.getElementById('biHint').classList.toggle('on',
-    agentKey==='develop'&&scenarioKey==='model-token');
+  /* 命令提示行常驻（原先是「模型与 Token」一屏才露）。改主意的理由只有一个：
+     这一行现在扛的是**两个当前值**（模型别名 / token 与告警线），不是"这里能改"的说明。
+     当前值不会因为一直看得见而失去意义——`/model` 与 `/tokens` 两个命令反而是
+     靠这一行被发现的（命令要能自己介绍自己，而不是写进帮助文档）。 */
+  document.getElementById('biHint').classList.add('on');
   /* 「模型与 Token」这一屏里有"在输入框里敲命令"的戏，所以进来就把命令敲好、把候选列开——
      不预置的话，用户得自己猜这一屏该敲什么，改配置那一段就退化成静态文案。
      离开时如果输入框还停在我们预置的那句就清掉，别把演示用的字留给下一个场景；
@@ -2775,7 +3102,14 @@ document.getElementById('sessScroll').addEventListener('click',e=>{
   const t=e.target.closest('.sd-node[data-agent]'); if(t) selectScenario(t.dataset.agent,t.dataset.scenario);
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){ location.href='launch.html'; return; }
+  if(e.key==='Escape'){
+    /* Esc 的层级：先关模态弹窗，再关管理页，最后才是退出到启动页。
+       一个键按一次只退一层，不然在页里按 Esc 会直接跳出整个应用 */
+    if(mmDlgOpen()){ mmCloseDialog(); return; }
+    if(mmPageOpen()){ mmCloseModelPage(); return; }
+    location.href='launch.html'; return;
+  }
+  if(mmPageOpen()) return;      // 页面开着时全局快捷键（1/2/3、c、p）一律让位给页面
   const tag=document.activeElement.tagName;
   if(tag==='INPUT'||tag==='TEXTAREA'||document.activeElement.isContentEditable) return;
   if(e.key==='c'||e.key==='C') toggleCodeFold();
@@ -3042,6 +3376,15 @@ function applySlash(i){
     return;
   }
   const c=smMatches[i]; if(!c) return;
+  /* 一字不差地敲了 `/model` 再回车 = 想改配置，不是想切模型（PRD：这一下打开管理页）。
+     区别很清楚：要切模型的人一定会带上名字或空格（那时走上面 smMode==='model' 那条），
+     光敲命令名的人是冲着这个功能来的。 */
+  if(c.cmd==='/model'&&biInput.value.trim()==='/model'){
+    biInput.value='';
+    closeSlashMenu();
+    mmOpenModelPage();
+    return;
+  }
   const pos=biInput.selectionStart;
   const before=biInput.value.slice(0,pos),after=biInput.value.slice(pos);
   const newBefore=before.replace(/\/([a-zA-Z_]*)$/,c.cmd+' ');
@@ -3065,11 +3408,7 @@ biInput.addEventListener('keydown',e=>{
      只认得出命令就执行并清空——命令是一次性动作，不是要留在草稿里的文本；
      认不出的输入原样留着，别把用户敲的任务描述吃掉。 */
   if(e.key==='Enter'&&!e.shiftKey){
-    const r=runCommand(biInput.value);
-    if(r){                               // true 或 'keep'：命令认了，都不该在框里再插一个换行
-      e.preventDefault();
-      if(r===true) biInput.value='';     // 'keep' 留着（光敲 /model 时输入要留在那儿等选）
-    }
+    if(runCommand(biInput.value)){ e.preventDefault(); biInput.value=''; }
   }
 });
 slashMenu.addEventListener('mousedown',e=>{
@@ -3078,12 +3417,6 @@ slashMenu.addEventListener('mousedown',e=>{
   applySlash(Number(item.dataset.i));
 });
 biInput.addEventListener('blur',()=>setTimeout(closeSlashMenu,120));
-
-renderSessionList('migrate','src-migrate');
-selectScenario('migrate','src-migrate');
-/* 默认收起右侧源码区，即便初始场景带 code，也要用户手动展开 */
-document.getElementById('workspace').classList.add('foldcode');
-document.getElementById('cfoldBtn').classList.remove('on');
 
 /* ══ 皮肤切换：深色/浅色二选一配色。每次打开页面都从深色开始，不做持久化 ══ */
 function setColorTheme(theme){
@@ -3100,6 +3433,512 @@ rToggle.addEventListener('click',()=>{
   if(on){document.documentElement.removeAttribute('data-sharp')}
   else{document.documentElement.setAttribute('data-sharp','')}
 });
+
+/* ══ 模型配置（管理页的数据源与全部行为）══
+   这一块是新 PRD（模型管理与配置）的落地。它和上面那套「供应商 → 模型」浮层的关系必须说清：
+     · 浮层 + 上面的 /model 命令 = 会话里的**就地切换**（快，只选不配）
+     · 本页 = **管理配置**（慢，增删改 + 测通 + 设激活）
+   两者写的是同一份配置，所以只有一处写入口：任何一条路最终都落到 mmActiveKey。
+   PRD 里的 Provider 只有两个取值（OpenAI Compatible / Ollama），它是**协议**；
+   端点由 Base URL 承担、账号由 API Key 承担。旧的"供应商"（devkit-gateway /
+   kunpeng-local / private-cloud）在这个模型里等于**端点分组**，存在 ep 字段里，
+   只用来给额度面板（PROVIDER_QUOTA）分组，不再是用户要填的一项。
+   —— 这条是唯一一处"旧结构没有被新 PRD 覆盖干净"的地方，已在 CHANGELOG 记为待裁决。 */
+
+/* 存量配置。key 是内部标识，不随模型 ID 走：模型 ID 会重名（devkit-gateway 与
+   private-cloud 下都有 deepseek-v3-671b / qwen2.5-coder-32b，这是这个项目里真实存在的
+   情况，也是"别名"这个字段存在的理由），列表、激活、删除都得按 key 定位。
+   别名默认等于模型 ID（PRD 规定自动带过来），只有重名的那两条给了区分用的别名——
+   别名不是装饰，它就是用来解决"两个同名模型在界面上分不出来"的。 */
+let mmSeq=0;
+const mmStore=[
+  {key:'m1',id:'pangu2.5-72b-instruct',name:'pangu2.5-72b-instruct',prov:'openai-compat',
+   url:'https://devkit-gateway.internal/v1',keyv:'sk-devkit-gw-2f9c41ab',think:true,ctx:128000,max:50000,ep:'devkit-gateway'},
+  {key:'m2',id:'deepseek-v3-671b',name:'deepseek-v3-671b',prov:'openai-compat',
+   url:'https://devkit-gateway.internal/v1',keyv:'sk-devkit-gw-77b03e5d',think:true,ctx:128000,max:50000,ep:'devkit-gateway'},
+  {key:'m3',id:'qwen2.5-coder-32b',name:'qwen2.5-coder-32b',prov:'openai-compat',
+   url:'https://devkit-gateway.internal/v1',keyv:'sk-devkit-gw-5a1d9f02',think:false,ctx:128000,max:50000,ep:'devkit-gateway'},
+  /* 本机 Ollama：不需要 API Key，所以密文那一栏在这条上是空的、也不是必填 */
+  {key:'m4',id:'pangu2.5-7b-instruct',name:'pangu2.5-7b-instruct',prov:'ollama',
+   url:'http://127.0.0.1:8000/v1',keyv:'',think:false,ctx:32000,max:8000,ep:'kunpeng-local'},
+  /* 客户私有云：密钥还没配，所以这一条现在用不了——"用不了"由 Base URL + 缺 Key 解释，
+     不再由"供应商"解释 */
+  {key:'m5',id:'deepseek-v3-671b',name:'私有云-v3',prov:'openai-compat',
+   url:'https://llm.private.internal/v1',keyv:'',think:true,ctx:128000,max:50000,ep:'private-cloud'},
+  {key:'m6',id:'qwen2.5-coder-32b',name:'私有云-coder',prov:'openai-compat',
+   url:'https://llm.private.internal/v1',keyv:'',think:true,ctx:128000,max:50000,ep:'private-cloud'}
+];
+let mmActiveKey='m1';      // 激活模型：全产品唯一的事实源
+let mmSelKey=null;         // 右侧表单当前**加载**的（与激活相互独立，PRD 写死）
+let mmDraft=null;          // 表单的工作副本：编辑不直接改 store，切走就丢掉未保存的部分
+let mmDirty=false;
+let mmAliasAuto=true;      // 别名是否还跟着模型 ID 自动走（用户手改过就不再跟，见 fName 监听）
+let mmTesting=false,mmTestTimer=null;
+/* PRD 规定连通性测试 10 秒超时。演示里不真等 10 秒（真等会让这一屏变成"看它转圈"），
+   1.2 秒后给结论，但超时文案里的数字仍然是这个常量——数字对不上比慢更糟 */
+const TEST_TIMEOUT_MS=10000;
+const MM_NEW={prov:'openai-compat',think:true,ctx:128000,max:50000};
+let mmLegacyReady=false;   // 候选浮层（MODELS）就绪后由 setModel 一段置 true
+
+function mmActiveEntry(){ return mmStore.find(e=>e.key===mmActiveKey)||null; }
+function mmByKey(k){ return mmStore.find(e=>e.key===k)||null; }
+/* 端点：存量配置读 ep，新建的从 Base URL 的 host 推——不额外让用户填第三遍"你连的是谁" */
+function mmEndpoint(e){
+  if(!e) return '—';
+  if(e.ep) return e.ep;
+  const h=(e.url||'').replace(/^https?:\/\//,'').split('/')[0];
+  return h||'未填写端点';
+}
+const mmEsc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const mmEl=id=>document.getElementById(id);
+
+/* 缺省态（未配置模型）是全产品唯一禁用输入框的场景。两个信号分工：
+   顶栏胶囊 = 我该干什么（可点，进管理页）；底栏模型位 = 现在是什么状态。
+   状态由「有没有激活模型」推出来，不另存一个标志位——两边各记一份，
+   总会在某条路径上漏掉一次同步（删光、复制、切场景都是这种路径） */
+function mmSyncConfigured(){
+  const ae=mmActiveEntry();
+  const on=!!ae;
+  mmEl('mmWarn').classList.toggle('on',!on);
+  const sq=mmEl('sdModelSq');
+  sq.className='stq '+(on?'done':'wait');
+  sq.setAttribute('aria-label',on?'模型已配置':'未配置模型');
+  sq.setAttribute('title',on?'模型已配置':'未配置模型');
+  mmEl('sdModelName').textContent=on?ae.name:'未配置';
+  renderMetrics(curAgent,lastScenario[curAgent]);
+  /* 缺省态那一屏是"什么都干不了"，配好之后不该还停在那儿：
+     落到「模型与 Token」这一屏（刚配的东西在哪儿看、怎么改），并把那一屏的演示预填清掉——
+     用户是自己配过来的，不该接手一段他自己没敲的字 */
+  if(on&&mmSceneDisabled()){
+    selectScenario('develop','model-token');
+    biInput.value='';
+    closeSlashMenu();
+  }
+}
+
+/* ── 左栏：已保存的模型 ──
+   激活状态只用一个方块（全项目唯一的状态形状）：实心蓝 = 正在用，空心灰 = 没用它。
+   不额外加"当前"角标：一句话说一件事，方块已经说完了 */
+function renderModelList(){
+  const box=mmEl('mmItems');
+  if(!mmStore.length){
+    /* 空列表不只留一个「新增」按钮：得说清是"还没配过"还是"刚被删光"，
+       否则用户会怀疑是不是没加载出来 */
+    box.innerHTML='<div class="mm-empty">还没有任何模型配置。<br>填完右侧表单点「保存」，它就会出现在这里。</div>';
+    return;
+  }
+  box.innerHTML=mmStore.map(e=>{
+    const on=e.key===mmActiveKey;
+    return `<div class="mm-item ${e.key===mmSelKey?'sel':''}" role="listitem" data-key="${e.key}">
+      <button class="pick" type="button" data-a="load" aria-current="${on?'true':'false'}"
+        title="${on?'当前激活，点一下只加载配置':'点一下把配置读进右侧'}">
+        <span class="stq ${on?'doing':'todo'}" role="img" aria-label="${on?'当前激活':'未激活'}"></span>
+        <span class="nm">${mmEsc(e.name)}</span>
+      </button>
+      <span class="acts">
+        <button class="mm-act" type="button" data-a="edit" title="编辑" aria-label="编辑 ${mmEsc(e.name)}">✎</button>
+        <button class="mm-act" type="button" data-a="copy" title="复制" aria-label="复制 ${mmEsc(e.name)}">⧉</button>
+        <button class="mm-act del" type="button" data-a="del" title="删除" aria-label="删除 ${mmEsc(e.name)}">✕</button>
+      </span>
+    </div>`;
+  }).join('');
+}
+
+/* ── 右栏：表单 ──
+   静态结构 + JS 填值。字段顺序就是 PRD 的顺序，没有重排：
+   前四行答"连什么、怎么连"，后四行答"怎么用" */
+function mmFillForm(){
+  const d=mmDraft;
+  mmEl('fId').value=d.id||'';
+  mmEl('fProv').value=d.prov||'openai-compat';
+  mmEl('fName').value=d.name||'';
+  mmEl('fUrl').value=d.url||'';
+  mmEl('fKey').value=d.keyv||'';
+  mmEl('fCtx').value=d.ctx||128000;
+  mmEl('fMax').value=d.max||50000;
+  mmSetThink(!!d.think);
+  mmSyncProv();          // 密钥必填性跟着 Provider 走
+  mmHideKey();           // 每次加载都回到掩码态：明文不回显是 PRD 写死的
+  mmEl('mmHeadNote').textContent=mmSelKey
+    ? '点左列只把配置读进右侧，不会切换正在用的模型'
+    : '新增中：填完点「保存」才会出现在左列';
+  mmEl('mmAct').textContent=(mmSelKey&&mmSelKey===mmActiveKey)?'已是激活':'设为激活';
+}
+function mmSetThink(on){
+  const b=mmEl('fThink');
+  b.classList.toggle('on',on);
+  b.setAttribute('aria-checked',String(on));
+  b.querySelector('.st').textContent=on?'开启':'关闭';
+}
+function mmSyncProv(){
+  const ollama=mmEl('fProv').value==='ollama';
+  /* Ollama 是本机服务，没有密钥这一说。必填标记必须跟着消失——
+     标着一个永远不会填的必填项，会让人以为配置还没填完 */
+  mmEl('fKeyReq').style.display=ollama?'none':'';
+  mmEl('fKeyHint').innerHTML=ollama
+    ? '本机服务不需要密钥；填了也会一起存下来备用'
+    : '输入时逐字符掩码；保存后重新打开这一页同样是掩码，明文不回显';
+  mmEl('fKeyHint').classList.remove('err');
+}
+function mmHideKey(){
+  mmEl('fKey').type='password';
+  mmEl('fEye').textContent='显示';
+  mmEl('fEye').setAttribute('aria-pressed','false');
+}
+function mmSetStat(kind,text){
+  const el=mmEl('mmStat');
+  el.className='mm-stat'+(kind?' '+kind:'');
+  el.innerHTML=kind==='run'
+    ? '<span class="stq doing" role="img" aria-label="进行中"></span><span class="tx">'+mmEsc(text||'测试中…')+'</span>'
+    : (text?'<span class="tx">'+mmEsc(text)+'</span>':'');
+}
+function mmMarkDirty(){
+  if(mmDirty) return;
+  mmDirty=true;
+  mmSetStat('dirty','未保存');
+}
+function mmClearFieldErrors(){
+  ['fId','fUrl','fKey'].forEach(id=>{ mmEl(id).removeAttribute('aria-invalid'); });
+  document.querySelectorAll('.mm-hint.err').forEach(h=>h.classList.remove('err'));
+}
+/* 表单 → 草稿。每个 input 都绑在这里，所以"未保存"标记不会漏 */
+function mmReadForm(){
+  const d=mmDraft;
+  d.id=mmEl('fId').value.trim();
+  d.prov=mmEl('fProv').value;
+  d.name=mmEl('fName').value.trim();
+  d.url=mmEl('fUrl').value.trim();
+  d.keyv=mmEl('fKey').value.trim();
+  d.think=mmEl('fThink').classList.contains('on');
+  d.ctx=Number(mmEl('fCtx').value)||0;
+  d.max=Number(mmEl('fMax').value)||0;
+  return d;
+}
+/* 校验：只拦"不填就一定会失败"的项。上下文/输出上限留空不拦——
+   它们有默认值，空值不等于错值 */
+function mmValidate(){
+  mmClearFieldErrors();
+  const d=mmReadForm();
+  /* 错要指到出事的那一栏，并且把提示换成"为什么错"——只说"保存失败"，
+     用户得自己把 8 个字段重看一遍 */
+  const bad=(id,msg)=>{
+    mmEl(id).setAttribute('aria-invalid','true');
+    const h=mmEl(id).closest('.ctl').querySelector('.mm-hint');
+    if(h){ h.classList.add('err'); if(msg) h.textContent=msg; }
+    mmSetStat('err',msg||'');
+    mmEl(id).focus();
+    return false;
+  };
+  if(!d.id) return bad('fId','模型 ID 不能为空：它是真正发给 API 的名字');
+  if(!d.url) return bad('fUrl','Base URL 不能为空');
+  if(!/^https?:\/\/.+/.test(d.url)) return bad('fUrl','Base URL 要以 http:// 或 https:// 开头');
+  if(d.prov==='openai-compat'&&!d.keyv) return bad('fKey','OpenAI Compatible 必须填 API Key');
+  if(!d.ctx||d.ctx<1024){ mmSetStat('err','上下文上限至少要 1024 Tokens'); return false; }
+  if(!d.max||d.max<256){ mmSetStat('err','单次最大输出至少要 256 Tokens'); return false; }
+  return true;
+}
+/* 保存：草稿写回 store。新增时 key 现发，别名留空则按 PRD 回落到模型 ID */
+function mmCommit(){
+  if(!mmValidate()) return false;
+  const d=mmReadForm();
+  if(!d.name) d.name=d.id;
+  let e;
+  if(mmSelKey){
+    e=mmByKey(mmSelKey);
+    Object.assign(e,d);
+  }else{
+    e=Object.assign({key:'m'+(++mmSeq+100)},d);
+    mmStore.push(e);
+    mmSelKey=e.key;
+    /* 系统里一条激活的都没有（未配置模型）时，第一条保存的配置直接成为激活——
+       否则用户会停在"配好了但还是说未配置"，还得再点一次「设为激活」才明白差在哪。
+       只有这一种情况自动激活：列表里已经有激活项时，保存绝不改变它是谁 */
+    if(!mmActiveEntry()){ mmActiveKey=e.key; mmLinkLegacy(e); }
+  }
+  mmDirty=false;
+  mmSetStat('ok','已保存 · '+e.name);
+  /* 保存的正好是激活中的那条 → 底栏/提示行显示的别名可能变了，立刻跟上 */
+  mmSyncConfigured();
+  renderModelList();
+  mmFillForm();
+  return true;
+}
+
+/* ── 激活 ──
+   「设为激活」只在表单底部（PRD），且激活与加载分两步：点左列 = 看，这一下才是用。
+   如果表单上有未保存的改动，先保存再激活——"我改了参数又点了设为激活，
+   结果生效的还是旧参数"是这里最容易埋的坑 */
+function mmActivate(){
+  if(mmDirty||!mmSelKey){ if(!mmCommit()) return; }
+  const e=mmByKey(mmSelKey);
+  if(!e) return;
+  const prev=mmActiveEntry();
+  const changed=!prev||prev.key!==e.key;
+  mmActiveKey=e.key;
+  mmLinkLegacy(e);
+  mmSyncConfigured();      // 顶栏胶囊 / 侧栏 / 底栏一起跟上（缺省态在这里被解除）
+  renderQuota();
+  renderModelList();
+  mmFillForm();
+  mmSetStat('ok','已设为激活 · '+e.name);
+  /* 在管理页里切换也要在对话流里留痕：同一个动作（换模型）不论从哪个入口做，
+     痕迹只能有一份，不然"我什么时候换的"在两条路上答案不一样 */
+  if(changed&&!mmSceneDisabled()){
+    appendCmdEcho('/model '+e.name,{ok:true,msg:'已切到 <b class="hl-code">'+e.name+'</b>（模型 ID '+
+      mmEsc(e.id)+'）。<b>新起的子 Agent 继承这个模型</b>；正在跑的保持原模型跑完。'});
+  }
+  /* 激活不改任何正在跑的东西：运行中的子 Agent 保持原模型跑完（与场景里的说明一致） */
+}
+
+/* 把激活状态同步到旧的候选浮层（它也有一个 current 标记）。
+   同一个设置不能有两处各写各的，否则"浮层标了 A、底栏显示 B"迟早出现。
+   浮层里没有对应行（例如用户新建的模型）就只清掉标记，不造假行 */
+function mmLinkLegacy(e){
+  curModel=e.id;
+  curProv=e.ep||mmEndpoint(e);
+  /* 候选浮层那份标在脚本后面才解析出来（MODELS 是 const，早读会撞 TDZ），
+     所以用这个闸门明说"还没就绪"，而不是靠 typeof 去探一个 const */
+  if(!mmLegacyReady) return;
+  MODELS.forEach(m=>{
+    const on=m.name===e.id&&(!e.ep||m.prov===e.ep);
+    m.el.classList.toggle('cur',on);
+    if(m.tag){ m.tag.classList.toggle('cur',on); m.tag.textContent=on?'current':m.tag.dataset.orig; }
+  });
+}
+
+/* ── 复制 / 删除 ── */
+function mmDuplicate(key){
+  const src=mmByKey(key); if(!src) return;
+  const copy=Object.assign({},src,{key:'m'+(++mmSeq+100),name:mmCopyName(src.name)});
+  mmStore.splice(mmStore.indexOf(src)+1,0,copy);
+  mmSelKey=copy.key; mmDraft=Object.assign({},copy);
+  mmDirty=false;
+  renderModelList(); mmFillForm();
+  mmSetStat('ok','已复制为 · '+copy.name);
+}
+/* 副本名带后缀并压到 32 字以内（别名有长度上限，截断要在后缀之前做，
+   否则后缀会被截掉、"副本"两个字看不出是副本） */
+function mmCopyName(base){
+  const suffix=' 副本';
+  return base.slice(0,32-suffix.length)+suffix;
+}
+function mmAskDelete(key){
+  const e=mmByKey(key); if(!e) return;
+  const isActive=key===mmActiveKey;
+  const n=mmStore.length;
+  mmConfirm('删除模型',
+    `将从配置里移除 <b>${mmEsc(e.name)}</b>（模型 ID ${mmEsc(e.id)}）。`+
+    (isActive
+      ? (n>1
+        ? '<br>它<b>当前正在使用</b>。删除后会切到列表里的下一个可用模型。'
+        : '<br>它是<b>唯一</b>一个模型。删除后系统回到未配置模型状态，对话区会被禁用。')
+      : ''),
+    ()=>mmDeleteKey(key));
+}
+function mmDeleteKey(key){
+  const e=mmByKey(key); if(!e) return;
+  const i=mmStore.indexOf(e);
+  mmStore.splice(i,1);
+  let next=null;
+  if(key===mmActiveKey){
+    /* PRD：删掉激活模型 → 自动切列表中下一个可用模型。列表末尾就往上取一个 */
+    next=mmStore[i]||mmStore[i-1]||null;
+    mmActiveKey=next?next.key:null;
+    if(next) mmLinkLegacy(next);
+  }
+  if(mmSelKey===key){
+    mmSelKey=next?next.key:(mmStore[0]?mmStore[0].key:null);
+    mmDraft=mmSelKey?Object.assign({},mmByKey(mmSelKey)):null;
+  }
+  mmDirty=false;
+  mmSyncConfigured();
+  if(!mmStore.length){ mmStartNew(); mmSetStat('dirty','未保存'); }
+  else { mmFillForm(); mmSetStat('ok','已删除 · '+e.name); }
+  renderModelList();
+  renderQuota();
+}
+
+/* 通用确认弹窗。整个 demo 只有这一处模态：删除不可撤销，
+   而"删错了能不能撤"这种事不该靠用户自己小心 */
+let mmDlgReturn=null,mmDlgYes=null;
+function mmConfirm(title,body,onYes){
+  mmEl('mmDlgT').textContent=title;
+  mmEl('mmDlgB').innerHTML=body;
+  mmDlgYes=onYes;
+  mmDlgReturn=document.activeElement;
+  mmEl('mmMask').classList.add('on');
+  mmEl('mmDlgNo').focus();
+}
+function mmCloseDialog(){
+  mmEl('mmMask').classList.remove('on');
+  mmDlgYes=null;
+  if(mmDlgReturn&&mmDlgReturn.focus) mmDlgReturn.focus();
+  mmDlgReturn=null;
+}
+const mmDlgOpen=()=>mmEl('mmMask').classList.contains('on');
+
+/* ── 连通性测试 ──
+   只对**当前表单**负责：用表单里的 Base URL + API Key 发请求，不读也不写已保存的配置，
+   所以改了参数还没保存也能先试一下（这正是它最有用的时候）。
+   判定规则是确定性的（下面 mmDiagnose），演示里能稳定复现三种结论；
+   真接后端时替换的是它，不是上面这层状态机 */
+function mmDiagnose(d){
+  if(!d.url||!/^https?:\/\/.+/.test(d.url))
+    return {ok:false,msg:'连接超时，请检查 Base URL'};
+  const host=d.url.replace(/^https?:\/\//,'').split('/')[0].split(':')[0];
+  if(d.prov==='openai-compat'&&!d.keyv)
+    return {ok:false,msg:'缺少 API Key：这个 Provider 必须填'};
+  if(d.prov==='openai-compat'&&!/^sk-/.test(d.keyv))
+    return {ok:false,msg:'认证失败：API Key 无效'};
+  if(/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(host)||/\.local$/.test(host))
+    return {ok:false,msg:'连接超时（'+(TEST_TIMEOUT_MS/1000)+'s），请检查 Base URL'};
+  return {ok:true,msg:'连通成功！· '+mmEndpoint(d)};
+}
+function mmTest(){
+  if(mmTesting) return;
+  const d=mmReadForm();
+  const btn=mmEl('mmTest');
+  mmTesting=true;
+  btn.disabled=true; btn.setAttribute('aria-busy','true');
+  mmSetStat('run','测试中…（超时 '+(TEST_TIMEOUT_MS/1000)+'s）');
+  clearTimeout(mmTestTimer);
+  mmTestTimer=setTimeout(()=>{
+    mmTesting=false;
+    btn.disabled=false; btn.removeAttribute('aria-busy');
+    const r=mmDiagnose(d);
+    if(!r.ok){
+      /* 失败要指到具体那一栏：只说"测试失败"，用户得自己猜是 key 还是 URL 的问题 */
+      if(/API Key/.test(r.msg)) mmEl('fKey').setAttribute('aria-invalid','true');
+      else mmEl('fUrl').setAttribute('aria-invalid','true');
+    }
+    mmSetStat(r.ok?'ok':'err',(r.ok?'✓ ':'✕ ')+r.msg);
+  },1200);
+}
+
+/* ── 打开 / 关闭整页 ──
+   整屏覆盖主对话区（含输入框）。底栏留在外面：页面开着时 Esc 出口与
+   模型/token 计量仍然看得见，不至于"进了设置就不知道自己在烧什么模型" */
+function mmPageOpen(){ return mmEl('mmPage').classList.contains('on'); }
+/* 当前场景是不是缺省态（未配置模型）。缺省态里对话区是禁用的，
+   命令回执没地方落，也不该落——引导卡自己已经说完了 */
+function mmSceneDisabled(){
+  const m=(SCENARIOS[curAgent]||[]).find(s=>s.key===lastScenario[curAgent]);
+  return !!(m&&m.disabled);
+}
+/* `/model` 回车打开管理页时，命令仍然要在对话流里留痕（何时进的管理页、当时用的是哪个模型），
+   否则"我什么时候改的配置"在对话史里是空白。回执只说业务，不说界面在哪儿 */
+function openModelPageWithEcho(cmdText){
+  if(!mmSceneDisabled()){
+    const ae=mmActiveEntry();
+    appendCmdEcho(cmdText||'/model',{ok:true,msg:'打开模型管理。当前用 <b class="hl-code">'+
+      (ae?ae.name:'（还没有配置）')+'</b>；改成别的要点「设为激活」才会用在接下来的调用上。'});
+  }
+  mmOpenModelPage();
+}
+function mmOpenModelPage(){
+  if(!mmStore.length){ mmStartNew(); }
+  else {
+    const k=mmSelKey&&mmByKey(mmSelKey)?mmSelKey:(mmActiveKey&&mmByKey(mmActiveKey)?mmActiveKey:mmStore[0].key);
+    mmSelKey=k; mmDraft=Object.assign({},mmByKey(k));
+    mmDirty=false;
+    mmAliasAuto=mmDraft.name===mmDraft.id;
+    mmFillForm();
+  }
+  renderModelList();
+  mmSetStat(mmDirty?'dirty':'',mmDirty?'未保存':'');
+  mmEl('mmPage').classList.add('on');
+  mmEl('mmPage').setAttribute('aria-hidden','false');
+  closeSlashMenu();
+  /* 焦点先进列表的当前项：键盘用户不必先 Tab 过整张表单才能换一个模型看 */
+  const row=document.querySelector('#mmItems .mm-item.sel .pick')||mmEl('mmAdd');
+  if(row) row.focus();
+}
+function mmCloseModelPage(){
+  mmEl('mmPage').classList.remove('on');
+  mmEl('mmPage').setAttribute('aria-hidden','true');
+  if(mmDlgOpen()) mmCloseDialog();
+  /* 测试还没回来就退出：作废它，别让结论落在下一页的底栏上 */
+  if(mmTesting){ clearTimeout(mmTestTimer); mmTesting=false; mmEl('mmTest').disabled=false; mmEl('mmTest').removeAttribute('aria-busy'); }
+  /* 未保存的草稿留在内存里（不清掉）：下次进来接着改，比静默丢弃或弹"要保存吗"都省事 */
+  mmSetStat('','');
+  biInput.focus();
+}
+function mmStartNew(){
+  mmSelKey=null;
+  mmDraft=Object.assign({},MM_NEW,{id:'',name:'',url:'',keyv:'',ep:''});
+  mmDirty=true; mmAliasAuto=true;
+  mmFillForm();
+  mmSetStat('dirty','未保存');
+  renderModelList();
+}
+
+/* ── 事件接线 ──
+   一个页面里的入口都集中在这里，不在 HTML 里写 onclick：行为只有一份，
+   键盘与鼠标走同一段代码 */
+mmEl('mmItems').addEventListener('click',ev=>{
+  const row=ev.target.closest('.mm-item'); if(!row) return;
+  const key=row.dataset.key;
+  const act=ev.target.closest('[data-a]');
+  const a=act?act.dataset.a:'load';
+  if(a==='del'){ mmAskDelete(key); return; }          // 删除先弹确认，不直接动手
+  if(a==='copy'){ mmDuplicate(key); return; }
+  /* 编辑与"点一行"是同一件事（都是把它读进右侧），区别只在编辑顺手把焦点给到模型 ID */
+  const e=mmByKey(key); if(!e) return;
+  mmSelKey=key; mmDraft=Object.assign({},e);
+  mmDirty=false; mmAliasAuto=e.name===e.id;
+  mmFillForm(); renderModelList(); mmSetStat('','');
+  if(a==='edit') mmEl('fId').focus();
+});
+mmEl('mmAdd').addEventListener('click',()=>{ mmStartNew(); mmEl('fId').focus(); });
+mmEl('mmSave').addEventListener('click',mmCommit);
+mmEl('mmAct').addEventListener('click',mmActivate);
+mmEl('mmTest').addEventListener('click',mmTest);
+mmEl('mmDlgNo').addEventListener('click',mmCloseDialog);
+mmEl('mmDlgYes').addEventListener('click',()=>{
+  const fn=mmDlgYes;               // 先取出来再关：关弹窗会把回调清空
+  mmCloseDialog();
+  if(fn) fn();
+});
+/* 点遮罩 = 取消。破坏性动作的"取消"要多给几条路 */
+mmEl('mmMask').addEventListener('click',ev=>{ if(ev.target===mmEl('mmMask')) mmCloseDialog(); });
+
+/* 表单的每个改动都标未保存。别名还跟着模型 ID 走时（mmAliasAuto）镜像过去，
+   用户一旦手改过就不再跟随——"我明明改了别名，它又自己变回去了"是这条最容易被骂的地方 */
+['fId','fUrl','fKey','fCtx','fMax'].forEach(id=>mmEl(id).addEventListener('input',()=>{
+  if(id==='fId'&&mmAliasAuto) mmEl('fName').value=mmEl('fId').value.trim();
+  mmMarkDirty();
+}));
+mmEl('fName').addEventListener('input',()=>{
+  mmAliasAuto=mmEl('fName').value.trim()===mmEl('fId').value.trim();
+  mmMarkDirty();
+});
+mmEl('fProv').addEventListener('change',()=>{ mmSyncProv(); mmMarkDirty(); });
+mmEl('fThink').addEventListener('click',()=>{
+  mmSetThink(!mmEl('fThink').classList.contains('on'));
+  mmMarkDirty();
+});
+mmEl('fEye').addEventListener('click',()=>{
+  const show=mmEl('fKey').type==='password';
+  mmEl('fKey').type=show?'text':'password';
+  mmEl('fEye').textContent=show?'隐藏':'显示';
+  mmEl('fEye').setAttribute('aria-pressed',String(show));
+});
+
+/* 三处入口都指向同一个动作：顶栏胶囊、侧栏 Settings → Model、缺省引导卡的「立即配置」 */
+mmEl('mmWarn').addEventListener('click',mmOpenModelPage);
+mmEl('sdModel').addEventListener('click',mmOpenModelPage);
+mmEl('sdModel').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); mmOpenModelPage(); } });
+const nmGo=mmEl('nmGo'); if(nmGo) nmGo.addEventListener('click',mmOpenModelPage);
+
+/* 缺省态只是"没有被激活的模型"——已保存的配置**不动**。
+   一开始想的是"进这一屏就把配置整体让出来"，那会让用户配好第一条之后
+   看到另外 6 条一起冒出来（配置凭空多出东西，比看到"未配置"更费解）。
+   PRD 里"未配置"的定义本来就是"没有可用的激活模型"：已配置 = 底栏显示激活模型别名。
+   所以这里只做一件事：把激活指针暂时摘掉，离开时按原样还回去 */
+let mmActiveBackup=null;
+function mmNoModelScene(agentKey,scenarioKey){
+  return agentKey==='develop'&&scenarioKey==='no-model';
+}
 
 /* ══ 模型切换：两个入口，同一个动作 ══
    入口一：点候选列表里的一行；入口二：在输入框敲 /model。两条路都走 setModel()——
@@ -3142,6 +3981,11 @@ const MODELS=[...document.querySelectorAll('#modelPop .model-row')].map(row=>{
 });
 MODELS.forEach(m=>{ if(m.tag) m.tag.dataset.orig=m.tag.textContent; });
 const PROVIDER_OF=ref=>MODELS.find(m=>m.ref===ref)||MODELS.find(m=>m.name===ref);
+/* 浮层这一份数据到这儿才算就绪；此前 mmLinkLegacy 只能先记下 curModel/curProv */
+mmLegacyReady=true;
+/* 浮层的每一行都对应管理页里的一条配置（ep + 模型 ID 一一对应），
+   两边靠这个找到对方。找不到 = 浮层里这一行不是从配置来的，那就别硬造 */
+const mmEntryOfModel=m=>mmStore.find(e=>e.id===m.name&&e.ep===m.prov)||null;
 
 /* 每个供应商自己的额度。额度是账号的属性，所以切供应商就换一套数字——
    而 kunpeng-local 这种本机推理根本没有"额度重置时间"，它给的是显存与排队情况。
@@ -3163,6 +4007,13 @@ function renderQuota(){
   const cm=document.getElementById('quotaProv');
   if(!box) return;
   if(cm) cm.textContent=curProv+' 账号 · 本会话';
+  /* 额度只有内置网关这类"账号式"端点才回报。用户自己填的 Base URL 读不到额度，
+     这不是配置错误，所以不套用下面"没配密钥"那句——两件事说成一句会误导人 */
+  if(!(curProv in PROVIDER_QUOTA)){
+    box.innerHTML='<div class="chk wrap"><span class="ic" role="img" aria-label="无额度信息" title="无额度信息"></span>'+
+      '<span class="lb">无额度信息</span><span class="v"><b>'+curProv+'</b> 不回传额度与重置时间</span></div>';
+    return;
+  }
   const rows=PROVIDER_QUOTA[curProv]||[];
   if(!rows.length){
     box.innerHTML='<div class="chk wrap"><span class="ic warn" role="img" aria-label="读不到额度" title="读不到额度"></span>'+
@@ -3187,6 +4038,10 @@ function setModel(ref){
   });
   curModel=hit.name;
   curProv=hit.prov||'—';
+  /* 就地切换也要落到同一份配置上：管理页里的激活方块、底栏、提示行读的都是
+     mmActiveKey，这里不写它就会变成"浮层标了 A，底栏显示的是 B" */
+  const ent=mmEntryOfModel(hit);
+  if(ent){ mmActiveKey=ent.key; renderModelList(); }
   /* 切完把目标供应商那组展开、其余收起：候选菜单一次只摊开一组，
      要看别家的时候再点开——满屏模型的列表比分组更难找。 */
   PROVIDERS.forEach(p=>{
@@ -3259,8 +4114,10 @@ function appendCmdEcho(cmdText,res){
   setTimeout(checkScrollBottom,0);
   return true;
 }
-/* 返回值三态：false = 不是这两条命令（输入原样留着）；true = 已执行或已拒绝，
-   输入可以清空；'keep' = 命令认了但要留着输入（光敲 /model 时把候选列出来等选）。 */
+/* 返回值两态：false = 不是这条命令（输入原样留着，别把用户敲的任务描述吃掉）；
+   true = 认了（已执行、已拒绝、或已打开管理页），输入可以清空。
+   曾经有过第三态 'keep'（光敲 /model 时列候选、输入留着），现在光敲 /model 是打开管理页，
+   不再需要"留半个命令在框里等人来选"这种中间状态。 */
 function runCommand(text){
   const line=text.trim();
   const m=line.match(/^\/(model|tokens)\b[ \t]*(.*)$/i);
@@ -3270,12 +4127,11 @@ function runCommand(text){
   if(cmd==='model'){
     const prev=curModel;
     if(!arg){
-      /* 光敲 /model 不带名字，不是"参数写错了"，是想选一个——那就把候选列出来。
-         报错会把用户推回原点（"我该怎么写？"），列候选才是这条命令该有的样子。 */
-      biInput.value='/model ';
-      biInput.setSelectionRange(7,7);
-      renderSlashMenu();
-      return 'keep';
+      /* 光敲 /model 不带名字 = 要配模型，不是要切模型（PRD：/model 回车打开管理页）。
+         要切模型还有两条更快的路：打 /model 加个前缀从候选里选，或点右侧的候选列表。
+         —— 列候选这条不再挂在这里：它和"管理页"抢同一个手势，而管理页里能选能改 */
+      openModelPageWithEcho(line);
+      return true;
     }
     const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
     /* 写法一：供应商/模型（无歧义）。写法二：只给模型名——唯一命中就切，
@@ -3366,6 +4222,31 @@ if(treeFold){
    只在这里初始化、不塞进 selectScenario：额度是供应商的属性，不随场景变，
    切供应商由 setModel() 负责重画。 */
 renderQuota();
+
+/* ══ 启动：最后一次初始化 ══
+   放在脚本最末尾，不在文件中间。原先这两行在中间，于是每个"脚本执行早期就会跑"的
+   函数（renderMetrics 等）都只能读那些已经声明完的变量，新加的模型配置一读就撞 TDZ。
+   初始化统一挪到最后之后，"所有定义都已就绪"变成一条可以直接依赖的前提，
+   不用再逐个给函数记"它能在什么时候调"。 */
+renderSessionList('migrate','src-migrate');
+selectScenario('migrate','src-migrate');
+/* 默认收起右侧源码区，即便初始场景带 code，也要用户手动展开 */
+document.getElementById('workspace').classList.add('foldcode');
+document.getElementById('cfoldBtn').classList.remove('on');
+
+/* ══ 深链：?scene=develop/no-model · ?page=model ══
+   这一页有 13 个场景，评审时最花时间的是"从哪儿点进去"。给两条能直接落的链接，
+   启动页就能把它们当作入口列出来（而不是写一句"进演示后请自行点击"）。
+   只在启动时读一次，不改 history——演示不需要会话级的可回退导航 */
+(function(){
+  const q=new URLSearchParams(location.search);
+  const sc=q.get('scene');
+  if(sc){
+    const [a,k]=sc.split('/');
+    if(SCENARIOS[a]&&SCENARIOS[a].some(s=>s.key===k)) selectScenario(a,k);
+  }
+  if(q.get('page')==='model') mmOpenModelPage();
+})();
 </script>
 </body>
 </html>
