@@ -627,11 +627,11 @@ td.fnname{color:var(--ok)}
   text-transform:none;color:var(--fg4)}
 .mp-pool{padding:4px 0}
 .mp-pool+.mp-pool{border-top:1px solid var(--bd1)}
-/* 供应商组头：一行，可收起。它不是新形状——折叠把手沿用会话列表那条（▸/▾），
+/* 端点组头：一行，可收起。它不是新形状——折叠把手沿用会话列表那条（▸/▾），
    状态沿用项目唯一的方块（.stq），深度只走缩进一个通道（模型行左内边距 = 组头 11px + 一格 16px）。
-   为什么要有这一层：模型名会在不同供应商之间重名（pangu2.5-* 就有两个），
-   只给模型名时命令是有歧义的；而且「key 配没配、额度还剩多少、端点通不通」是供应商的属性，
-   不是模型的属性，抬头一列就得有个地方写。 */
+   为什么要有这一层：同一个模型 ID 会在不同端点上出现（deepseek-v3-671b 就有两个），
+   只给模型 ID 时命令是有歧义的（靠**别名**区分，不靠"供应商/"前缀）；
+   而且「key 配没配、额度还剩多少、端点通不通」是端点的属性，不是模型的属性，抬头一列得有个地方写。 */
 .mp-prov{display:flex;align-items:center;gap:8px;padding:4px 11px;cursor:pointer;
   border-radius:5px;font-family:var(--mono);font-size:12px}
 .mp-prov:hover{background:var(--s2)}
@@ -641,9 +641,9 @@ td.fnname{color:var(--ok)}
 .mp-prov .pd{color:var(--fg4);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mp-prov .ps{flex:none;color:var(--fg3);font-size:11px}
 .mp-prov .ps.off{color:var(--warn)}
-/* 收起的供应商组：组头留着（谁 / 几个模型 / 什么状态），只是不吃模型行的高度 */
+/* 收起的端点组：组头留着（哪个端点 / 几个模型 / 什么状态），只是不吃模型行的高度 */
 .mp-pool.fold .model-row{display:none}
-/* 未配置密钥的供应商：模型看得见、点不动——不是"没有"，是"有但你用不了"，
+/* 未配置密钥的端点：模型看得见、点不动——不是"没有"，是"有但你用不了"，
    所以不隐藏、不用灰色假装不存在，行尾给一句为什么。 */
 .model-row.off{cursor:default}
 .model-row.off .mp-nm,.model-row.off .mp-desc{color:var(--fg4);opacity:.75}
@@ -777,13 +777,14 @@ table.cmp tr.ttl td{color:var(--fg);font-weight:700}
    三档层次（与它一致，只是把 provider 位换成了我们真有的东西）：
      命令（蓝 + 700）   /model · /tokens
      值（亮 + 700）     模型名 · 已用 token —— 这一行里最醒目的两个东西
-     来源（次级灰）     供应商（devkit-gateway）· 告警线 70%
+     来源（次级灰）     端点（devkit-gateway.internal）· 告警线 70%
    只写「/model 切换会话模型」等于只说了路怎么走、没说我在哪儿——用户真正要看的是
    「现在用的是哪个模型、这轮烧了多少」，这两个值才是他决定要不要敲命令的依据。
-   灰字只放"解释这个值"的东西：供应商解释额度从哪个账号扣、换它要写全名，告警线解释这个
+   灰字只放"解释这个值"的东西：端点解释额度从哪个账号扣，告警线解释这个
    token 数离哪条线还有多远。
-   分工上它不和底栏常驻计量重复：底栏是全局事实（任何场景都看得见），这里是「就地可改」的入口，
-   只在真有命令可改的场景出现——做成常驻，它会从「这里能改」退化成一条没人再读的说明文字。
+   分工上它不和底栏常驻计量重复：底栏是全局事实（任何场景都看得见），这里是「就地可改」的入口。
+   ——【本轮改动】它从"只在真有命令可改的场景出现"改成**常驻**：本行真正扛的是两个
+   当前值（模型别名 / token 与告警线），"常驻会退化成说明文字"的理由在它只扛说明文字时才成立。
    位置选输入框下方的单独一行，不是右上角浮层：右上角是 Web 的惯例，输入一长就必然和正文打架，
    窄屏时右上角也最先没地方放。opencode 与 Claude Code 都是把提示放在 prompt 下面一行——
    和输入内容物理隔离，输入多长都不冲突，窄屏时整行收起也不损失任何功能。
@@ -817,8 +818,9 @@ table.cmp tr.ttl td{color:var(--fg);font-weight:700}
 .status-bar .mt+.mt{border-left:1px solid var(--bd1)}
 .status-bar .mt b{color:var(--fg2);font-weight:700}
 .status-bar .mt.warn,.status-bar .mt.warn b{color:var(--warn)}
-/* 底栏的供应商前缀：留着「这个模型是谁家的」这个事实，但不跟模型名抢注意力。
-   中等宽度先丢它——和提示行同一个降级顺序（先丢来源，模型本身永不丢） */
+/* 底栏的模型位**只放别名**（PRD 规定）：.mt-prov 这一档已经不用了，留着样式是为了
+   旧的降级顺序说明不失效——中等宽度以下本来要先丢"来源"，现在来源根本不在底栏，
+   它挪到了输入框下面那一行的 .src 位。模型别名本身永不丢。 */
 .status-bar .mt-prov{color:var(--fg4);font-weight:400}
 @media (max-width:1200px){ .status-bar .mt-prov{display:none} }
 .status-bar .ctxb{width:52px;height:6px;border-radius:3px;background:var(--s4);overflow:hidden;flex:none}
@@ -1878,7 +1880,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
          被拒走 chk 行，全部是既有对话流单元——命令的结果就是这一轮对话的一部分，
          翻历史时能连着上下文看。
          本轮把 /model 回执的尾句删了：「其余可直接切」描述的是那张候选列表怎么操作
-         （本产品行为），不是这次会话的业务状态；业务到「private-cloud 还没配密钥」为止。
+         （本产品行为），不是这次会话的业务状态；业务到「llm.private.internal 还没配密钥」为止。
          /tokens 回执里的「底栏的 ctx 当前值不变」同理，改成「当前用量不变」，static 与
          运行时两处同步。 -->
     <!-- ═══ 开发 Agent · 未配置模型（缺省引导）═══
@@ -1910,46 +1912,46 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> /model</div>
-          <div class="ai-msg">当前会话模型 <b class="hl-code">devkit-gateway/pangu2.5-72b-instruct</b>（218ms）。本会话已消耗 <b class="hl-metric">1.24M tokens</b>，上下文水位 <b class="hl-metric">38%</b>。配了 3 家供应商，<b>private-cloud 还没配密钥</b>。</div>
+          <div class="ai-msg">当前会话模型 <b class="hl-code">pangu2.5-72b-instruct</b>（218ms）。本会话已消耗 <b class="hl-metric">1.24M tokens</b>，上下文水位 <b class="hl-metric">38%</b>。配了 3 个端点，<b>llm.private.internal 还没配密钥</b>。</div>
 
           <div class="model-pop" id="modelPop">
             <div class="mp-h">Models<span class="mp-hint">点一行切换 · 立即生效，不需要重开会话</span></div>
-            <div class="mp-pool open" data-prov="devkit-gateway">
+            <div class="mp-pool open" data-ep="devkit-gateway.internal">
               <div class="mp-prov" role="button" tabindex="0" aria-expanded="true">
                 <span class="fold">▾</span>
                 <span class="stq done" role="img" aria-label="已鉴权，可用" title="已鉴权，可用"></span>
-                <span class="pn">devkit-gateway</span>
-                <span class="pd">内部推理网关 · devkit-gateway.internal/v1 · 3 个模型</span>
+                <span class="pn">devkit-gateway.internal</span>
+                <span class="pd">OpenAI Compatible · /v1 · 3 个模型</span>
                 <span class="ps">已鉴权 · 共享额度池</span>
               </div>
-              <div class="model-row cur" data-model="pangu2.5-72b-instruct"><span class="mp-ck"></span><span class="mp-nm">pangu2.5-72b-instruct</span><span class="mp-desc">通用推理 · 迁移与 SQL 改造默认</span><span class="mp-tag cur">current</span></div>
-              <div class="model-row" data-model="deepseek-v3-671b"><span class="mp-ck"></span><span class="mp-nm">deepseek-v3-671b</span><span class="mp-desc">128k 长上下文 · 跨模块重构</span><span class="mp-tag">128k</span></div>
-              <div class="model-row" data-model="qwen2.5-coder-32b"><span class="mp-ck"></span><span class="mp-nm">qwen2.5-coder-32b</span><span class="mp-desc">代码专精 · 低延迟，适合子 Agent</span><span class="mp-tag">快</span></div>
+              <div class="model-row cur" data-key="m1"><span class="mp-ck"></span><span class="mp-nm">pangu2.5-72b-instruct</span><span class="mp-desc">通用推理 · 迁移与 SQL 改造默认</span><span class="mp-tag cur">current</span></div>
+              <div class="model-row" data-key="m2"><span class="mp-ck"></span><span class="mp-nm">deepseek-v3-671b</span><span class="mp-desc">128k 长上下文 · 跨模块重构</span><span class="mp-tag">128k</span></div>
+              <div class="model-row" data-key="m3"><span class="mp-ck"></span><span class="mp-nm">qwen2.5-coder-32b</span><span class="mp-desc">代码专精 · 低延迟，适合子 Agent</span><span class="mp-tag">快</span></div>
             </div>
-            <div class="mp-pool fold" data-prov="kunpeng-local">
+            <div class="mp-pool fold" data-ep="127.0.0.1:8000">
               <div class="mp-prov" role="button" tabindex="0" aria-expanded="false">
                 <span class="fold">▸</span>
                 <span class="stq done" role="img" aria-label="已就绪，可用" title="已就绪，可用"></span>
-                <span class="pn">kunpeng-local</span>
-                <span class="pd">本机昇腾推理 · 127.0.0.1:8000 · 1 个模型</span>
-                <span class="ps">已就绪 · 独占配额</span>
+                <span class="pn">127.0.0.1:8000</span>
+                <span class="pd">Ollama · 本机昇腾推理 · 1 个模型</span>
+                <span class="ps">已就绪 · 本机，无需密钥</span>
               </div>
-              <div class="model-row" data-model="pangu2.5-7b-instruct"><span class="mp-ck"></span><span class="mp-nm">pangu2.5-7b-instruct</span><span class="mp-desc">轻量 · 心跳与日志摘要等低价值调用</span><span class="mp-tag">省</span></div>
+              <div class="model-row" data-key="m4"><span class="mp-ck"></span><span class="mp-nm">pangu2.5-7b-instruct</span><span class="mp-desc">轻量 · 心跳与日志摘要等低价值调用</span><span class="mp-tag">省</span></div>
             </div>
-            <div class="mp-pool fold" data-prov="private-cloud">
+            <div class="mp-pool fold" data-ep="llm.private.internal">
               <div class="mp-prov" role="button" tabindex="0" aria-expanded="false">
                 <span class="fold">▸</span>
                 <span class="stq wait" role="img" aria-label="未配置密钥" title="未配置密钥"></span>
-                <span class="pn">private-cloud</span>
-                <span class="pd">客户私有云 · llm.private.internal/v1 · 2 个模型</span>
+                <span class="pn">llm.private.internal</span>
+                <span class="pd">OpenAI Compatible · /v1 · 2 个模型</span>
                 <span class="ps off">未配置密钥</span>
               </div>
-              <div class="model-row off" data-model="deepseek-v3-671b"><span class="mp-ck"></span><span class="mp-nm">deepseek-v3-671b</span><span class="mp-desc">与 devkit-gateway 同名 · 走客户侧账号计费</span><span class="mp-tag">需密钥</span></div>
-              <div class="model-row off" data-model="qwen2.5-coder-32b"><span class="mp-ck"></span><span class="mp-nm">qwen2.5-coder-32b</span><span class="mp-desc">与 devkit-gateway 同名 · 走客户侧账号计费</span><span class="mp-tag">需密钥</span></div>
+              <div class="model-row off" data-key="m5"><span class="mp-ck"></span><span class="mp-nm">私有云-v3</span><span class="mp-desc">这个模型 ID 在 devkit-gateway.internal 上已有一条 · 靠别名区分</span><span class="mp-tag">需密钥</span></div>
+              <div class="model-row off" data-key="m6"><span class="mp-ck"></span><span class="mp-nm">私有云-coder</span><span class="mp-desc">这个模型 ID 在 devkit-gateway.internal 上已有一条 · 靠别名区分</span><span class="mp-tag">需密钥</span></div>
             </div>
           </div>
 
-          <div class="sub-h">额度 <span class="cm" id="quotaProv">devkit-gateway 账号 · 本会话</span></div>
+          <div class="sub-h">额度 <span class="cm" id="quotaProv">devkit-gateway.internal 账号 · 本会话</span></div>
           <div class="quota" id="quotaBody">
             <div class="quota-row lv-1"><span class="ql">5h</span><span class="qt"><i style="width:38%"></i></span><span class="qp">38%</span><span class="qr">充裕 · reset 14:00</span></div>
             <div class="quota-row lv-3"><span class="ql">7d</span><span class="qt"><i style="width:72%"></i></span><span class="qp">72%</span><span class="qr">偏高 · reset 周一 09:00</span></div>
@@ -1974,7 +1976,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
                这句话在下面那条切换回执里由 agent 自己说了（新起的继承、在跑的保持原模型跑完）。
                规则本身仍在规范里（index.html 的 Model Switcher / Sub-Agent Block 卡）。 -->
 
-          <div class="ai-msg">按当前编排，3 个并行子 Agent 里有 <b>2 个只是检索和打补丁</b>，用 <b class="hl-code">devkit-gateway/qwen2.5-coder-32b</b> 就够，没必要都占 72b 的共享额度。把它们指到 <b class="hl-code">subagent.MODEL_OVERRIDE</b>，是这个项目里最容易捡回来的一笔 token —— 要我改配置吗？</div>
+          <div class="ai-msg">按当前编排，3 个并行子 Agent 里有 <b>2 个只是检索和打补丁</b>，用 <b class="hl-code">qwen2.5-coder-32b</b> 就够，没必要都占 72b 的共享额度。把它们指到 <b class="hl-code">subagent.MODEL_OVERRIDE</b>，是这个项目里最容易捡回来的一笔 token —— 要我改配置吗？</div>
 
           <!-- ── 以下就是「改」：同一个会话、同一个输入框，不跳屏、不弹窗。
                这里刻意不再重复演示一遍"敲 /model 列候选"（那是上一段的开场），
@@ -1983,18 +1985,18 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
                用户不用读文案就能看见"候选长在输入框上方"。 ── -->
           <div class="sub-h">就地改配置 <span class="cm">不用重开会话</span></div>
 
-          <div class="usr-msg"><span class="p">&gt;</span> /model devkit-gateway/qwen2.5-coder-32b</div>
-          <div class="ai-msg">已切到 <b class="hl-code">devkit-gateway/qwen2.5-coder-32b</b>。<b>新起的子 Agent 继承这个模型</b>；<b class="hl-metric">正在跑的 3 个保持原模型跑完</b>。额度仍走 devkit-gateway 那个账号，改动已写入 <b class="hl-file">.devkitai/config.toml</b>。</div>
+          <div class="usr-msg"><span class="p">&gt;</span> /model qwen2.5-coder-32b</div>
+          <div class="ai-msg">已切到 <b class="hl-code">qwen2.5-coder-32b</b>。<b>新起的子 Agent 继承这个模型</b>；<b class="hl-metric">正在跑的 3 个保持原模型跑完</b>。额度仍走 devkit-gateway.internal 那个账号，改动已写入 <b class="hl-file">.devkitai/config.toml</b>。</div>
 
           <div class="usr-msg"><span class="p">&gt;</span> /tokens 85</div>
           <div class="ai-msg">告警线 <b class="hl-metric">70% → 85%</b>，立即生效。当前用量不变，提醒点改到 85%。</div>
 
           <div class="usr-msg"><span class="p">&gt;</span> /tokens 120</div>
           <div class="chk wrap"><span class="ic warn" role="img" aria-label="没有改" title="没有改"></span><span class="lb">没有改</span><span class="v">120 超出可选范围 <b>20–95</b>。要关掉提示可以用 <b>/tokens 95</b></span></div>
-          <div class="usr-msg"><span class="p">&gt;</span> /model qwen</div>
-          <div class="chk wrap"><span class="ic warn" role="img" aria-label="没有改" title="没有改"></span><span class="lb">没有改</span><span class="v"><b>qwen</b> 在多个供应商下都有，得写全：<b>devkit-gateway/qwen2.5-coder-32b</b> 或 <b>private-cloud/qwen2.5-coder-32b</b></span></div>
-          <div class="usr-msg"><span class="p">&gt;</span> /model private-cloud/deepseek-v3-671b</div>
-          <div class="chk wrap"><span class="ic warn" role="img" aria-label="没有改" title="没有改"></span><span class="lb">没有改</span><span class="v"><b>private-cloud</b> 还没配密钥，切不过去。补上 <b>API_KEY</b> 之后它就能用；眼下可以先选 <b>devkit-gateway/deepseek-v3-671b</b></span></div>
+          <div class="usr-msg"><span class="p">&gt;</span> /model deepseek-v3-671b</div>
+          <div class="chk wrap"><span class="ic warn" role="img" aria-label="没有改" title="没有改"></span><span class="lb">没有改</span><span class="v"><b>deepseek-v3-671b</b> 是模型 ID，在两个端点上都有，得用别名区分：<b>deepseek-v3-671b</b>（devkit-gateway.internal）或 <b>私有云-v3</b>（llm.private.internal）</span></div>
+          <div class="usr-msg"><span class="p">&gt;</span> /model 私有云-v3</div>
+          <div class="chk wrap"><span class="ic warn" role="img" aria-label="没有改" title="没有改"></span><span class="lb">没有改</span><span class="v"><b>llm.private.internal</b> 还没配密钥，切不过去。补上 <b>API_KEY</b> 之后它就能用；眼下可以先选 <b>deepseek-v3-671b</b></span></div>
         </div>
       </section>
     </div>
@@ -2388,7 +2390,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
       <textarea id="biInput" rows="3" placeholder="描述你想让 Agent 做什么，输入 / 唤出命令..."></textarea>
     </div>
     <div class="bi-hintbar" id="biHint">
-      <span class="it model"><span class="c">/model</span> <b id="biModel">pangu2.5-72b-instruct</b><span class="src" id="biProv">devkit-gateway</span></span>
+      <span class="it model"><span class="c">/model</span> <b id="biModel">pangu2.5-72b-instruct</b><span class="src" id="biProv">devkit-gateway.internal</span></span>
       <span class="sep">·</span>
       <span class="it"><span class="c">/tokens</span> <b id="biTok">1.24M</b><span class="src">告警线 <span id="biWarn">70%</span></span></span>
     </div>
@@ -2638,37 +2640,37 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
     <div class="code-scene" data-agent="develop" data-scenario="model-token">
       <div class="panel-head"><span class="crumb"><span class="m">[M]</span> .devkitai &gt; <span class="fn">config.toml</span></span></div>
       <div class="panel-body">
-        <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt"># 模型路由：供应商 → 模型，主会话与子 Agent 的默认与覆盖</span></div>
+        <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt"># 模型配置：一条 = 一个模型 + 它连的端点。Provider 是协议，不是"供应商"</span></div>
         <div class="cline"><span class="no">2</span><span class="pfx"></span>[model]</div>
         <div class="cline del"><span class="no">3</span><span class="pfx del">-</span>PRIMARY = <span class="tk d">"devkit-gateway/pangu2.5-72b-instruct"</span></div>
-        <div class="cline add hl"><span class="no">3</span><span class="pfx add">+</span>PRIMARY = <span class="tk a">"devkit-gateway/qwen2.5-coder-32b"</span></div>
-        <div class="cline"><span class="no">4</span><span class="pfx"></span>PROVIDERS = [</div>
-        <div class="cline"><span class="no">5</span><span class="pfx"></span>  <span class="tk a">"devkit-gateway"</span>, <span class="tk a">"kunpeng-local"</span>, <span class="tk a">"private-cloud"</span>,</div>
-        <div class="cline"><span class="no">6</span><span class="pfx"></span>]</div>
-        <div class="cline"><span class="no">7</span><span class="pfx"></span></div>
-        <div class="cline"><span class="no">8</span><span class="pfx"></span>[model.providers.devkit-gateway]</div>
-        <div class="cline"><span class="no">9</span><span class="pfx"></span><span class="cmt"># 内部推理网关 · 团队共享额度池</span></div>
-        <div class="cline"><span class="no">10</span><span class="pfx"></span>BASE_URL = <span class="tk a">"https://devkit-gateway.internal/v1"</span></div>
-        <div class="cline"><span class="no">11</span><span class="pfx"></span>MODELS = [</div>
-        <div class="cline"><span class="no">12</span><span class="pfx"></span>  <span class="tk a">"pangu2.5-72b-instruct"</span>,</div>
-        <div class="cline"><span class="no">13</span><span class="pfx"></span>  <span class="tk a">"deepseek-v3-671b"</span>,</div>
-        <div class="cline"><span class="no">14</span><span class="pfx"></span>  <span class="tk a">"qwen2.5-coder-32b"</span>,</div>
-        <div class="cline"><span class="no">15</span><span class="pfx"></span>]</div>
-        <div class="cline"><span class="no">16</span><span class="pfx"></span></div>
-        <div class="cline"><span class="no">17</span><span class="pfx"></span>[model.providers.kunpeng-local]</div>
-        <div class="cline"><span class="no">18</span><span class="pfx"></span><span class="cmt"># 本机昇腾推理 · 独占配额，不排队</span></div>
-        <div class="cline"><span class="no">19</span><span class="pfx"></span>BASE_URL = <span class="tk a">"http://127.0.0.1:8000/v1"</span></div>
-        <div class="cline"><span class="no">20</span><span class="pfx"></span>MODELS = [<span class="tk a">"pangu2.5-7b-instruct"</span>]</div>
-        <div class="cline"><span class="no">21</span><span class="pfx"></span></div>
-        <div class="cline"><span class="no">22</span><span class="pfx"></span>[model.providers.private-cloud]</div>
-        <div class="cline"><span class="no">23</span><span class="pfx"></span><span class="cmt"># 客户私有云 · 走客户侧账号</span></div>
-        <div class="cline"><span class="no">24</span><span class="pfx"></span>BASE_URL = <span class="tk a">"https://llm.private.internal/v1"</span></div>
-        <div class="cline"><span class="no">25</span><span class="pfx"></span>MODELS = [<span class="tk a">"deepseek-v3-671b"</span>, <span class="tk a">"qwen2.5-coder-32b"</span>]</div>
-        <div class="cline"><span class="no">26</span><span class="pfx"></span><span class="cmt"># API_KEY 未配置 —— 该供应商下的模型暂不可用</span></div>
+        <div class="cline add hl"><span class="no">3</span><span class="pfx add">+</span>PRIMARY = <span class="tk a">"pangu2.5-72b-instruct"</span> <span class="cmt"># 指向别名，不是"端点/模型"</span></div>
+        <div class="cline"><span class="no">4</span><span class="pfx"></span>[model.entries.pangu-72b]</div>
+        <div class="cline"><span class="no">5</span><span class="pfx"></span>  NAME = <span class="tk a">"pangu2.5-72b-instruct"</span> <span class="cmt"># 别名：界面与 /model 都用它</span></div>
+        <div class="cline"><span class="no">6</span><span class="pfx"></span>  ID = <span class="tk a">"pangu2.5-72b-instruct"</span> <span class="cmt"># 真正发给 API 的名字</span></div>
+        <div class="cline"><span class="no">7</span><span class="pfx"></span>  PROVIDER = <span class="tk a">"openai-compat"</span> <span class="cmt"># 只有它和 ollama 两个值</span></div>
+        <div class="cline"><span class="no">8</span><span class="pfx"></span>  BASE_URL = <span class="tk a">"https://devkit-gateway.internal/v1"</span></div>
+        <div class="cline"><span class="no">9</span><span class="pfx"></span>  API_KEY = <span class="tk a">"sk-…"</span> <span class="cmt"># 密文存储，界面不回显</span></div>
+        <div class="cline"><span class="no">10</span><span class="pfx"></span>  REASONING = <span class="tk a">true</span></div>
+        <div class="cline"><span class="no">11</span><span class="pfx"></span>  CONTEXT_WINDOW = <span class="tk a">128000</span></div>
+        <div class="cline"><span class="no">12</span><span class="pfx"></span>  MAX_TOKENS = <span class="tk a">50000</span></div>
+        <div class="cline"><span class="no">13</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">14</span><span class="pfx"></span>[model.entries.deepseek-v3]</div>
+        <div class="cline"><span class="no">15</span><span class="pfx"></span>  NAME = <span class="tk a">"deepseek-v3-671b"</span></div>
+        <div class="cline"><span class="no">16</span><span class="pfx"></span>  BASE_URL = <span class="tk a">"https://devkit-gateway.internal/v1"</span></div>
+        <div class="cline"><span class="no">17</span><span class="pfx"></span>  API_KEY = <span class="tk a">"sk-…"</span></div>
+        <div class="cline"><span class="no">18</span><span class="pfx"></span>[model.entries.private-v3] <span class="cmt"># 同一个模型 ID，另一个端点</span></div>
+        <div class="cline"><span class="no">19</span><span class="pfx"></span>  NAME = <span class="tk a">"私有云-v3"</span> <span class="cmt"># 别名在这里是必须的：ID 与上面重名</span></div>
+        <div class="cline"><span class="no">20</span><span class="pfx"></span>  ID = <span class="tk a">"deepseek-v3-671b"</span></div>
+        <div class="cline"><span class="no">21</span><span class="pfx"></span>  BASE_URL = <span class="tk a">"https://llm.private.internal/v1"</span></div>
+        <div class="cline"><span class="no">22</span><span class="pfx"></span>  API_KEY = <span class="tk a">""</span> <span class="cmt"># 未配置 → 这条现在用不了</span></div>
+        <div class="cline"><span class="no">23</span><span class="pfx"></span>[model.entries.local-7b]</div>
+        <div class="cline"><span class="no">24</span><span class="pfx"></span>  PROVIDER = <span class="tk a">"ollama"</span> <span class="cmt"># 本机服务，不需要 API Key</span></div>
+        <div class="cline"><span class="no">25</span><span class="pfx"></span>  BASE_URL = <span class="tk a">"http://127.0.0.1:8000/v1"</span></div>
+        <div class="cline"><span class="no">26</span><span class="pfx"></span><span class="cmt"># 换端点与换模型是两件事：同一个 ID 在两个端点上跑，比的是价格与延迟</span></div>
         <div class="cline"><span class="no">27</span><span class="pfx"></span></div>
         <div class="cline add hl"><span class="no">28</span><span class="pfx add">+</span>[subagent]</div>
         <div class="cline add hl"><span class="no">29</span><span class="pfx add">+</span>INHERIT = <span class="tk a">true</span> <span class="cmt"># 新起的子 Agent 继承主模型</span></div>
-        <div class="cline add hl"><span class="no">30</span><span class="pfx add">+</span>MODEL_OVERRIDE = <span class="tk a">"devkit-gateway/qwen2.5-coder-32b"</span></div>
+        <div class="cline add hl"><span class="no">30</span><span class="pfx add">+</span>MODEL_OVERRIDE = <span class="tk a">"qwen2.5-coder-32b"</span></div>
         <div class="cline"><span class="no">31</span><span class="pfx"></span><span class="cmt"># 运行中的子 Agent 不换模型：中途切换会让它已产出的</span></div>
         <div class="cline"><span class="no">32</span><span class="pfx"></span><span class="cmt"># 推理链与新模型不自洽</span></div>
         <div class="cline"><span class="no">33</span><span class="pfx"></span></div>
@@ -2762,7 +2764,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
     <span><b>Esc</b> 返回启动页</span>
   </div>
   <div class="metrics">
-    <span class="mt mt-model" id="mtModel">模型 <span class="mt-prov">devkit-gateway/</span><b>pangu2.5-72b-instruct</b></span>
+    <span class="mt mt-model" id="mtModel">模型 <b>pangu2.5-72b-instruct</b></span>
     <span class="mt" id="mtCtx">ctx <span class="ctxb"><i style="width:38%"></i></span> <b>38%</b></span>
     <span class="mt" id="mtTok">tokens <b>1.24M</b></span>
   </div>
@@ -2807,9 +2809,9 @@ const SCENARIOS={
        {t:'并行执行 + 工具并发',d:'峰值 3 并发 · profiler 类串行',s:'doing'},{t:'合并与收口',d:'2/3 已合入主干',s:'doing'}],
      sugg:['看 sub-3 轨迹','停掉并回收','导出 token 账单']},
     {key:'model-token',label:'模型与 Token',status:'done',file:'devkitai.toml',code:true,
-     goal:'查看当前供应商的额度、上下文水位与按来源拆分的 token；并用 /model · /tokens 就地改配置（含子 Agent 的继承/覆盖策略）',
-     plan:[{t:'读当前供应商的额度与水位',d:'devkit-gateway · 5h 38% · 7d 72% · ctx 38%',s:'done'},{t:'按来源拆 token',d:'主 Agent 36.3% · 子 Agent 63.7%',s:'done'},
-       {t:'列候选并切模型',d:'devkit-gateway/qwen2.5-coder-32b',s:'done'},{t:'改告警线 / 越界被拒',d:'70% → 85% · 120 超范围没改',s:'done'}],
+     goal:'查看当前端点的额度、上下文水位与按来源拆分的 token；并用 /model · /tokens 就地改配置（含子 Agent 的继承/覆盖策略）',
+     plan:[{t:'读当前端点的额度与水位',d:'devkit-gateway.internal · 5h 38% · 7d 72% · ctx 38%',s:'done'},{t:'按来源拆 token',d:'主 Agent 36.3% · 子 Agent 63.7%',s:'done'},
+       {t:'列候选并切模型',d:'qwen2.5-coder-32b',s:'done'},{t:'改告警线 / 越界被拒',d:'70% → 85% · 120 超范围没改',s:'done'}],
      sugg:['试 /tokens 60','看命令清单','切回 72b']},
     {key:'subagent-tree',label:'多级子 Agent 嵌套',status:'doing',file:'RiskScore',code:true,
      goal:'分层编排：主 Agent 拆 2 个一级，一级再拆二级；深度上限 4 层，触顶收住回退基线；槽位逐级继承不另开池',
@@ -2862,7 +2864,7 @@ let curAgent='migrate';
 
 /* ══ 底栏常驻计量（模型 / 上下文水位 / token）══
    token 与水位按场景给值——"现在烧了多少"本来就随场景变，写死一个数会在切场景时露馅；
-   模型不随场景变，它是会话级设置，切一次就一直生效，所以单独存在 curModel 里。 */
+   模型不随场景变，它是会话级设置，切一次就一直生效，所以单独存在别名（curModel）里。 */
 const METRICS={
   'migrate:src-migrate':{tok:'212k',ctx:18},
   'migrate:e2e-migrate':{tok:'486k',ctx:31},
@@ -2883,10 +2885,11 @@ const METRICS={
   'tune:redis-tune':{tok:'884k',ctx:41}
 };
 let curModel='pangu2.5-72b-instruct';
-/* 当前模型属于哪个供应商。它是 curModel 的派生值，和 curModel 一起在这里声明、
+/* 当前端点（Base URL 的主机名）。它是 curModel 的派生值，和 curModel 一起在这里声明、
    由 setModel() 一处写：renderMetrics 是脚本执行早期就会跑的函数，那时候选列表还没扫完，
-   直接在里面查 MODELS 会撞上 TDZ（实测报错 "Cannot access 'MODELS' before initialization"）。 */
-let curProv='devkit-gateway';
+   直接在里面查 MODELS 会撞上 TDZ（实测报错 "Cannot access 'MODELS' before initialization"）。
+   —— 这一格以前叫"供应商"，新 PRD 把 Provider 定成**协议**之后，"谁家的账号"由端点承担。 */
+let curEp='devkit-gateway.internal';
 /* token / 上下文水位告警线（P20）。默认 70%，可由输入框的 /tokens 命令改——
    这是"在对话里就能调"的示范：阈值本来就是会随人的风险偏好变的设置，
    藏进配置文件等于默认它永远不变。 */
@@ -3223,7 +3226,7 @@ const SLASH_COMMANDS=[
   {cmd:'/help',desc:'显示帮助信息'},
   {cmd:'/quit',desc:'退出程序（同 /exit）'},
   {cmd:'/config',desc:'查看 / 修改配置信息'},
-  {cmd:'/model',desc:'切换会话模型，例如 /model devkit-gateway/qwen2.5-coder-32b',picker:true},
+  {cmd:'/model',desc:'切换会话模型（用别名），不带参数打开配置页，例如 /model qwen2.5-coder-32b',picker:true},
   {cmd:'/tokens',desc:'查看 / 修改 token 告警线，例如 /tokens 85'},
   {cmd:'/skills',desc:'管理 Agent 已启用的技能'},
   {cmd:'/session',desc:'会话管理 · list / delete',picker:true},
@@ -3278,7 +3281,7 @@ function paintSlashMenu(){
       ).join('')
     : smMode==='model'
     ? smMatches.map((m,i)=>
-        `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="stq ${m.ref===curProv+'/'+curModel?'done':'todo'}" role="img" aria-label="${m.ref===curProv+'/'+curModel?'当前模型':'未选中'}"></span><span class="cmd">${m.name}</span><span class="src">${m.prov}</span><span class="desc">${m.desc}${(m.ref===curProv+'/'+curModel?' · 当前':'')}${m.usable?'':' · 需密钥'}</span></div>`
+        `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="stq ${m.key===mmActiveKey?'done':'todo'}" role="img" aria-label="${m.key===mmActiveKey?'当前模型':'未选中'}"></span><span class="cmd">${m.name}</span><span class="src">${m.ep}</span><span class="desc">${m.desc}${(m.key===mmActiveKey?' · 当前':'')}${m.usable?'':' · 需密钥'}</span></div>`
       ).join('')
     : smMatches.map((c,i)=>
         `<div class="sm-item ${i===smSel?'sel':''}" data-i="${i}"><span class="cmd">${c.cmd}</span><span class="desc">${c.desc}</span></div>`
@@ -3300,16 +3303,23 @@ function renderSlashMenu(){
   if(mq!==null){
     smMode='model';
     const q=mq.trim().toLowerCase();
-    /* 联想同时认「模型名」和「供应商/模型」：打 devkit- 就是在按供应商筛，
-       打 qwen 就是在按模型名筛——两种输入都是用户会打的，不该只支持一种。 */
-    smMatches=q?MODELS.filter(m=>m.name.toLowerCase().includes(q)||m.ref.toLowerCase().includes(q)):MODELS;
+    /* 联想同时认「别名」「模型 ID」和「端点」：打 127.0 是在按端点筛（本机那几个），
+       打 qwen 是在按模型名筛，打 私有云 是在按别名筛——三种输入都是用户会打的。
+       —— 端点能当筛选词，是因为它由 Base URL 推出来，用户本来就认得这个主机名。 */
+    smMatches=q?MODELS.filter(m=>m.name.toLowerCase().includes(q)||(m.modelId||'').toLowerCase().includes(q)||(m.ep||'').toLowerCase().includes(q)):MODELS;
     if(!smMatches.length){
       slashMenu.innerHTML='<div class="sm-empty">没有匹配的模型</div>';
       slashMenu.classList.add('show');
       smSel=-1;
       return;
     }
-    smSel=Math.max(0,smMatches.findIndex(m=>m.ref===curProv+'/'+curModel));
+    /* 高亮谁：空查询（刚敲完 `/model `）= 高亮当前那条，方便对照着换；
+       打了字之后——命中 1 条就高亮它（无歧义），命中多条**谁也不高亮**。
+       后者是本节最重要的一处纪律：打了一个同时说得通两条的名字（既是 A 的别名、
+       又是 B 的模型 ID）时，产品不替用户挑一条——高亮哪条都等于替他做了"走哪个账号"的决定。
+       用户可以 ↑↓ 自己选，也可以直接回车，那时会给出"没有改 + 列出候选"的回执。
+       候选列表与命令路径不打架：**菜单负责让人选，命令负责说清为什么选不了**。 */
+    smSel=q?(smMatches.length>1?-1:0):Math.max(0,smMatches.findIndex(m=>m.key===mmActiveKey));
     paintSlashMenu();
     slashMenu.classList.add('show');
     return;
@@ -3358,17 +3368,19 @@ function applySlash(i){
     const prev=curModel;
     /* 联想里点到"需密钥"的那家，不切换、给理由——静默失败会让人以为点了没反应 */
     if(!m.usable){
-      appendCmdEcho('/model '+m.ref,{ok:false,msg:'<b>'+m.prov+'</b> 还没配密钥，这个模型现在选不了。补上 <b>API_KEY</b> 之后它就能用；眼下可以先选 <b>devkit-gateway/'+m.name+'</b>'});
+      const alt=MODELS.find(x=>x.usable&&x.modelId===m.modelId);
+      appendCmdEcho('/model '+m.name,{ok:false,msg:'<b>'+m.ep+'</b> 还没配密钥，这个模型现在选不了。补上 <b>API_KEY</b> 之后它就能用'+
+        (alt?'；眼下可以先选 <b>'+alt.name+'</b>':'')});
       biInput.value='';
       closeSlashMenu();
       biInput.focus();
       return;
     }
-    setModel(m.ref);
+    setModel(m);
     /* 从候选里选和敲完整命令是同一个动作的两个入口，所以也要留回执：
        入口可以有两个，痕迹只能有一份——不然"我什么时候换的模型"在两种操作下答案不一样。
        （浮层里点一行不算：那是同一屏"看现状"那一段的就地操作，浮层自己已经给了反馈。） */
-    appendCmdEcho('/model '+m.ref,{ok:true,msg:'已切到 <b class="hl-code">'+m.ref+'</b>'+
+    appendCmdEcho('/model '+m.name,{ok:true,msg:'已切到 <b class="hl-code">'+m.name+'</b>'+
       (m.name===prev?' —— 本来就是它，没有变化':'')+'。<b>新起的子 Agent 继承这个模型</b>；正在跑的保持原模型跑完。改动已写入 <b class="hl-file">.devkitai/config.toml</b>。'});
     biInput.value='';
     closeSlashMenu();
@@ -3400,7 +3412,17 @@ biInput.addEventListener('keydown',e=>{
   if(slashMenu.classList.contains('show')){
     if(e.key==='ArrowDown'){ e.preventDefault(); if(smMatches.length){smSel=(smSel+1)%smMatches.length;paintSlashMenu();} }
     else if(e.key==='ArrowUp'){ e.preventDefault(); if(smMatches.length){smSel=(smSel-1+smMatches.length)%smMatches.length;paintSlashMenu();} }
-    else if(e.key==='Tab'||e.key==='Enter'){ if(smMatches.length){e.preventDefault();applySlash(smSel);} }
+    else if(e.key==='Tab'||e.key==='Enter'){
+      /* 有高亮才替用户确认。**没高亮（smSel<0）时不猜**——那正是"打的名字同时说得通两条"
+         的情况（见 renderSlashMenu 里 smSel 的算法）：这时 Enter 关掉菜单、改走命令路径，
+         由 runCommand 给出「没有改 + 列出候选」的回执。否则用户会以为只是敲了个名字，
+         实际上已经被挑走了一条、连计费端点一起换了。 */
+      if(smMatches.length&&smSel>=0){ e.preventDefault(); applySlash(smSel); }
+      else if(e.key==='Enter'){
+        e.preventDefault(); closeSlashMenu();
+        if(runCommand(biInput.value)) biInput.value='';
+      }
+    }
     else if(e.key==='Escape'){ e.preventDefault(); closeSlashMenu(); }
     return;
   }
@@ -3435,38 +3457,37 @@ rToggle.addEventListener('click',()=>{
 });
 
 /* ══ 模型配置（管理页的数据源与全部行为）══
-   这一块是新 PRD（模型管理与配置）的落地。它和上面那套「供应商 → 模型」浮层的关系必须说清：
+   这一块是新 PRD（模型管理与配置）的落地。它和上面那套「端点 → 模型」浮层的关系必须说清：
      · 浮层 + 上面的 /model 命令 = 会话里的**就地切换**（快，只选不配）
      · 本页 = **管理配置**（慢，增删改 + 测通 + 设激活）
    两者写的是同一份配置，所以只有一处写入口：任何一条路最终都落到 mmActiveKey。
    PRD 里的 Provider 只有两个取值（OpenAI Compatible / Ollama），它是**协议**；
-   端点由 Base URL 承担、账号由 API Key 承担。旧的"供应商"（devkit-gateway /
-   kunpeng-local / private-cloud）在这个模型里等于**端点分组**，存在 ep 字段里，
-   只用来给额度面板（PROVIDER_QUOTA）分组，不再是用户要填的一项。
-   —— 这条是唯一一处"旧结构没有被新 PRD 覆盖干净"的地方，已在 CHANGELOG 记为待裁决。 */
+   "从哪个账号扣额度、key 配没配、端点通不通"由**端点**（Base URL + API Key）承担。
+   —— 所以这里没有第三层"供应商"：分组头就是端点主机名，而它由 Base URL 推出来
+   （见 mmEndpoint），用户不需要额外填一遍"你连的是谁"。这是本轮按"PRD 优先"收敛的结果，
+   原「供应商」中间层已退休（命令里的 `供应商/` 前缀、分组名、额度分组键一起改）。 */
 
-/* 存量配置。key 是内部标识，不随模型 ID 走：模型 ID 会重名（devkit-gateway 与
-   private-cloud 下都有 deepseek-v3-671b / qwen2.5-coder-32b，这是这个项目里真实存在的
-   情况，也是"别名"这个字段存在的理由），列表、激活、删除都得按 key 定位。
+/* 存量配置。key 是内部标识，不随模型 ID 走：模型 ID 会重名（两个端点上都有
+   deepseek-v3-671b / qwen2.5-coder-32b，这是这个项目里真实存在的情况，
+   也是"别名"这个字段存在的理由），列表、激活、删除都得按 key 定位。
    别名默认等于模型 ID（PRD 规定自动带过来），只有重名的那两条给了区分用的别名——
    别名不是装饰，它就是用来解决"两个同名模型在界面上分不出来"的。 */
 let mmSeq=0;
 const mmStore=[
   {key:'m1',id:'pangu2.5-72b-instruct',name:'pangu2.5-72b-instruct',prov:'openai-compat',
-   url:'https://devkit-gateway.internal/v1',keyv:'sk-devkit-gw-2f9c41ab',think:true,ctx:128000,max:50000,ep:'devkit-gateway'},
+   url:'https://devkit-gateway.internal/v1',keyv:'sk-devkit-gw-2f9c41ab',think:true,ctx:128000,max:50000},
   {key:'m2',id:'deepseek-v3-671b',name:'deepseek-v3-671b',prov:'openai-compat',
-   url:'https://devkit-gateway.internal/v1',keyv:'sk-devkit-gw-77b03e5d',think:true,ctx:128000,max:50000,ep:'devkit-gateway'},
+   url:'https://devkit-gateway.internal/v1',keyv:'sk-devkit-gw-77b03e5d',think:true,ctx:128000,max:50000},
   {key:'m3',id:'qwen2.5-coder-32b',name:'qwen2.5-coder-32b',prov:'openai-compat',
-   url:'https://devkit-gateway.internal/v1',keyv:'sk-devkit-gw-5a1d9f02',think:false,ctx:128000,max:50000,ep:'devkit-gateway'},
+   url:'https://devkit-gateway.internal/v1',keyv:'sk-devkit-gw-5a1d9f02',think:false,ctx:128000,max:50000},
   /* 本机 Ollama：不需要 API Key，所以密文那一栏在这条上是空的、也不是必填 */
   {key:'m4',id:'pangu2.5-7b-instruct',name:'pangu2.5-7b-instruct',prov:'ollama',
-   url:'http://127.0.0.1:8000/v1',keyv:'',think:false,ctx:32000,max:8000,ep:'kunpeng-local'},
-  /* 客户私有云：密钥还没配，所以这一条现在用不了——"用不了"由 Base URL + 缺 Key 解释，
-     不再由"供应商"解释 */
+   url:'http://127.0.0.1:8000/v1',keyv:'',think:false,ctx:32000,max:8000},
+  /* 客户私有云：密钥还没配，所以这一条现在用不了——"用不了"由 Base URL + 缺 Key 解释 */
   {key:'m5',id:'deepseek-v3-671b',name:'私有云-v3',prov:'openai-compat',
-   url:'https://llm.private.internal/v1',keyv:'',think:true,ctx:128000,max:50000,ep:'private-cloud'},
+   url:'https://llm.private.internal/v1',keyv:'',think:true,ctx:128000,max:50000},
   {key:'m6',id:'qwen2.5-coder-32b',name:'私有云-coder',prov:'openai-compat',
-   url:'https://llm.private.internal/v1',keyv:'',think:true,ctx:128000,max:50000,ep:'private-cloud'}
+   url:'https://llm.private.internal/v1',keyv:'',think:true,ctx:128000,max:50000}
 ];
 let mmActiveKey='m1';      // 激活模型：全产品唯一的事实源
 let mmSelKey=null;         // 右侧表单当前**加载**的（与激活相互独立，PRD 写死）
@@ -3482,10 +3503,12 @@ let mmLegacyReady=false;   // 候选浮层（MODELS）就绪后由 setModel 一�
 
 function mmActiveEntry(){ return mmStore.find(e=>e.key===mmActiveKey)||null; }
 function mmByKey(k){ return mmStore.find(e=>e.key===k)||null; }
-/* 端点：存量配置读 ep，新建的从 Base URL 的 host 推——不额外让用户填第三遍"你连的是谁" */
+/* 端点：从 Base URL 的 host 推，不额外让用户填第三遍"你连的是谁"。
+   Base URL 是 PRD 里唯一描述"连到哪"的字段，端点只是它的一个读法——
+   额度、密钥、可用性都挂在这一层，所以它必须能从一个地方算出来（这里），
+   不允许第二处硬编码。 */
 function mmEndpoint(e){
   if(!e) return '—';
-  if(e.ep) return e.ep;
   const h=(e.url||'').replace(/^https?:\/\//,'').split('/')[0];
   return h||'未填写端点';
 }
@@ -3694,13 +3717,13 @@ function mmActivate(){
    同一个设置不能有两处各写各的，否则"浮层标了 A、底栏显示 B"迟早出现。
    浮层里没有对应行（例如用户新建的模型）就只清掉标记，不造假行 */
 function mmLinkLegacy(e){
-  curModel=e.id;
-  curProv=e.ep||mmEndpoint(e);
+  curModel=e.name;                       // 界面上、命令里认的都是**别名**（PRD 规定）
+  curEp=mmEndpoint(e);
   /* 候选浮层那份标在脚本后面才解析出来（MODELS 是 const，早读会撞 TDZ），
      所以用这个闸门明说"还没就绪"，而不是靠 typeof 去探一个 const */
   if(!mmLegacyReady) return;
   MODELS.forEach(m=>{
-    const on=m.name===e.id&&(!e.ep||m.prov===e.ep);
+    const on=m.key===e.key;
     m.el.classList.toggle('cur',on);
     if(m.tag){ m.tag.classList.toggle('cur',on); m.tag.textContent=on?'current':m.tag.dataset.orig; }
   });
@@ -3865,7 +3888,7 @@ function mmCloseModelPage(){
 }
 function mmStartNew(){
   mmSelKey=null;
-  mmDraft=Object.assign({},MM_NEW,{id:'',name:'',url:'',keyv:'',ep:''});
+  mmDraft=Object.assign({},MM_NEW,{id:'',name:'',url:'',keyv:''});
   mmDirty=true; mmAliasAuto=true;
   mmFillForm();
   mmSetStat('dirty','未保存');
@@ -3945,79 +3968,93 @@ function mmNoModelScene(agentKey,scenarioKey){
    同一个设置只能有一处写入口，否则"点了列表但底栏没变"这种不一致迟早会出现。
    演示的是"改完马上生效"，不是一张静态截图。切换只改标记与底栏，
    不打断任何正在跑的任务——运行中的子 Agent 保持原模型跑完（见场景内的说明）。 */
-/* ══ 供应商（provider）══
-   模型不再是一个平铺列表，而是「供应商 → 它的模型」两层，原因有三条，都不是装饰：
-   1) 模型名会在供应商之间重名（pangu2.5-* 在 devkit-gateway 与 kunpeng-local 都有），
-      只给模型名时 /model 命令是有歧义的，必须能写 devkit-gateway/qwen2.5-coder-32b 来消歧；
-   2) key 配没配、端点通不通、额度还剩多少，是**供应商账号**的属性，不是模型的属性；
-   3) 换供应商和换模型是两件事：同一个模型换个供应商跑（比价格、比延迟）是个真实诉求。
+/* ══ 端点（Base URL）══
+   模型不是平铺列表，而是「端点 → 它的模型」两层。**注意这里没有"供应商"这一层**：
+   新 PRD 把 Provider 定成**协议**（OpenAI Compatible / Ollama，二选一），
+   而"从哪个账号扣额度、key 配没配、端点通不通"是**端点**（Base URL + API Key）的属性。
+   于是分组头改成端点主机名，用户不需要额外填第三遍"你连的是谁"——
+   它由 Base URL 推出来（见 mmEndpoint）。分组本身仍然值得留：
+   1) 同一个模型 ID 会在不同端点上出现（两个 deepseek-v3-671b），
+      而**消歧靠别名**——别名这个字段存在的理由就在这里，不再靠"供应商/"前缀；
+   2) key 配没配、额度还剩多少，是端点账号的属性，不是模型的属性；
+   3) 换端点与换模型是两件事：同一个模型换个端点跑（比价格、比延迟）是个真实诉求。
    组头直接从 HTML 读（名称 / 说明 / 状态字 / 状态方块），不在 JS 里再抄一份——
    否则改了标记忘了改数据，候选菜单和命令回执就会各说一套。 */
-const PROVIDERS=[...document.querySelectorAll('#modelPop .mp-pool')].map(pool=>({
-  id:pool.dataset.prov,
+const ENDPOINTS=[...document.querySelectorAll('#modelPop .mp-pool')].map(pool=>({
+  id:pool.dataset.ep,
   el:pool,
   head:pool.querySelector('.mp-prov'),
   models:[],
-  /* 状态字来自组头（「已鉴权 · 共享额度池」这类），off 表示这个供应商现在用不了 */
+  /* 状态字来自组头（「已鉴权 · 共享额度池」这类），off 表示这个端点现在用不了 */
   status:pool.querySelector('.mp-prov .ps').textContent.trim(),
   usable:!pool.querySelector('.mp-prov .ps').classList.contains('off')
 }));
-PROVIDERS.forEach(p=>{ p.head.dataset.prov=p.id; });
+ENDPOINTS.forEach(p=>{ p.head.dataset.ep=p.id; });
 
 const MODELS=[...document.querySelectorAll('#modelPop .model-row')].map(row=>{
   const pool=row.closest('.mp-pool');
-  const prov=PROVIDERS.find(p=>p.el===pool);
+  const ep=ENDPOINTS.find(p=>p.el===pool);
+  const ent=mmByKey(row.dataset.key);
   const m={
-    el:row, prov:prov?prov.id:'',
-    name:row.dataset.model,
-    /* 命令与回执里用的全名：供应商/模型。重名时靠它区分，不重名时它是"完整说法" */
-    ref:(prov?prov.id+'/':'')+row.dataset.model,
+    el:row, key:row.dataset.key||'', ep:ep?ep.id:'',
+    /* 界面上一律显示**别名**（PRD 规定），命令也用它选模型；
+       模型 ID 留在 ent.id 里，只在"这个别名对应哪个真实模型"时才出现 */
+    name:(row.querySelector('.mp-nm')||{}).textContent||'',
+    modelId:ent?ent.id:'',
     desc:(row.querySelector('.mp-desc')||{}).textContent||'',
     usable:!row.classList.contains('off'),
     tag:row.querySelector('.mp-tag')
   };
-  if(prov) prov.models.push(m);
+  if(ep) ep.models.push(m);
   return m;
 });
 MODELS.forEach(m=>{ if(m.tag) m.tag.dataset.orig=m.tag.textContent; });
-const PROVIDER_OF=ref=>MODELS.find(m=>m.ref===ref)||MODELS.find(m=>m.name===ref);
-/* 浮层这一份数据到这儿才算就绪；此前 mmLinkLegacy 只能先记下 curModel/curProv */
+/* 命令里怎么指一个模型：先按**别名或模型 ID**做精确匹配，再退化到前缀匹配。
+   关键在于精确命中可能**不止一条**——用户写的 `deepseek-v3-671b` 既是 A 的别名、
+   又是 B 的模型 ID，这时**不猜**，把候选连端点一起交回给调用方。
+   这正是"别名"这个字段存在的理由：给重名的那条起个不同的展示名，命令就能唯一指到它。 */
+const MODELS_OF=sel=>{
+  const exact=MODELS.filter(m=>m.name===sel||m.modelId===sel);
+  if(exact.length) return exact;
+  return MODELS.filter(m=>m.name.startsWith(sel)||(m.modelId||'').startsWith(sel));
+};
+/* 浮层这一份数据到这儿才算就绪；此前 mmLinkLegacy 只能先记下 curModel/curEp */
 mmLegacyReady=true;
-/* 浮层的每一行都对应管理页里的一条配置（ep + 模型 ID 一一对应），
-   两边靠这个找到对方。找不到 = 浮层里这一行不是从配置来的，那就别硬造 */
-const mmEntryOfModel=m=>mmStore.find(e=>e.id===m.name&&e.ep===m.prov)||null;
+/* 浮层的每一行都对应管理页里的一条配置（key 一一对应），两边靠它找到对方。
+   找不到 = 浮层里这一行不是从配置来的，那就别硬造 */
+const mmEntryOfModel=m=>(m&&m.key?mmByKey(m.key):null)||null;
 
-/* 每个供应商自己的额度。额度是账号的属性，所以切供应商就换一套数字——
-   而 kunpeng-local 这种本机推理根本没有"额度重置时间"，它给的是显存与排队情况。
+/* 每个端点的额度。额度是账号（Base URL + API Key）的属性，所以换端点就换一套数字——
+   而 127.0.0.1:8000 这种本机推理根本没有"额度重置时间"，它给的是显存与排队情况。
    rows 为空 = 读不到额度（例如密钥没配），这时不画空条，直接说为什么。 */
-const PROVIDER_QUOTA={
-  'devkit-gateway':[
+const EP_QUOTA={
+  'devkit-gateway.internal':[
     {k:'5h',pct:38,note:'充裕 · reset 14:00'},
     {k:'7d',pct:72,note:'偏高 · reset 周一 09:00'}
   ],
-  'kunpeng-local':[
+  '127.0.0.1:8000':[
     {k:'GPU',pct:37,note:'已用 · 本机独占，不占共享池'},
     {k:'队列',pct:0,note:'0 排队 · 提交即跑'}
   ],
-  'private-cloud':[]
+  'llm.private.internal':[]
 };
 
 function renderQuota(){
   const box=document.getElementById('quotaBody');
   const cm=document.getElementById('quotaProv');
   if(!box) return;
-  if(cm) cm.textContent=curProv+' 账号 · 本会话';
+  if(cm) cm.textContent=curEp+' 账号 · 本会话';
   /* 额度只有内置网关这类"账号式"端点才回报。用户自己填的 Base URL 读不到额度，
      这不是配置错误，所以不套用下面"没配密钥"那句——两件事说成一句会误导人 */
-  if(!(curProv in PROVIDER_QUOTA)){
+  if(!(curEp in EP_QUOTA)){
     box.innerHTML='<div class="chk wrap"><span class="ic" role="img" aria-label="无额度信息" title="无额度信息"></span>'+
-      '<span class="lb">无额度信息</span><span class="v"><b>'+curProv+'</b> 不回传额度与重置时间</span></div>';
+      '<span class="lb">无额度信息</span><span class="v"><b>'+curEp+'</b> 不回传额度与重置时间</span></div>';
     return;
   }
-  const rows=PROVIDER_QUOTA[curProv]||[];
+  const rows=EP_QUOTA[curEp]||[];
   if(!rows.length){
     box.innerHTML='<div class="chk wrap"><span class="ic warn" role="img" aria-label="读不到额度" title="读不到额度"></span>'+
-      '<span class="lb">额度读不到</span><span class="v">'+curProv+' 没有配置密钥，切换过去之前先补 <b>API_KEY</b></span></div>';
+      '<span class="lb">额度读不到</span><span class="v">'+curEp+' 没有配置密钥，切换过去之前先补 <b>API_KEY</b></span></div>';
     return;
   }
   box.innerHTML=rows.map(r=>{
@@ -4028,8 +4065,10 @@ function renderQuota(){
   }).join('');
 }
 
-function setModel(ref){
-  const hit=PROVIDER_OF(ref);
+/* 切换。sel 可以是**别名**（首选）或模型 ID；给到的多个结果由调用方先收敛。
+   这里只认一个已经收敛好的 model 对象或它的别名 */
+function setModel(sel){
+  const hit=(typeof sel==='object'&&sel)?sel:(MODELS_OF(sel)[0]||null);
   if(!hit) return false;
   MODELS.forEach(m=>{
     const on=m===hit;
@@ -4037,15 +4076,15 @@ function setModel(ref){
     if(m.tag){ m.tag.classList.toggle('cur',on); m.tag.textContent=on?'current':m.tag.dataset.orig; }
   });
   curModel=hit.name;
-  curProv=hit.prov||'—';
+  curEp=hit.ep||'—';
   /* 就地切换也要落到同一份配置上：管理页里的激活方块、底栏、提示行读的都是
      mmActiveKey，这里不写它就会变成"浮层标了 A，底栏显示的是 B" */
   const ent=mmEntryOfModel(hit);
   if(ent){ mmActiveKey=ent.key; renderModelList(); }
-  /* 切完把目标供应商那组展开、其余收起：候选菜单一次只摊开一组，
+  /* 切完把目标端点那组展开、其余收起：候选菜单一次只摊开一组，
      要看别家的时候再点开——满屏模型的列表比分组更难找。 */
-  PROVIDERS.forEach(p=>{
-    const open=p.id===curProv;
+  ENDPOINTS.forEach(p=>{
+    const open=p.id===curEp;
     p.el.classList.toggle('fold',!open);
     p.el.classList.toggle('open',open);
     p.head.setAttribute('aria-expanded',String(open));
@@ -4055,12 +4094,15 @@ function setModel(ref){
   renderQuota();
   return true;
 }
-/* 点模型行 = 切换；点组头 = 收起/展开；用不了的供应商给一句为什么，不静默失败 */
+/* 点模型行 = 切换；点组头 = 收起/展开；用不了的行给一句为什么，不静默失败。
+   提示里给出的是**同端点或同名可用项**的建议，不再有"供应商/模型"这种写法 */
 MODELS.forEach(m=>m.el.addEventListener('click',()=>{
-  if(m.usable){ setModel(m.ref); return; }
-  appendCmdEcho('/model '+m.ref,{ok:false,msg:'<b>'+m.prov+'</b> 还没配密钥，这个模型现在选不了。补上 <b>API_KEY</b> 之后它就能用；眼下可以先选 <b>devkit-gateway/'+m.name+'</b>'});
+  if(m.usable){ setModel(m); return; }
+  const alt=MODELS.find(x=>x.usable&&x.modelId===m.modelId);
+  appendCmdEcho('/model '+m.name,{ok:false,msg:'<b>'+m.ep+'</b> 还没配密钥，这个模型现在选不了。补上 <b>API_KEY</b> 之后它就能用'+
+    (alt?'；眼下可以先选 <b>'+alt.name+'</b>':'')});
 }));
-PROVIDERS.forEach(p=>{
+ENDPOINTS.forEach(p=>{
   const toggle=()=>{
     const open=!p.el.classList.toggle('fold');
     p.el.classList.toggle('open',open);
@@ -4134,47 +4176,29 @@ function runCommand(text){
       return true;
     }
     const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
-    /* 写法一：供应商/模型（无歧义）。写法二：只给模型名——唯一命中就切，
-       命中多个就拒绝，并把「供应商/模型」两种完整写法摆出来。
-       重名这件事在这里必须显式处理：pangu2.5-* 在两个供应商下都有，
-       如果"猜一个"给用户，切到的可能不是他要的那个账号（计费也不同）。 */
-    const full=arg.match(/^([\w.-]+)\/(.+)$/);
-    let hit=null;
-    if(full){
-      const prov=PROVIDERS.find(p=>p.id===full[1]);
-      if(!prov){
-        appendCmdEcho(line,{ok:false,msg:'没有供应商 <b>'+esc(full[1])+'</b>。现在配了 '+PROVIDERS.map(p=>'<b>'+p.id+'</b>').join(' / ')+
-          '，敲 <b>/model</b> 看全部候选'});
-        return true;
-      }
-      hit=MODELS.find(x=>x.prov===prov.id&&x.name===full[2])||null;
-      if(!hit){
-        appendCmdEcho(line,{ok:false,msg:'<b>'+esc(prov.id)+'</b> 下没有 <b>'+esc(full[2])+'</b>。它有 '+
-          (prov.models.map(x=>x.name).join(' / ')||'（暂无模型）')});
-        return true;
-      }
-    }else{
-      const exact=MODELS.filter(x=>x.name===arg);
-      const prefix=MODELS.filter(x=>x.name.startsWith(arg));
-      const cand=exact.length?exact:prefix;
-      if(cand.length>1){
-        appendCmdEcho(line,{ok:false,msg:'<b>'+esc(arg)+'</b> 在多个供应商下都有，得写全：'+
-          cand.map(x=>'<b>'+x.ref+'</b>').join(' 或 ')});
-        return true;
-      }
-      hit=cand[0]||null;
+    /* 参数只有一种写法：**别名或模型 ID**。没有「供应商/模型」这种前缀了——
+       新 PRD 把 Provider 定成协议（OpenAI Compatible / Ollama），协议不是用来选模型的；
+       而"两个端点下有同一个模型 ID"这件事靠**别名**消歧，别名这个字段存在的理由就是它。
+       命中多个（模型 ID 重名）时不猜，把候选连同端点一起摆出来让人挑。 */
+    const cands=MODELS_OF(arg);
+    if(cands.length>1){
+      appendCmdEcho(line,{ok:false,msg:'<b>'+esc(arg)+'</b> 是模型 ID，在两个端点上都有，得用别名区分：'+
+        cands.map(x=>'<b>'+x.name+'</b>（'+x.ep+'）').join(' 或 ')});
+      return true;
     }
+    const hit=cands[0]||null;
     if(!hit){
-      appendCmdEcho(line,{ok:false,msg:'没有匹配 <b>'+esc(arg)+'</b> 的模型。敲 <b>/model</b> 出全部候选'});
+      appendCmdEcho(line,{ok:false,msg:'没有匹配 <b>'+esc(arg)+'</b> 的模型或别名。敲 <b>/model</b> 打开配置页看全部'});
       return true;
     }
     if(!hit.usable){
-      appendCmdEcho(line,{ok:false,msg:'<b>'+hit.prov+'</b> 还没配密钥，切不过去。补上 <b>API_KEY</b> 之后它就能用；'+
-        '眼下可以先选 <b>devkit-gateway/'+hit.name+'</b>'});
+      const alt=MODELS.find(x=>x.usable&&x.modelId===hit.modelId);
+      appendCmdEcho(line,{ok:false,msg:'<b>'+hit.ep+'</b> 还没配密钥，切不过去。补上 <b>API_KEY</b> 之后它就能用'+
+        (alt?'；眼下可以先选 <b>'+alt.name+'</b>':'')});
       return true;
     }
-    setModel(hit.ref);
-    appendCmdEcho(line,{ok:true,msg:'已切到 <b class="hl-code">'+hit.ref+'</b>'+
+    setModel(hit);
+    appendCmdEcho(line,{ok:true,msg:'已切到 <b class="hl-code">'+hit.name+'</b>'+
       (hit.name===prev?' —— 本来就是它，没有变化':'')+'。<b>新起的子 Agent 继承这个模型</b>；正在跑的保持原模型跑完。改动已写入 <b class="hl-file">.devkitai/config.toml</b>。'});
     return true;
   }
@@ -4216,11 +4240,11 @@ if(treeFold){
   treeFold.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
 }
 
-/* ══ 额度条按当前供应商渲染一次 ══
-   放在脚本最后，是因为它要读 PROVIDER_QUOTA / PROVIDERS 这两个 const；
+/* ══ 额度条按当前端点渲染一次 ══
+   放在脚本最后，是因为它要读 EP_QUOTA / ENDPOINTS / MODELS 这几个 const；
    写在前面会撞上 TDZ（脚本就此中断，后面的模型切换监听全都不会挂上）。
-   只在这里初始化、不塞进 selectScenario：额度是供应商的属性，不随场景变，
-   切供应商由 setModel() 负责重画。 */
+   只在这里初始化、不塞进 selectScenario：额度是端点的属性，不随场景变，
+   切端点由 setModel() 负责重画。 */
 renderQuota();
 
 /* ══ 启动：最后一次初始化 ══

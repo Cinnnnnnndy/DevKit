@@ -35,10 +35,9 @@ def fig(title: str, src: str, cls: str = "dense", strict: bool = False) -> str:
 
 
 # ── 字符图 ──────────────────────────────────────────────────────────────
-PROVIDER_FLOW = """⟦cm|Provider⟧ ─▸ ⟦cm|Base URL⟧ ─▸ ⟦cm|API Key⟧ ─▸ ⟦cm|获取模型⟧ ─▸ ⟦cm|选择模型⟧ ─▸ ⟦cm|测试连接⟧ ─▸ ⟦ok|✓ Ready⟧
-   ⟦cm|│⟧            ⟦cm|│⟧             ⟦cm|│⟧            ⟦cm|│⟧             ⟦cm|│⟧             ⟦cm|│⟧
-   ⟦cm|└ 预置清单⟧    ⟦cm|└ 格式示例⟧     ⟦cm|└ 掩码回显⟧   ⟦cm|└ 拉取失败即⟧    ⟦cm|└ 能力标注⟧     ⟦cm|└ 实测延迟⟧
-   ⟦cm|  可自定义⟧    ⟦cm|  缺 /v1 提示⟧  ⟦cm|  sk-**…**⟧   ⟦wn|  分类报错⟧     ⟦cm|  上下文长度⟧   ⟦cm|  218ms⟧
+PROVIDER_FLOW = """⟦cm|Provider⟧ ─▸ ⟦cm|Base URL⟧ ─▸ ⟦cm|API Key⟧ ─▸ ⟦cm|模型 ID⟧ ─▸ ⟦cm|别名⟧ ─▸ ⟦cm|测试连通性⟧ ─▸ ⟦ok|✓ Ready⟧
+   ⟦cm|│⟧           ⟦cm|│⟧          ⟦cm|│⟧          ⟦cm|│⟧         ⟦cm|│⟧          ⟦cm|│⟧
+⟦cm|二选一⟧      ⟦cm|格式示例⟧    ⟦cm|掩码回显⟧   ⟦cm|传给 API⟧   ⟦cm|消歧用⟧  ⟦cm|10s 超时⟧
 
 ⟦wn|每一步都可就地验证。⟧⟦cm|不允许「只能保存、不能测」——那等于把失败推迟到第一次真正用的时候。⟧"""
 
@@ -260,19 +259,20 @@ TEMPLATE = """<!DOCTYPE html>
 <table>
 <tr><th>命令</th><th>作用</th><th>命令</th><th>作用</th></tr>
 <tr><td class="mono">/help</td><td>命令帮助</td><td class="mono">/sessions</td><td>历史任务</td></tr>
-<tr><td class="mono">/skill</td><td>Skill 安装与卸载</td><td class="mono">/model</td><td>选择模型</td></tr>
-<tr><td class="mono">/view-skills</td><td>浏览 Skill 文件与源码</td><td class="mono">/provider</td><td>配置模型服务商</td></tr>
+<tr><td class="mono">/skill</td><td>Skill 安装与卸载</td><td class="mono">/model</td><td>打开模型管理页（PRD）</td></tr>
+<tr><td class="mono">/view-skills</td><td>浏览 Skill 文件与源码</td><td class="mono">/tokens</td><td>改用量告警线</td></tr>
 <tr><td class="mono">/info</td><td>完整能力说明</td><td class="mono">/connect-server</td><td>连接远程服务器</td></tr>
 </table>
 <p class="rule">自然语言是第一入口，<strong>命令是等价快捷方式而不是主路径</strong>。发现性靠 <kbd>Ctrl+P</kbd> 命令面板的模糊搜索，不靠视觉罗列——那是鼠标时代用密度换发现性的做法。</p>
-<div class="sublabel">5.3 模型与 Provider</div>
+<div class="sublabel">5.3 模型配置</div>
 <p class="desc">已出整屏字符帧：<a href="./screens.html#s5">管理配置页</a>——分类（服务器 / 账号 / 模型）→ 列表 → 详情，三类共用「必须能就地验证」这一条主线。</p>
+<p class="rule"><strong>本轮按「PRD 优先」收敛：</strong>《模型管理与配置功能页面需求》把 <strong>Provider 定为协议</strong>（OpenAI Compatible / Ollama 二选一），原「供应商」中间层退休——「连谁、从哪个账号扣额度」由 <strong>Base URL + API Key</strong>（端点）承担，命令与配置文件一律写<strong>别名</strong>，不再有 <code>供应商/模型</code> 前缀。现行规格见 <a href="./interaction-spec.html#spec-page">交互规格 §4F10</a>。</p>
 {provider}
 <table>
 <tr><th>输入项</th><th>要求</th></tr>
 <tr><td>Base URL</td><td>格式示例 + Placeholder；缺 <code>/v1</code>、协议头错误是最高频的两类错，要在报错里直接点名</td></tr>
 <tr><td>API Key</td><td>密码掩码 · 支持粘贴 · 加密存储 · 回显只留首尾 <code>sk-****...****</code></td></tr>
-<tr><td>主动验证</td><td>拉模型列表 / 测试连接 / 鉴权检查 / 网络检查 / Provider 可用性，<strong>五项都要能就地跑</strong></td></tr>
+<tr><td>主动验证</td><td>连通性测试（超时 10s）必须能就地跑，并给出<strong>成功或失败的具体原因</strong>；缺省态（未配置模型）另有顶栏提示 + 引导卡</td></tr>
 </table>
 <div class="sublabel">5.4 任务、Session 与上下文</div>
 <table>
@@ -369,7 +369,7 @@ TEMPLATE = """<!DOCTYPE html>
 <tr><td>Command Palette</td><td>命令发现</td><td>全局 Shell</td><td>Session</td><td>历史任务</td><td>通用</td></tr>
 <tr><td>Agent Status</td><td>Agent 状态四行</td><td>通用</td><td>File Tree</td><td>工作区文件（跟随）</td><td>通用</td></tr>
 <tr><td>Streaming Output</td><td>流式输出</td><td>通用</td><td>Model Selector</td><td>模型选择</td><td>页面局部</td></tr>
-<tr><td>Tool Call</td><td>Tool 执行展示</td><td>通用</td><td>Provider Config</td><td>Provider 配置</td><td>页面局部</td></tr>
+<tr><td>Tool Call</td><td>Tool 执行展示</td><td>通用</td><td>Model Config</td><td>模型配置</td><td>页面局部</td></tr>
 <tr><td>Skill Card</td><td>Skill 展示</td><td>通用</td><td>Loading</td><td>长耗时反馈</td><td>通用</td></tr>
 <tr><td><strong>Diff</strong></td><td><strong>hunk 级修改确认 ★</strong></td><td>通用</td><td>Error</td><td>错误诊断</td><td>通用</td></tr>
 <tr><td>Ask User</td><td>Agent 主动询问</td><td>通用</td><td>Summary</td><td>任务结果</td><td>通用</td></tr>
@@ -383,7 +383,7 @@ TEMPLATE = """<!DOCTYPE html>
 <tr><td><a href="./screens.html#s2">Agent Workspace</a></td><td>Agent 在干什么</td><td>Task Tabs · File Tree · Plan Card · Agent Status · Evidence</td></tr>
 <tr><td><a href="./screens.html#s3">执行中 · Tool + Diff</a></td><td>它有没有跑偏</td><td>Tool Call · Diff（hunk 级）· Confirm · Interrupt</td></tr>
 <tr><td><a href="./screens.html#s4">任务结果页</a></td><td>我得到了什么</td><td>Summary · Hotspot Table · Flame Chart · Source Hotspot · Artifact List</td></tr>
-<tr><td><a href="./screens.html#s5">管理配置</a></td><td>Agent 到底能不能工作</td><td>Settings Nav · Provider Config · Model Selector · Credential Field · Connection Test · Error</td></tr>
+<tr><td><a href="./screens.html#s5">管理配置</a></td><td>Agent 到底能不能工作</td><td>Settings Nav · Model Config · Model List · Credential Field · Connection Test · Error</td></tr>
 </table>
 <div class="note"><b>结果页对齐 DevKit Web 端「热点函数分析」。</b>Top 30 热点调用栈表（函数/调用栈 · 周期数占比 · 周期数 · 进程名 · 共享库/文件）、火焰图（用户态 / 内核态 / 其他）、源码级逐行百分比——<strong>字段名与分组方式沿用 Web 端，用户在两端之间不需要做术语翻译</strong>。只有两处按 TUI 规则改写：红色退出数据层（语义红只表示「出事了」），紫色搜索标记改为背景反显（16 色下色相不可靠）。</div>
 </section>

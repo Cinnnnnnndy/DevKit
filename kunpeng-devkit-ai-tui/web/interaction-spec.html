@@ -219,7 +219,7 @@ pre.frame .bar{color:var(--primary-hover)}
 <div class="eyebrow">Scope</div>
 <h1>并发编排 + 模型/Token 会话内配置</h1>
 <p class="desc">本文档回答两个问题：<strong>用户给的 18 行功能表单，现在做到了哪一步、落在哪个文件里</strong>；以及<strong>每条操作具体怎么走完</strong>——命令语法、边界、拒绝、回执、键盘与鼠标等价路径、降级、验收条件。它是设计交付的收口文档，不是新功能的提案。</p>
-<p class="desc">本轮追加一份新 PRD：<strong>《模型管理与配置功能页面需求》</strong>（<code>/model</code> 打开整页管理页 + 缺省引导 + 8 个配置字段 + 连通性测试）。它<strong>覆盖了原「供应商」中间层</strong>——详见 <a href="#spec-page">§4F</a>，逐条对照与两处待裁决都在那里，本文档 §4A 里受影响的条目已同步改写（每处都标了「本轮改动」）。</p>
+<p class="desc">本轮追加一份新 PRD：<strong>《模型管理与配置功能页面需求》</strong>（<code>/model</code> 打开整页管理页 + 缺省引导 + 8 个配置字段 + 连通性测试）。它<strong>替换了原「供应商」中间层</strong>——已按<strong>「PRD 优先」裁决</strong>收敛成「端点」这一层（见 <a href="#spec-page">§4F10</a>）：分组头就是端点主机名、命令不再有 <code>供应商/</code> 前缀、额度分组键随之下沉到端点。逐条对照在 <a href="#spec-page">§4F</a>，本文档 §4A / §4C 里受影响的条目已同步改写（每处都标了「本轮改动」）。</p>
 
 <div class="sublabel">对照基线 —— 功能表单原文（18 行）</div>
 <pre class="frame">【模型与 Token】            【工具调用并发】            【子 Agent 并发】        【多级子 Agent】
@@ -257,8 +257,8 @@ pre.frame .bar{color:var(--primary-hover)}
 <li><b>18 行里，凡是「设计」阶段的行全部完成</b>：三条轨道的草图 / UX / UI 都落成了 demo 场景 + 规范条目，每一部分都能回答「它对应哪个对话流基本单元」。<strong>真正新增的元件只有 3 个</strong>（受阻说明块 / 行内强调 / 调优曲线容器），其余 20 项都是既有元件的复用或受约束变体——比例见 <a href="#primitives">基元映射</a>。</li>
 <li><b>「接口设计」只做到一半，这是本轮最明确的一处未完成</b>：命令语法、配置字段、取值范围、拒绝文案、生效范围都已经定死（§4A / §4E），但没有正式的接口清单——事件名、payload 结构、错误码、并发上限如何下发，都还要在实现阶段补。这一行标「部分交付」而不是「已交付」，就是为了不把口径放水。</li>
 <li><b>模型与 token 的入口落在输入框，不落在右上角</b>：这一条是参照 opencode 与 Claude Code 做的决策——两家都在 prompt <em>下方</em>给常驻提示行，没有一家做右上角浮标。理由与降级阶梯见 §4A4。</li>
-<li><b>模型是「供应商 → 模型」两层，不是一张平铺列表</b>：端点、密钥、额度、计费主体都是<strong>供应商账号</strong>的属性，同名模型可以在多个供应商下存在（本轮 <code>deepseek-v3-671b</code> / <code>qwen2.5-coder-32b</code> 各有两个）。因此命令与配置一律写 <code>供应商/模型</code>，只给模型名时多义即拒绝、不猜选；供应商分组与「未配密钥可见不可选」的规格见 §4A5 / §4E1，这一条<strong>没有新增任何组件</strong>。<span class="st ask">与本轮新 PRD 冲突</span>——见下一条与待裁决 5。</li>
-<li><b>本轮追加新 PRD：《模型管理与配置功能页面需求》已全部落到 demo 与 <a href="#spec-page">§4F</a></b>：整页管理页（左列 + 8 字段 + 二次确认）、<code>/model</code> 回车打开、缺省引导（顶栏胶囊 / 居中引导卡 / 输入禁用）、连通性测试（10s 超时 + 四类结果）、激活与加载分离；新增登记的元件只有 <strong>5 类</strong>，开关 / 状态方块 / 空状态 / 下拉全部复用既有元件。同时改写了 <a href="#spec-model">§4A</a> 受影响的三条（<code>/model</code> 无参行为、提示行常驻、底栏显示别名），并在<a href="#gaps">待裁决</a>记下「供应商 vs Provider」两条轴并存的冲突（<strong>需人工裁决，未裁决前两套并存并如实标注</strong>）。</li>
+<li><b>模型是「端点 → 模型」两层，不是一张平铺列表</b>：端点、密钥、额度、计费主体都是<strong>端点账号</strong>（Base URL + API Key）的属性，同一个模型 ID 可以在多个端点上存在（本轮 <code>deepseek-v3-671b</code> / <code>qwen2.5-coder-32b</code> 各有两个）。因此<strong>命令与配置一律写别名</strong>——别名这个字段的存在理由就是消歧，而不是给模型起个好听的名字；只写模型 ID 而它在多端点上重名时拒绝、不猜选。端点分组与「未配密钥可见不可选」的规格见 §4A5 / §4E1，这一条<strong>没有新增任何组件</strong>。<span class="st ok">本轮已裁决</span>——原「供应商」层退休，见下一条与 §4F10。</li>
+<li><b>本轮追加新 PRD：《模型管理与配置功能页面需求》已全部落到 demo 与 <a href="#spec-page">§4F</a></b>：整页管理页（左列 + 8 字段 + 二次确认）、<code>/model</code> 回车打开、缺省引导（顶栏胶囊 / 居中引导卡 / 输入禁用）、连通性测试（10s 超时 + 四类结果）、激活与加载分离；新增登记的元件只有 <strong>5 类</strong>，开关 / 状态方块 / 空状态 / 下拉全部复用既有元件。同时改写了 <a href="#spec-model">§4A</a> 受影响的三条（<code>/model</code> 无参行为、提示行常驻、底栏显示别名），并按<strong>「PRD 优先」裁决</strong>把「供应商 vs Provider」两条轴的冲突收敛成一条：<strong>Provider = 协议（二选一），端点 = Base URL + API Key</strong>，原「供应商」中间层及其 <code>供应商/</code> 命令前缀、分组名、额度分组键一并退休（见 <a href="#spec-page">§4F10</a>）。</li>
 </ol>
 </section>
 
@@ -276,15 +276,15 @@ pre.frame .bar{color:var(--primary-hover)}
 <td><code>agent-workspace.html</code> · <code>develop:model-token</code>（现状 / 用量 + 就地改配置）</td>
 <td>Model Switcher · Quota Bar · Status Bar Metrics · Token 明细表</td>
 <td>一屏里两段：先回答「现在用了多少、还剩多少」，再回答「想换的话在哪换、换错了会怎样」——<strong>看与改同屏</strong>，因为用的是同一批数字、同一个输入框、同一个 <code>config.toml</code>。草图形态 = 流内卡片，不是浮层</td>
-<td>场景能在侧栏「开发 Agent」下直接选中；模型列表按<strong>供应商</strong>分三组（devkit-gateway 3 个 · kunpeng-local 1 个 · private-cloud 2 个可见不可选）；改配置的回执（1 条成功 + 4 种被拒）与现状数字出现在同一条流里</td>
+<td>场景能在侧栏「开发 Agent」下直接选中；模型列表按<strong>端点</strong>分三组（devkit-gateway.internal 3 个 · 127.0.0.1:8000 1 个 · llm.private.internal 2 个可见不可选）；改配置的回执（1 条成功 + 4 种被拒）与现状数字出现在同一条流里</td>
 <td class="nw"><span class="st ok">设计已交付</span></td>
 </tr>
 <tr>
 <td class="nw">2 model UX 设计</td>
-<td><code>index.html#convo</code> · Model Switcher（供应商分组）/ Quota Bars / Status Bar Metrics 卡与规则<br>本文档 §4A</td>
+<td><code>index.html#convo</code> · Model Switcher（端点分组）/ Quota Bars / Status Bar Metrics 卡与规则<br>本文档 §4A</td>
 <td>Command Hint Bar · Command Candidate Menu · Command Echo</td>
-<td>三个入口指向同一个写入口（<code>setModel()</code>）：流内候选行点选、输入框 <code>/model</code> 命令、<code>config.toml</code>。任一处改，另外两处立即是新值；模型一律用 <code>供应商/模型</code> 全名寻址</td>
-<td>从候选行点选与敲 <code>/model &lt;供应商&gt;/&lt;模型&gt;</code> 产生<strong>同一条回执</strong>；无「应用」按钮、无「同步」状态；同名模型不会被静默猜选</td>
+<td>三个入口指向同一个写入口（<code>setModel()</code>）：流内候选行点选、输入框 <code>/model</code> 命令、<code>config.toml</code>。任一处改，另外两处立即是新值；模型一律用<strong>别名</strong>寻址</td>
+<td>从候选行点选与敲 <code>/model &lt;别名&gt;</code> 产生<strong>同一条回执</strong>；无「应用」按钮、无「同步」状态；重名的模型 ID 不会被静默猜选</td>
 <td class="nw"><span class="st ok">设计已交付</span></td>
 </tr>
 <tr>
@@ -437,7 +437,7 @@ pre.frame .bar{color:var(--primary-hover)}
 <section id="spec-model">
 <div class="eyebrow">Spec A</div>
 <h2>A · 模型与 Token 的会话内管理与配置</h2>
-<p class="desc">这一节定义：模型和 token 告警线<strong>能在会话里看、也能在会话里改</strong>，改完立刻生效、痕迹留在对话流里。<strong>权限边界</strong>：只看不改（浮层点选不算回执）、改了要留痕、改错了要说明为什么。<strong>模型的身份是「供应商 + 模型名」</strong>——同一节里 A2 定命令语法（含同名与未配密钥两种拒绝）、A4 定提示行、A5 定候选菜单与供应商分组、A6 定状态矩阵。</p>
+<p class="desc">这一节定义：模型和 token 告警线<strong>能在会话里看、也能在会话里改</strong>，改完立刻生效、痕迹留在对话流里。<strong>权限边界</strong>：只看不改（浮层点选不算回执）、改了要留痕、改错了要说明为什么。<strong>模型的身份是「别名」</strong>（它在哪个端点上由「端点」这一层回答）——同一节里 A2 定命令语法（含模型 ID 重名与未配密钥两种拒绝）、A4 定提示行、A5 定候选菜单与端点分组、A6 定状态矩阵。</p>
 
 <div class="sublabel">A1 位置与顺序 —— 输入区四件套（自上而下）</div>
 <pre class="frame">输入区（bottom-input）· <b>整块不进对话流、不随流滚动</b>
@@ -457,9 +457,9 @@ pre.frame .bar{color:var(--primary-hover)}
 <tr><th>序</th><th>单元</th><th>出现条件</th><th>焦点</th><th>本轮的改动</th></tr>
 <tr><td class="nw">①</td><td>Tune Chart 调优曲线容器</td><td>仅 HPO 场景（无 <code>hpo</code> 数据则 <code>display:none</code>）</td><td>头部可聚焦，收起后不占位</td><td>登记为「输入区单元」，硬规则：<strong>收起即暂停动效</strong></td></tr>
 <tr><td class="nw">②</td><td>Suggested Actions 下一步建议</td><td>有建议时（0–3 个）</td><td>原生按钮，<kbd>Tab</kbd> 可达</td><td>从「系统与容器类」挪进输入区单元（按位置归类）</td></tr>
-<tr><td class="nw">③</td><td>Command Candidate Menu 候选菜单</td><td>输入 <code>/</code> 或 <code>/model …</code> 时</td><td><strong>不抢焦点</strong>，键位由输入框代理</td><td>候选行新增<strong>供应商</strong>列（替换原来的「额度池」列）；联想同时认模型名与 <code>供应商/</code> 前缀；未配密钥的行可见但不可选</td></tr>
+<tr><td class="nw">③</td><td>Command Candidate Menu 候选菜单</td><td>输入 <code>/</code> 或 <code>/model …</code> 时</td><td><strong>不抢焦点</strong>，键位由输入框代理</td><td>候选行新增<strong>端点</strong>列（替换原来的「额度池」列）；联想同时认别名、模型 ID 与端点主机名；未配密钥的行可见但不可选</td></tr>
 <tr><td class="nw">④</td><td>输入框</td><td>始终</td><td><strong>全页唯一焦点</strong></td><td>命令执行（三态返回值）</td></tr>
-<tr><td class="nw">⑤</td><td>Command Hint Bar 命令提示行</td><td><strong>常驻</strong>（本轮改动，原为「该场景真有命令可改时」）</td><td><strong>不可点、不抢焦点</strong>（路标）</td><td>重排版为三档层次 + 定死降级阶梯；<strong>值为模型别名</strong>（不再是 <code>供应商/模型</code>），供应商位改放<strong>端点</strong></td></tr>
+<tr><td class="nw">⑤</td><td>Command Hint Bar 命令提示行</td><td><strong>常驻</strong>（本轮改动，原为「该场景真有命令可改时」）</td><td><strong>不可点、不抢焦点</strong>（路标）</td><td>重排版为三档层次 + 定死降级阶梯；<strong>值为模型别名</strong>（不再是 <code>供应商/模型</code>），第三档改放<strong>端点</strong></td></tr>
 </table>
 <div class="rule"><b>为什么不做右上角浮标：</b>Claude Code 与 opencode 都把这类提示放在 prompt <em>下方</em>单独一行——<strong>和输入内容物理隔离，输入多长都不冲突</strong>，窄屏时整行收起也不损失功能。右上角是 Web 的习惯：输入一长必然和正文打架，窄屏时右上角也最先没地方放。所以本轮明确否掉右上角方案（用户最初考虑过），选「输入框下方一行」。<br>
 <b>顺序为什么是这五层：</b>从下往上离输入框越远的东西越「可有可无」——调优曲线可以没有（只在 HPO 场景出现），建议操作可以没有（只有结果后有），候选菜单只在打字时出现；只有输入框和提示行始终在。</div>
@@ -467,36 +467,36 @@ pre.frame .bar{color:var(--primary-hover)}
 <div class="sublabel">A2 命令语法规格</div>
 <table>
 <tr><th>输入</th><th>识别</th><th>结果</th><th>回执</th><th>生效范围</th></tr>
-<tr><td class="nw"><code>/model &lt;供应商&gt;/&lt;模型&gt;</code></td><td>供应商与模型都精确匹配（全名写法，<strong>无歧义</strong>）</td><td>切换会话模型，底栏与提示行立即刷新（底栏显示 <code>供应商/模型</code>）</td><td>用户消息 + AI 文本（<span class="st ok">成功</span>）</td><td>新起的子 Agent 继承；<strong>运行中的保持原模型跑完</strong></td></tr>
-<tr><td class="nw"><code>/model &lt;模型名&gt;</code></td><td>按模型名精确匹配；命中 <strong>1 个</strong>供应商时切换</td><td>切换会话模型</td><td>用户消息 + AI 文本（<span class="st ok">成功</span>）</td><td>同上</td></tr>
+<tr><td class="nw"><code>/model &lt;别名&gt;</code></td><td>别名精确匹配（<strong>无歧义</strong>；别名默认等于模型 ID，重名的那几条才需要另起名字）</td><td>切换会话模型，底栏与提示行立即刷新（底栏显示别名）</td><td>用户消息 + AI 文本（<span class="st ok">成功</span>）</td><td>新起的子 Agent 继承；<strong>运行中的保持原模型跑完</strong></td></tr>
+<tr><td class="nw"><code>/model &lt;模型 ID&gt;</code></td><td>作为一个名字来解释：既能对上某条的<strong>别名</strong>、也能对上某条的<strong>模型 ID</strong>，且只对上 <strong>1 条</strong>时才切换</td><td>切换会话模型</td><td>用户消息 + AI 文本（<span class="st ok">成功</span>）</td><td>同上</td></tr>
 <tr><td class="nw"><code>/model</code>（无参）</td><td>参数为空</td><td><strong>打开模型管理页</strong>（整页覆盖对话区，<kbd>Esc</kbd> 返回）——本轮改动，原为「列候选」</td><td>用户消息 + AI 文本（<span class="st ok">成功</span>）：报告当前用的是哪个模型、并说明改成别处要点「设为激活」</td><td>—（只打开页面，不改任何配置）</td></tr>
 <tr><td class="nw"><code>/model &lt;前缀&gt;</code>（行进中联想）</td><td>输入 <code>/model </code> 或 <code>/model &lt;q&gt;</code>，候选菜单随打字出现</td><td>就地切换（原「无参列候选」的入口改为这条更直接的路径）</td><td>用户消息 + AI 文本（<span class="st ok">成功</span>）</td><td>同上</td></tr>
-<tr><td class="nw"><code>/model &lt;多义模型名或前缀&gt;</code></td><td>同一模型名在 <strong>&gt;1 个供应商</strong>下存在（如 <code>qwen</code>）</td><td>视为未命中，走拒绝分支；<strong>不猜一个切过去</strong>——换供应商会换掉计费主体</td><td>用户消息 + Checklist Row（<span class="st ask">拒绝</span>），值列列出全部 <code>供应商/模型</code> 写法</td><td>—</td></tr>
-<tr><td class="nw"><code>/model &lt;未知供应商&gt;/…</code></td><td>供应商 id 不在 <code>model.PROVIDERS</code> 内</td><td>拒绝，列出当前已配置的供应商 id</td><td>用户消息 + Checklist Row（<span class="st ask">拒绝</span>）</td><td>—</td></tr>
-<tr><td class="nw"><code>/model &lt;未配密钥供应商&gt;/&lt;模型&gt;</code></td><td>供应商存在但 <code>API_KEY</code> 未配置</td><td>拒绝，说明缺什么、并给出可用的替代写法</td><td>用户消息 + Checklist Row（<span class="st ask">拒绝</span>）</td><td>—</td></tr>
+<tr><td class="nw"><code>/model &lt;重名的模型 ID&gt;</code></td><td>这个名字同时解释得通 <strong>&gt;1 条</strong>（如 <code>deepseek-v3-671b</code> 既是 A 的别名、又是 B 的模型 ID）</td><td>视为未命中，走拒绝分支；<strong>不猜一个切过去</strong>——换端点会换掉计费主体</td><td>用户消息 + Checklist Row（<span class="st ask">拒绝</span>），值列列出候选的<strong>别名 + 端点</strong></td><td>—</td></tr>
+<tr><td class="nw"><span class="cm">（本轮删除）</span><code>/model &lt;未知供应商&gt;/…</code></td><td>原「写了个不存在的供应商前缀」这一支<strong>随前缀一起退休</strong>——现在没有前缀可写错，同样意图会落到上一条（重名）或下一条（无匹配）</td><td>—</td><td>—</td><td>删除理由：这条规则只服务于已被 PRD 替换掉的那一层</td></tr>
+<tr><td class="nw"><code>/model &lt;未配密钥端点上的模型&gt;</code></td><td>这条配置存在但它的端点 <code>API_KEY</code> 未配置（Ollama 不需要密钥，不算）</td><td>拒绝，说明缺什么、并给出同模型 ID 在可用端点上的别名</td><td>用户消息 + Checklist Row（<span class="st ask">拒绝</span>）</td><td>—</td></tr>
 <tr><td class="nw"><code>/tokens &lt;20-95&gt;</code></td><td>数值解析（可带 <code>%</code>）</td><td>改 <code>budget.WARN_AT</code>，立即生效、不用重开对话</td><td>用户消息 + AI 文本（<span class="st ok">成功</span>）</td><td>只改「到第几个点提醒你」，<strong>不改水位本身</strong></td></tr>
 <tr><td class="nw"><code>/tokens</code>（无参）</td><td>参数为空</td><td>拒绝，并回报当前阈值</td><td>用户消息 + Checklist Row（<span class="st ask">拒绝</span>）</td><td>—</td></tr>
 <tr><td class="nw">其余输入</td><td>不匹配 <code>/model</code>、<code>/tokens</code></td><td><strong>原样保留在输入框</strong>，交给 Agent 任务解析——命令识别不能吃掉用户敲的任务描述</td><td>无</td><td>—</td></tr>
 </table>
-<div class="note"><b>为什么模型名要带供应商前缀：</b>模型名会在供应商之间重名（<code>deepseek-v3-671b</code> 在两个供应商下都有），而「用哪个供应商」决定了<strong>走哪个端点、从哪个账号扣额度、按谁的账单计费</strong>。只给模型名时若静默挑一个，用户以为只是换了个模型、实际上连计费主体一起换了——这种错误在事后极难发现。所以规则是：<strong>唯一命中就切，多义就拒绝并列出全部写法</strong>；前缀匹配逻辑随之下沉到「模型名或全名」两种写法都支持（见 §4A5）。</div>
+<div class="note"><b>为什么重名要靠别名、而不是靠前缀：</b>模型 ID 会在端点之间重名（<code>deepseek-v3-671b</code> 在两个端点上都有），而「用哪个端点」决定了<strong>连谁、从哪个账号扣额度、按谁的账单计费</strong>。<span class="cm">（本轮改动）</span>原做法是让用户写 <code>供应商/模型</code> 前缀；按<strong>「PRD 优先」</strong>裁决后这条路取消——新 PRD 的 Provider 是<strong>协议</strong>（OpenAI Compatible / Ollama），协议不是用来选模型的，用户也不该被迫记住端点主机名。<strong>改用 PRD 里本来就有的字段「别名」消歧</strong>：别名默认等于模型 ID，只有重名的那几条需要另起名字（<code>私有云-v3</code> / <code>私有云-coder</code>）。所以规则是：<strong>作为一个名字唯一命中就切，多义就拒绝并列出候选的别名 + 端点</strong>。alias 与 ID 都能匹配，是因为用户手上可能只有其中一个。</div>
 <div class="note"><b>参考实现的两态返回值（<code>runCommand()</code>）：</b><code>false</code> = 不是这条命令，输入原样留着；<code>true</code> = 认了（已执行、已拒绝、或已打开管理页），输入可以清空。后端实现需要兑现同一套语义，否则会出现「回车后输入被吃掉」或「拒了但输入被清空」这类边界不一致。<br>
 <b>本轮删掉了原来的第三态</b> <code>'keep'</code>（命令认了但输入留着等选）：光敲 <code>/model</code> 现在是打开管理页，不再需要「留半个命令在框里等人来选」这种中间状态——<strong>能少一个状态就少一个状态</strong>，三态里有两态的触发条件会互相抢同一个手势。</div>
 
 <div class="sublabel">A3 回执规格 —— 复用既有基元，不为命令造组件</div>
 <table>
 <tr><th>情形</th><th>基元组合</th><th>内容必须回答的问题</th><th>示例文案（demo 原文）</th></tr>
-<tr><td class="nw">成功 · 换模型</td><td>User Message + AI Text</td><td>换成了什么（<code>--hl-code</code>，带供应商全名）· 对正在跑的任务有什么影响 · 额度仍走哪个账号 · 落到哪个文件</td><td>「已切到 devkit-gateway/qwen2.5-coder-32b。<b>新起的子 Agent 继承这个模型</b>；正在跑的 3 个保持原模型跑完。额度仍走 devkit-gateway 那个账号，改动已写入 .devkitai/config.toml。」</td></tr>
+<tr><td class="nw">成功 · 换模型</td><td>User Message + AI Text</td><td>换成了什么（<code>--hl-code</code>，别名）· 对正在跑的任务有什么影响 · 额度仍走哪个端点 · 落到哪个文件</td><td>「已切到 qwen2.5-coder-32b。<b>新起的子 Agent 继承这个模型</b>；正在跑的 3 个保持原模型跑完。额度仍走 devkit-gateway.internal 那个账号，改动已写入 .devkitai/config.toml。」</td></tr>
 <tr><td class="nw">成功 · 改告警线</td><td>User Message + AI 文本</td><td>改前 → 改后（<code>--hl-metric</code>）· 立即生效 · 哪一项数字不动</td><td>「告警线 70% → 85%，立即生效。当前用量不变，提醒点改到 85%。」</td></tr>
 <tr><td class="nw">成功但无变化</td><td>User Message + AI 文本</td><td>明说「本来就是它，没有变化」——静默成功会被读成「没生效」</td><td>「已切到 devkit-gateway/pangu2.5-72b-instruct——本来就是它，没有变化。」</td></tr>
 <tr><td class="nw">被拒 · 越界</td><td>User Message + Checklist Row（<code>wrap</code> 变体 + 实心金方块 + 「没有改」）</td><td>没改 · 边界是多少 · 那该怎么敲</td><td>「120 超出可选范围 20–95。要关掉提示可以用 /tokens 95」</td></tr>
-<tr><td class="nw">被拒 · 模型名多义</td><td>同上</td><td>没改 · 列出全部 <code>供应商/模型</code> 写法</td><td>「qwen 在多个供应商下都有，得写全：devkit-gateway/qwen2.5-coder-32b 或 private-cloud/qwen2.5-coder-32b」</td></tr>
-<tr><td class="nw">被拒 · 供应商不可用</td><td>同上</td><td>没改 · 缺的是什么（<code>API_KEY</code>）· 补齐后就能用 · 眼下可以先选谁</td><td>「private-cloud 还没配密钥，切不过去。补上 API_KEY 之后它就能用；眼下可以先选 devkit-gateway/deepseek-v3-671b」</td></tr>
+<tr><td class="nw">被拒 · 名字多义</td><td>同上</td><td>没改 · 列出候选的<strong>别名 + 端点</strong></td><td>「deepseek-v3-671b 是模型 ID，在两个端点上都有，得用别名区分：deepseek-v3-671b（devkit-gateway.internal）或 私有云-v3（llm.private.internal）」</td></tr>
+<tr><td class="nw">被拒 · 端点不可用</td><td>同上</td><td>没改 · 缺的是什么（<code>API_KEY</code>）· 补齐后就能用 · 眼下可以先选谁</td><td>「llm.private.internal 还没配密钥，切不过去。补上 API_KEY 之后它就能用；眼下可以先选 deepseek-v3-671b」</td></tr>
 <tr><td class="nw">被拒 · 无匹配模型</td><td>同上</td><td>没改 · 给出下一步怎么敲</td><td>「没有匹配 nope 的模型。敲 /model 出全部候选」</td></tr>
-<tr><td class="nw">被拒 · 供应商下无此模型</td><td>同上</td><td>没改 · 列出该供应商<strong>实际有</strong>的模型</td><td>「devkit-gateway 下没有 deepseek。它有 pangu2.5-72b-instruct / deepseek-v3-671b / qwen2.5-coder-32b」</td></tr>
+<tr><td class="nw">被拒 · 无匹配</td><td>同上</td><td>没改 · 提示去配置页看全部</td><td>「没有匹配 deepseek 的模型或别名。敲 /model 打开配置页看全部」</td></tr>
 </table>
 <div class="rule"><b>被拒也要回执，而且要给出正确写法：</b>静默失败会被读成「我是不是没按对回车」，用户会反复敲同一条命令。拒绝回执必须同时回答三件事：<b>没改</b>（用状态方块的实心金，与「受阻」同色）、<b>边界/原因是什么</b>、<b>那该怎么敲</b>。<strong>四种拒绝理由（越界 / 多义 / 不可用 / 无匹配）共用一个形状</strong>，区别只在值列里说清是什么理由——不为新理由造新组件。<br>
 <b>为什么进对话流而不是 toast：</b>「我什么时候把它改成 85 的」是一个会被追问的问题，答案必须在滚动历史里查得到；toast 三秒后消失，翻历史时它从来没存在过。<b>写入位置在流末尾并自动滚到底</b>，回执只进当前场景的那条流，翻历史不串场。</div>
-<div class="note crit"><b>回执只说业务，不说设计：</b>回执的职责是「这次发生了什么、你该怎么改」，不是解释产品语义。所以 demo 里 <code>/tokens 120</code> 只回「超出可选范围 20–95 · 要关掉提示用 /tokens 95」，<strong>不回</strong>「告警线是『你想在第几个点被告知』、超过 100% 等于不提醒自己」这类产品语义；同理 <code>/model qwen</code> 只列两种全名写法，不回「换个供应商额度与计费也跟着换」这句设计理由。<br>
+<div class="note crit"><b>回执只说业务，不说设计：</b>回执的职责是「这次发生了什么、你该怎么改」，不是解释产品语义。所以 demo 里 <code>/tokens 120</code> 只回「超出可选范围 20–95 · 要关掉提示用 /tokens 95」，<strong>不回</strong>「告警线是『你想在第几个点被告知』、超过 100% 等于不提醒自己」这类产品语义；同理 <code>/model deepseek-v3-671b</code> 只列候选的别名与端点，不回「换个端点额度与计费也跟着换」这句设计理由。<br>
 这些语义与理由<strong>归 <code>index.html</code> 的对应单元定义</strong>（Checklist Row / Model Switcher / Command Echo 卡里写全），<strong>不重复进业务流</strong>——demo 复刻的是用户真实使用场景，业务流里只能有业务事实与产品 UI 文案。判断标准：<strong>这句话如果换成另一个模型、另一个项目就不成立，它是业务；只跟「本产品怎么设计」有关的，是标注</strong>。<br>
 两类最容易漏掉的标注，都已按此收回：<strong>位置自述</strong>——「底栏的 ctx 当前值不变」→「当前用量不变」（数字显示在哪是单元的事，回执只报数字）；<strong>行为自述</strong>——「其余可直接切」→ 删（候选列表怎么操作属 Model Switcher，不属这次会话的业务状态）。同理，子 Agent 收口语里「你可以在会话列表里点开它、也可以让它单独停下来」也已删除，只留「跑完会自动并入并向你汇报」。</div>
 <div class="note warn"><b>两个入口只留一份痕迹：</b>敲完整命令、从候选菜单选一行，是同一个动作的两个入口，<b>都要写回执</b>；但流内浮层里点一行（Model Switcher）不算——那是同一屏「看现状」段的就地操作，浮层自己的 <code>current</code> 标记就是它的反馈，再写一条回执只会把流撑长。</div>
@@ -506,12 +506,12 @@ pre.frame .bar{color:var(--primary-hover)}
 <tr><th>层次</th><th>内容</th><th>样式</th><th>为什么这么排（参照 opencode <code>Build · Big Pickle  OpenCode Zen</code>）</th></tr>
 <tr><td class="nw">第一档 · 命令</td><td><code>/model</code> · <code>/tokens</code></td><td>品牌蓝 + 加粗，当标签用</td><td>命令名本身就是标签，<b>不写「模型：」「当前」「已用」这类前缀</b>——多一层标签只是多一层要读的字</td></tr>
 <tr><td class="nw">第二档 · 值</td><td>模型名 · token 数</td><td>正文色 + 加粗（最大声）</td><td>用户真正要看的就是这两个数，它们才是决定要不要敲命令的依据</td></tr>
-<tr><td class="nw">第三档 · 解释</td><td>供应商 <code>devkit-gateway</code> · <code>告警线 70%</code></td><td>最弱灰字</td><td>灰字只放「解释这个值」的东西：供应商解释额度从哪个账号扣、也提醒换模型时可能要写全名，告警线解释这个 token 数离哪条线还有多远</td></tr>
+<tr><td class="nw">第三档 · 解释</td><td>端点 <code>devkit-gateway.internal</code> · <code>告警线 70%</code></td><td>最弱灰字</td><td>灰字只放「解释这个值」的东西：端点解释额度从哪个账号扣，告警线解释这个 token 数离哪条线还有多远</td></tr>
 </table>
 <table>
 <tr><th>断点</th><th>动作</th><th>理由</th></tr>
 <tr><td class="nw">&gt; 1200px</td><td>五项全给（一行 ≈ 550px）</td><td>—</td></tr>
-<tr><td class="nw">≤ 820px</td><td>隐去供应商名；模型名允许自截断（<code>…</code>）</td><td>供应商只是「从哪个账号扣额度」的解释，去掉不影响「我现在用哪个模型」</td></tr>
+<tr><td class="nw">≤ 820px</td><td>隐去端点；模型别名允许自截断（<code>…</code>）</td><td>端点只是「从哪个账号扣额度」的解释，去掉不影响「我现在用哪个模型」</td></tr>
 <tr><td class="nw">≤ 560px</td><td>模型项连同它的分隔符<strong>整项去掉</strong></td><td>再窄就塞不下模型名了；<strong><code>/tokens 1.24M 告警线 70%</code> 永不在降级里丢</strong>。分隔符跟着它分开的那一项一起走，否则行首会剩一个孤立的 <code>·</code></td></tr>
 </table>
 <div class="rule">提示行与底栏常驻计量<strong>不重复</strong>：<b>底栏是全局事实</b>（任何场景都看得见、给的是模型别名与用量），<b>提示行是「就地可改」的入口</b>（命令名 + 当前值 + 端点）。<br>
@@ -521,12 +521,13 @@ pre.frame .bar{color:var(--primary-hover)}
 <table>
 <tr><th>模式</th><th>触发</th><th>每行结构</th><th>选中行为</th></tr>
 <tr><td class="nw"><code>cmd</code> 命令列表</td><td>输入 <code>/</code> 或 <code>/&lt;前缀&gt;</code></td><td>命令名（等宽、固定宽度列）+ 说明</td><td>补全到输入框（<code>/model</code> 这类带 picker 的补全后立即切到 <code>model</code> 模式）</td></tr>
-<tr><td class="nw"><code>model</code> 模型列表</td><td>输入 <code>/model </code> 或 <code>/model &lt;q&gt;</code>（<code>q</code> 可以是模型名，也可以是 <code>供应商/</code> 前缀）</td><td>状态方块（当前 = 实心绿）+ 模型名 + <strong>供应商</strong> + 描述（未配密钥的补「需密钥」）</td><td>立即切换（按 <code>供应商/模型</code> 全名写入）+ 写回执；选完清空输入并保持焦点。<strong>未配密钥的行选了不切换，改为写一条「没有改」回执</strong></td></tr>
+<tr><td class="nw"><code>model</code> 模型列表</td><td>输入 <code>/model </code> 或 <code>/model &lt;q&gt;</code>（<code>q</code> 可以是别名、模型 ID，也可以是端点主机名）</td><td>状态方块（当前 = 实心绿）+ <strong>别名</strong> + <strong>端点</strong> + 描述（未配密钥的补「需密钥」）</td><td>立即切换（按别名寻址）+ 写回执；选完清空输入并保持焦点。<strong>未配密钥的行选了不切换，改为写一条「没有改」回执</strong></td></tr>
 <tr><td class="nw"><code>session</code> 会话列表</td><td>输入 <code>/session </code> 等</td><td>状态方块 + 会话名 + 「Agent · 状态」</td><td>跳到该场景</td></tr>
 </table>
 <ul>
-<li><b>候选行多一列供应商</b>：换模型前最该先知道的两件事都在这一列里——「它从哪个账号扣额度、会不会挤掉正在跑的活」，以及「这个名字是不是唯一的」。同名模型会在列表里出现两行、来源不同，用户一眼就能看出必须写全名。这句话放在选择发生的地方，而不是等切完再去额度面板查。</li>
-<li><b>联想同时认两种输入</b>：模型名（打 <code>qwen</code>）与供应商前缀（打 <code>devkit-</code>）都能筛——两种都是人会打的写法，只支持一种会让用户以为「搜不到就是没有」。</li>
+<li><b>候选行多一列端点</b>：换模型前最该先知道的两件事都在这一列里——「它从哪个账号扣额度、会不会挤掉正在跑的活」，以及「这个别名是不是唯一的」。<span class="cm">（本轮改动）</span>这一列原来写的是「供应商」，现在写<strong>端点主机名</strong>：它是 Base URL 推出来的、用户本来就认得的那个主机名，不需要新学一个「供应商 id」。重名的两条在列表里会出现两行、端点不同，用户一眼就能看出必须用别名筛。</li>
+<li><b>多义时谁也不高亮（本轮新增的纪律）</b>：查询为空时高亮当前那条（方便对照着换）；打了字之后，命中 1 条就高亮它，<strong>命中多条则没有任何一行被高亮</strong>。此时按 <kbd>Enter</kbd> 不是"确认第一条"，而是<strong>关掉菜单走命令路径</strong>，由命令回执给出「没有改 + 列出候选的别名与端点」。理由：打了一个同时说得通两条的名字（既是 A 的别名、又是 B 的模型 ID）时，高亮哪一条都等于替用户做了「走哪个账号、按谁的账单计费」这个决定——<strong>菜单负责让人选，命令负责说清为什么选不了</strong>。用户仍然可以 <kbd>↑↓</kbd> 自己选到某条再回车。</li>
+<li><b>联想同时认三种输入</b>：别名（打 <code>私有云</code>）· 模型 ID（打 <code>qwen</code>）· 端点主机名（打 <code>127.0</code>）都能筛——三种都是人会打的写法，只支持一种会让用户以为「搜不到就是没有」。</li>
 <li><b>用不了的行可见但不可选</b>：未配密钥的模型仍然列出（灰一档 + 「需密钥」），点它给一条「没有改」回执说明缺什么。<strong>不隐藏</strong>——「有这条路由、缺 <code>API_KEY</code>」和「没有这条路由」是两件事，隐藏会让用户以为配置里没有它。</li>
 <li><b>唯一数据源是配置文件</b>（<code>.devkitai/config.toml</code> 的 <code>model.PROVIDERS</code> 与 <code>model.providers.&lt;id&gt;.MODELS</code>）：命令不是配置文件的快捷方式，是它的<b>另一个写入口</b>——两边写同一个值，所以在哪边改另一边就是新值，因此<b>不需要「应用」按钮，也不需要「同步」状态</b>。</li>
 <li><b>空结果也是一个确定状态</b>：无匹配时给「没有匹配的模型 / 命令」单行提示，<b>不静默关闭菜单</b>——菜单突然消失会被读成「按键没生效」。</li>
@@ -538,7 +539,7 @@ pre.frame .bar{color:var(--primary-hover)}
 <tr><th>单元</th><th>default</th><th>focused</th><th>selected / 命中</th><th>empty</th><th>error / 拒绝</th><th>disabled</th></tr>
 <tr><td class="nw">调优曲线容器</td><td>收起（无 HPO 场景 <code>display:none</code>）</td><td>头部可获得焦点环</td><td>展开 = <code>open</code>，动画恢复</td><td>无数据不出现</td><td>—</td><td>—</td></tr>
 <tr><td class="nw">下一步建议</td><td>随场景给的 0–3 个按钮</td><td>首个按钮可聚焦（原生 <code>button</code>）</td><td>首个按钮为主按钮样式</td><td>无建议则不渲染该行</td><td>—</td><td>不可用时整行不出现（不做灰按钮）</td></tr>
-<tr><td class="nw">模型浮层</td><td>按供应商分组的候选：当前供应商组展开、其余收起（组头仍可见）</td><td>组头可聚焦（<kbd>Enter</kbd>/<kbd>Space</kbd> 开合）</td><td>当前模型行 <code>.cur</code> 底色 + 行尾 <code>current</code> 徽标；焦点供应商组 <code>.open</code></td><td>读不到额度时不给空条，改一句「为什么读不到」</td><td>点未配密钥的行 → 写一条「没有改」回执，不切换</td><td>不可用供应商的模型行灰一档（仍可见）</td></tr>
+<tr><td class="nw">模型浮层</td><td>按端点分组的候选：当前端点组展开、其余收起（组头仍可见）</td><td>组头可聚焦（<kbd>Enter</kbd>/<kbd>Space</kbd> 开合）</td><td>当前模型行 <code>.cur</code> 底色 + 行尾 <code>current</code> 徽标；焦点端点组 <code>.open</code></td><td>读不到额度时不给空条，改一句「为什么读不到」</td><td>点未配密钥的行 → 写一条「没有改」回执，不切换</td><td>不可用端点的模型行灰一档（仍可见）</td></tr>
 <tr><td class="nw">候选菜单</td><td>隐藏</td><td>输入框持有焦点，菜单不抢</td><td>当前项 <code>.sel</code> 底色；当前模型行带实心绿方块</td><td>「没有匹配的模型 / 命令」单行</td><td>—（拒绝走后置回执，不在菜单里报错）</td><td>未配密钥的行可选中但按「拒绝」处理（灰一档 + 「需密钥」）</td></tr>
 <tr><td class="nw">命令提示行</td><td><strong>常驻</strong>（本轮改动）</td><td><strong>不抢焦点</strong>（路标，不可点）</td><td>值随激活模型变化（模型别名 / token / 告警线）</td><td>未配置模型时模型位显示「未配置」、端点位留空（本轮改动）</td><td>—</td><td>—</td></tr>
 </table>
@@ -548,7 +549,7 @@ pre.frame .bar{color:var(--primary-hover)}
 <tr><th>场景</th><th>键盘</th><th>鼠标等价</th><th>备注</th></tr>
 <tr><td class="nw">候选菜单开启</td><td><kbd>↑</kbd><kbd>↓</kbd> 移动 · <kbd>Tab</kbd>/<kbd>Enter</kbd> 确认 · <kbd>Esc</kbd> 关闭</td><td>点候选行</td><td>菜单开时 <kbd>Enter</kbd> 是「确认选中」，不是「执行输入」</td></tr>
 <tr><td class="nw">候选菜单关闭</td><td><kbd>Enter</kbd> 执行命令 · <kbd>Shift</kbd>+<kbd>Enter</kbd> 换行</td><td>—</td><td>只认得出命令才执行；认不出则保留输入</td></tr>
-<tr><td class="nw">切模型（流内）</td><td>焦点进浮层后 <kbd>Enter</kbd>；组头 <kbd>Enter</kbd>/<kbd>Space</kbd> 开合</td><td>点 <code>.model-row</code> 一行 / 点组头开合</td><td>与命令共享同一写入口 <code>setModel()</code>；切换后目标供应商组展开、其余收起</td></tr>
+<tr><td class="nw">切模型（流内）</td><td>焦点进浮层后 <kbd>Enter</kbd>；组头 <kbd>Enter</kbd>/<kbd>Space</kbd> 开合</td><td>点 <code>.model-row</code> 一行 / 点组头开合</td><td>与命令共享同一写入口 <code>setModel()</code>；切换后目标端点组展开、其余收起</td></tr>
 <tr><td class="nw">全局（焦点不在输入框）</td><td><kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> 切 Agent · <kbd>↑</kbd><kbd>↓</kbd> 切场景 · <kbd>c</kbd> 折叠代码列 · <kbd>p</kbd> 收 AI PLAN · <kbd>Esc</kbd> 回 Landing</td><td>点侧栏会话节点</td><td>输入框有焦点时这些键不生效（不抢打字）</td></tr>
 </table>
 
@@ -559,16 +560,16 @@ pre.frame .bar{color:var(--primary-hover)}
 <li><span class="id">AC-A3</span><span>输入 <code>/tokens 120</code> · <code>/tokens abc</code> · <code>/tokens</code> 三种越界/非法输入：均产生「没有改」回执，且文案包含边界值与正确写法；阈值不变。</span></li>
 <li><span class="id">AC-A4</span><span>输入 <code>/tokens 85</code>：提示行灰字立即变 85%，底栏 ctx 的<strong>当前值不变</strong>、分母由 70% 变 85%；回执里不出现「底栏」「当前值不变」这类位置自述，只说「当前用量不变」。</span></li>
 <li><span class="id">AC-A5</span><span>敲入非命令文本（如「把 BRPC 迁移到鲲鹏」）回车：输入<strong>不被清空</strong>、不产生回执。</span></li>
-<li><span class="id">AC-A6</span><span>从候选菜单点一行切换模型，与直接敲 <code>/model &lt;供应商&gt;/&lt;模型&gt;</code>：两者产生<strong>同一条回执</strong>文案结构，回执里的模型名都带供应商前缀。</span></li>
-<li><span class="id">AC-A7</span><span>窗口收窄到 820px 以下：供应商名消失、模型名可自截断；收窄到 560px 以下：模型项与分隔符一起消失，<code>/tokens</code> 项与告警线仍在。</span></li>
+<li><span class="id">AC-A6</span><span>从候选菜单点一行切换模型，与直接敲 <code>/model &lt;别名&gt;</code>：两者产生<strong>同一条回执</strong>文案结构，回执里都用别名。</span></li>
+<li><span class="id">AC-A7</span><span>窗口收窄到 820px 以下：端点消失、模型别名可自截断；收窄到 560px 以下：模型项与分隔符一起消失，<code>/tokens</code> 项与告警线仍在。</span></li>
 <li><span class="id">AC-A8</span><span>提示行整行不可点、不抢焦点（<kbd>Tab</kbd> 遍历不会停在它上面）。</span></li>
 <li><span class="id">AC-A9</span><span>浅色主题下模型的「行内强调」六色与受阻块标题都满足正文可读对比度（不得直接沿用深色底那套色值）。</span></li>
-<li><span class="id">AC-A10</span><span>输入 <code>/model qwen</code>（同名出现在 2 个供应商）：产生「没有改」回执，值列列出 <code>devkit-gateway/qwen2.5-coder-32b</code> 与 <code>private-cloud/qwen2.5-coder-32b</code> 两种写法；模型<strong>不发生任何变化</strong>。</span></li>
-<li><span class="id">AC-A11</span><span>输入 <code>/model private-cloud/deepseek-v3-671b</code>（供应商未配密钥）：产生「没有改」回执，说明缺 <code>API_KEY</code>，并给出可用的替代写法（同一模型在可用供应商下的全名）。</span></li>
-<li><span class="id">AC-A12</span><span>输入 <code>/model 不存在的供应商/x</code> 与 <code>/model devkit-gateway/不存在的模型</code>：两条都拒绝，前者列出已配置的供应商、后者列出该供应商下的模型。</span></li>
-<li><span class="id">AC-A13</span><span>切换供应商后（<code>devkit-gateway</code> → <code>kunpeng-local</code>）：额度条换成该账号的两行（<code>GPU</code> / <code>队列</code>，不再是 <code>5h</code> / <code>7d</code>），额度说明行的供应商名同步；底栏显示模型<strong>别名</strong>，提示行的端点位随之改变。</span></li>
-<li><span class="id">AC-A14</span><span>候选菜单联想同时支持两种输入：打 <code>devkit-</code> 只列该供应商的 3 个模型，打 <code>qwen</code> 命中 2 个供应商下的同名模型。</span></li>
-<li><span class="id">AC-A15</span><span>一次只摊开一组：切换后目标供应商组展开、其余组只有组头一行；组头点一下能就地开合，组头一行始终带状态方块与状态字。</span></li>
+<li><span class="id">AC-A10</span><span>输入 <code>/model deepseek-v3-671b</code>（该名字同时是 A 的别名与 B 的模型 ID）：候选菜单列出两条且<strong>两条都不高亮</strong>；此时按 <kbd>Enter</kbd> 产生「没有改」回执，值列列出 <code>deepseek-v3-671b（devkit-gateway.internal）</code> 与 <code>私有云-v3（llm.private.internal）</code>；模型<strong>不发生任何变化</strong>。用 <kbd>↓</kbd> 选到其中一条再回车 <strong>才</strong>切换。</span></li>
+<li><span class="id">AC-A11</span><span>输入 <code>/model 私有云-v3</code>（该端点未配密钥）：产生「没有改」回执，说明缺 <code>API_KEY</code>，并给出同一模型 ID 在可用端点上的别名。</span></li>
+<li><span class="id">AC-A12</span><span>输入 <code>/model 不存在的名字</code>：拒绝并提示去配置页看全部；输入 <code>/model 私有云</code>（前缀只命中 1 条）：按前缀命中切换成功——前缀只在精确匹配全部落空时才启用。</span></li>
+<li><span class="id">AC-A13</span><span>切换到另一个端点后（<code>devkit-gateway.internal</code> → <code>127.0.0.1:8000</code>）：额度条换成该账号的两行（<code>GPU</code> / <code>队列</code>，不再是 <code>5h</code> / <code>7d</code>），额度说明行的端点同步；底栏显示模型<strong>别名</strong>，提示行的端点位随之改变。</span></li>
+<li><span class="id">AC-A14</span><span>候选菜单联想同时支持三种输入：打 <code>devkit-gateway</code> 只列该端点的 3 个模型，打 <code>qwen</code> 命中 2 个端点下的同名模型，打 <code>私有云</code> 命中按别名命名的那两条。</span></li>
+<li><span class="id">AC-A15</span><span>一次只摊开一组：切换后目标端点组展开、其余组只有组头一行；组头点一下能就地开合，组头一行始终带状态方块与状态字。</span></li>
 <li><span class="id">AC-A16</span><span>模型浮层里点未配密钥的模型行：不切换，写一条与命令路径<strong>同样文案结构</strong>的「没有改」回执。</span></li>
 </ul>
 </section>
@@ -808,8 +809,8 @@ pre.frame .bar{color:var(--primary-hover)}
 <div class="sublabel">E1 命令 ↔ config.toml 对照</div>
 <table>
 <tr><th>命令</th><th>写入</th><th>取值范围</th><th>生效范围</th><th>拒绝条件</th></tr>
-<tr><td class="nw"><code>/model &lt;供应商&gt;/&lt;模型&gt;</code></td><td><code>[model] PRIMARY</code></td><td><code>model.PROVIDERS</code> × <code>model.providers.&lt;id&gt;.MODELS</code> 的笛卡尔积内，且该供应商 <code>API_KEY</code> 已配置</td><td>新起的子 Agent 继承 · 运行中的不换</td><td>未知供应商 / 该供应商下无此模型 / 未配密钥 → 拒绝 + 列出可用写法</td></tr>
-<tr><td class="nw"><code>/model &lt;模型名&gt;</code></td><td><code>[model] PRIMARY</code></td><td>同一模型名在 <strong>恰好一个</strong>供应商下存在</td><td>同上</td><td>多义（≥2 个供应商）→ 拒绝 + 列出全部 <code>供应商/模型</code>；无匹配 → 拒绝 + 提示敲 <code>/model</code> 看候选</td></tr>
+<tr><td class="nw"><code>/model &lt;别名或模型 ID&gt;</code></td><td><code>[model] PRIMARY</code>（写别名）</td><td><code>model.entries</code> 里存在这样一条：<code>NAME</code> 或 <code>ID</code> 与之相等，且<strong>唯一命中</strong>，且该端点的 <code>API_KEY</code> 已配置（<code>PROVIDER = "ollama"</code> 免密钥）</td><td>新起的子 Agent 继承 · 运行中的不换</td><td>多义（≥2 条命中）/ 无匹配 / 未配密钥 → 拒绝；多义时列出候选的别名与端点</td></tr>
+<tr><td class="nw"><code>/model &lt;名字前缀&gt;</code></td><td><code>[model] PRIMARY</code>（写别名）</td><td>精确匹配全部落空时按前缀筛（<code>NAME</code> / <code>ID</code> 前缀）；命中 <strong>1 条即切</strong>，多条不切、改列候选</td><td>同上</td><td>前缀本身不是「写法」，只是精确匹配的兜底——写前缀不算歧义，命中多条才拒绝</td></tr>
 <tr><td class="nw"><code>/tokens &lt;20-95&gt;</code></td><td><code>[budget] WARN_AT</code></td><td><code>0.20 – 0.95</code>（命令接受带 <code>%</code>）</td><td>立即生效 · 不需要重开对话</td><td>越界 / 非数 / 空参 → 拒绝 + 给出正确写法</td></tr>
 </table>
 <pre class="frame"><span class="cmt"># .devkitai/config.toml —— 这份清单就是 /model 候选的来源</span>
@@ -832,7 +833,7 @@ MODELS   = ["pangu2.5-7b-instruct"]
 [model.providers.private-cloud]      <span class="cmt"># 客户私有云 · 走客户侧账号</span>
 BASE_URL = "https://llm.private.internal/v1"
 MODELS   = ["deepseek-v3-671b", "qwen2.5-coder-32b"]
-<span class="cmt"># API_KEY 未配置 —— 该供应商下的模型暂不可用</span>
+<span class="cmt"># API_KEY 未配置 —— 该模型暂不可用（Ollama 端点不需要密钥）</span>
 
 [subagent]
 INHERIT        = true            <span class="cmt"># 新起的子 Agent 继承主模型</span>
@@ -842,26 +843,26 @@ MODEL_OVERRIDE = "devkit-gateway/qwen2.5-coder-32b"   <span class="cmt"># 检索
 WARN_AT            = <span class="bar">0.85</span>        <span class="cmt"># ← /tokens 写这一行 · 可选 0.20–0.95</span>
 MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># 单个子 Agent 上限，超了停下汇报</span></pre>
 <div class="rule"><b>命令不是配置文件的快捷方式，是它的另一个写入口。</b>两边写的是同一个值，所以在哪边改，另一边马上就是新值——正因为如此，这里<strong>不需要「应用」按钮，也不需要「同步」状态</strong>。任何形式的「命令改了一份内存状态、配置文件还是旧的」都是缺陷。<br>
-<b>为什么模型写在供应商下面：</b>端点、密钥、额度、计费主体都是<strong>供应商账号</strong>的属性，不是模型的属性；同一个模型名可以在多个供应商下存在。所以 <code>PRIMARY</code> 与 <code>MODEL_OVERRIDE</code> 一律写 <code>供应商/模型</code> 全名——只写模型名时，配置本身就无法表达「走谁的账号」。<br>
+<b>为什么配置是「一条 = 一个模型 + 它连的端点」：</b>端点、密钥、额度、计费主体都是<strong>端点账号</strong>（<code>BASE_URL</code> + <code>API_KEY</code>）的属性，不是模型的属性；同一个模型 ID 可以在多个端点上存在。<span class="cm">（本轮改动）</span>所以配置从「供应商 → 模型」两层改成 <code>[model.entries.&lt;key&gt;]</code> 平铺，每条自带 <code>NAME</code>（别名）/ <code>ID</code> / <code>PROVIDER</code>（协议）/ <code>BASE_URL</code> / <code>API_KEY</code>；<code>PRIMARY</code> 与 <code>MODEL_OVERRIDE</code> 一律写<strong>别名</strong>——别名是唯一的寻址名，重名的那几条才需要和 ID 不同。<br>
 <b>与 demo 的差异只有排版：</b><code>agent-workspace.html</code> 右侧代码列更窄，同一份文件把分组注释单独起了一行、<code>PROVIDERS</code> 折成两行；<strong>字段名、值与结构完全一致</strong>，对照时以字段为准。</div>
 
 <div class="sublabel">E2 同一屏里的「看」与「改」</div>
 <table>
 <tr><th>段</th><th>回答的问题</th><th>主要单元</th><th>关键约束</th></tr>
-<tr><td class="nw"><code>develop:model-token</code> · 看现状段</td><td>现在用的是哪个供应商的哪个模型、用了多少、还剩多少额度、谁能用</td><td>模型浮层（流内卡片，供应商分组）· Quota Bar（挂在当前供应商账号下）· Token 明细表 · Checklist Row</td><td>只读为主；点击切换是就地操作，浮层自己的 <code>current</code> 标记即反馈，<strong>不写回执</strong>；点不可用的行例外（要给「没有改」回执，否则等于静默失败）</td></tr>
+<tr><td class="nw"><code>develop:model-token</code> · 看现状段</td><td>现在用的是哪个端点上的哪个模型、用了多少、还剩多少额度、谁能用</td><td>模型浮层（流内卡片，端点分组）· Quota Bar（挂在当前端点账号下）· Token 明细表 · Checklist Row</td><td>只读为主；点击切换是就地操作，浮层自己的 <code>current</code> 标记即反馈，<strong>不写回执</strong>；点不可用的行例外（要给「没有改」回执，否则等于静默失败）</td></tr>
 <tr><td class="nw"><code>develop:model-token</code> · 改配置段</td><td>想换的话在哪换、换错了会怎样</td><td>Command Echo · Checklist Row（拒绝）· 命令↔字段对照表</td><td><strong>是「改」不是「看」</strong>：命令行 + 回执进流，右侧代码列同时显示 <code>config.toml</code> 的改动前后</td></tr>
 </table>
 <div class="note"><b>看与改合并成一屏，不是少了一屏，而是删掉了一条本来就不该存在的约束。</b>原先拆成 <code>model-token</code>（看）与 <code>cfg-cmd</code>（改）两个场景，代价是两屏的 <code>tokens 1.24M · ctx 38%</code> 必须<strong>强行对齐</strong>——一旦不一致，「改完立刻生效」看起来就是假的。既然两屏必须共享同一批数字、同一个输入框、同一个 <code>config.toml</code>，它们本来就是<strong>同一场会话</strong>；合并后 demo 的 <code>METRICS</code> 表里也只剩一行，不再需要「两行必须相等」的注释。</div>
 
 <div class="sublabel">E3 额度与水位（Quota Bar）</div>
-<p class="desc"><strong>额度挂在供应商账号上</strong>：切供应商就换一整套数字与重置语义。共享网关给的是时间窗（<code>5h</code> / <code>7d</code>），本机推理给的是资源占用（<code>GPU</code> / <code>队列</code>）——两者不是同一个东西，不该硬凑成同一组标签。读不到额度时（例如没配密钥）不给空条，改一句「为什么读不到」。</p>
+<p class="desc"><strong>额度挂在端点账号上</strong>：切端点就换一整套数字与重置语义。共享网关给的是时间窗（<code>5h</code> / <code>7d</code>），本机推理给的是资源占用（<code>GPU</code> / <code>队列</code>）——两者不是同一个东西，不该硬凑成同一组标签。读不到额度时（例如没配密钥）不给空条，改一句「为什么读不到」。<span class="cm">（本轮改动）</span>分组键从「供应商 id」下沉到<strong>端点主机名</strong>：它由 <code>BASE_URL</code> 推出来，不是用户要填的第三个字段；用户自己填的端点读不到额度也不算配置错误。</p>
 <table>
 <tr><th>行</th><th>示例</th><th>风险档</th><th>说明列写什么</th></tr>
 <tr><td class="nw">5h 窗口</td><td><code>5h ▓▓▓░░░░ 38% · 充裕 · reset 14:00</code></td><td>lv-1（正常）</td><td>状态词 + <strong>重置时间</strong>——用户要知道额度什么时候回来</td></tr>
 <tr><td class="nw">7d 窗口</td><td><code>7d ▓▓▓▓▓▓░░ 72% · 偏高 · reset 周一 09:00</code></td><td>lv-3（warnAt 触发）</td><td>同左</td></tr>
 <tr><td class="nw">GPU 占用<br>（kunpeng-local）</td><td><code>GPU ▓▓▓░░░░ 37% · 已用 · 本机独占，不占共享池</code></td><td>lv-1</td><td>本机推理没有「额度重置」，说明列改为讲占用与排队</td></tr>
 <tr><td class="nw">ctx 水位</td><td><code>ctx ▓▓▓▓░ 72% /70%</code>（底栏与提示行）</td><td>≥ warnAt → 变黄；≥ warnAt+15 → 变红</td><td><strong>当前值 / 阈值一起给</strong>：只给当前值用户没法判断「72% 算不算高」；只给阈值又看不到离它多远</td></tr>
-<tr><td class="nw">读不到额度</td><td><code>没有改</code> 形状的一行：「额度读不到 · 该供应商没有配置密钥」</td><td>—</td><td>不画 0% 的空条假装有数据——那会被读成「额度用完了」</td></tr>
+<tr><td class="nw">读不到额度</td><td><code>没有改</code> 形状的一行：「额度读不到 · 该端点没有配置密钥」</td><td>—</td><td>不画 0% 的空条假装有数据——那会被读成「额度用完了」</td></tr>
 </table>
 <div class="rule"><b>四级风险色降为三档：</b>额度与水位在概念上是四个级别（充裕 / 正常 / 偏高 / 危险），但实际取色只给三档——「充裕」与「正常」不做颜色区分，避免同屏出现两种都表示「没事」的颜色，把注意力浪费在无差别信息上。</div>
 
@@ -870,11 +871,11 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># 单个子 Agent 上限，�
 <li><span class="id">AC-E1</span><span>命令改动的字段与 <code>config.toml</code> 中的行一一对应，右侧代码列能看到改动前后（diff 形态）。</span></li>
 <li><span class="id">AC-E2</span><span>不存在「应用 / 保存 / 同步」按钮或状态条。</span></li>
 <li><span class="id">AC-E3</span><span>候选菜单的模型清单 = <code>model.providers.&lt;id&gt;.MODELS</code> 的并集；改配置文件后候选即时变化。</span></li>
-<li><span class="id">AC-E4</span><span><code>subagent.MODEL_OVERRIDE</code> 生效时，卡片头部能看出该子 Agent 用的是哪个模型（可覆盖而不静默），写法为 <code>供应商/模型</code>。</span></li>
+<li><span class="id">AC-E4</span><span><code>subagent.MODEL_OVERRIDE</code> 生效时，卡片头部能看出该子 Agent 用的是哪个模型（可覆盖而不静默），写法为<strong>别名</strong>。</span></li>
 <li><span class="id">AC-E5</span><span>「看」与「改」的数字同源：<code>develop:model-token</code> 一屏里的 token / ctx 水位与底栏、提示行三处完全一致（同一个 <code>METRICS</code> 记录、同一个 <code>setModel()</code> 写入口），不存在第二个数据源。</span></li>
 <li><span class="id">AC-E6</span><span>阈值越界时回执给出可选范围与「正确写法」，且阈值保持不变。</span></li>
-<li><span class="id">AC-E7</span><span><code>[model]</code> 段只允许 <code>供应商/模型</code> 全名；配置文件里出现不带供应商前缀的 <code>PRIMARY</code> / <code>MODEL_OVERRIDE</code> 视为配置错误（不能靠运行时的「猜一个」兜底）。</span></li>
-<li><span class="id">AC-E8</span><span>额度条、供应商分组、候选菜单三处展示的供应商状态与配置一致：未配 <code>API_KEY</code> 的供应商在三处都是「可见但不可用」。</span></li>
+<li><span class="id">AC-E7</span><span><code>[model]</code> 段的 <code>PRIMARY</code> / <code>MODEL_OVERRIDE</code> 只接受<strong>别名</strong>，且该别名必须能在 <code>model.entries</code> 里唯一命中；写了一个对不上任何条目、或对上多条的字符串视为配置错误（不能靠运行时的「猜一个」兜底）。</span></li>
+<li><span class="id">AC-E8</span><span>额度条、端点分组、候选菜单三处展示的端点状态与配置一致：未配 <code>API_KEY</code> 的 OpenAI 兼容端点在四处（含管理页表单）都是「可见但不可用」，Ollama 端点不算缺密钥。</span></li>
 </ul>
 </section>
 
@@ -931,8 +932,8 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># 单个子 Agent 上限，�
 <tr><td class="nw">测试用当前表单的 Base URL + API Key，超时 10s</td><td><code>mmDiagnose()</code> 纯函数判定 + <code>TEST_TIMEOUT_MS=10000</code></td><td>Page Footer Status</td><td><span class="st ok">已定</span> demo 用 1.2s 模拟，<strong>文案里的超时数字仍是 10s</strong></td></tr>
 <tr><td class="nw">成功 / 失败的具体原因文案</td><td>四类：格式错 / 缺 API Key / <code>认证失败：API Key 无效</code> / <code>连接超时（10s），请检查 Base URL</code>，并给出错那一栏加 <code>aria-invalid</code></td><td>Page Footer Status + Setting Row（error 态）</td><td><span class="st ok">已定</span> 失败必须指到具体哪一栏</td></tr>
 <tr><td class="nw">缺省态：顶栏高亮提示 + 对话区禁用 + 居中空状态卡 + 立即配置</td><td><code>develop:no-model</code> 场景；顶栏胶囊 <code>#mmWarn</code>、底栏模型位显示「未配置」、输入框 <code>disabled</code>、引导卡 <code>#nmGo</code></td><td>Guidance Chip（新增登记）· Empty State（变体）· Status Bar Metrics</td><td><span class="st ok">已定</span> <strong>全产品唯一允许禁用输入的场景</strong></td></tr>
-<tr><td class="nw">已配置态：状态栏常驻显示激活模型<strong>别名</strong></td><td>底栏模型位 = 别名（不再是 <code>供应商/模型</code>）</td><td>Status Bar Metrics</td><td><span class="st part">本轮改动</span> 与 §4A 的「底栏显示供应商/模型」冲突，已按新 PRD 改写</td></tr>
-<tr><td class="nw">（PRD 未提）额度条 / 供应商分组浮层</td><td>保留：额度条仍按端点分组读 <code>PROVIDER_QUOTA</code>；浮层仍可用</td><td>Quota Bar · Model Switcher</td><td><span class="st ask">待裁决</span> 见 F10</td></tr>
+<tr><td class="nw">已配置态：状态栏常驻显示激活模型<strong>别名</strong></td><td>底栏模型位 = 别名（不再是 <code>供应商/模型</code>）</td><td>Status Bar Metrics</td><td><span class="st ok">本轮改动</span> 与 §4A 的「底栏显示供应商/模型」冲突，已按新 PRD 改写</td></tr>
+<tr><td class="nw">（PRD 未提）额度条 / 端点分组浮层</td><td>保留：额度条按端点分组读 <code>EP_QUOTA</code>（键 = 端点主机名）；浮层保留为会话内「就地切换」的快路径，分组头改成端点</td><td>Quota Bar · Model Switcher</td><td><span class="st ok">本轮已裁决</span> 见 F10</td></tr>
 </table>
 
 <div class="sublabel">F3 字段表（顺序 = PRD 顺序，不重排）</div>
@@ -1023,14 +1024,14 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># 单个子 Agent 上限，�
 </table>
 
 <div class="sublabel">F10 唯一事实源，以及本轮的待裁决项</div>
-<div class="blocker"><div class="bt">待裁决 · 「供应商」与「Provider」是两条轴，旧结构没有被新 PRD 覆盖干净</div>
-<div class="bl">旧结构：<strong>供应商</strong>（<code>devkit-gateway</code> / <code>kunpeng-local</code> / <code>private-cloud</code>）是模型的上层分组，端点、密钥、额度、计费都挂在它身上；命令与配置文件一律写 <code>供应商/模型</code>（§4A / §4E）。</div>
-<div class="bl">新 PRD：<strong>Provider</strong> 只有 <code>OpenAI Compatible</code> / <code>Ollama</code> 两个取值，它是<strong>协议</strong>；端点由 <code>Base URL</code> 承担、账号由 <code>API Key</code> 承担——也就是<strong>「供应商」这个中间层在新 PRD 里不存在了</strong>。</div>
-<div class="bl"><strong>本轮的最小改动（不擅自删除上一轮成果）：</strong>新页面的 8 个字段严格按 PRD 实现；旧结构里没有对应用户输入项的部分（额度分组）保留在 <code>PROVIDER_QUOTA</code> 里，内部记作「端点分组」；底栏与提示行按新 PRD 改为显示<strong>别名</strong>（这正是 PRD 写的「实时显示当前激活模型的别名」）。</div>
-<div class="bl"><strong>需要裁决的三件事：</strong>① 配置文件与命令语法是否保留 <code>供应商/</code> 前缀（保留 = 与 §4A/§4E 一致但和新 PRD 的字段模型两套；去掉 = 与 PRD 一致，但同名模型无法寻址，必须靠别名唯一化）；② 「额度」在新模型里挂在哪一层（端点 host？还是干脆去掉，因为自建端点不回传额度）；③ 旧浮层（Model Switcher 的分组变体）是否退休——如果去掉供应商，它就退化成一张平铺列表，与「管理页左列」职责重合。</div>
+<div class="note"><b>已裁决 · 「供应商」与「Provider」两条轴收敛成一条：Provider 是协议，端点是 Base URL + API Key</b><br>
+<div class="bl"><strong>裁决依据：</strong>「之前和 PRD 冲突的按照 PRD 为准」。旧结构：<strong>供应商</strong>（<code>devkit-gateway</code> / <code>kunpeng-local</code> / <code>private-cloud</code>）是模型的上层分组，端点、密钥、额度、计费都挂在它身上；命令与配置文件一律写 <code>供应商/模型</code>（§4A / §4E）。</div>
+<div class="bl">新 PRD：<strong>Provider</strong> 只有 <code>OpenAI Compatible</code> / <code>Ollama</code> 两个取值，它是<strong>协议</strong>；端点由 <code>Base URL</code> 承担、账号由 <code>API Key</code> 承担——<strong>「供应商」这个中间层在新 PRD 里不存在了</strong>。</div>
+<div class="bl"><strong>裁决结果（本轮已执行，不再是"两套并存"）：</strong><br>① <strong>命令语法去掉 <code>供应商/</code> 前缀</strong>——只有一个写法：别名或模型 ID。重名靠<strong>别名</strong>消歧（PRD 里本来就有这个字段，默认等于模型 ID，重名的那几条才另起名字）。<br>② <strong>额度挂到端点</strong>：分组键 = 端点主机名（由 <code>BASE_URL</code> 推出来），不再要求用户填「供应商」；<code>PROVIDER_QUOTA</code> 更名 <code>EP_QUOTA</code>。<br>③ <strong>旧浮层保留，但分组头改成端点</strong>：它承担的是「会话内就地切换」这条快路径，与整页管理页职责不重合（快 vs 慢、只选 vs 增删改），因此不退休；它内部写的一直是同一份配置，不构成第二个事实源。</div>
+<div class="bl"><strong>配置文件随之一并改（§4E 已同步）：</strong><code>[model.providers.&lt;id&gt;]</code> 两层结构改成 <code>[model.entries.&lt;key&gt;]</code> 平铺，每条自带 <code>NAME</code>（别名）/ <code>ID</code> / <code>PROVIDER</code>（协议）/ <code>BASE_URL</code> / <code>API_KEY</code>；<code>PRIMARY</code> 与 <code>MODEL_OVERRIDE</code> 写别名。<br><strong>唯一保留的旧成果</strong>：额度条与「未配密钥可见不可选」——PRD 没提额度，但它不构成冲突，只是从「供应商账号」换挂到「端点账号」。自建端点读不到额度时明确说「无额度信息」，不算配置错误。</div>
 </div>
 <div class="rule"><b>本轮已经做掉的「唯一事实源」：</b>激活模型只存在一个地方（激活记录的 <code>key</code>），底栏、提示行、侧栏节点、管理页列表的方块、旧浮层的 <code>current</code> 标记<strong>五处都是它的派生显示</strong>；任何一条切换路径（浮层点行 / <code>/model &lt;前缀&gt;</code> / 管理页「设为激活」）都写同一个入口。<em>为什么值得单独说：上一版底栏读的是「当前模型」、管理页读的是自己的激活项，两份状态在「删掉激活项」「在页面里激活」「复制一条」这三条路径上必然分叉——分叉之后最难查的不是显示错，而是「同一个设置有两处各写各的」。</em></div>
-<div class="note"><b>startup 页的提示落在哪：</b>PRD 要求「启动页与主页面顶部状态栏高亮提示」。本轮在<strong>站点启动页</strong>（仓库根 <code>index.html</code>）加的是<strong>两个直达入口</strong>（<code>?page=model</code> 与 <code>?scene=develop/no-model</code>），<strong>没有</strong>加一条「未配置模型」的告警——启动页是文档入口页，在它上面挂产品的运行时状态会读成「这个文档站没配模型」。产品内的缺省态提示已完整落在演示页顶栏胶囊 + 引导卡 + 底栏三处。若需要启动页也出告警banner，属于产品态与文档态的边界问题，请裁决。</div>
+<div class="note"><b>startup 页的提示落在哪：</b>PRD 要求「启动页与主页面顶部状态栏高亮提示」。本轮在<strong>站点启动页</strong>（仓库根 <code>index.html</code>）加的是<strong>两个直达入口</strong>（<code>?page=model</code> 与 <code>?scene=develop/no-model</code>），<strong>没有</strong>加一条「未配置模型」的告警——启动页是文档入口页，在它上面挂产品的运行时状态会读成「这个文档站没配模型」。产品内的缺省态提示已完整落在演示页顶栏胶囊 + 引导卡 + 底栏三处。若需要启动页也出告警 banner，属于产品态与文档态的边界问题。<span class="cm">（已按「PRD 优先」向 PRD 靠：“启动页”被解释为产品或 demo 的入口屏——本交付面里没有独立的产品启动页，缺省态因此完整落在演示页顶栏 + 引导卡 + 底栏三处；站点启动页给的是能直达该状态的入口。）</span></div>
 
 <div class="sublabel">F11 验收条件</div>
 <ul class="ac">
@@ -1064,8 +1065,8 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># 单个子 Agent 上限，�
 <tr><td class="nw">改配置的回执（成功）</td><td>AI Text + Inline Highlight</td><td>复用——AI 文本是默认态，关键值靠行内强调分色</td></tr>
 <tr><td class="nw">改配置的回执（被拒）</td><td>Checklist Row（<code>wrap</code> 变体 · 实心金方块 · 「没有改」）</td><td>复用 + 变体</td></tr>
 <tr><td class="nw">输入框下方的命令提示</td><td>Command Hint Bar</td><td>已有（本轮重排版 + 定死降级阶梯）</td></tr>
-<tr><td class="nw">候选菜单 / 候选行的「当前」标记 / 供应商列</td><td>Command Candidate Menu · Status Square · Candidate Menu 的字段</td><td><span class="st ask">新增</span>菜单；后两者为复用</td></tr>
-<tr><td class="nw">模型浮层里的供应商分组（组头 + 缩进模型行 + 一次只摊开一组）</td><td>Model Switcher 的受约束变体</td><td>变体——不新立组件，形状差异见 §4A5 与 §4E2</td></tr>
+<tr><td class="nw">候选菜单 / 候选行的「当前」标记 / 端点列</td><td>Command Candidate Menu · Status Square · Candidate Menu 的字段</td><td><span class="st ok">新增</span>菜单；后两者为复用</td></tr>
+<tr><td class="nw">模型浮层里的端点分组（组头 + 缩进模型行 + 一次只摊开一组）</td><td>Model Switcher 的受约束变体</td><td>变体——不新立组件，形状差异见 §4A5 与 §4E2</td></tr>
 <tr><td class="nw">切换被拒的两种新理由（同名多义 / 未配密钥）</td><td>Checklist Row（与「越界被拒」同一形状）</td><td>复用——区别只在值列的文案</td></tr>
 <tr><td class="nw">下一步建议按钮</td><td>Suggested Actions</td><td>已有（本轮从「系统与容器类」挪进输入区单元）</td></tr>
 <tr><td class="nw">子 Agent 卡片与其内部排版</td><td>Sub-Agent Block</td><td>已有（本轮补：头部即收起态全部内容、默认开合判据）</td></tr>
@@ -1090,7 +1091,7 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># 单个子 Agent 上限，�
 <tr><td class="nw">F · 深度思考开关</td><td>Switch</td><td>复用——与皮肤 / 圆角开关同一个控件与开态样式</td></tr>
 <tr><td class="nw">F · Provider 下拉</td><td>Select（既有控件）</td><td>复用</td></tr>
 </table>
-<div class="rule"><b>比例本身就是结论：</b>本轮的 18 行功能里，真正需要的<strong>新单元只有 3 个</strong>（受阻说明块 / 行内强调 / 调优曲线容器）+ 1 个已登记待并（候选菜单）；后加的「供应商」维度<strong>一个组件都没新增</strong>——它是 Model Switcher 的受约束变体（组头可收起）+ Command Candidate Menu 换掉一列（额度池 → 供应商）+ Checklist Row 多两种拒绝理由。多级并发与「会话内改配置」这两个能力最容易诱人再发明一套进度通知、状态标记、总结条；实际上它们全都落在已登记的基元上。<br>
+<div class="rule"><b>比例本身就是结论：</b>本轮的 18 行功能里，真正需要的<strong>新单元只有 3 个</strong>（受阻说明块 / 行内强调 / 调优曲线容器）+ 1 个已登记待并（候选菜单）；后加的「端点」维度<strong>一个组件都没新增</strong>——它是 Model Switcher 的受约束变体（组头可收起）+ Command Candidate Menu 换掉一列（额度池 → 端点）+ Checklist Row 多两种拒绝理由。多级并发与「会话内改配置」这两个能力最容易诱人再发明一套进度通知、状态标记、总结条；实际上它们全都落在已登记的基元上。<br>
 <b>本轮（F · 模型管理页）的比例同样值得记下：</b>8 个字段 + 一列列表 + 一个确认弹窗，真正需要新登记的只有 <strong>5 类</strong>（Setting Row / Masked Field / Icon Action / Confirm Dialog / Page Footer Status），其余全部复用既有元件——<strong>开关复用皮肤开关、激活标记复用状态方块、空状态复用 Empty State、下拉复用既有 Select</strong>。管理页最容易滑向「为配置界面另起一套控件」，本轮明确没有：表单控件的外观与交互与设置面板里的开关、嵌套在流里的按钮保持一致。</div>
 </section>
 
@@ -1116,10 +1117,10 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># 单个子 Agent 上限，�
 <div class="note"><b>缺口 4 · 实现轨道的门禁</b><br>
 表单第 4/5/6/9/10/11/14/15/16/18 行为实现轨道，其入口条件是 <code>UI-SPEC.md</code> 状态为 <code>approved</code>（当前 <code>draft</code>）且页面 <code>ui-spec-version</code> 与全局版本完全相等。本文档与 index.html 的增补<strong>不改变这一门禁</strong>，也不代表实现已排期。</div>
 
-<div class="note crit"><b>待裁决 5 · 「供应商」与「Provider」并存（本轮新增，最高优先级）</b><br>
-新 PRD 只给 Provider 两个取值（<code>OpenAI Compatible</code> / <code>Ollama</code>，协议层），端点归 <code>Base URL</code>、账号归 <code>API Key</code>——<strong>旧结构里的「供应商」中间层（端点 + 密钥 + 额度 + 计费一起挂的那一层）在新 PRD 里没有位置</strong>，而 §4A / §4E 的命令语法与配置文件写法（<code>供应商/模型</code>）建立在它之上。<br>
-<b>本轮采取的最小改动（不擅自删上一轮成果）</b>：新页面严格按 PRD 实现；底栏与提示行按 PRD 改为显示<strong>别名</strong>；额度分组在内部保留为「端点分组」；<code>供应商/模型</code> 的命令写法与旧浮层暂时保留可用。<br>
-<b>三件需要裁决的事</b>：① 命令与配置文件是否保留 <code>供应商/</code> 前缀（去掉则同名模型只能靠别名寻址）；② 额度这一维度挂哪一层，或直接去掉（自建端点不回传额度，无额度信息≠配置错误）；③ 旧浮层是否退休（去掉供应商后它退化为平铺列表，与管理页左列职责重合）。<strong>未裁决前</strong>：§4A 的 <code>供应商/模型</code> 类验收条件按现状执行，F 组的验收条件按新 PRD 执行，两套并存在本文档里如实标注。</div>
+<div class="note"><b>已裁决 5 · 「供应商」与「Provider」的冲突已按「PRD 优先」收敛</b><br>
+<b>裁决：</b>以 PRD 为准。新 PRD 只给 Provider 两个取值（<code>OpenAI Compatible</code> / <code>Ollama</code>，协议层），端点归 <code>Base URL</code>、账号归 <code>API Key</code>——旧结构里的「供应商」中间层（端点 + 密钥 + 额度 + 计费一起挂的那一层）<strong>不再作为用户可见概念存在</strong>。执行结果与依据见 <a href="#spec-page">§4F10</a>。<br>
+<b>已执行的改动：</b>命令与配置去掉 <code>供应商/</code> 前缀（只写别名 / 模型 ID，重名靠别名消歧）；<code>PROVIDER_QUOTA</code> → <code>EP_QUOTA</code>（键 = 端点主机名）；浮层分组头与候选菜单的「供应商」列改成<strong>端点主机名</strong>；浮层本身保留为快路径。§4A 的 A2 / A5 / A6 / 回执示例与 §4C / §4E 的配置写法、以及两组的验收条件均已同步改写。<br>
+<b>保留未动的一件事：</b>额度条与「未配密钥可见不可选」按原样保留，只换载体（供应商账号 → 端点账号）——PRD 没有额度概念，因此它不构成冲突；自建端点读不到额度时说明「无额度信息」，不算配置错误。</div>
 
 <div class="note warn"><b>待裁决 6 · 「并发采集会互相干扰」该不该是受阻说明块（上一轮遗留）</b><br>
 <code>develop:subagent</code> 场景里 sub-3 卡片内的 <code>⚠ 并发采集会互相干扰</code> 用的是<strong>受阻说明块</strong>的形状（金左线）。但严格按定义，受阻块只用于「卡住 / 要人裁决」，而这里是 Agent 解释自己为什么把并发度降下来（工具级串行），并没有停下来等人。<br>
@@ -1137,7 +1138,7 @@ demo 的受阻说明块原文引用「按 P29『资源提示』规则」，但 <
 <h3>模型与 Token（§4A）</h3>
 <ul class="ac">
 <li><span class="id">AC-A1</span><span><strong>（本轮改动）</strong><code>/model</code> 无参 → <strong>打开管理页</strong>（见 AC-F1）；带空格 <code>/model </code> 仍是候选菜单路径</span></li>
-<li><span class="id">AC-A2</span><span><code>/model 供应商/模型</code> 全名 → 切换成功，底栏<strong>别名</strong> / 提示行别名与端点 / 候选标记三处同步</span></li>
+<li><span class="id">AC-A2</span><span><code>/model &lt;别名&gt;</code> → 切换成功，底栏<strong>别名</strong> / 提示行别名与端点 / 候选标记三处同步</span></li>
 <li><span class="id">AC-A3</span><span>三种非法输入 → 「没有改」回执 + 正确写法</span></li>
 <li><span class="id">AC-A4</span><span><code>/tokens 85</code> → 提示行变 85%、当前用量不变，回执不含位置自述</span></li>
 <li><span class="id">AC-A5</span><span>非命令文本 → 输入不被清空、无回执</span></li>
@@ -1146,10 +1147,10 @@ demo 的受阻说明块原文引用「按 P29『资源提示』规则」，但 <
 <li><span class="id">AC-A8</span><span>提示行不可点、不抢焦点</span></li>
 <li><span class="id">AC-A9</span><span>浅色主题下六色强调与受阻块标题对比度达标</span></li>
 <li><span class="id">AC-A10</span><span><code>/model qwen</code> 多义 → 拒绝 + 列出全部全名写法，模型不变</span></li>
-<li><span class="id">AC-A11</span><span>未配密钥的供应商 → 拒绝 + 说明缺 <code>API_KEY</code> + 给替代写法</span></li>
-<li><span class="id">AC-A12</span><span>未知供应商 / 该供应商下无此模型 → 拒绝 + 列出实际有值的清单</span></li>
-<li><span class="id">AC-A13</span><span>切供应商 → 额度条换一套数字（<code>5h/7d</code> ↔ <code>GPU/队列</code>），说明行同步</span></li>
-<li><span class="id">AC-A14</span><span>联想支持 <code>devkit-</code>（按供应商）与 <code>qwen</code>（按模型名）两种输入</span></li>
+<li><span class="id">AC-A11</span><span>未配密钥的端点上的模型 → 拒绝 + 说明缺 <code>API_KEY</code> + 给同模型 ID 在可用端点上的别名</span></li>
+<li><span class="id">AC-A12</span><span>名字无匹配 → 拒绝 + 提示去配置页；只命中 1 条的前缀 → 切换成功</span></li>
+<li><span class="id">AC-A13</span><span>切端点 → 额度条换一套数字（<code>5h/7d</code> ↔ <code>GPU/队列</code>），说明行同步</span></li>
+<li><span class="id">AC-A14</span><span>联想支持 <code>devkit-gateway</code>（按端点）· <code>qwen</code>（按模型 ID）· <code>私有云</code>（按别名）三种输入</span></li>
 <li><span class="id">AC-A15</span><span>一次只摊开一组，组头可键盘开合且始终带状态方块</span></li>
 <li><span class="id">AC-A16</span><span>浮层里点不可用的行 → 与命令路径同文案结构的「没有改」回执</span></li>
 <li><span class="id">AC-A17</span><span><strong>（本轮改动）</strong>提示行常驻：无命令可改的场景也显示模型别名 / token / 告警线；未配置模型时模型位显示「未配置」、端点位留空</span></li>
@@ -1198,11 +1199,11 @@ demo 的受阻说明块原文引用「按 P29『资源提示』规则」，但 <
 <li><span class="id">AC-E1</span><span>命令字段 ↔ config.toml 行一一对应，右侧可见 diff</span></li>
 <li><span class="id">AC-E2</span><span>无「应用 / 保存 / 同步」</span></li>
 <li><span class="id">AC-E3</span><span>候选列表 = <code>model.providers.&lt;id&gt;.MODELS</code> 的并集</span></li>
-<li><span class="id">AC-E4</span><span><code>MODEL_OVERRIDE</code> 在卡片上可见，写法为 <code>供应商/模型</code></span></li>
+<li><span class="id">AC-E4</span><span><code>MODEL_OVERRIDE</code> 在卡片上可见，写法为<strong>别名</strong></span></li>
 <li><span class="id">AC-E5</span><span>看与改的数字同源（一屏内 / 底栏 / 提示行三处一致）</span></li>
 <li><span class="id">AC-E6</span><span>越界回执给范围与正确写法</span></li>
-<li><span class="id">AC-E7</span><span><code>PRIMARY</code> / <code>MODEL_OVERRIDE</code> 只接受 <code>供应商/模型</code> 全名</span></li>
-<li><span class="id">AC-E8</span><span>未配密钥的供应商在额度条 / 分组 / 候选菜单三处一致地「可见但不可用」</span></li>
+<li><span class="id">AC-E7</span><span><code>PRIMARY</code> / <code>MODEL_OVERRIDE</code> 只接受能在 <code>model.entries</code> 里唯一命中的<strong>别名</strong></span></li>
+<li><span class="id">AC-E8</span><span>未配密钥的端点在额度条 / 分组 / 候选菜单 / 管理页四处一致地「可见但不可用」</span></li>
 </ul>
 </section>
 
