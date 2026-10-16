@@ -1567,7 +1567,7 @@ JetBrains Mono NL  ·  Fira Code  ·  Sarasa Term SC<span class="fw2">（</span>
 <div class="eyebrow">Components</div>
 <h2>对话流基元 —— 跨产品调研统一决策</h2>
 <p class="desc">AI CLI 的主界面本质是一条不断滚动的对话流：用户消息、AI 文本、工具调用、等待状态、Plan、进度、系统提示混排在同一条纵向流里——这条流怎么分行分色，直接决定产品好不好读。下面对比了 OpenCode / Codex CLI / Gemini CLI / Claude Code 四家在 14 类基础元件上的做法，逐条给出 DevKit AI 的统一决策。<a href="#p1">P01–P20</a> 里的 Agent Timeline、AI Plan、Tool Execution 等场景级 pattern，都是拿下面这些行级基元拼出来的——这里补的是最底层、被复用最多、却从未单列过规范的一层。</p>
-<p class="desc">本节分四组：<strong>对话流基元（14 类）</strong>回答「一条流里的这一行是什么」，<strong><a href="#convo">编排类元件（8 类）</a></strong>回答「这一行由谁产出、有几件事正在同时进行」，<strong>输入区单元（4 类）</strong>回答「不在流里、但和流同一眼位的那几个东西是什么」，<strong><a href="#settings">页面级元件（7 类）</a></strong>回答「整页设置与它带来的两枚新标记怎么摆」。后三组随「主 Agent 编排多子 Agent 并发」「会话内改模型 / token 预算」「模型管理与配置」三件事一起新增——一组画的不是一个行而是一棵树怎么在一维滚动的流里落下来；一组压根不在流里；还有一组连对话流那一屏都不在，所以都不塞进上面那张表。</p>
+<p class="desc">本节分四组：<strong>对话流基元（14 类）</strong>回答「一条流里的这一行是什么」，<strong><a href="#convo">编排类元件（8 类）</a></strong>回答「这一行由谁产出、有几件事正在同时进行」，<strong>输入区单元（4 类）</strong>回答「不在流里、但和流同一眼位的那几个东西是什么」，<strong><a href="#settings">页面级元件（8 类）</a></strong>回答「整页设置与它带来的两枚新标记怎么摆」。后三组随「主 Agent 编排多子 Agent 并发」「会话内改模型 / token 预算」「管理配置（模型）」三件事一起新增——一组画的不是一个行而是一棵树怎么在一维滚动的流里落下来；一组压根不在流里；还有一组连对话流那一屏都不在，所以都不塞进上面那张表。</p>
 <p class="desc">DevKit AI 有两个对话流渲染面：<a href="./agent-workspace.html">Agent Workspace</a>（Electron/浏览器承载，真实 CSS 渲染，圆角卡片、渐变、模糊都能画）与 <code>kunpeng-devkit-ai-tui</code>（OpenTUI 原生终端，只有字符格）。下面的样式画廊<strong>直接用真实 HTML/CSS 卡片渲染</strong>——就是 Agent Workspace 的实际样子，不是终端字符画；每张卡末尾标注它在终端面上退回什么形态，两个面共用同一套决策，只是画法不同。</p>
 
 <div class="sublabel">14 类元件 —— 现状与决策</div>
@@ -2016,7 +2016,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <strong>回执只说业务，产品语义归本页的单元定义</strong>：回执的职责是「这次发生了什么、你该怎么改」。所以「告警线是『你想在第几个点被告知』、它是阈值不是水位、超过 100% 等于不提醒自己」这类<strong>产品语义不由回执承担</strong>（本页上面 Quota Bars 与 Status Bar Metrics 两条已经把阈值 ≠ 水位写清楚了），业务流里只留数值边界与正确写法。判断标准很简单：<strong>同一句话换个项目还成不成立——成立的是业务，只跟本产品怎么设计有关的，是标注</strong>，标注一律收进本页的单元定义，不混进用户的真实会话。<strong>两类最常犯的标注</strong>：<strong>位置自述</strong>——「底栏的 ctx 当前值不变」→「当前用量不变」（数字在哪看是单元的事，回执只报数字本身）；<strong>行为自述</strong>——「其余可直接切」→ 删（候选列表怎么操作属 Model Switcher 单元，不属这次会话的业务状态）。<br>
 <strong>两个入口只留一份痕迹</strong>：敲完整命令、点模型卡的一行，是同一个动作的两个入口，都要写回执；管理页里点「设为激活」也写同一条结构的回执。只有<strong>同一屏内的就地操作</strong>不重复写（卡上的 <code>current</code> 标记本身就是它的反馈）。<br>
 <strong>写入位置在对话流末尾、并自动滚到底</strong>：改完立刻看到结果，不用自己往下找；回执只进当前场景的那条流，翻历史不会串场。<br>
-<strong>光敲命令名不带参数 = 打开配置页，不报错</strong>（本轮改动，原为「列候选」）：<code>/model</code> 回车不是"参数漏了"，而是"我要配模型"——它直接打开整页的<a href="#settings">模型管理与配置页</a>，并在流里留一条回执说明「当前用哪个模型、改成别处要点设为激活」。<strong>要切模型还有两条更快的路</strong>：敲<strong>完整别名</strong>的 <code>/model &lt;别名&gt;</code>，或点模型卡的一行（<strong>本轮改动</strong>：模型候选浮层删除，打字时不再弹候选，前缀也不再算命中）。</p>
+<strong>光敲命令名不带参数 = 打开配置页，不报错</strong>（本轮改动，原为「列候选」）：<code>/model</code> 回车不是"参数漏了"，而是"我要配模型"——它直接打开整页的<a href="#settings">管理配置页</a>，并在流里留一条回执说明「当前用哪个模型、改成别处要点设为激活」。<strong>要切模型还有两条更快的路</strong>：敲<strong>完整别名</strong>的 <code>/model &lt;别名&gt;</code>，或点模型卡的一行（<strong>本轮改动</strong>：模型候选浮层删除，打字时不再弹候选，前缀也不再算命中）。</p>
 
 <div class="sublabel">拼起来 —— 多条决策落进同一条对话流</div>
 <div class="cv-fig"><span class="fig-t">migrate 场景 · 从输入到收尾（节选，Agent Workspace 真实渲染）</span>
@@ -2066,7 +2066,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <p class="rule">这条流里同时出现了<strong>三种「没做完」</strong>，而它们长得不一样、也不该长得一样：<code>sub-2.2.1</code> 是<strong>受阻待裁决</strong>（有问题，但需要人来决定）、<code>sub-2.3</code> 是<strong>触顶收住</strong>（没做，但是主动止损，不是失败）、折叠的 <code>…</code> 是<strong>没画出来</strong>（有内容，只是屏幕放不下）。前两者的区分落在<strong>状态方块的填充</strong>上——受阻是<strong>实心金</strong>（还在等你），已收住是<strong>空心金</strong>（已经停下来了），同一个色相靠填充就分得开，不必再看文字；折叠的 <code>…</code> 不标方块，它不是状态而是「画不下」。三种的中文解释仍然由 <code>.rl</code> 那列文字给全（「验证未通过」「触达深度上限，已收住」），颜色只负责说「这里需要你看一眼」。底部的收口横幅把三种数量一次报清，右侧底栏给出这次编排的总账。<strong>token 用「父子不双算」的算法</strong>：每个 Agent 只计自己的调用，父级汇总 = 自身 + 全部后代，按 Agent 去重——否则每加一层就重复计一次，越深的编排越显得贵，用户会因此不敢用深编排。</p>
 
 <h3 id="settings">页面级元件 <span class="badge p">T0</span> <span class="chipm">整页 · 不属于上面任何一组</span></h3>
-<p class="desc">上面三组都默认一件事：<strong>用户始终待在对话流这一屏里</strong>。模型管理页是本产品第一个<strong>整页</strong>的东西——它盖住对话区与输入框（底栏留在页外，所以进设置的时候模型与用量还看得见），所以它既不是流里的一行，也不是贴着输入框的那一圈。<strong>把它塞进上面三张表都会让那张表失准</strong>：一张回答「这一行是什么」、一张回答「这一行由谁产出」、一张回答「贴着输入框的有哪些」，而它三个都不是。因此单列一组，共 <strong>7 类</strong>；<code>/model</code> 回车打开它，<kbd>Esc</kbd> 逐层退出（弹窗 → 页面 → 回到会话）。<strong>它是能力的容器而不是能力的复制品</strong>——里面每一个控件、每一个标记都必须是上面已经登记过的元件，不许因为「换了个整页」就另画一套表单控件。这一组来自 <a href="./agent-workspace.html">agent-workspace.html</a> 的 <code>model-token</code> 与 <code>no-model</code> 两个场景（<code>?page=model</code> 直接打开整页）。</p>
+<p class="desc">上面三组都默认一件事：<strong>用户始终待在对话流这一屏里</strong>。管理配置页是本产品第一个<strong>整页</strong>的东西——它盖住对话区与输入框（底栏留在页外，所以进设置的时候模型与用量还看得见），所以它既不是流里的一行，也不是贴着输入框的那一圈。<strong>把它塞进上面三张表都会让那张表失准</strong>：一张回答「这一行是什么」、一张回答「这一行由谁产出」、一张回答「贴着输入框的有哪些」，而它三个都不是。因此单列一组，共 <strong>8 类</strong>；<code>/model</code> 回车打开它，<kbd>Esc</kbd> 逐层退出（弹窗 → 页面 → 回到会话）。<strong>它是能力的容器而不是能力的复制品</strong>——里面每一个控件、每一个标记都必须是上面已经登记过的元件，不许因为「换了个整页」就另画一套表单控件。这一组来自 <a href="./agent-workspace.html">agent-workspace.html</a> 的 <code>model-token</code> 与 <code>no-model</code> 两个场景（<code>?page=model</code> 直接打开整页）。</p>
 <table>
 <tr><th>元件</th><th>回答什么问题</th><th>来源 / 复用关系</th></tr>
 <tr><td>Settings Page</td><td>「整页设置怎么摆」：<strong>左列可滚动列表 + 右侧详情表单</strong>两栏；宽屏并排，窄屏上下堆叠（列表在上、表单占一屏高）。顶栏留标题与退出路径，<strong>底栏不遮</strong></td><td><span class="badge p">新</span> 整页容器；沿用 <a href="#frame">#frame</a> 的页面骨架与 <a href="#p1">焦点模型</a></td></tr>
@@ -2075,25 +2075,27 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <tr><td>Icon Action</td><td>「行尾那几个小动作」：编辑 / 复制 / 删除。<strong>用图标不用文字</strong>（每行挂三个词会把别名挤断），但<strong>必须带 <code>aria-label</code> 与 <code>title</code></strong>，终端面降级为 <code>[e] [c] [d]</code> 单字符</td><td><span class="badge p">新</span>；危险动作（删除）沿用<a href="#color">危险色</a>，但不整行变红</td></tr>
 <tr><td>Confirm Dialog</td><td>「不可逆的单点动作怎么问」：遮罩 + 居中卡片 + 两句正文（删谁 / 后果），<strong>取消在左、危险在右</strong>，<strong>初始焦点落在「取消」</strong>，<kbd>Esc</kbd> = 取消</td><td><span class="badge p">新</span>；<strong>与 <a href="#p1">Approval Bar</a> 不合并</strong>——后者管「一批已定的动作放不放行」（可批量、可排队），弹窗只管一个动作，所以不做批量</td></tr>
 <tr><td>Page Footer Status</td><td>「表单底部的动作与结果」：左侧动作成组（设为激活 / 测试连通性 / 保存），右侧一行结果。<strong>结果留在原地、不弹 toast</strong>——「连通成功」与「认证失败：API Key 无效」是这次操作唯一的产出，飘走的提示等于逼用户重测一次；测试中按钮就地进加载态、可取消</td><td><span class="badge p">新</span>；着色沿用<a href="#color">语义色</a>与 <a href="#comp">Checklist Row</a> 的「说清为什么」纪律</td></tr>
+<tr><td>Settings Tabs</td><td>「一个页面里怎么分几类」：页头下方一行分类 tab，当前类提亮、未交付类压暗并带 <code>aria-disabled</code>。<strong>分类不做成左右分栏或下拉</strong>——分类是要被一眼数清的（现在是三类），下拉会把「还有别的」藏起来</td><td><span class="badge p">新</span>；视觉沿用场景 tab 的既有语汇（同尺寸、同圆角、同选中底色）</td></tr>
 <tr><td>Guidance Chip</td><td>「一个能用的模型都没有时，怎么让人找到出口」：顶栏里一枚<strong>可点</strong>的提示胶囊「未配置模型，请通过 /model 命令进行配置」，点它等同敲一条 <code>/model</code></td><td><span class="badge p">新</span>；文案纪律同 <a href="#convo">Suggested Actions</a>（动宾短句、结尾不写句号）</td></tr>
 </table>
 <p class="rule"><strong>整页里没有新控件，只有新排布</strong>：开关、下拉、单行文本、数字输入、状态方块、空状态卡、按钮——七样东西全都在上面登记过。这一组真正新增的是<strong>它们的容器与字段纪律</strong>（标签列宽统一、错误文案固定第三行、结果留原地），以及两枚只有整页才会出现的标记（行尾状态词与提示胶囊）。<strong>评审门槛同样适用</strong>：想往配置页加一个新控件之前，先回答「它是不是某一样已有控件的变体」，多数时候答案是「是，只是没对齐」。</p>
 
 <div class="cv-fig"><span class="fig-t">Settings Page 整页骨架（宽屏：左列列表 + 右侧详情；底栏留在页外）</span>
-<pre class="dense">┌ <span class="br">◢</span> KUNPENG <span class="t">DEVKIT AI</span> ── <span class="fw">模型管理与配置</span> ─────────── <span class="cm">[Esc] <span class="fw">返回会话</span></span> ┐
-│ <span class="s2"><span class="fw">模型</span> (6)</span>                <span class="cm">│</span> <span class="s2"><span class="fw">详情</span></span>                                        │
-│ <span class="pr">■</span> <span class="t"><span class="fw">通用推理</span> 72b</span> <span class="cm"><span class="fw">当前</span></span>    <span class="cm">│</span> <span class="fw">别名</span>       <span class="sel"><span class="fw">通用推理</span> 72b</span>                      │
-│ <span class="cm">□</span> <span class="fw">私有云</span>-v3            <span class="cm">│</span> <span class="fw">模型</span> ID    <span class="sel">pangu2.5-72b-instruct</span>             │
-│ <span class="cm">□</span> <span class="fw">私有云</span>-coder         <span class="cm">│</span> <span class="fw">服务商</span>     OpenAI Compatible ▾                   │
-│ <span class="wn">□</span> <span class="fw">本地小模型</span> <span class="cm"><span class="fw">未配密钥</span></span>  <span class="cm">│</span> Base URL   <span class="sel">https://…/v1</span>                     │
-│ <span class="cm">□</span> <span class="fw">代码专精</span> 32b          <span class="cm">│</span> API Key    <span class="cm">**********</span>  <span class="cm">[<span class="fw">显示</span>]</span>             │
-│ <span class="cm">+ <span class="fw">新增模型</span></span>              <span class="cm">│</span> <span class="fw">深度思考</span>   <span class="fw">开启</span> ▣                            │
-│ <span class="s2"><span class="fw">每行行尾</span></span> <span class="cm">[e][c][d]</span>     <span class="cm">│</span> <span class="fw">上下文上限</span> 128000 tokens                   │
-│                        <span class="cm">│</span> <span class="fw">单次最大输出</span> 50000 tokens                  │
-│                        <span class="cm">│</span> ───────────────────────────────────────── │
-│                        <span class="cm">│</span> <span class="sel">[ <span class="fw">设为激活</span> ]</span> [ <span class="fw">测试连通性</span> ]  <span class="ok">■ <span class="fw">连通成功</span></span>   │
-└────────────────────────┴───────────────────────────────────────────┘
-<span class="pr">■</span> <span class="fw">通用推理</span> 72b   <span class="cm">ctx</span> 34%   <span class="cm">tokens</span> 268.8k  <span class="cm">← <span class="fw">底栏留在页外</span><span class="fw2">，</span><span class="fw">进设置也看得见</span></span></pre>
+<pre class="dense">┌ <span class="br">◢</span> KUNPENG <span class="t">DEVKIT AI</span> ── <span class="fw">管理配置</span> ────────────────── <span class="cm">[Esc] <span class="fw">返回会话</span></span> ┐
+│ <span class="sel"><span class="fw">模型</span></span>   <span class="cm">Agent</span>   <span class="cm">Skill</span>                                              │
+│ <span class="s2"><span class="fw">模型</span> (6)</span>             │ <span class="s2"><span class="fw">详情</span></span>                                       │
+│ <span class="t"><span class="fw">通用推理</span> 72b</span> <span class="cm"><span class="fw">当前</span></span>    │ <span class="fw">别名</span>       <span class="sel"><span class="fw">通用推理</span> 72b</span>                    │
+│ <span class="fw">私有云</span>-v3            │ <span class="fw">模型</span> ID    <span class="sel">pangu2.5-72b-instruct</span>           │
+│ <span class="fw">私有云</span>-coder         │ <span class="fw">服务商</span>     OpenAI Compatible ▾             │
+│ <span class="fw">本地小模型</span> <span class="cm"><span class="fw">未配密钥</span></span>  │ Base URL   <span class="sel">https://…/v1</span>                    │
+│ <span class="fw">代码专精</span> 32b         │ API Key    <span class="cm">**********</span>  <span class="cm">[<span class="fw">显示</span>]</span>              │
+│ <span class="cm">+ <span class="fw">新增模型</span></span>           │ <span class="fw">深度思考</span>   <span class="fw">开启</span> ▣                          │
+│ <span class="s2"><span class="fw">每行行尾</span></span> <span class="cm">[e][c][d]</span>   │ <span class="fw">上下文上限</span> 128000 tokens                   │
+│                      │ <span class="fw">单次最大输出</span> 50000 tokens                  │
+│                      │ ─────────────────────────────────────────  │
+│                      │ <span class="sel">[ <span class="fw">设为激活</span> ]</span> [ <span class="fw">测试连通性</span> ]  <span class="ok">■ <span class="fw">连通成功</span></span>    │
+└──────────────────────┴────────────────────────────────────────────┘
+<span class="fw">通用推理</span> 72b   <span class="cm">ctx</span> 34%   <span class="cm">tokens</span> 268.8k  <span class="cm">← <span class="fw">底栏留在页外</span><span class="fw2">，</span><span class="fw">进设置也看得见</span></span></pre>
 <p class="rule"><strong>为什么是整页而不是右栏抽屉</strong>：抽屉塞不下 8 个字段加一个可增删的列表；更要紧的是<strong>「测试连通性」需要一个不被打扰的落点</strong>——结果要留在原地，抽屉一滚就把它带走了。<strong>为什么底栏留在页外</strong>：整页最容易犯的错是把状态栏一起盖掉，于是用户改模型时看不到自己正在用哪个、已经花了多少——而这两件事恰好是他在这一页做决定的依据。<br>
 <strong>列表行与表单的分工（PRD 的硬约束）</strong>：<strong>点左侧某一行只是把它读进右侧，不改变激活状态</strong>；<strong>「激活」与「加载」是两个独立操作</strong>，各有一个手势、各有各的痕迹——左列方块说的是「谁在用」，右表按钮说的是「改用谁」，左边读、右边写。若右表有未保存的改动就点「设为激活」，<strong>先保存再激活</strong>，不然改了一半的字段会静默丢掉。<br>
 <strong>删掉当前激活的模型</strong>：自动接管给列表里下一个可用模型，页脚给出结果行；<strong>列表被删空</strong>则回到缺省态。<strong>删除必须二次确认</strong>，卡片里写清删的是哪个别名<strong>并带上端点</strong>——重名条目（两个「私有云」）最容易在这里删错。删掉一个 <strong>未激活</strong>的模型不该动当前会话的任何东西：它只从列表里消失。</p>
@@ -2144,7 +2146,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <tr><td>缺省态对话区居中的引导卡</td><td>Empty State（禁用变体）</td><td><span class="badge s">变体</span> 复用既有空状态：同样的居中卡 + 一句主文案 + 一个动作按钮，<strong>不新造「引导页」</strong></td></tr>
 <tr><td>底栏与提示行的模型位</td><td>Status Bar Metrics · Command Hint Bar</td><td>已有，本轮改<strong>值口径</strong>——显示<strong>别名</strong>而不是「供应商/模型 ID」，端点移到提示行第三档；未配置时写「未配置」</td></tr>
 </table>
-<p class="rule">读法：<strong>一张表里 35 条只有 11 条是新的</strong>——这正是「组件评审门槛」想守住的比例。多级并发、会话内改配置、模型管理页这三个能力最容易诱人再发明一套进度通知、一套状态标记、一套总结条、一套表单控件；实际上它们全都落在已登记的基元上，真正缺的只有四件事：<strong>如何解释「为什么卡住」</strong>（受阻说明块）、<strong>正文里怎么分色</strong>（行内强调）、<strong>输入框上面那块曲线怎么收</strong>（调优曲线容器）、<strong>整页设置与它那几枚行尾动作怎么摆</strong>（本轮第四组）。凡是标 <span class="badge s">变体</span> 的都不算新增——它们是已有元件的受约束用法，改的是用法不是形状。</p>
+<p class="rule">读法：<strong>一张表里 35 条只有 11 条是新的</strong>——这正是「组件评审门槛」想守住的比例。多级并发、会话内改配置、管理配置页这三个能力最容易诱人再发明一套进度通知、一套状态标记、一套总结条、一套表单控件；实际上它们全都落在已登记的基元上，真正缺的只有四件事：<strong>如何解释「为什么卡住」</strong>（受阻说明块）、<strong>正文里怎么分色</strong>（行内强调）、<strong>输入框上面那块曲线怎么收</strong>（调优曲线容器）、<strong>整页设置与它那几枚行尾动作怎么摆</strong>（本轮第四组）。凡是标 <span class="badge s">变体</span> 的都不算新增——它们是已有元件的受约束用法，改的是用法不是形状。</p>
 
 <div class="sublabel">元件台账 —— 归入 <a href="#comp">#comp 组件清单</a></div>
 <table>
@@ -2184,6 +2186,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <tr><td>Status Bar Metrics</td><td>模型 + ctx 水位 + tokens 三项常驻；<strong>本轮改口径：模型位显示别名</strong>（不是供应商/模型 ID），未配置时写「未配置」</td><td>T0</td><td>P20</td></tr>
 <tr><td>Command Hint Bar</td><td>输入框下方的场景命令路标（命令 + 当前值 + 端点，不可点）；<strong>本轮改为常驻</strong>——它扛的是「模型别名 / token 与告警线」两个当前值，不再是纯说明文字</td><td>T0</td><td>P13 · P15</td></tr>
 <tr><td>Tune Chart Container</td><td>输入框上方<strong>可收起</strong>的调优曲线容器：图表／表格双视图，收起即暂停动效，不进对话流</td><td>T4</td><td>P20 · <a href="#primlib">图表单元</a></td></tr>
+<tr><td>Settings Tabs</td><td>页头下方的分类 tab（模型 / Agent / Skill）：当前类提亮，未交付类压暗 + <code>aria-disabled</code> 留在 tablist 里；<strong>分类不做成下拉</strong>——三类要能被一眼数清</td><td>T0</td><td>P13 · <a href="#settings">管理配置页</a></td></tr>
 <tr><td>Settings Page</td><td>整页设置容器：左列可滚动列表 + 右侧详情表单，宽屏并排、窄屏上下堆叠；<strong>底栏不遮</strong>（进设置仍看得见模型与用量）</td><td>T0</td><td>P13 · <a href="#frame">#frame</a> 页骨架</td></tr>
 <tr><td>Setting Row</td><td>一个配置项的标准行：标签 + 控件 + 帮助/错误文案三段固定，标签列宽全页统一；左列列表行是它的表亲（右侧换成状态词 + 图标动作）</td><td>T0</td><td>P13 · P27 配置补齐</td></tr>
 <tr><td>Masked Field</td><td>Setting Row 的受约束变体：逐字符 <code>*</code> 遮蔽，重新打开已保存配置同样全遮蔽，只有显式「显示」时是明文；空值显示「未配置」</td><td>T0</td><td>P19 风险色</td></tr>
@@ -2192,7 +2195,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <tr><td>Page Footer Status</td><td>表单底部：左侧动作成组（设为激活 / 测试连通性），右侧一行结果，<strong>结果留在原地不弹 toast</strong>；测试中就地加载、可取消，超时阈值写进文案</td><td>T0</td><td>P13 · P19</td></tr>
 <tr><td>Guidance Chip</td><td>顶栏可点提示胶囊（缺省态的唯一出口）：「未配置模型，请通过 /model 命令进行配置」，点它等同敲一条 <code>/model</code></td><td>T0</td><td>P27 · <a href="#settings">缺省态</a></td></tr>
 </table>
-<div class="note"><b>组件评审门槛同样适用：</b>新增对话流元件前先查这张台账与上面 14 类 + 编排类 8 类 + 输入区 4 类 + 页面级 7 类的决策——多数「新想法」其实是已有元件的变体，只是符号或颜色选错了。真正的新增，做完补进 <a href="#comp">组件清单</a> 与 <code>theme.ts</code>（本轮新增 7 条，全在页面级那一组，见上方映射表的 <span class="badge p">新</span>）。编排类是这条门槛最容易失守的地方：多级并发天然诱使人再发明一套「进度通知」，而它通常只是 <a href="#convo">Compact Progress</a> 换了个位置，或者 Sub-Agent Block 的 token 徽标。整页设置是第二处：换了个容器之后，人很容易顺手画一套「设置页专用」的开关与输入框——<strong>那七类里一个新控件都没有</strong>，只有新排布与两枚新标记。</div>
+<div class="note"><b>组件评审门槛同样适用：</b>新增对话流元件前先查这张台账与上面 14 类 + 编排类 8 类 + 输入区 4 类 + 页面级 8 类的决策——多数「新想法」其实是已有元件的变体，只是符号或颜色选错了。真正的新增，做完补进 <a href="#comp">组件清单</a> 与 <code>theme.ts</code>（本轮新增 8 条，全在页面级那一组，见上方映射表的 <span class="badge p">新</span>）。编排类是这条门槛最容易失守的地方：多级并发天然诱使人再发明一套「进度通知」，而它通常只是 <a href="#convo">Compact Progress</a> 换了个位置，或者 Sub-Agent Block 的 token 徽标。整页设置是第二处：换了个容器之后，人很容易顺手画一套「设置页专用」的开关与输入框——<strong>那八类里一个新控件都没有</strong>，只有新排布与两枚新标记。</div>
 </section>
 
 <section id="comp">

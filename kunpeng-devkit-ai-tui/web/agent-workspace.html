@@ -831,7 +831,7 @@ table.cmp tr.ttl td{color:var(--fg);font-weight:700}
    它跟着当前值一起变色，越线时两个数字同时亮起来，不必回看配置。 */
 .status-bar .ctxw{color:var(--fg4);font-weight:400;font-size:11px;margin-left:-2px}
 
-/* ══ 模型管理页 ══
+/* ══ 管理配置页（分类 tab：模型 / Agent / Skill，本轮只交付「模型」）══
    入口两条：输入框敲 /model 回车，或侧栏 Settings → Model。Esc 退回对话。
    形态是「页」不是「浮层」：要填 8 个字段、要连测、要增删改，塞进会话流会把流撑成
    一堆控件；而全屏接管本来就是这台 TUI 的产品形态（见 screens.html 屏 5 管理配置，
@@ -850,6 +850,15 @@ html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
 .mm-head .t{font-size:13px;font-weight:700;color:var(--fg)}
 .mm-head .rt{margin-left:auto;display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--fg4)}
 .mm-head kbd{background:var(--s4);color:var(--fg);padding:0 5px;border-radius:3px;font-family:var(--mono);font-size:11px}
+/* 页头下面的分类 tab：模型 / Agent / Skill。本轮只交付「模型」，
+   另外两个按「占位但不编内容」处理——保留 aria-disabled 与 Tab 可达性，
+   让读屏用户听见分类存在，而不是干脆藏掉 */
+.mm-tabs{flex:none;display:flex;align-items:center;gap:2px;padding:4px var(--sp-lg) 0;
+  border-bottom:1px solid var(--bd1);font-family:var(--mono)}
+.mm-tabs .stab{padding:0 10px;height:24px}
+.mm-tabs .stab[aria-disabled="true"],
+.mm-tabs .stab[aria-disabled="true"]:hover{color:var(--fg4);background:transparent;
+  border-color:transparent;cursor:not-allowed}
 .mm-body{flex:1;min-height:0;display:flex}
 
 /* 左：模型列表。每行 = 别名 + 行尾「使用中」 + 三个操作（编辑 / 复制 / 删除）。
@@ -1097,7 +1106,7 @@ table.cmp{border-left:2px solid var(--bd1)}
 .ss-toggle .ss-tl{font-family:var(--mono);font-size:11px;color:var(--fg4);white-space:nowrap}
 .ss-track{width:28px;height:14px;border-radius:7px;background:var(--bd2);position:relative;flex:none;transition:background .15s}
 .ss-track::after{content:'';position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--fg4);transition:transform .15s,background .15s}
-/* 开关的「开」态只写这一份：右上角圆角开关与模型管理页的「深度思考」共用同一形状，
+/* 开关的「开」态只写这一份：右上角圆角开关与管理配置页的「深度思考」共用同一形状，
    新开关一律加 .on 复用它，不另写一套 */
 .ss-toggle.on .ss-track,.mm-sw.on .ss-track{background:rgba(52,94,231,.5)}
 .ss-toggle.on .ss-track::after,.mm-sw.on .ss-track::after{transform:translateX(14px);background:var(--pri-h)}
@@ -1231,7 +1240,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
       <div class="h">Settings</div>
       <!-- Model 这一行带状态（已配置 / 未配置），所以走状态方块；Server 那行没有状态可报，
            仍是菱形字形。同一组里两种指示列是有意的：有状态的用方块，纯入口用字形 -->
-      <div class="sd-node" id="sdModel" role="button" tabindex="0" title="打开模型管理">
+      <div class="sd-node" id="sdModel" role="button" tabindex="0" title="打开管理配置">
         <span class="ic"><span class="stq done" id="sdModelSq" role="img" aria-label="模型已配置" title="模型已配置"></span></span>
         <span class="lb">Model · <span id="sdModelName">pangu-72b</span></span>
       </div>
@@ -2399,21 +2408,31 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
     </div>
   </div>
 
-    <!-- ══ 模型管理页 ══
+    <!-- ══ 管理配置页（分类 tab：模型 / Agent / Skill）══
          入口：输入框敲 /model 回车，或侧栏 Settings → Model。整屏覆盖主对话区（含输入框），
          底栏留在外面。左列表由 JS 渲染（它随增删改变化），右侧表单是静态结构——字段就这 8 个，
          只有值在变；静态写死的好处是 Tab 顺序、label 关联、必填标记都不用 JS 再拼一遍。
          字段顺序 = PRD 第 3 节的顺序，没有重排：前四行是「连什么、怎么连」，
          后四行是「怎么用」，用户第一次配模型就是从下往上填。 -->
-    <div class="mm-page" id="mmPage" role="region" aria-label="模型管理">
+    <div class="mm-page" id="mmPage" role="region" aria-label="管理配置">
       <div class="mm-head">
-        <span class="t">模型管理</span>
+        <span class="t">管理配置</span>
         <span class="rt">
           <span id="mmHeadNote">点左列只把配置读进右侧，不会切换正在用的模型</span>
           <span><kbd>Esc</kbd> 返回对话</span>
         </span>
       </div>
-      <div class="mm-body">
+      <div class="mm-tabs" role="tablist" aria-label="配置分类">
+        <button class="stab on" type="button" role="tab" id="mmTabModel" aria-selected="true"
+          tabindex="0" aria-controls="mmBody">模型</button>
+        <button class="stab" type="button" role="tab" aria-selected="false" tabindex="-1"
+          aria-disabled="true" aria-controls="mmBody"
+          title="本轮未交付：Agent 配置还没有字段清单">Agent</button>
+        <button class="stab" type="button" role="tab" aria-selected="false" tabindex="-1"
+          aria-disabled="true" aria-controls="mmBody"
+          title="本轮未交付：Skill 配置还没有字段清单">Skill</button>
+      </div>
+      <div class="mm-body" id="mmBody">
         <div class="mm-side">
           <div class="mm-side-top">
             <button class="mm-btn pri" id="mmAdd" type="button" style="width:100%">+ 新增模型</button>
@@ -3408,7 +3427,7 @@ rToggle.addEventListener('click',()=>{
 /* ══ 模型配置（管理页的数据源与全部行为）══
    这一块是新 PRD（模型管理与配置）的落地。它和上面那套「端点 → 模型」浮层的关系必须说清：
      · 浮层 + 上面的 /model 命令 = 会话里的**就地切换**（快，只选不配）
-     · 本页 = **模型管理**（慢，增删改 + 测通 + 设激活）
+     · 本页 = **管理配置 › 模型**（慢，增删改 + 测通 + 设激活）
    两者写的是同一份配置，所以只有一处写入口：任何一条路最终都落到 mmActiveKey。
    PRD 里的 Provider 只有两个取值（OpenAI Compatible / Ollama），它是**协议**；
    "从哪个账号扣额度、key 配没配、端点通不通"由**端点**（Base URL + API Key）承担。
@@ -3803,7 +3822,7 @@ function mmSceneDisabled(){
 function openModelPageWithEcho(cmdText){
   if(!mmSceneDisabled()){
     const ae=mmActiveEntry();
-    appendCmdEcho(cmdText||'/model',{ok:true,msg:'打开模型管理。当前用 <b class="hl-code">'+
+    appendCmdEcho(cmdText||'/model',{ok:true,msg:'打开管理配置（模型）。当前用 <b class="hl-code">'+
       (ae?ae.name:'（还没有配置）')+'</b>；改成别的要点「设为激活」才会用在接下来的调用上。'});
   }
   mmOpenModelPage();
