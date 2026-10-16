@@ -884,8 +884,10 @@ html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
 /* 右：配置表单 */
 .mm-main{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;position:relative}
 .mm-form{flex:1;min-height:0;overflow-y:auto;padding:8px var(--sp-xl) 2px}
-.mm-f{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--bd1)}
-.mm-f:last-child{border-bottom:none}
+/* 行与行之间不画分割线：分隔靠「标签 / 控件 / 帮助文案」这三段的固定节奏与留白，
+   不靠横线。横线会把 8 个字段切成 8 个等权块，反而弱化"前四行是连什么、后四行是怎么用"的读法；
+   留白分隔也让整屏少 8 条线，在 16 色 / NO_COLOR 降级下不会退化成一片同色灰线 */
+.mm-f{display:flex;align-items:flex-start;gap:12px;padding:10px 0}
 .mm-f>.lb{width:124px;flex:none;font-size:12.5px;color:var(--fg2);padding-top:7px;line-height:1.45}
 .mm-f>.lb .req{color:var(--warn);margin-left:3px}
 .mm-f>.lb .opt{color:var(--fg4);font-size:11px;margin-left:4px}
