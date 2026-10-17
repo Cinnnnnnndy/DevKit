@@ -542,6 +542,20 @@ td.mono,th.mono{font-family:var(--font-mono)}
 .cv-sa-lns .tn{font-family:var(--font-mono);font-size:12px;color:var(--foreground-secondary);flex:none;padding-right:2px}
 .cv-sa-lns .ta{font-size:12px;color:var(--foreground-secondary);flex:1;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 卡内命令输出：Console Block 已退场，输出并入工具行下方，不做独立日志盒 */
+.cv-sa-out{margin:1px 0 3px 19px;font-family:var(--font-mono);font-size:11px;
+  color:var(--foreground-muted);white-space:pre;overflow:hidden;line-height:1.65}
+/* 卡内文件编辑：只留路径 + 变动行，不铺完整 Diff Card */
+.cv-sa-diff{margin:6px 0 2px;border-radius:var(--radius-md);background:var(--ark-neutral-0);overflow:hidden}
+.cv-sa-diff .path{padding:5px 10px;font-family:var(--font-mono);font-size:11px;
+  color:var(--foreground-muted);border-bottom:1px solid var(--border-default)}
+.cv-sa-diff .cl{display:flex;gap:6px;padding:1px 10px;font-family:var(--font-mono);
+  font-size:11px;white-space:pre;overflow:hidden}
+.cv-sa-diff .cl.add{background:rgba(4,215,147,.08)}
+.cv-sa-diff .cl.del{background:rgba(255,75,123,.08)}
+.cv-sa-diff .pfx{width:10px;flex:none}
+.cv-sa-diff .pfx.add{color:var(--success)}
+.cv-sa-diff .pfx.del{color:var(--danger)}
 .cv-sa-lns .tm{font-family:var(--font-mono);font-size:11px;color:var(--foreground-muted);
   flex:none;width:52px;text-align:right}
 

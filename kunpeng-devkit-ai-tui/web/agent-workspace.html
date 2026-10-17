@@ -554,6 +554,24 @@ td.fnname{color:var(--ok)}
 .sa-lns .ta{font-size:12.5px;color:var(--fg3);flex:1;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sa-lns .tm{font-family:var(--mono);font-size:11.5px;color:var(--fg4);flex:none;width:52px;text-align:right}
+/* 命令输出：Console Block 已在规范里退场（调优、编译这类"行数多但结构弱"的日志
+   并入工具行与折叠输出），所以卡内不再画一个独立的日志盒子——
+   就是工具行下面这几行等宽输出，行首一个 ⋯ 表示还有更多、点行首可展开。
+   不给它底色和边框：它的归属是上面那一行命令，不是一张卡。 */
+.sa-out{margin:1px 0 3px 19px;font-family:var(--mono);font-size:11.5px;color:var(--fg4);
+  white-space:pre;overflow:hidden;line-height:1.65}
+/* 文件编辑：卡内只留路径 + 变动行，不铺完整的 Diff Card——展开体的定位是「看它干了什么」，
+   不是逐行审阅（审阅走右侧代码区或 P05 流程）。加/减底色沿用规范里那张 Diff Card 的同一对色。 */
+.sa-diff{margin:6px 0 2px;border-radius:6px;background:var(--code-bg);overflow:hidden}
+.sa-diff .path{padding:5px 10px;font-family:var(--mono);font-size:11.5px;color:var(--fg4);
+  border-bottom:1px solid var(--bd1)}
+.sa-diff .cl{display:flex;gap:6px;padding:1px 10px;font-family:var(--mono);font-size:11.5px;
+  white-space:pre;overflow:hidden}
+.sa-diff .cl.add{background:rgba(4,215,147,.08)}
+.sa-diff .cl.del{background:rgba(255,75,123,.08)}
+.sa-diff .pfx{width:10px;flex:none}
+.sa-diff .pfx.add{color:var(--ok)}
+.sa-diff .pfx.del{color:var(--dgr)}
 
 /* token 徽标：默认中性、不抢注意力，只在越过阈值时着色——沿用 P20"提醒但不替用户做决策" */
 .tok{font-family:var(--mono);font-size:11px;font-weight:700;padding:1px 5px;border-radius:3px;
@@ -1857,6 +1875,11 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
                 <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">apply_patch</span><span class="ta">settlement_kernel.c · [103-106]</span><span class="tm">1.4s</span></div>
                 <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">bench_compare</span><span class="ta">--baseline --verify-bits</span><span class="tm">1.8s</span></div>
               </div>
+              <div class="sa-diff">
+                <div class="path">settlement_kernel.c · [103-106] 已合入</div>
+                <div class="cl del"><span class="pfx del">-</span>__m256 va = _mm256_loadu_ps(&amp;amount[i]);</div>
+                <div class="cl add"><span class="pfx add">+</span>svfloat32_t va = svld1_f32(pg, &amp;amount[i]);</div>
+              </div>
               <div class="ai-msg">收益 <b class="hl-metric">342ms → 96ms（3.6x）</b>，位精确一致。改动落在 worktree <b class="hl-file">wt/sub-1</b>，等主 Agent 合并。</div>
             </div>
           </div>
@@ -1879,6 +1902,8 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
                 <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">apply_patch</span><span class="ta">risk_score.c · [214-218]</span><span class="tm">0.9s</span></div>
                 <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">bench_compare</span><span class="ta">--baseline</span><span class="tm">1.6s</span></div>
               </div>
+              <div class="sa-out">⋯ p99 延迟 412µs → 386µs（-6.3%）
+  branch-misses  -41.2%   分支提示生效</div>
               <div class="ai-msg">收益 <b class="hl-metric">+6.2%</b>，低于 sub-1 但改动面小、风险低。已落在 worktree <b class="hl-file">wt/sub-2</b>。</div>
             </div>
           </div>
@@ -1894,12 +1919,24 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
             </div>
             <div class="sa-body">
               <div class="sa-now"><span class="c"></span><span class="t1">改写 + 等价性验证</span><span class="t2">2 处已应用 · 第 3 处验证中</span></div>
+              <div class="ai-msg">reconcile_pass 的热点不在算法，在<b class="hl-code">跨步长访问</b>：内层按 <b class="hl-code">i++</b> 走，缓存行一次只用 4 字节。先把这三处改成按向量宽度跳，再跑位精确回归。</div>
               <div class="sa-lns">
                 <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">perf_record</span><span class="ta">-F 99 -g -- reconcile_pass</span><span class="tm">3.4s</span></div>
                 <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">apply_patch</span><span class="ta">reconcile.c · [77-82]</span><span class="tm">1.1s</span></div>
                 <div class="ln"><span class="stq doing" role="img" aria-label="进行中"></span><span class="tn">read_file</span><span class="ta">reconcile.c · 读取 [140-260]</span><span class="tm">进行中</span></div>
                 <div class="ln"><span class="stq doing" role="img" aria-label="进行中"></span><span class="tn">grep</span><span class="ta">prefetch · 全工程引用点</span><span class="tm">进行中</span></div>
                 <div class="ln"><span class="stq doing" role="img" aria-label="进行中"></span><span class="tn">bench_compare</span><span class="ta">--baseline --verify-bits</span><span class="tm">进行中</span></div>
+              </div>
+              <div class="sa-out">⋯ perf 采样进行中 · 已纳入 1 284 / 2 000 个样本
+  38.4%  reconcile_loop()      L1 miss 偏高
+  12.1%  memcmp@plt            ← 第 3 处待处理
+   6.7%  tcmalloc_free</div>
+              <div class="sa-diff">
+                <div class="path">reconcile.c · [77-82] 已应用</div>
+                <div class="cl del"><span class="pfx del">-</span>for (i = 0; i &lt; n; i++) acc += rbuf[i] * w[i];</div>
+                <div class="cl add"><span class="pfx add">+</span>for (; i + vl &lt;= n; i += vl) {</div>
+                <div class="cl add"><span class="pfx add">+</span>  acc = svmla_f32_x(pg, acc, svld1_f32(pg, &amp;rbuf[i]), svld1_f32(pg, &amp;w[i]));</div>
+                <div class="cl add"><span class="pfx add">+</span>}</div>
               </div>
               <div class="ai-msg"><b class="hl-tool">profiler</b> 类已串行，其余 3 个工具仍并发。这一域改动最重，还在跑；它的<b>文件与另外两域不重叠</b>，所以可以先让前两个域交付，不必等它。</div>
             </div>
