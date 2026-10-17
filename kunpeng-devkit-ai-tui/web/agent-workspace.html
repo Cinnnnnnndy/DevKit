@@ -493,9 +493,9 @@ td.fnname{color:var(--ok)}
   background:var(--surf-2);font-family:var(--mono)}
 .sa-badge{font-size:11px;font-weight:700;letter-spacing:.12em;padding:1px 6px;border-radius:3px;
   background:var(--s4);color:var(--fg3);flex:none}
-.sa.done .sa-badge{background:rgba(158,206,106,.16);color:var(--ok)}
-.sa.running .sa-badge{background:rgba(0,119,255,.24);color:var(--pri-h)}
-.sa.warn .sa-badge{background:rgba(224,175,104,.18);color:var(--warn)}
+/* SUB-n 是身份编号（第几个子 agent），不是状态，所以不再按 done / running / warn 变色。
+   状态由三处表达：头行 sa-stat 的第一个词、展开体行首的方块、泳道条自身的填充色。
+   同一件事由三处承担已经够多，徽标再染色就是第四处。 */
 .sa-nm{font-size:12.5px;font-weight:700;color:var(--fg);flex:none}
 .sa-role{font-size:12px;color:var(--fg4);flex:1;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -535,22 +535,24 @@ td.fnname{color:var(--ok)}
 .sa-now .t2{color:var(--fg4);flex:1;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* 工具行：紧凑单行、无边框、无底色——沿用对话流「工具调用」那条基元（字形 + 目标 + 右对齐 meta），
-   字形只换字形不换色相（$ 执行 / → 读取 / ∗ 搜索）；并发只在进行中的行上给一根细条，
-   左端对齐读「同时开始」，长度差读「谁快谁慢」；细条本身不闪——它已经在动了，
-   再闪一次是把「在跑」说第二遍。跑完的行不回填满格绿条——
-   一条 100% 的进度条不携带任何信息，只留耗时。这也是终端面唯一画得出来的形态。 */
+/* 工具行：紧凑单行、无边框、无底色——和主 agent 的步骤行同一套基元：
+   状态方块（.stq）+ 工具名 + 目标 + 右对齐 meta。子 agent 只多一样东西：右端那列耗时。
+   这里不再有字形列（$ 执行 / → 读取 / ∗ 搜索）和行内进度条：
+   · 字形是第三套指示语汇，主 agent 的行用方块，同屏并列时两边会像两个产品；
+   · 行内进度条是"看起来在动"的动效代理，而这一块的并发已经由上方泳道按同一时间轴
+     表达完了（左端对齐读同时开始、长度差读谁快谁慢），行里再画一根细条等于说第二遍，
+     且 100% 的满格条不携带任何信息。进行中的行靠方块状态色 + meta 里的「进行中」就够。 */
 .sa-lns{display:flex;flex-direction:column;gap:1px;margin:2px 0}
 .sa-lns .ln{display:flex;align-items:center;gap:8px;padding:1.5px 0;font-size:13px;color:var(--fg2)}
-.sa-lns .g{font-family:var(--mono);color:var(--pri-h);flex:none;width:11px}
-/* 工具名不设定宽列：定宽列会把这一行读成表格，而基元是「字形 + 命令 + 右对齐 meta」的紧凑单行。
+/* 行首指示列 = 主 agent 的同一个状态方块（.stq），不再用 $ / → / ∗ 字形：
+   字形是第三套指示语汇（方块 / 字形 / 彩色徽标），同屏会和主 agent 的行分家。
+   方块与文字同列基线，9px 方块在 13px 行里上移 5px 对齐字面。 */
+.sa-lns .ln .stq{flex:none;margin-top:5px}
+/* 工具名不设定宽列：定宽列会把这一行读成表格，而基元是「方块 + 命令 + 右对齐 meta」的紧凑单行。
    名字自然宽度 + 紧跟目标，跨行对齐交给同一起点就够了 */
-.sa-lns .tn{font-family:var(--mono);font-size:12.5px;color:var(--tn-cyan);flex:none;padding-right:2px}
+.sa-lns .tn{font-family:var(--mono);font-size:12.5px;color:var(--fg2);flex:none;padding-right:2px}
 .sa-lns .ta{font-size:12.5px;color:var(--fg3);flex:1;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sa-lns .tb{flex:none;width:56px;height:5px;background:var(--s4);border-radius:3px;
-  overflow:hidden;position:relative}
-.sa-lns .tb i{position:absolute;top:0;bottom:0;left:0;border-radius:3px;background:var(--pri)}
 .sa-lns .tm{font-family:var(--mono);font-size:11.5px;color:var(--fg4);flex:none;width:52px;text-align:right}
 
 /* token 徽标：默认中性、不抢注意力，只在越过阈值时着色——沿用 P20"提醒但不替用户做决策" */
@@ -1828,10 +1830,10 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
             <div class="sa-body">
               <div class="sa-now done"><span class="c"></span><span class="t1">等价性验证 + Benchmark</span><span class="t2">位精确一致 · 342ms → 96ms</span></div>
               <div class="sa-lns">
-                <div class="ln"><span class="g">∗</span><span class="tn">tiancheng</span><span class="ta">--flamegraph settlement_hotspot.svg --top=12</span><span class="tm">2.8s</span></div>
-                <div class="ln"><span class="g">→</span><span class="tn">read_file</span><span class="ta">settlement_kernel.c</span><span class="tm">0.2s</span></div>
-                <div class="ln"><span class="g">$</span><span class="tn">apply_patch</span><span class="ta">settlement_kernel.c · [103-106]</span><span class="tm">1.4s</span></div>
-                <div class="ln"><span class="g">$</span><span class="tn">bench_compare</span><span class="ta">--baseline --verify-bits</span><span class="tm">1.8s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">tiancheng</span><span class="ta">--flamegraph settlement_hotspot.svg --top=12</span><span class="tm">2.8s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">read_file</span><span class="ta">settlement_kernel.c</span><span class="tm">0.2s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">apply_patch</span><span class="ta">settlement_kernel.c · [103-106]</span><span class="tm">1.4s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">bench_compare</span><span class="ta">--baseline --verify-bits</span><span class="tm">1.8s</span></div>
               </div>
               <div class="ai-msg">收益 <b class="hl-metric">342ms → 96ms（3.6x）</b>，位精确一致。改动落在 worktree <b class="hl-file">wt/sub-1</b>，等主 Agent 合并。</div>
             </div>
@@ -1848,11 +1850,11 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
             <div class="sa-body">
               <div class="sa-now done"><span class="c"></span><span class="t1">分支提示 + 冗余调用消除</span><span class="t2">3 处改动 · 无新依赖</span></div>
               <div class="sa-lns">
-                <div class="ln"><span class="g">$</span><span class="tn">perf_record</span><span class="ta">-F 99 -g -- risk_score_batch</span><span class="tm">3.1s</span></div>
-                <div class="ln"><span class="g">→</span><span class="tn">read_file</span><span class="ta">risk_score.c</span><span class="tm">0.3s</span></div>
-                <div class="ln"><span class="g">$</span><span class="tn">apply_patch</span><span class="ta">risk_score.c · [88-91]</span><span class="tm">1.2s</span></div>
-                <div class="ln"><span class="g">$</span><span class="tn">apply_patch</span><span class="ta">risk_score.c · [214-218]</span><span class="tm">0.9s</span></div>
-                <div class="ln"><span class="g">$</span><span class="tn">bench_compare</span><span class="ta">--baseline</span><span class="tm">1.6s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">perf_record</span><span class="ta">-F 99 -g -- risk_score_batch</span><span class="tm">3.1s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">read_file</span><span class="ta">risk_score.c</span><span class="tm">0.3s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">apply_patch</span><span class="ta">risk_score.c · [88-91]</span><span class="tm">1.2s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">apply_patch</span><span class="ta">risk_score.c · [214-218]</span><span class="tm">0.9s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">bench_compare</span><span class="ta">--baseline</span><span class="tm">1.6s</span></div>
               </div>
               <div class="ai-msg">收益 <b class="hl-metric">+6.2%</b>，低于 sub-1 但改动面小、风险低。已落在 worktree <b class="hl-file">wt/sub-2</b>。</div>
             </div>
@@ -1869,11 +1871,11 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
             <div class="sa-body">
               <div class="sa-now"><span class="c"></span><span class="t1">改写 + 等价性验证</span><span class="t2">2 处已应用 · 第 3 处验证中</span></div>
               <div class="sa-lns">
-                <div class="ln"><span class="g">$</span><span class="tn">perf_record</span><span class="ta">-F 99 -g -- reconcile_pass</span><span class="tm">3.4s</span></div>
-                <div class="ln"><span class="g">$</span><span class="tn">apply_patch</span><span class="ta">reconcile.c · [77-82]</span><span class="tm">1.1s</span></div>
-                <div class="ln"><span class="g">→</span><span class="tn">read_file</span><span class="ta">reconcile.c · 读取 [140-260]</span><span class="tb"><i style="width:88%"></i></span><span class="tm">进行中</span></div>
-                <div class="ln"><span class="g">∗</span><span class="tn">grep</span><span class="ta">prefetch · 全工程引用点</span><span class="tb"><i style="width:41%"></i></span><span class="tm">进行中</span></div>
-                <div class="ln"><span class="g">$</span><span class="tn">bench_compare</span><span class="ta">--baseline --verify-bits</span><span class="tb"><i style="width:64%"></i></span><span class="tm">进行中</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">perf_record</span><span class="ta">-F 99 -g -- reconcile_pass</span><span class="tm">3.4s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">apply_patch</span><span class="ta">reconcile.c · [77-82]</span><span class="tm">1.1s</span></div>
+                <div class="ln"><span class="stq doing" role="img" aria-label="进行中"></span><span class="tn">read_file</span><span class="ta">reconcile.c · 读取 [140-260]</span><span class="tm">进行中</span></div>
+                <div class="ln"><span class="stq doing" role="img" aria-label="进行中"></span><span class="tn">grep</span><span class="ta">prefetch · 全工程引用点</span><span class="tm">进行中</span></div>
+                <div class="ln"><span class="stq doing" role="img" aria-label="进行中"></span><span class="tn">bench_compare</span><span class="ta">--baseline --verify-bits</span><span class="tm">进行中</span></div>
               </div>
               <div class="ai-msg"><b class="hl-tool">profiler</b> 类已串行，其余 3 个工具仍并发。这一域改动最重，还在跑；它的<b>文件与另外两域不重叠</b>，所以可以先让前两个域交付，不必等它。</div>
             </div>
@@ -1889,6 +1891,44 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
           <div class="chk"><span class="ic ok" role="img" aria-label="通过"></span><span class="lb">已合并</span><span class="v">sub-1 settlement_kernel.c · sub-2 risk_score.c</span></div>
           <div class="chk"><span class="ic warn" role="img" aria-label="需要注意"></span><span class="lb">待合并</span><span class="v">sub-3 reconcile.c（进行中，完成后自动合入）</span></div>
           <div class="ai-msg">3 个域的改动文件<b class="hl-metric">没有重叠</b>，worktree 合入零冲突。sub-3 跑完会自动并入并向你汇报。</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ═══ 开发 Agent · 一层子 Agent（只派一个） ═══
+         和「并发编排」那一屏只差一件事：这一次不值得并发。改动集中在单文件、串行依赖强，
+         多派一个子 Agent 只多一份 worktree 与合并成本。于是层级只剩一条：
+         主 Agent 派 1 个、等它回收，自己不并行做别的。
+         这一屏就是「一层」的最小样本——把收起态（头部三要素）与展开体（沿用主 Agent 的
+         步骤行与工具行）讲清楚，不需要靠嵌套来证明层级。 -->
+    <div class="scene" data-agent="develop" data-scenario="subagent-solo">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 这个模块启动要 1.8s，帮我看下卡在哪，能改就改掉</div>
+          <div class="ai-msg">启动路径上有 <b class="hl-metric">1 处串行依赖</b>：配置加载与索引重建本该并行，现在前后排着。改动集中在 <b class="hl-file">bootstrap.cpp</b> 一个文件，串行改就够，所以这次只派 <b class="hl-metric">1 个子 Agent</b>，我等它回收。</div>
+
+          <div class="sa running">
+            <div class="sa-head" role="button" tabindex="0" aria-expanded="true">
+              <span class="sa-badge">SUB-1</span>
+              <span class="sa-nm">bootstrap.cpp</span>
+              <span class="sa-role">配置加载与索引重建并行化 · 1.8s → ?</span>
+              <span class="sa-stat"><span>进行中</span><span>8.4s</span><span>5 工具</span></span>
+              <span class="tok">12.6k</span>
+            </div>
+            <div class="sa-body">
+              <div class="sa-now"><span class="c"></span><span class="t1">重排启动序列</span><span class="t2">1 处已应用 · 冷启动实测中</span></div>
+              <div class="sa-lns">
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">read_file</span><span class="ta">bootstrap.cpp · 启动序列</span><span class="tm">0.4s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">grep</span><span class="ta">index_rebuild · 调用点</span><span class="tm">0.2s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">apply_patch</span><span class="ta">bootstrap.cpp · [212-240]</span><span class="tm">1.1s</span></div>
+                <div class="ln"><span class="stq doing" role="img" aria-label="进行中"></span><span class="tn">build</span><span class="ta">--target devkitd -j8</span><span class="tm">进行中</span></div>
+                <div class="ln"><span class="stq doing" role="img" aria-label="进行中"></span><span class="tn">cold_start</span><span class="ta">--repeat 5 · 取中位数</span><span class="tm">进行中</span></div>
+              </div>
+              <div class="ai-msg">把 <b class="hl-code">index_rebuild</b> 挪进配置加载的等待窗口里跑，位精确回归同时在跑。跑完把冷启动中位数报给你。</div>
+            </div>
+          </div>
+
+          <div class="ai-msg">它回收后我直接合并：<b class="hl-file">bootstrap.cpp</b> 是这次唯一的改动文件，没有第二个子 Agent 在跑。</div>
         </div>
       </section>
     </div>
@@ -2070,8 +2110,8 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
             <div class="sa-body">
               <div class="sa-now done"><span class="c"></span><span class="t1">改写 AVX2 → SVE 并验证</span><span class="t2">位精确一致 · 342ms → 96ms</span></div>
               <div class="sa-lns">
-                <div class="ln"><span class="g">∗</span><span class="tn">tiancheng</span><span class="ta">--flamegraph --top=12</span><span class="tm">2.8s</span></div>
-                <div class="ln"><span class="g">$</span><span class="tn">bench_compare</span><span class="ta">--baseline --verify-bits</span><span class="tm">1.8s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">tiancheng</span><span class="ta">--flamegraph --top=12</span><span class="tm">2.8s</span></div>
+                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">bench_compare</span><span class="ta">--baseline --verify-bits</span><span class="tm">1.8s</span></div>
               </div>
               <div class="ai-msg">收益 <b class="hl-metric">3.6x</b>，改动落在 <b class="hl-file">wt/sub-1</b>。这一支没有下级，拿到结果就可以直接合并。</div>
             </div>
@@ -2099,8 +2139,8 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
                 <div class="sa-body">
                   <div class="sa-now done"><span class="c"></span><span class="t1">应用 3 处 UNLIKELY 分支提示</span><span class="t2">无新依赖 · 零接口变更</span></div>
                   <div class="sa-lns">
-                    <div class="ln"><span class="g">$</span><span class="tn">apply_patch</span><span class="ta">risk_score.c · 3 处 UNLIKELY</span><span class="tm">0.9s</span></div>
-                    <div class="ln"><span class="g">$</span><span class="tn">bench_compare</span><span class="ta">--baseline</span><span class="tm">1.2s</span></div>
+                    <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">apply_patch</span><span class="ta">risk_score.c · 3 处 UNLIKELY</span><span class="tm">0.9s</span></div>
+                    <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">bench_compare</span><span class="ta">--baseline</span><span class="tm">1.2s</span></div>
                   </div>
                   <div class="ai-msg">改动面小、风险低，已合入 <b class="hl-file">wt/sub-2</b>。</div>
                 </div>
@@ -2117,9 +2157,9 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
                 <div class="sa-body">
                   <div class="sa-now"><span class="c"></span><span class="t1">冗余调用消除</span><span class="t2">1 处已应用 · 2 个工具在跑</span></div>
                   <div class="sa-lns">
-                    <div class="ln"><span class="g">$</span><span class="tn">apply_patch</span><span class="ta">risk_score.c · [214-218]</span><span class="tm">1.2s</span></div>
-                    <div class="ln"><span class="g">→</span><span class="tn">read_file</span><span class="ta">risk_score.c · [300-420]</span><span class="tb"><i style="width:78%"></i></span><span class="tm">进行中</span></div>
-                    <div class="ln"><span class="g">∗</span><span class="tn">grep</span><span class="ta">compare_impl · 全工程引用点</span><span class="tb"><i style="width:44%"></i></span><span class="tm">进行中</span></div>
+                    <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">apply_patch</span><span class="ta">risk_score.c · [214-218]</span><span class="tm">1.2s</span></div>
+                    <div class="ln"><span class="stq doing" role="img" aria-label="进行中"></span><span class="tn">read_file</span><span class="ta">risk_score.c · [300-420]</span><span class="tm">进行中</span></div>
+                    <div class="ln"><span class="stq doing" role="img" aria-label="进行中"></span><span class="tn">grep</span><span class="ta">compare_impl · 全工程引用点</span><span class="tm">进行中</span></div>
                   </div>
 
                   <div class="sa warn lv4">
@@ -2133,8 +2173,8 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
                     <div class="sa-body">
                       <div class="sa-now warn"><span class="c"></span><span class="t1">内联改写</span><span class="t2">判定会改变多态语义 · 已停在验证</span></div>
                       <div class="sa-lns">
-                        <div class="ln"><span class="g">∗</span><span class="tn">grep</span><span class="ta">compare_impl · 虚函数分派调用点</span><span class="tm">0.6s</span></div>
-                        <div class="ln"><span class="g">→</span><span class="tn">read_file</span><span class="ta">compare_impl.h · 派生类实现</span><span class="tm">0.3s</span></div>
+                        <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">grep</span><span class="ta">compare_impl · 虚函数分派调用点</span><span class="tm">0.6s</span></div>
+                        <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">read_file</span><span class="ta">compare_impl.h · 派生类实现</span><span class="tm">0.3s</span></div>
                       </div>
                       <div class="blocker">
                         <div class="bt">⚠ 验证未通过 · 需要人裁决</div>
@@ -2840,6 +2880,11 @@ const SCENARIOS={
      plan:[{t:'拆分热点域',d:'3 域 · 互不依赖',s:'done'},{t:'派发子 Agent',d:'sub-1/2/3 · 独立 worktree',s:'done'},
        {t:'并行执行 + 工具并发',d:'峰值 3 并发 · profiler 类串行',s:'doing'},{t:'合并与收口',d:'2/3 已合入主干',s:'doing'}],
      sugg:['看 sub-3 轨迹','停掉并回收','导出 token 账单']},
+    {key:'subagent-solo',label:'一层子 Agent',status:'doing',file:'kernel',code:false,
+     goal:'只派一个子 Agent：改动集中在单个文件，串行改就够；主 Agent 派完等它回收，自己不并行做别的',
+     plan:[{t:'判断要不要并行',d:'改动集中 1 个文件 · 串行更快',s:'done'},{t:'派 1 个子 Agent',d:'sub-1 · 独立 worktree',s:'done'},
+       {t:'等它回收',d:'5 工具 · 8.4s',s:'doing'},{t:'合并与收口',d:'待子 Agent 完成',s:'todo'}],
+     sugg:['看 sub-1 轨迹','停掉并回收','导出 token 账单']},
     {key:'model-token',label:'模型与 Token',status:'done',file:'devkitai.toml',code:true,
      goal:'查看当前端点的额度、上下文水位与按来源拆分的 token；并用 /model · /tokens 就地改配置（含子 Agent 的继承/覆盖策略）',
      plan:[{t:'读当前端点的额度与水位',d:'devkit-gateway.internal · 5h 38% · 7d 72% · ctx 38%',s:'done'},{t:'按来源拆 token',d:'主 Agent 36.3% · 子 Agent 63.7%',s:'done'},
@@ -2904,6 +2949,7 @@ const METRICS={
   'develop:vectorize':{tok:'734k',ctx:44},
   'develop:op-gen':{tok:'512k',ctx:28},
   'develop:subagent':{tok:'1.24M',ctx:38},
+  'develop:subagent-solo':{tok:'86.2k',ctx:21},
   /* 未配置模型这一屏没有会话，也就没有 token 与水位——给 0 而不是编一个数 */
   'develop:no-model':{tok:'—',ctx:0},
   /* 「模型与 Token」这一屏同时承担看现状和改配置（原来是两屏）：

@@ -344,15 +344,15 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 <td class="nw">7 工具调用并发 草图</td>
 <td><code>agent-workspace.html</code> · <code>develop:subagent</code> 内 sub-3 卡片的展开区</td>
 <td>Concurrent Tool Row（Tool Call Line 的并发变体）· Status Square</td>
-<td>同一子 Agent 内并行的工具各自一行、左端对齐；<strong>只有「进行中」的行画进度条</strong>，完成的只给耗时</td>
-<td>sub-3 展开后能同时看到 3 条带进度条的行（88% / 41% / 64%）+ 2 条已完成的耗时行</td>
+<td>同一子 Agent 内并行的工具各自一行、左端对齐；行首是主 agent 同一个<strong>状态方块</strong>（进行中 / 已完成），右端只给耗时——<strong>不放行内进度条</strong>，并发交给上方泳道按同一时间轴表达</td>
+<td>sub-3 展开后同时看到 3 条「进行中」的方块行 + 2 条已完成的耗时行，画法与主 agent 的步骤行一致</td>
 <td class="nw"><span class="st ok">设计已交付</span></td>
 </tr>
 <tr>
 <td class="nw">8 工具调用并发 UX 设计</td>
 <td><code>index.html#convo</code> · Concurrent Tool Row 台账行 + 编排类表第 3 行<br>本文档 §4B</td>
 <td>Concurrent Tool Row</td>
-<td>入口形状不变（仍是紧凑单行），并发只体现在「多行同时有进度」；起点落同一条竖线表示同时开始，长度差即进度差</td>
+<td>入口形状不变（仍是紧凑单行），并发只体现在「多行同时处于进行中」：方块同为进行中色、右端 meta 同时写着「进行中」</td>
 <td>并发与串行的行形态一致，不引入第二种行的画法；峰值并发数在收口区可读（「峰值并发 3」）</td>
 <td class="nw"><span class="st ok">设计已交付</span></td>
 </tr>
@@ -387,10 +387,10 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 <tr><th>表单要求</th><th>落点</th><th>对应基元</th><th>交互规格摘要</th><th>验收条件</th><th>状态</th></tr>
 <tr>
 <td class="nw">12 子 Agent 并发 草图</td>
-<td><code>agent-workspace.html</code> · <code>develop:subagent</code>（3 子 Agent 并行 + 收口）</td>
+<td><code>agent-workspace.html</code> · <code>develop:subagent</code>（3 子 Agent 并行 + 收口）<br><code>develop:subagent-solo</code>（一层 · 只派 1 个）</td>
 <td>Orchestration Lane · Sub-Agent Block · Concurrency Slot Gauge · Token Badge</td>
-<td>泳道同屏并置对齐同一时间轴；每张子 Agent 卡有独立内部排版；卡片头部即收起态全部内容</td>
-<td>泳道 4 行（main + 3 子）+ 时间刻度；收口区给出「14 次工具调用 · 峰值并发 3 · 0 合并冲突」</td>
+<td>泳道同屏并置对齐同一时间轴；每张子 Agent 卡有独立内部排版；<strong>收起态就是头部那一行</strong>，必须读得出三件事：<strong>运行状态</strong>（完成 / 进行中 / 受阻）、<strong>已运行时间</strong>（6.2s 这类）、<strong>工具调用数</strong>（4 工具这类，并发时补「· 并发 3」），token 徽标跟在最后；展开体沿用主 agent 的步骤行与工具行基元</td>
+<td>泳道 4 行（main + 3 子）+ 时间刻度；收口区给出「14 次工具调用 · 峰值并发 3 · 0 合并冲突」；把任一卡片收起后，头部仍写着状态 + 时长 + 工具数</td>
 <td class="nw"><span class="st ok">设计已交付</span></td>
 </tr>
 <tr>

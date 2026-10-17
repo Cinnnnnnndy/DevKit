@@ -528,20 +528,20 @@ td.mono,th.mono{font-family:var(--font-mono)}
 .cv-sa-now .t2{color:var(--foreground-muted);flex:1;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* 工具行：紧凑单行、无边框、无底色——沿用对话流「工具调用」那条基元（字形 + 目标 + 右对齐 meta），
-   字形只换字形不换色相（$ 执行 / → 读取 / ∗ 搜索）。工具名不设定宽列：定宽列会把这一行读成表格。
-   并发只在进行中的行上给一根细条，左端对齐读「同时开始」，长度差读「谁快谁慢」；
-   跑完的行不回填满格绿条——一条 100% 的进度条不携带任何信息，只留耗时 */
+/* 工具行：紧凑单行、无边框、无底色——和主 agent 的步骤行同一套基元：
+   状态方块（.stq）+ 工具名 + 目标 + 右对齐 meta。子 agent 只多一样：右端那列耗时。
+   这里不放字形列（$ 执行 / → 读取 / ∗ 搜索），也不放行内进度条：
+   字形会变成第三套指示语汇（方块 / 字形 / 彩色徽标），和主 agent 的行同屏就分家；
+   行内进度条是"看起来在动"的动效代理，而并发已经由泳道按同一时间轴表达完
+   （左端对齐读同时开始、长度差读谁快谁慢），行里再画一根等于说第二遍，
+   且 100% 的满格条不携带信息。进行中的行靠方块状态色 + meta 里的「进行中」。 */
 .cv-sa-lns{display:flex;flex-direction:column;gap:1px;margin:2px 0}
 .cv-sa-lns .ln{display:flex;align-items:center;gap:var(--space-2);padding:1.5px 0;
   font-size:13px;color:var(--foreground-secondary)}
-.cv-sa-lns .g{font-family:var(--font-mono);color:var(--primary-hover);flex:none;width:11px}
-.cv-sa-lns .tn{font-family:var(--font-mono);font-size:12px;color:var(--accent);flex:none;padding-right:2px}
+.cv-sa-lns .ln .stq{flex:none;margin-top:5px}
+.cv-sa-lns .tn{font-family:var(--font-mono);font-size:12px;color:var(--foreground-secondary);flex:none;padding-right:2px}
 .cv-sa-lns .ta{font-size:12px;color:var(--foreground-secondary);flex:1;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cv-sa-lns .tb{flex:none;width:56px;height:5px;background:var(--surface-3);border-radius:3px;
-  overflow:hidden;position:relative}
-.cv-sa-lns .tb i{position:absolute;top:0;bottom:0;left:0;border-radius:3px;background:var(--primary-hover)}
 .cv-sa-lns .tm{font-family:var(--font-mono);font-size:11px;color:var(--foreground-muted);
   flex:none;width:52px;text-align:right}
 
