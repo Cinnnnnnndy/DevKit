@@ -2962,7 +2962,7 @@ const SCENARIOS={
 /* develop 的默认场景跟着列表首项走（本轮把新增的三屏排到了最前）——
    按 2 进开发 Agent 时，第一眼看到的就是重点在打磨的那几条能力，而不是旧场景 */
 const lastScenario={migrate:'src-migrate',develop:'subagent',tune:'diagnose'};
-let curAgent='migrate';
+let curAgent='develop';
 
 /* ══ 底栏常驻计量（模型 / 上下文水位 / token）══
    token 与水位按场景给值——"现在烧了多少"本来就随场景变，写死一个数会在切场景时露馅；
@@ -4304,8 +4304,10 @@ renderQuota();
    函数（renderMetrics 等）都只能读那些已经声明完的变量，新加的模型配置一读就撞 TDZ。
    初始化统一挪到最后之后，"所有定义都已就绪"变成一条可以直接依赖的前提，
    不用再逐个给函数记"它能在什么时候调"。 */
-renderSessionList('migrate','src-migrate');
-selectScenario('migrate','src-migrate');
+/* 打开即落「子 Agent 并发编排」：这一屏是当前唯一的迭代目标，也是评审最先要看的一屏。
+   其它屏（源码迁移 / 端到端迁移 / 调优 …）仍在侧栏里，切过去即可；深链 ?scene= 依然优先。 */
+renderSessionList('develop','subagent');
+selectScenario('develop','subagent');
 /* 默认收起右侧源码区，即便初始场景带 code，也要用户手动展开 */
 document.getElementById('workspace').classList.add('foldcode');
 document.getElementById('cfoldBtn').classList.remove('on');
