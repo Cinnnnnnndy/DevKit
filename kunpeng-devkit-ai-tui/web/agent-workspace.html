@@ -3164,9 +3164,12 @@ function selectScenario(agentKey,scenarioKey){
     biInput.value='';
     closeSlashMenu();
   }
-  const hasCode=!!meta&&meta.code;
-  document.getElementById('workspace').classList.toggle('foldcode',!hasCode);
-  document.getElementById('cfoldBtn').classList.toggle('on',hasCode);
+  /* 代码区默认收起：它是"要改的东西"，不是"这一轮在谈什么"。
+     切场景一律先收，想看的人点右上角 </> 自己开一次；开过的状态不跨场景保留——
+     否则一次点开之后，后面每切一屏都会被撑掉 28% 宽度，而用户并没有要求看那一屏的代码。
+     原来这里是「有 code 的场景自动展开」，等于让场景替用户做这个决定。 */
+  document.getElementById('workspace').classList.add('foldcode');
+  document.getElementById('cfoldBtn').classList.remove('on');
   setTimeout(checkScrollBottom,50);
   if(agentKey==='tune' && scenarioKey==='bottleneck') initHotspot();
 }
