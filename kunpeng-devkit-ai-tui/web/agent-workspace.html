@@ -14,6 +14,12 @@
   --fg:#e8e8e8; --fg2:#b8bcc8; --fg3:#9ea3b4; --fg4:#858b9d;
   --bd1:#252840; --bd2:#2e3456; --bd3:#3a4068;
   --pri:#0077ff; --pri-h:#3d98ff; --acc:#7c8db8;
+  /* 全项目只有一个蓝（品牌蓝 #0077ff）：
+     · 填充 / 边框 / 焦点底色 / 状态方块 = --pri
+     · 文字 / 链接 / 图标            = --pri-h（品牌蓝在深色表面对比度 4.12，不达 AA）
+     · 半透明派生（面板边、选中底、发光）允许直接写 rgba(0,119,255,α)——
+       色相必须就是这个，不许再出现第二个蓝（本项目曾有未登记的靛蓝 rgb(52,94,231)） */
+  --sel-strong:rgba(0,119,255,.40); --sel-bd:rgba(0,119,255,.50);
   /* 键盘焦点环（见下方「键盘焦点环」一节）。和 index.html 的 --focus-ring 同值同义，
      全项目只有这一处定义焦点色——换色时两边一起换 */
   --focus-ring:rgba(0,119,255,.55);
@@ -22,9 +28,9 @@
   --v8:#4a2d6e;--v6:#7b4fb8;--v4:#bb9af7;--v3:#d0b4f8;
   --g8:#4d6a1a;--g6:#73a839;--g4:#9ece6a;--g3:#b5db8a;
   --a8:#6e4f1e;--a6:#c4a03e;--a4:#e0af68;
-  --sel:#283457;
-  --panel-bg:rgba(15,16,26,.94); --panel-bd:rgba(52,94,231,.10); --panel-bd2:rgba(52,94,231,.08);
-  --input-bg:rgba(28,31,48,.92); --input-bd:rgba(52,94,231,.32);
+  --sel:rgba(0,119,255,.22);
+  --panel-bg:rgba(15,16,26,.94); --panel-bd:rgba(0,119,255,.10); --panel-bd2:rgba(0,119,255,.08);
+  --input-bg:rgba(28,31,48,.92); --input-bd:rgba(0,119,255,.32);
   /* 对齐 Pixso 设计稿：main-col / sidebar 是纯色深色卡片，跟带蓝色描边的 code-col 区分开 */
   --col-solid:rgb(22,23,30);
   --msg-usr-bg:rgba(255,255,255,.2);
@@ -53,19 +59,19 @@ body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:var(
   -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden;position:relative}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(ellipse 120% 90% at 0% 100%,rgba(52,94,231,.26) 0%,rgba(52,94,231,.09) 30%,transparent 60%),
+    radial-gradient(ellipse 120% 90% at 0% 100%,rgba(0,119,255,.26) 0%,rgba(0,119,255,.09) 30%,transparent 60%),
     radial-gradient(ellipse 100% 80% at 95% 90%,rgba(102,206,250,.14) 0%,rgba(102,206,250,.04) 30%,transparent 55%),
-    radial-gradient(ellipse 90% 70% at 50% 95%,rgba(52,94,231,.11) 0%,rgba(102,206,250,.03) 30%,transparent 55%),
+    radial-gradient(ellipse 90% 70% at 50% 95%,rgba(0,119,255,.11) 0%,rgba(102,206,250,.03) 30%,transparent 55%),
     radial-gradient(ellipse 80% 60% at 8% 12%,rgba(187,154,247,.10) 0%,rgba(123,79,184,.03) 35%,transparent 60%),
-    radial-gradient(ellipse 70% 50% at 92% 8%,rgba(52,94,231,.07) 0%,rgba(187,154,247,.03) 35%,transparent 55%),
-    radial-gradient(ellipse 60% 40% at 50% 50%,rgba(52,94,231,.05) 0%,transparent 50%)}
+    radial-gradient(ellipse 70% 50% at 92% 8%,rgba(0,119,255,.07) 0%,rgba(187,154,247,.03) 35%,transparent 55%),
+    radial-gradient(ellipse 60% 40% at 50% 50%,rgba(0,119,255,.05) 0%,transparent 50%)}
 body>*{position:relative;z-index:1}
 .scan{position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.3;
   background:repeating-linear-gradient(180deg,rgba(255,255,255,.013) 0 1px,transparent 1px 3px)}
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bd3);border-radius:5px}
-::-webkit-scrollbar-thumb:hover{background:rgba(52,94,231,.5)}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,119,255,.5)}
 ::-webkit-scrollbar-corner{background:transparent}
 *{scrollbar-width:thin;scrollbar-color:var(--bd3) transparent}
 
@@ -80,9 +86,9 @@ body>*{position:relative;z-index:1}
 .blogo .kpi{width:26px;height:26px;margin-right:7px;align-self:center;object-fit:contain;flex:none}
 .blogo .ai-badge{display:inline-flex;align-items:center;justify-content:center;
   margin-left:5px;padding:1px 7px 2px;border-radius:6px;
-  background:linear-gradient(135deg,#345ee7 0%,#4f7ef2 45%,#66cefa 100%);
+  background:linear-gradient(135deg,var(--pri) 0%,#4f9dff 45%,#66cefa 100%);
   color:#fff;font-weight:800;letter-spacing:.04em;
-  box-shadow:0 0 10px rgba(52,94,231,.55),0 0 22px rgba(102,206,250,.3),inset 0 1px 0 rgba(255,255,255,.3)}
+  box-shadow:0 0 10px rgba(0,119,255,.55),0 0 22px rgba(102,206,250,.3),inset 0 1px 0 rgba(255,255,255,.3)}
 
 /* ══ Nav bar：场景 tab（取自 .tab 文档标签语汇）══ */
 /* ══ 页内分类 tab（.stab）══
@@ -137,7 +143,7 @@ html[data-theme="light"] .sidebar{border:1px solid var(--bd1)}
 .sd-node{display:flex;align-items:center;gap:7px;padding:5px var(--sp-lg);margin:1px 5px;
   cursor:default;color:var(--fg2);min-width:0;position:relative;border-radius:6px}
 .sd-node:hover{background:var(--s2)}
-.sd-node.active{background:#0066dd;color:#fff;font-weight:700}
+.sd-node.active{background:var(--pri);color:#fff;font-weight:700}
 .sd-node.active::before{display:none}
 /* 选中行的底色本身就是品牌蓝，蓝方块压上去几乎看不见（原来是 5px 圆点，同样的问题）。
    只给选中行加一圈白描边：填充色仍然读状态，描边负责让它在蓝底上显形 */
@@ -176,7 +182,7 @@ html[data-theme="light"] .sidebar{border:1px solid var(--bd1)}
 .stq,.step .c,.chk .ic,.mrow .ic,.sa-now .c,.ap-step .c,.mp-ck
   {width:9px;height:9px;flex:none;border-radius:2px;
   box-sizing:border-box;background:transparent;border:1.5px solid var(--bd2)}
-.stq.doing,.step .c.doing,.ap-step .c.doing,.sa-now .c{background:var(--pri-h);border-color:var(--pri-h);
+.stq.doing,.step .c.doing,.ap-step .c.doing,.sa-now .c{background:var(--pri);border-color:var(--pri);
   box-shadow:0 0 6px rgba(61,152,255,.6)}
 .stq.done,.step .c.done,.ap-step .c.done,.chk .ic.ok,.mrow .ic.ok,
 .sa-now.done .c{background:var(--ok);border-color:var(--ok);box-shadow:none}
@@ -451,7 +457,7 @@ td.fnname{color:var(--ok)}
 .lane-track{flex:1;min-width:0;height:15px;position:relative;background:var(--surf-3);border-radius:3px}
 .lane-bar{position:absolute;top:0;height:100%;border-radius:3px;display:flex;align-items:center;
   padding:0 6px;font-family:var(--mono);font-size:11px;font-weight:700;color:#0b0b0b;
-  white-space:nowrap;overflow:hidden;background:var(--pri-h)}
+  white-space:nowrap;overflow:hidden;background:var(--pri)}
 .lane-bar.done{background:var(--ok)}
 /* 「进行中」= 默认的蓝色填充 + 条内文字，不给它加动效：闪一下不携带任何静态帧读得出的信息 */
 .lane-bar.wait{background:var(--warn)}
@@ -488,7 +494,7 @@ td.fnname{color:var(--ok)}
 .sa-badge{font-size:11px;font-weight:700;letter-spacing:.12em;padding:1px 6px;border-radius:3px;
   background:var(--s4);color:var(--fg3);flex:none}
 .sa.done .sa-badge{background:rgba(158,206,106,.16);color:var(--ok)}
-.sa.running .sa-badge{background:rgba(52,94,231,.24);color:var(--pri-h)}
+.sa.running .sa-badge{background:rgba(0,119,255,.24);color:var(--pri-h)}
 .sa.warn .sa-badge{background:rgba(224,175,104,.18);color:var(--warn)}
 .sa-nm{font-size:12.5px;font-weight:700;color:var(--fg);flex:none}
 .sa-role{font-size:12px;color:var(--fg4);flex:1;min-width:0;
@@ -544,7 +550,7 @@ td.fnname{color:var(--ok)}
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sa-lns .tb{flex:none;width:56px;height:5px;background:var(--s4);border-radius:3px;
   overflow:hidden;position:relative}
-.sa-lns .tb i{position:absolute;top:0;bottom:0;left:0;border-radius:3px;background:var(--pri-h)}
+.sa-lns .tb i{position:absolute;top:0;bottom:0;left:0;border-radius:3px;background:var(--pri)}
 .sa-lns .tm{font-family:var(--mono);font-size:11.5px;color:var(--fg4);flex:none;width:52px;text-align:right}
 
 /* token 徽标：默认中性、不抢注意力，只在越过阈值时着色——沿用 P20"提醒但不替用户做决策" */
@@ -612,7 +618,7 @@ td.fnname{color:var(--ok)}
 .slots .lb{color:var(--fg4);flex:none}
 .slots .sq{width:16px;height:9px;border-radius:2px;flex:none;box-sizing:border-box;
   border:1.5px solid var(--bd2);background:transparent}
-.slots .sq.used{background:var(--pri-h);border-color:var(--pri-h)}
+.slots .sq.used{background:var(--pri);border-color:var(--pri)}
 .slots .v{color:var(--fg2);font-weight:700;flex:none}
 .slots .note{color:var(--fg4);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
@@ -655,19 +661,19 @@ td.fnname{color:var(--ok)}
 .model-row{display:flex;align-items:center;gap:9px;padding:5px 11px;cursor:pointer;
   font-family:var(--mono);transition:background .1s ease}
 .model-row:hover{background:var(--s2)}
-.model-row.cur{background:rgba(52,94,231,.22)}
+.model-row.cur{background:var(--sel)}
 /* 当前模型标记：**不是状态方块**，是「选中」这套语义（品牌蓝 = 选中/焦点），
    所以只共用同一份 9px 几何，「选中 = 实心蓝」这条留在这里。
    它跟「进行中 = 实心蓝」形状相同但不会同处一行，且这一行还有行高亮 + 右侧 current 徽标
    两个通道同时说「是它」，不靠方块单通道。 */
-.model-row.cur .mp-ck{background:var(--pri-h);border-color:var(--pri-h)}
+.model-row.cur .mp-ck{background:var(--pri);border-color:var(--pri)}
 .mp-nm{font-size:12.5px;font-weight:700;color:var(--fg);flex:none;width:198px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mp-desc{font-size:12px;color:var(--fg4);flex:1;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mp-tag{font-size:11px;font-weight:700;padding:1px 5px;border-radius:3px;flex:none;
   background:var(--s4);color:var(--fg3)}
-.mp-tag.cur{background:rgba(52,94,231,.24);color:var(--pri-h)}
+.mp-tag.cur{background:rgba(0,119,255,.24);color:var(--pri-h)}
 
 /* 额度条：P13 的四级风险色在主题安全的 token 里只有三档可用的填充色
    （0–49 与 50–69 共用"安全区"绿，档位名称由 .qr 文案区分，不靠颜色硬凑四档） */
@@ -705,7 +711,7 @@ table.cmp tr.ttl td{color:var(--fg);font-weight:700}
 .tc-vbtn{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:4px;border:0;
   background:transparent;color:var(--fg4);cursor:pointer;transition:background .12s,color .12s}
 .tc-vbtn:hover{color:var(--fg2)}
-.tc-vbtn.active{background:var(--pri-h);color:#fff}
+.tc-vbtn.active{background:var(--pri);color:#fff}
 .tc-svg{display:block;width:100%;height:112px}
 .tc-svg .tc-grid{stroke:var(--bd1);stroke-width:1}
 .tc-svg .tc-ytick,.tc-svg .tc-xtick{font-family:var(--mono);font-size:12px;fill:var(--fg4)}
@@ -732,7 +738,7 @@ table.cmp tr.ttl td{color:var(--fg);font-weight:700}
 .sm-item{display:flex;align-items:baseline;gap:10px;padding:6px 9px;border-radius:6px;cursor:pointer;
   font-family:var(--mono);transition:background .1s ease}
 .sm-item:hover{background:var(--s2)}
-.sm-item.sel{background:rgba(52,94,231,.22)}
+.sm-item.sel{background:var(--sel)}
 .sm-item .cmd{color:var(--pri-h);font-weight:700;font-size:12.5px;flex:none;min-width:172px}
 /* 候选行只有命令名 + 说明两列：模型候选删除后不再有端点列（原来那列在这里解释"从哪个
    账号扣额度"）。端点与额度现在只在模型卡与提示行上回答，不在这层重复一遍 */
@@ -743,10 +749,10 @@ table.cmp tr.ttl td{color:var(--fg);font-weight:700}
 .bi-row{display:flex;align-items:flex-start;gap:9px;background:var(--input-bg);
   border:1px solid var(--input-bd);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-radius:8px;padding:8px 12px;font-size:var(--fs-md);position:relative;overflow:hidden;
-  box-shadow:0 0 16px rgba(52,94,231,.18),inset 0 1px 0 rgba(255,255,255,.06);
+  box-shadow:0 0 16px rgba(0,119,255,.18),inset 0 1px 0 rgba(255,255,255,.06);
   transition:box-shadow .15s,border-color .15s}
-.bi-row:focus-within{border-color:rgba(52,94,231,.65);
-  box-shadow:0 0 24px rgba(52,94,231,.32),inset 0 1px 0 rgba(255,255,255,.1)}
+.bi-row:focus-within{border-color:rgba(0,119,255,.65);
+  box-shadow:0 0 24px rgba(0,119,255,.32),inset 0 1px 0 rgba(255,255,255,.1)}
 
 /* ══ 键盘焦点环：全项目唯一的一处焦点样式 ══
    卡片头、折叠节点这些 .sa-head / .tree-row.fold 都带 role=button + tabindex=0，
@@ -769,7 +775,7 @@ button:focus-visible{
 .bi-row textarea::placeholder{color:var(--fg4)}
 /* 输入框里的光标：常亮实心方块，不闪。这里是「终端块光标」的模拟——闪动是 Web 文本框的
    习惯，而块光标在 TUI 里靠形状（实心方块）就已经和文字区分开了，不需要再闪一次 */
-.bi-cur{width:6px;height:14px;background:var(--pri-h);display:inline-block;margin-top:2px}
+.bi-cur{width:6px;height:14px;background:var(--pri);display:inline-block;margin-top:2px}
 
 /* ══ 输入框下方命令提示行 ══
    场景里能改的东西（模型、token 告警线）如果只在浮层或配置文件里能改，用户不会知道它在这儿也能改。
@@ -835,7 +841,7 @@ button:focus-visible{
 .status-bar .ctxw{color:var(--fg4);font-weight:400;font-size:11px;margin-left:-2px}
 
 /* ══ 管理配置页（分类 tab：模型 / Agent / Skill，本轮只交付「模型」）══
-   入口两条：输入框敲 /model 回车，或侧栏 Settings → Model。Esc 退回对话。
+   入口两条：输入框敲 /model 回车，或侧栏 Settings → 管理配置。Esc 退回对话。
    形态是「页」不是「浮层」：要填 8 个字段、要连测、要增删改，塞进会话流会把流撑成
    一堆控件；而全屏接管本来就是这台 TUI 的产品形态（见 screens.html 屏 5 管理配置，
    这一页是它「模型」分类的 Workspace 面可交互版）。
@@ -905,7 +911,7 @@ html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
 .mm-in{width:100%;height:30px;background:var(--input-bg);border:1px solid var(--input-bd);
   border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:12.5px;padding:0 9px;outline:0;
   -webkit-appearance:none;appearance:none}
-.mm-in:focus-visible{border-color:rgba(52,94,231,.65);box-shadow:0 0 0 3px var(--focus-ring)}
+.mm-in:focus-visible{border-color:rgba(0,119,255,.65);box-shadow:0 0 0 3px var(--focus-ring)}
 .mm-in[aria-invalid="true"]{border-color:rgba(247,118,142,.6)}
 .mm-hint{margin-top:4px;font-size:11.5px;color:var(--fg4);font-family:var(--mono);line-height:1.55}
 .mm-hint.err{color:var(--dgr)}
@@ -936,8 +942,8 @@ html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
   background:var(--s2);border:1px solid var(--bd2);border-radius:6px;cursor:pointer;flex:none;
   -webkit-appearance:none;appearance:none}
 .mm-btn:hover{color:var(--fg);background:var(--s3)}
-.mm-btn.pri{color:var(--sel-fg);background:rgba(52,94,231,.42);border-color:rgba(52,94,231,.55)}
-.mm-btn.pri:hover{background:rgba(52,94,231,.58)}
+.mm-btn.pri{color:var(--sel-fg);background:rgba(0,119,255,.42);border-color:rgba(0,119,255,.55)}
+.mm-btn.pri:hover{background:rgba(0,119,255,.58)}
 .mm-btn:disabled{opacity:.42;cursor:not-allowed}
 .mm-btn:focus-visible{outline:0;box-shadow:0 0 0 3px var(--focus-ring)}
 
@@ -992,12 +998,12 @@ html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
 /* ══ TUI 装饰 ══ */
 .particles{position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:
-    radial-gradient(1.5px 1.5px at 8% 15%,rgba(52,94,231,.35),transparent),
+    radial-gradient(1.5px 1.5px at 8% 15%,rgba(0,119,255,.35),transparent),
     radial-gradient(1px 1px at 25% 55%,rgba(102,206,250,.22),transparent),
-    radial-gradient(1.5px 1.5px at 45% 85%,rgba(52,94,231,.28),transparent),
+    radial-gradient(1.5px 1.5px at 45% 85%,rgba(0,119,255,.28),transparent),
     radial-gradient(1px 1px at 65% 25%,rgba(187,154,247,.25),transparent),
     radial-gradient(1px 1px at 82% 65%,rgba(102,206,250,.18),transparent),
-    radial-gradient(1.5px 1.5px at 15% 78%,rgba(52,94,231,.22),transparent),
+    radial-gradient(1.5px 1.5px at 15% 78%,rgba(0,119,255,.22),transparent),
     radial-gradient(1px 1px at 92% 42%,rgba(187,154,247,.2),transparent);
   animation:particleDrift 25s linear infinite}
 @keyframes particleDrift{0%{transform:translateY(0)}100%{transform:translateY(-20px)}}
@@ -1023,7 +1029,7 @@ html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
    只有用户消息留一条蓝线：它是「谁在说」的标记，蓝是本产品的说话人色，
    不与其他单元撞车。AI 文本的金线已删（金线归受阻块，见 .ai-msg 上方注释）；
    .console 留的是中性色 --bd2，是结构线不是语义色，不参与这套分工。 */
-.usr-msg{border-left:2px solid rgba(52,94,231,.35)}
+.usr-msg{border-left:2px solid rgba(0,119,255,.35)}
 .console{border-left:2px solid var(--bd2)}
 
 /* checklist 行前缀 */
@@ -1099,7 +1105,7 @@ table.cmp{border-left:2px solid var(--bd1)}
   transition:background .12s ease,color .12s ease,border-color .12s ease}
 .ss-group .ss-btn:first-child{border-left:1px solid var(--bd2)}
 .ss-btn:hover{color:var(--fg2);background:var(--s2)}
-.ss-btn.on{color:var(--sel-fg);background:rgba(52,94,231,.4);border-color:rgba(52,94,231,.5)}
+.ss-btn.on{color:var(--sel-fg);background:rgba(0,119,255,.4);border-color:rgba(0,119,255,.5)}
 
 /* ══ 圆角开关 ══ */
 .ss-toggle{display:flex;align-items:center;gap:5px;margin-left:4px;cursor:pointer;-webkit-user-select:none;user-select:none}
@@ -1108,8 +1114,8 @@ table.cmp{border-left:2px solid var(--bd1)}
 .ss-track::after{content:'';position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--fg4);transition:transform .15s,background .15s}
 /* 开关的「开」态只写这一份：右上角圆角开关与管理配置页的「深度思考」共用同一形状，
    新开关一律加 .on 复用它，不另写一套 */
-.ss-toggle.on .ss-track,.mm-sw.on .ss-track{background:rgba(52,94,231,.5)}
-.ss-toggle.on .ss-track::after,.mm-sw.on .ss-track::after{transform:translateX(14px);background:var(--pri-h)}
+.ss-toggle.on .ss-track,.mm-sw.on .ss-track{background:rgba(0,119,255,.5)}
+.ss-toggle.on .ss-track::after,.mm-sw.on .ss-track::after{transform:translateX(14px);background:var(--pri)}
 html[data-sharp] *{border-radius:0!important}
 html[data-sharp] .ss-track{border-radius:0!important}
 html[data-sharp] .ss-track::after{border-radius:0!important}
@@ -1120,11 +1126,11 @@ html[data-theme="light"]{
   --s1:#ffffff; --s2:#f2f4f9; --s3:#e8ebf3; --s4:#dde1ec;
   --fg:#1b1e2b; --fg2:#3c4054; --fg3:#5c6178; --fg4:#5f6580;
   --bd1:#dde1ec; --bd2:#c7cce0; --bd3:#a9aec9;
-  --sel:#dbe4ff;
-  --panel-bg:rgba(255,255,255,.85); --panel-bd:rgba(52,94,231,.18); --panel-bd2:rgba(52,94,231,.16);
-  --input-bg:rgba(225,232,250,.95); --input-bd:rgba(52,94,231,.35);
-  --surf-1:rgba(52,94,231,.14); --surf-2:rgba(52,94,231,.12); --surf-3:rgba(52,94,231,.10); --surf-4:rgba(52,94,231,.08);
-  --ap-bg:rgba(52,94,231,.07);
+  --sel:rgba(0,119,255,.16);
+  --panel-bg:rgba(255,255,255,.85); --panel-bd:rgba(0,119,255,.18); --panel-bd2:rgba(0,119,255,.16);
+  --input-bg:rgba(225,232,250,.95); --input-bd:rgba(0,119,255,.35);
+  --surf-1:rgba(0,119,255,.14); --surf-2:rgba(0,119,255,.12); --surf-3:rgba(0,119,255,.10); --surf-4:rgba(0,119,255,.08);
+  --ap-bg:rgba(0,119,255,.07);
   /* 深色主题的 pri-h/ok/warn/dgr 是为深色背景调的浅色，直接搬到浅色背景上
      反白/低对比度，这里单独给浅色主题定义更深、更饱和的版本 */
   --pri-h:#0d5fd6; --pri:#0058c9; --ok:#1f7a2b; --warn:#8f5c08; --dgr:#c23054;
@@ -1140,11 +1146,11 @@ html[data-theme="light"]{
 }
 html[data-theme="light"] body::before{
   background:
-    radial-gradient(ellipse 120% 90% at 0% 100%,rgba(52,94,231,.13) 0%,rgba(52,94,231,.04) 30%,transparent 60%),
+    radial-gradient(ellipse 120% 90% at 0% 100%,rgba(0,119,255,.13) 0%,rgba(0,119,255,.04) 30%,transparent 60%),
     radial-gradient(ellipse 100% 80% at 95% 90%,rgba(102,206,250,.08) 0%,transparent 55%),
-    radial-gradient(ellipse 90% 70% at 50% 95%,rgba(52,94,231,.06) 0%,transparent 55%),
+    radial-gradient(ellipse 90% 70% at 50% 95%,rgba(0,119,255,.06) 0%,transparent 55%),
     radial-gradient(ellipse 80% 60% at 8% 12%,rgba(187,154,247,.06) 0%,transparent 60%),
-    radial-gradient(ellipse 70% 50% at 92% 8%,rgba(52,94,231,.04) 0%,transparent 55%)}
+    radial-gradient(ellipse 70% 50% at 92% 8%,rgba(0,119,255,.04) 0%,transparent 55%)}
 html[data-theme="light"] .scan{background:repeating-linear-gradient(180deg,rgba(20,25,45,.02) 0 1px,transparent 1px 3px)}
 html[data-theme="light"] .particles{opacity:.5}
 html[data-theme="light"] .tk.d{background:#fbdde5;color:#c23054}
@@ -1241,13 +1247,14 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
 
     <div class="sd-sec sd-pin">
       <div class="h">Settings</div>
-      <!-- Model 这一行带状态（已配置 / 未配置），所以走状态方块；Server 那行没有状态可报，
-           仍是菱形字形。同一组里两种指示列是有意的：有状态的用方块，纯入口用字形 -->
-      <div class="sd-node" id="sdModel" role="button" tabindex="0" title="打开管理配置">
-        <span class="ic"><span class="stq done" id="sdModelSq" role="img" aria-label="模型已配置" title="模型已配置"></span></span>
-        <span class="lb">Model · <span id="sdModelName">pangu-72b</span></span>
+      <!-- 这一组只有一个入口：点它进管理配置页，模型 / Agent / Skill 都在页内的分类 tab 里。
+           组标题已经写着 Settings，再往下列「Model」「Server」等于把页内字段抄进侧栏，
+           还凭空多出指向同一个地方的第二个入口——Server 那行连动作都没有，是个假入口。
+           行内方块只报一件事：配没配模型（这一组唯一的全局状态）。 -->
+      <div class="sd-node" id="sdSettings" role="button" tabindex="0" title="打开管理配置">
+        <span class="ic"><span class="stq done" id="sdCfgSq" role="img" aria-label="模型已配置" title="模型已配置"></span></span>
+        <span class="lb">管理配置</span>
       </div>
-      <div class="sd-node"><span class="ic">◇</span><span class="lb">Server · Kunpeng920 remote</span></div>
     </div>
   </aside>
 
@@ -2412,7 +2419,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
   </div>
 
     <!-- ══ 管理配置页（分类 tab：模型 / Agent / Skill）══
-         入口：输入框敲 /model 回车，或侧栏 Settings → Model。整屏覆盖主对话区（含输入框），
+         入口：输入框敲 /model 回车，或侧栏 Settings → 管理配置。整屏覆盖主对话区（含输入框），
          底栏留在外面。左列表由 JS 渲染（它随增删改变化），右侧表单是静态结构——字段就这 8 个，
          只有值在变；静态写死的好处是 Tab 顺序、label 关联、必填标记都不用 JS 再拼一遍。
          字段顺序 = PRD 第 3 节的顺序，没有重排：前四行是「连什么、怎么连」，
@@ -3494,11 +3501,10 @@ function mmSyncConfigured(){
   const ae=mmActiveEntry();
   const on=!!ae;
   mmEl('mmWarn').classList.toggle('on',!on);
-  const sq=mmEl('sdModelSq');
+  const sq=mmEl('sdCfgSq');
   sq.className='stq '+(on?'done':'wait');
   sq.setAttribute('aria-label',on?'模型已配置':'未配置模型');
   sq.setAttribute('title',on?'模型已配置':'未配置模型');
-  mmEl('sdModelName').textContent=on?ae.name:'未配置';
   renderMetrics(curAgent,lastScenario[curAgent]);
   /* 缺省态那一屏是"什么都干不了"，配好之后不该还停在那儿：
      落到「模型与 Token」这一屏（刚配的东西在哪儿看、怎么改），并把那一屏的演示预填清掉——
@@ -3919,10 +3925,10 @@ mmEl('fEye').addEventListener('click',()=>{
   mmEl('fEye').setAttribute('aria-pressed',String(show));
 });
 
-/* 三处入口都指向同一个动作：顶栏胶囊、侧栏 Settings → Model、缺省引导卡的「立即配置」 */
+/* 三处入口都指向同一个动作：顶栏胶囊、侧栏 Settings → 管理配置、缺省引导卡的「立即配置」 */
 mmEl('mmWarn').addEventListener('click',mmOpenModelPage);
-mmEl('sdModel').addEventListener('click',mmOpenModelPage);
-mmEl('sdModel').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); mmOpenModelPage(); } });
+mmEl('sdSettings').addEventListener('click',mmOpenModelPage);
+mmEl('sdSettings').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); mmOpenModelPage(); } });
 const nmGo=mmEl('nmGo'); if(nmGo) nmGo.addEventListener('click',mmOpenModelPage);
 
 /* 缺省态只是"没有被激活的模型"——已保存的配置**不动**。
