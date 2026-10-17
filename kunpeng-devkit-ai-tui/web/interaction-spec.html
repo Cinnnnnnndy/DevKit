@@ -387,9 +387,9 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 <tr><th>表单要求</th><th>落点</th><th>对应基元</th><th>交互规格摘要</th><th>验收条件</th><th>状态</th></tr>
 <tr>
 <td class="nw">12 子 Agent 并发 草图</td>
-<td><code>agent-workspace.html</code> · <code>develop:subagent</code>（3 子 Agent 并行 + 收口）<br><code>develop:subagent-solo</code>（一层 · 只派 1 个）</td>
+<td><code>agent-workspace.html</code> · <code>develop:subagent</code>（主 Agent 卡片 + 3 个子 Agent 并行 + 收口，唯一的子 Agent 场景）</td>
 <td>Orchestration Lane · Sub-Agent Block · Concurrency Slot Gauge · Token Badge</td>
-<td>泳道同屏并置对齐同一时间轴；每张子 Agent 卡有独立内部排版；<strong>收起态就是头部那一行</strong>，必须读得出三件事：<strong>运行状态</strong>（完成 / 进行中 / 受阻）、<strong>已运行时间</strong>（6.2s 这类）、<strong>工具调用数</strong>（4 工具这类，并发时补「· 并发 3」），token 徽标跟在最后；展开体沿用主 agent 的步骤行与工具行基元</td>
+<td>泳道同屏并置对齐同一时间轴；每张子 Agent 卡有独立内部排版；<strong>收起态就是头部那一行</strong>，且<strong>状态方块在最前</strong>（与对话流的行同一条指示列），行尾依次是 已运行时间（6.2s 这类）、工具调用数（4 工具这类，并发时补「· 并发 3」）、token 徽标；<strong>主 Agent 也用同一张卡</strong>（MAIN），子卡挂在它的 body 里，深度只有这一层；展开体沿用主 agent 的步骤行与工具行基元</td>
 <td>泳道 4 行（main + 3 子）+ 时间刻度；收口区给出「14 次工具调用 · 峰值并发 3 · 0 合并冲突」；把任一卡片收起后，头部仍写着状态 + 时长 + 工具数</td>
 <td class="nw"><span class="st ok">设计已交付</span></td>
 </tr>

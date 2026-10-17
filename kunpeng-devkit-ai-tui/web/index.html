@@ -486,9 +486,9 @@ td.mono,th.mono{font-family:var(--font-mono)}
 /* 头行的状态位：导轨删掉之后，状态色落在头部的第一组字（完成 / 进行中 / 受阻）上。
    这里没有方块——头行是收起态唯一读得出内容的一行，状态词本身就是信息，
    方块只放在没有文字的位置（见「状态方块」一节） */
-.cv-sa.done .cv-sa-stat>span:first-child{color:var(--success)}
-.cv-sa.running .cv-sa-stat>span:first-child{color:var(--primary-hover)}
-.cv-sa.wn .cv-sa-stat>span:first-child{color:var(--warning)}
+/* 状态不再占 stat 的第一项：head 最前面有状态方块，行尾只留时长 / 工具数 / token，
+   三项都是中性数字，不按状态染色 */
+.cv-sa-head>.stq{flex:none;margin-top:1px}
 
 /* 深度徽标保留但降为纯文本：去掉底色后它不再是一个「层」，只剩两个字符，用来在滚到长流
    中部、看不到顶部树概览时兜底回答「这是第几层」 */
