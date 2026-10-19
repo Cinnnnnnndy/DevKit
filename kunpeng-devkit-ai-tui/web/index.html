@@ -493,7 +493,9 @@ td.mono,th.mono{font-family:var(--font-mono)}
 .cv-sa-prog{display:flex;align-items:center;gap:8px;flex:none;min-width:0}
 .cv-sa-prog .bar{width:92px;height:5px;border-radius:3px;background:var(--surface-3);overflow:hidden;flex:none}
 .cv-sa-prog .bar i{display:block;height:100%;border-radius:3px;background:var(--primary)}
-.cv-sa.done .cv-sa-prog .bar i{background:var(--success)}
+/* 只认自己的头部：子卡是主 Agent 卡的后代，写成 .cv-sa.done .cv-sa-prog
+   会让「主 Agent 已完成」把一个还在跑的子卡进度条也染成绿色 */
+.cv-sa.done>.cv-sa-head .cv-sa-prog .bar i{background:var(--success)}
 .cv-sa-prog .tx{font-family:var(--font-mono);font-size:11px;color:var(--foreground-muted);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* 卡内简化待办：一行一步，不给描述 / 耗时 / 依赖 */
@@ -517,6 +519,17 @@ td.mono,th.mono{font-family:var(--font-mono)}
 /* 主 Agent 的时长与模型只在 run 结束后出现 */
 .cv-sa-sum{font-family:var(--font-mono);font-size:12px;color:var(--foreground-muted);flex:none;white-space:nowrap}
 .cv-sa.main:not(.done) .cv-sa-sum{display:none}
+
+/* 一次 run 的结束标志：细分隔线 + 本轮耗时与所用模型（见下方 Run End Marker 卡）。
+   主 Agent 的头部在这一屏不是开关：子 Agent 区域常驻，收起它等于让「3 个在跑」消失 */
+.cv-sa-rune{display:flex;align-items:center;gap:8px;margin:10px 0 0;padding:8px 0 0;
+  border-top:1px solid var(--border-default);font-family:var(--font-mono);font-size:11px;
+  color:var(--foreground-muted)}
+.cv-sa-rune .stq{flex:none;margin-top:1px}
+/* 子 Agent 分组提示：一句话说清这一组在并行干什么，不写调度取舍 */
+.cv-sa-note{font-size:13px;color:var(--foreground-muted);margin:8px 0 2px}
+.cv-sa.main>.cv-sa-head{cursor:default}
+.cv-sa.main>.cv-sa-head::before{content:none}
 
 /* 深度徽标保留但降为纯文本：去掉底色后它不再是一个「层」，只剩两个字符，用来在滚到长流
    中部、看不到顶部树概览时兜底回答「这是第几层」 */
@@ -1821,7 +1834,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 <table>
 <tr><th>元件</th><th>跨产品现状</th><th>DevKit AI 决策</th></tr>
 <tr><td>子 Agent 块</td><td>Claude Code 的 Task 工具只在主流里回一行摘要，子 agent 的内部过程收进 <kbd>Ctrl+O</kbd>；OpenCode 当普通工具调用；Codex CLI 无子 agent</td><td><strong>给独立块，块内有自己完整的一套排版</strong>（当前步 → 工具并发 → 结论），<strong>不画左侧状态导轨</strong>——状态色只落在头部的状态词与徽标上。子 agent 跑的是一整套流程，压成一行等于把编排能力藏起来——但块也不并进主流，两种版式不混在一起。<strong>头部那一行就是收起态的全部内容</strong>（谁 / 在干什么 / 多久 / 几个工具 / 多少 token），展开只是把「现在在干什么」补在下面，这一行开合之间一字不变。<strong>每张块都可收起、头部即开关</strong>；默认收起已完成与已收住的，默认展开进行中与受阻的</td></tr>
-<tr><td>子 Agent 并排</td><td>各家只有「一个接一个」的串行视图</td><td>编排泳道：同屏并置 + 对齐同一条时间轴，右端给耗时与状态。<strong>并发不靠动效表达「同时」</strong>——静态帧、SSH、截图里都要读得出来，这跟 <a href="#motion">Motion</a> 一节只把动效当补充是同一条纪律</td></tr>
+<tr><td>子 Agent 并排</td><td>各家只有「一个接一个」的串行视图</td><td><strong>并排不靠时间轴</strong>：多张子卡同屏并置，各自头行报「进行中 / 完成 + 3/5 步 + 耗时」，并发这件事在静态帧、SSH、截图里都读得出来。<strong>时间轴泳道（Orchestration Lane）本轮不进会话流</strong>——它要占掉近半屏，而它读得出的三件事（谁在跑、谁先开始、谁快谁慢）卡头里各有一份；留给后续<strong>可观测性页面</strong>单独设计，那是另一类用户（排查调度问题）和另一套密度</td></tr>
 <tr><td>工具调用并发</td><td>四家都是单行、串行追加</td><td>同一子 agent 内并行的工具各自一条<strong>左端对齐</strong>的进度条：起点落在同一条竖线上表示同时开始，长度差即进度差。入口形状不变，仍是上面 Tool Call Line 的紧凑单行</td></tr>
 <tr><td>嵌套深度</td><td>无——Claude Code 明确禁止子 agent 再生子 agent</td><td>深度走<strong>一个通道：缩进（16px 一格，按层累加）+ <code>SUB-2.2.1</code> 编号</strong>，<strong>刻意不占颜色</strong>——颜色通道归了状态方块（蓝 / 绿 / 金 / 灰），深度与状态是正交维度。<strong>不给每张卡画状态导轨</strong>：那会同时重复状态与缩进两件已经说过的事，多层嵌套下还长出一排平行彩条。<strong>缩进不封顶</strong>——深度上限 4 层所以最坏 64px，封顶会把第 3、4 层压平、废掉缩进这个信号；触顶不下钻、收住并回退基线，不留半成品</td></tr>
 <tr><td>画不下的层级</td><td>直接省略</td><td>折叠成可交互的 <code>…</code> 节点，点击 / <kbd>Enter</kbd> 就地展开。<strong>画不下就显式说画不下，不能悄悄吞掉</strong>——沿用 index.html 工程树那条既有决策</td></tr>
@@ -1833,7 +1846,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 
 <div class="sublabel">编排类画廊 —— Agent Workspace 真实渲染，逐个单独成卡</div>
 
-<div class="cv-fig"><span class="fig-t">Orchestration Lane 编排泳道</span>
+<div class="cv-fig"><span class="fig-t">Orchestration Lane 编排泳道 · 储备（不进会话流）</span>
 <div class="cv-lanes">
 <div class="cv-lane"><span class="nm">main</span><span class="tk"><span class="bar done" style="left:0;width:14%">编排</span><span class="bar done" style="left:15%;width:24%">冲突检测</span><span class="bar" style="left:41%;width:57%">收口与合并</span></span><span class="ms">15.4s</span></div>
 <div class="cv-lane"><span class="nm">sub-1 · kernel</span><span class="tk"><span class="bar done" style="left:14%;width:38%">6 工具</span></span><span class="ms">6.2s</span></div>
@@ -1842,7 +1855,7 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 </div>
 <div class="cv-axis"><span class="nm"></span><span class="ticks"><span>0s</span><span>4s</span><span>8s</span><span>12s</span><span>16s</span></span><span class="ms"></span></div>
 </div>
-<p class="rule">泳道图画的是<strong>谁在等谁</strong>。sub-1 和 sub-2 的左端都从 14% 起——那是 main 派发完的时刻，两条泳道在同一竖线上开始，就是「并行」这件事在静态帧里的全部证据；sub-3 的空档不是它慢，是它在等一把独占的 profiler，所以那一格用<strong>等待色（金）+ 条内文字「等独占 profiler」</strong>而不是「未开始」。工具数写在条内、耗时写在条外：条内是这条泳道<em>干了什么</em>，条外是<em>花了多久</em>，两者不该混进同一个位置。</p>
+<p class="rule"><strong>这张卡是储备，不在 Agent 工作区的会话流里。</strong>泳道图画的是<strong>谁在等谁</strong>：sub-1 和 sub-2 的左端都从 14% 起——那是 main 派发完的时刻，两条泳道在同一竖线上开始，就是「并行」这件事在静态帧里的全部证据。它被移出会话流的原因只有一条：<strong>它太占版面</strong>（4 条泳道 + 时间刻度要吃掉近半屏），而它读得出的三件事在子卡头行里本来就各有一份——谁在跑（状态词 + 方块）、跑到哪（<code>3/5 步</code>）、跑了多久（耗时）。它留给<strong>后续可观测性需求的单独页面</strong>：那一页的用户是在排查调度问题，要的是「一把 profiler 卡住了谁」这种跨任务的长视图，密度与目的都跟会话流不同，塞进会话流就是两边都不合适。元件本身不废——横向时间轴、等待色、条内工具数三条规格照旧可用。</p>
 
 <div class="cv-fig"><span class="fig-t">Sub-Agent Block 子 Agent 块（含工具并发 + token 徽标）</span>
 <div class="cv-sa running">
@@ -1877,9 +1890,20 @@ B · 收回规范——把 Console 重新登记为「<strong>Console Block 日�
 </div>
 </div>
 </div>
-<p class="rule"><strong>头部那一行就是收起态的全部内容</strong>，顺序即一次编排的完整生命周期：<strong>是谁（<code>SUB-2</code> 徽标 + 文件名）→ 在干什么 → 干了多久（状态 + 耗时 + 工具数）→ 花了多少（token 徽标）</strong>。其中「在干什么」按状态给不同的东西：<strong>进行中给「现在在干什么」，完成给收益（<code>收益 3.6x</code>），受阻给「卡在哪」</strong>——同一行位置只回答「我需不需要点开它」，不需要点开就已经能答。<strong>展开后这一行一字不变</strong>，只是把「怎么干的」补在下面，所以开合之间没有内容跳动。</p>
+<p class="rule"><strong>头部那一行就是收起态的全部内容</strong>，顺序即一次编排的完整生命周期：<strong>是谁（<code>SUB-2</code> 徽标 + 文件名）→ 在干什么 → 干了多久（状态 + 耗时）→ 花了多少（token 徽标）</strong>。头行的状态词只有三档——<strong>进行中 / 完成 / 中止</strong>：受阻待裁决、已收住、失败、用户叫停在这一层都读作「中止」，具体原因写在名字后面那句事实里（内部状态矩阵见 <a href="./interaction-spec.html">交互规格</a> §4C6），卡头不该为了区分六种内部状态长出六个词。<strong>进度是可选项</strong>：步数来自 <code>write_todos</code>，有就画一条细条 + 「3/5 步」，没有就不放——子 agent 未必给自己列待办，硬造一个进度条就是假信息。其中「在干什么」按状态给不同的东西：<strong>进行中给「现在在干什么」，完成给收益（<code>收益 3.6x</code>），中止给「停在哪」</strong>——同一行位置只回答「我需不需要点开它」，不需要点开就已经能答。<strong>展开后这一行一字不变</strong>，只是把「怎么干的」补在下面，所以开合之间没有内容跳动。</p>
 <p class="rule">展开体只有三块平铺、<strong>没有第三层容器</strong>：当前（或最后）一步 → 工具行 → 一条说明。<strong>「卡内不套卡」是这一条的实现纪律</strong>：第三块里的 AI 文本进了卡片就退回纯文本（去底色、去圆角），受阻块只收底色和圆角、<strong>金左线留着</strong>——那条线在卡内仍然是「这里停下来了」的唯一签名，是语义不是装饰；卡外的 AI 文本是中性的，卡内再套一层带底色的卡，两三层下去就只剩深浅不同的方块，读不出谁是容器、谁是内容（两面对应的两条规则：<code>.cv-sa-body .cv-ai</code> 与 <code>.sa-body .ai-msg</code>）。<strong>已完成的中间步骤不铺开</strong>——展开要看的是「现在在干什么」，不是回放；要回放走左侧会话列表里那条完整轨迹。工具行沿用对话流「工具调用」那条基元（字形 + 目标 + 右对齐 meta），<strong>不加边框、不加底色、也不给工具名定宽列</strong>——定宽列会把这几行读成一张表格，而它们不是表。<strong>只有进行中的行才画进度条</strong>：<code>apply_patch</code> 只给 1.2s 不给满格绿条，因为一条 100% 的进度条不携带任何信息。剩下两条<strong>左端对齐</strong>——起点落在同一条竖线上表示「同时开始」，长度差表示进度差，并发这件事在静态帧、SSH、截图里都读得出来，不必等动画转完。</p>
 <p class="rule"><strong>每张卡片都可收起，头部就是开关</strong>——嵌套时这条最要紧：一个二级块底下可能再挂三层，全摊开会把面板撑成一条读不完的长梯。折叠<strong>只收起「怎么干的」，头部那一行始终留着</strong>，所以收起来之后这块仍然读得懂，只是不再占版面。<strong>默认状态由「还需不需要你看」决定，不由深度决定</strong>：已完成、已收住的默认收起（上面那张 <code>SUB-1</code>），进行中、受阻的默认展开。<strong>按深度收是个陷阱</strong>——最深的那个往往是受阻项，按深度收会把它连同父级一起藏掉，等于把最该被看见的东西收走了。</p>
+
+<div class="cv-fig"><span class="fig-t">Run End Marker 一次 run 的结束标志</span>
+<div class="cv-sa done main">
+<div class="cv-sa-head"><span class="stq done" role="img" aria-label="已完成" title="已完成"></span><span class="cv-sa-badge">MAIN</span><span class="cv-sa-nm">order-center 编排</span><span class="cv-sa-sum">已完成 · 4/4 步</span></div>
+<div class="cv-sa-body">
+<div class="cv-ai">3 个域的改动文件互不重叠，worktree 合入零冲突——settlement_kernel.c、risk_score.c 已并入主干，reconcile.c 跑完自动并入。</div>
+<div class="cv-sa-rune"><span class="stq done" role="img" aria-label="已完成"></span>本轮结束 · 14.1s · pangu2.5-72b</div>
+</div>
+</div>
+</div>
+<p class="rule"><strong>run 是用户眼里的最小结算单位</strong>：我问了一句、它干完一轮、回我一段——这一轮的边界必须看得见。子卡各自报的是自己那支跑了多久，<strong>主 Agent 报的是这一轮总共多久、用的是哪个模型</strong>：下一次要不要换模型、这次值不值，用户看的就是这一行；没有它，「这一轮结束了」只能靠对话流里突然不再出现新内容去猜。<strong>形式是卡片 body 的最后一行</strong>（一道细分隔线 + 「本轮结束 · 14.1s · pangu2.5-72b」），不飘在流里——它结的是这张卡的账。<strong>模型与耗时只在 run 结束后出现</strong>：运行中连总时长都还不知道，写出来就是假的，靠状态选择器藏（<code>.cv-sa.main:not(.done) .cv-sa-sum{display:none}</code>），不靠「记得别放」。<strong>主 Agent 的头部在这一屏不做开关</strong>——子 Agent 区域是主体，常驻、只上下滚动，收起来等于让「3 个子 agent 在跑」从屏幕上消失；开合只发生在子卡上，而且开合之间头行一字不变。</p>
 
 <div class="cv-fig"><span class="fig-t">Concurrency Slots 并发槽位</span>
 <div class="cv-slots"><span class="lb">并发槽位</span><span class="sq used"></span><span class="sq used"></span><span class="sq used"></span><span class="sq free"></span><span class="v">3 / 4</span><span class="nt">3 个在跑 · 还剩 1 个名额</span></div>

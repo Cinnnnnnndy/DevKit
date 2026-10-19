@@ -445,28 +445,10 @@ td.fnname{color:var(--ok)}
    一行状态现在只有一处定义——见「状态方块」一节 */
 
 /* ══ 子 Agent 并发编排（develop · subagent）══
-   并发不靠动效表达"同时"，靠同屏并置的多条泳道对齐同一条时间轴——静态帧下也读得出来。
-   状态由**条本身的填充色 + 条内文字**承担（进行中 / 完成 / 等待）。
-   这里不放状态方块：方块是深色底上的 9px 色块，落在 15px 高的彩色条上等于隐形，
-   而条内文字已经被底色推到了 8:1 以上对比度。原来条内文字前面还挂了一个 ✓ / ▶ 字形，
-   和底色说同一件事，已去掉——字形只留「状态位置没有文字可用」的地方。 */
-.lanes{display:flex;flex-direction:column;gap:3px;margin:10px 0 2px}
-.lane-row{display:flex;align-items:center;gap:9px}
-.lane-row .nm{font-family:var(--mono);font-size:12px;color:var(--fg2);width:148px;flex:none;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lane-track{flex:1;min-width:0;height:15px;position:relative;background:var(--surf-3);border-radius:3px}
-.lane-bar{position:absolute;top:0;height:100%;border-radius:3px;display:flex;align-items:center;
-  padding:0 6px;font-family:var(--mono);font-size:11px;font-weight:700;color:#0b0b0b;
-  white-space:nowrap;overflow:hidden;background:var(--pri)}
-.lane-bar.done{background:var(--ok)}
-/* 「进行中」= 默认的蓝色填充 + 条内文字，不给它加动效：闪一下不携带任何静态帧读得出的信息 */
-.lane-bar.wait{background:var(--warn)}
-.lane-row .ms{font-family:var(--mono);font-size:12px;color:var(--fg4);width:50px;flex:none;text-align:right}
-.lane-axis{display:flex;align-items:center;gap:9px;margin-top:1px}
-.lane-axis .nm{width:148px;flex:none}
-.lane-axis .ticks{flex:1;min-width:0;display:flex;justify-content:space-between;
-  font-family:var(--mono);font-size:11px;color:var(--fg4)}
-.lane-axis .ms{width:50px;flex:none}
+   并发不靠动效表达"同时"：同屏并置多张子卡，每张卡的头行自己报「进行中 · 3/5 步 · 11.3s」。
+   这里不做时间轴泳道——泳道要占掉近半屏高度，而它读出来的三件事（谁在跑、谁先开始、
+   谁快谁慢）在卡片头行里本来就各有一份。编排时间轴留给后续可观测性页面单独设计：
+   那是另一类用户（排查调度问题）和另一套密度，不该塞进会话流。 */
 
 /* ══ 子 Agent 卡片 ══
    【为什么删掉每张卡自带的那条彩色长导轨】
@@ -494,7 +476,7 @@ td.fnname{color:var(--ok)}
 .sa-badge{font-size:11px;font-weight:700;letter-spacing:.12em;padding:1px 6px;border-radius:3px;
   background:var(--s4);color:var(--fg3);flex:none}
 /* SUB-n 是身份编号（第几个子 agent），不是状态，所以不再按 done / running / warn 变色。
-   状态由三处表达：头行 sa-stat 的第一个词、展开体行首的方块、泳道条自身的填充色。
+   状态由两处表达：头行第一个词 / 方块（进行中 · 完成 · 中止），以及展开体行首的方块。
    同一件事由三处承担已经够多，徽标再染色就是第四处。 */
 .sa-nm{font-size:12.5px;font-weight:700;color:var(--fg);flex:none}
 .sa-role{font-size:12px;color:var(--fg4);flex:1;min-width:0;
@@ -507,13 +489,15 @@ td.fnname{color:var(--ok)}
 /* 状态不再占 sa-stat 的第一项：头行最前面有状态方块，行尾只留时长 / 工具数 / token。
    这三项都是中性数字，不该按状态染色（原来首项是状态词，才需要给整格上色）。 */
 .sa-head>.stq{flex:none;margin-top:1px}
-/* 主 Agent 头部的「执行进度」：一条 92px 的细条 + 「4/6 步 · 正在等待回收」。
-   它是折叠态里唯一能回答"还要多久"的东西——比一个跳动的秒数有用，
-   也比把 6 个步骤全摊在头部省地方（摊开就是 AI PLAN，不重复两遍）。 */
+/* 卡片头部的「执行进度」：一条 92px 的细条 + 「4/6 步」。进度来自 write_todos，
+   有就展示、没有就不放（子 Agent 未必给自己列待办）。它是头行里唯一能回答
+   “还要多久”的东西，比一个跳动的秒数有用，也比把步骤全摊在头部省地方。 */
 .sa-prog{display:flex;align-items:center;gap:8px;flex:none;min-width:0}
 .sa-prog .bar{width:92px;height:5px;border-radius:3px;background:var(--s4);overflow:hidden;flex:none}
 .sa-prog .bar i{display:block;height:100%;border-radius:3px;background:var(--pri)}
-.sa.done .sa-prog .bar i{background:var(--ok)}
+/* 只在**自己**的头部里改色：子卡是主 Agent 卡的后代，写成 `.sa.done .sa-prog`
+   会让「主 Agent 已完成」把一个还在跑的子卡的进度条也染成绿色。 */
+.sa.done>.sa-head .sa-prog .bar i{background:var(--ok)}
 .sa-prog .tx{font-family:var(--mono);font-size:11.5px;color:var(--fg4);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* 卡内简化待办：只回答"跑到哪一步了"——一行一步，不给描述、不给耗时、不给依赖。
@@ -550,6 +534,16 @@ td.fnname{color:var(--ok)}
    规则用状态选择器表达，不靠"记得别放"——放进去也会被藏起来。 */
 .sa-sum{font-family:var(--mono);font-size:12px;color:var(--fg4);flex:none;white-space:nowrap}
 .sa.main:not(.done) .sa-sum{display:none}
+/* 一次 run 的结束标志：一道细分隔线 + 本轮耗时与所用模型。
+   run 是用户眼里的最小结算单位（我问了 → 它干完 → 回我一句），子卡各自报的是
+   自己那支跑了多久，主 Agent 报的是这一轮总共多久、用哪个模型——下次要不要换模型，
+   用户看的就是这一行。没有它，「这一轮结束了」只能靠对话流里突然不再出现新内容去猜。 */
+.sa-rune{display:flex;align-items:center;gap:8px;margin:10px 0 0;padding:8px 0 0;
+  border-top:1px solid var(--bd1);font-family:var(--mono);font-size:11.5px;color:var(--fg4)}
+.sa-rune .stq{flex:none;margin-top:1px}
+/* 子 Agent 分组提示：一句话说清这一组在并行干什么。
+   不写「会互相干扰」这类取舍说明——那是调度规则，不是这一次任务的结论。 */
+.sa-note{font-size:13px;color:var(--fg4);margin:8px 0 2px}
 
 /* body = 三块平铺，不再层层套盒子：当前（或最后）一步 → 工具行 → 说明或受阻卡。
    左侧留白取 head 的横向 padding（10px），于是只有两条基线而不是三条：
@@ -582,9 +576,10 @@ td.fnname{color:var(--ok)}
    状态方块（.stq）+ 工具名 + 目标 + 右对齐 meta。子 agent 只多一样东西：右端那列耗时。
    这里不再有字形列（$ 执行 / → 读取 / ∗ 搜索）和行内进度条：
    · 字形是第三套指示语汇，主 agent 的行用方块，同屏并列时两边会像两个产品；
-   · 行内进度条是"看起来在动"的动效代理，而这一块的并发已经由上方泳道按同一时间轴
-     表达完了（左端对齐读同时开始、长度差读谁快谁慢），行里再画一根细条等于说第二遍，
-     且 100% 的满格条不携带任何信息。进行中的行靠方块状态色 + meta 里的「进行中」就够。 */
+   · 行内进度条是"看起来在动"的动效代理，而这一块的并发已经由同屏并置的多张子卡
+     表达完了（谁在跑、跑到第几步、跑了多久都在各自头行），行里再画一根细条等于说
+     第二遍，且 100% 的满格条不携带任何信息。进行中的行靠方块状态色 + meta 里的
+     「进行中」就够。 */
 .sa-lns{display:flex;flex-direction:column;gap:1px;margin:2px 0}
 .sa-lns .ln{display:flex;align-items:center;gap:8px;padding:1.5px 0;font-size:13px;color:var(--fg2)}
 /* 行首指示列 = 主 agent 的同一个状态方块（.stq），不再用 $ / → / ∗ 字形：
@@ -642,6 +637,11 @@ td.fnname{color:var(--ok)}
    和终端里 ▸/▾ 的读法也一致。 */
 .sa-head{cursor:pointer;user-select:none}
 .sa-head:hover{background:var(--s3)}
+/* 主 Agent 的头部不是开关：子 Agent 区域是这一屏的主体，常驻、只上下滚动，
+   收起来等于让「3 个子 Agent 在跑」从屏幕上消失。开合只发生在子卡上。 */
+.sa.main>.sa-head{cursor:default}
+.sa.main>.sa-head:hover{background:var(--surf-2)}
+.sa.main>.sa-head::before{content:none}
 .sa-head::before{content:'▾';font-size:11px;color:var(--fg3);opacity:.85;flex:none;
   width:11px;text-align:center;margin-right:-2px;transition:transform .15s}
 .sa.collapsed>.sa-body{display:none}
@@ -1832,80 +1832,35 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
             能单独停，用户在这个 demo 里点不了也验证不了，属界面被画成什么样（归 index.html
             的 Sub-Agent Block / 会话列表单元与 interaction-spec §4C）。业务只剩「什么不用你管」：
             sub-3 跑完会自动并入并向你汇报。
-         ② 受阻块第二行「宁可这一轮少一点并行度…」是取舍宣言，见该块上方注释。
-         判据没变：同一句话换个项目还成不成立——成立的留，只跟「本产品怎么设计」有关的移出。 -->
+         ② 讲并发采集会互相干扰的受阻块整块删了——它是调度规则（profiler 全局串行），
+            属规范内容，而这一次任务不需要用户裁决；流里只留一句「3 个子 Agent 并行开发中」。 -->
     <div class="scene" data-agent="develop" data-scenario="subagent">
       <section class="right-panel">
         <div class="panel-body">
           <div class="usr-msg"><span class="p">&gt;</span> 把 order-center 结算链路的几个热点都优化一下，范围有点大，你自己安排</div>
           <div class="ai-msg">好的。天秤扫描出 3 个<b class="hl-metric">互不依赖</b>的热点域 —— <b class="hl-code">结算矩阵</b>、<b class="hl-code">风控评分</b>、<b class="hl-code">对账重算</b>。我按域拆成 <b class="hl-metric">3 个子 Agent 并行</b>推进，自己只做编排、冲突检测和收口 ——</div>
 
-          <!-- 主 Agent 也是一张同构卡片：它自己也要报状态 / 时长 / 工具数与 token，
+          <!-- 主 Agent 也是一张同构卡片：它自己也要报状态 / 步数 / 这一轮用掉的时长，
                否则「谁在跑、跑了多久」只在子卡上成立，编排方反而没有身份。
                子卡挂在它的 body 里，就是「一层」：主 Agent → 子 Agent，只有这一层。
-               状态方块在最前（与对话流里的行同一条指示列），行尾只留时长 / 工具数 / token。 -->
-          <div class="sa running main">
-            <div class="sa-head" role="button" tabindex="0" aria-expanded="true">
-              <span class="stq doing" role="img" aria-label="进行中" title="进行中"></span>
+               头部不做折叠开关——子 Agent 区域常驻、只上下滚动，开合只发生在子卡上，
+               而且开合之间头部一字不变（变的是 body，不是这一行）。 -->
+          <div class="sa done main">
+            <div class="sa-head">
+              <span class="stq done" role="img" aria-label="已完成" title="已完成"></span>
               <span class="sa-badge">MAIN</span>
               <span class="sa-nm">order-center 编排</span>
-              <span class="sa-prog"><span class="bar"><i style="width:62%"></i></span><span class="tx">4/6 步 · 正在等待回收</span></span>
-              <span class="sa-sum">14.1s · pangu2.5-72b</span>
+              <span class="sa-sum">已完成 · 4/4 步</span>
             </div>
             <div class="sa-body">
-              <div class="sa-think"><span class="lb">思考</span>三个域的文件不相交，可以并行；但 perf 采样会互相抢 PMU 计数器，profiler 类要串起来跑。先都派出去，收口时只看合并冲突。</div>
+              <div class="sa-think"><span class="lb">思考</span>三个域的文件不相交，可以并行；派出去之后只等回收，收口时只看合并冲突。</div>
               <div class="sa-todo">
                 <div class="r"><span class="stq done" role="img" aria-label="已完成"></span>拆分热点域</div>
                 <div class="r"><span class="stq done" role="img" aria-label="已完成"></span>派发 3 个子 Agent</div>
-                <div class="r"><span class="stq doing" role="img" aria-label="进行中"></span>等待回收与合并<span class="now">← 当前</span></div>
-                <div class="r todo"><span class="stq todo" role="img" aria-label="未开始"></span>收口与汇报</div>
+                <div class="r"><span class="stq done" role="img" aria-label="已完成"></span>回收与合并</div>
+                <div class="r"><span class="stq done" role="img" aria-label="已完成"></span>收口与汇报</div>
               </div>
-              <div class="sa-now"><span class="c"></span><span class="t1">并行推进 3 个热点域</span><span class="t2">2 个已合入主干 · sub-3 仍在跑</span></div>
-              <div class="sa-lns">
-                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">dispatch</span><span class="ta">sub-1 · settlement_kernel.c · worktree wt/sub-1</span><span class="tm">0.4s</span></div>
-                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">dispatch</span><span class="ta">sub-2 · risk_score.c · worktree wt/sub-2</span><span class="tm">0.4s</span></div>
-                <div class="ln"><span class="stq done" role="img" aria-label="已完成"></span><span class="tn">dispatch</span><span class="ta">sub-3 · reconcile.c · worktree wt/sub-3</span><span class="tm">0.5s</span></div>
-              </div>
-
-          <div class="sub-h">并发编排 <span class="cm">3 个子 Agent 并行 · 时间轴</span></div>
-          <div class="lanes">
-            <div class="lane-row"><span class="nm">main · 编排收口</span>
-              <span class="lane-track"><span class="lane-bar doing" style="left:0;width:100%">编排中</span></span>
-              <span class="ms">14.1s</span></div>
-            <div class="lane-row"><span class="nm">sub-1 · settlement</span>
-              <span class="lane-track"><span class="lane-bar done" style="left:0;width:44%">完成</span></span>
-              <span class="ms">6.2s</span></div>
-            <div class="lane-row"><span class="nm">sub-2 · risk_score</span>
-              <span class="lane-track"><span class="lane-bar done" style="left:2.8%;width:60.3%">完成</span></span>
-              <span class="ms">8.5s</span></div>
-            <div class="lane-row"><span class="nm">sub-3 · reconcile</span>
-              <span class="lane-track"><span class="lane-bar doing" style="left:7.8%;width:80.1%">进行中</span></span>
-              <span class="ms">11.3s</span></div>
-            <div class="lane-axis"><span class="nm"></span>
-              <span class="ticks"><span>0s</span><span>4s</span><span>8s</span><span>12s</span><span>14.1s</span></span>
-              <span class="ms"></span></div>
-          </div>
-
-          <!-- 这里原来有五行：并发上限 / 隔离方式 / 共享只读 / 卡片默认收起 / 层级怎么画。
-               全部删除。判据只有一条：**这个 demo 复刻的是用户真实使用场景，流里只放业务。**
-               - 「卡片默认收起」「层级怎么画」从来不是 agent 会说的话，那是界面被画成什么样；
-               - 「并发上限 4」「隔离方式 worktree」「共享只读不排队」是调度规格（跑几个、怎么隔离、
-                 什么能并发读），不是这一次任务的业务结论——它们是规范的内容，规范里各有落点
-                 （index.html 的 Sub-Agent Block / Concurrency Slot Gauge / Depth Badge 卡，
-                 以及 interaction-spec §4C）。
-               业务事实不靠这几行撑：worktree 零冲突在上面那条 ai-msg 里说过了，并发几个写在
-               泳道标题「3 子 Agent · 上限 4」上，profiler 为什么串行写在下一条受阻块里。 -->
-
-          <!-- 这一块原来有两行说明，第二行删掉了：
-               「宁可这一轮少一点并行度，也不拿性能数据的可信度去换」是一句取舍宣言——它说的是
-               本产品在面对并行度与数据可信度时怎么选，换个项目依然成立，那正是规范的内容，
-               该落在 index.html 的受阻块/并发条目里，不是这一次任务的业务结论。
-               第一行已经把业务说全了：谁在抢什么资源、我因此改了什么，删掉宣言不丢信息。
-               剩下的形式问题（金左线只属于受阻块）见 .ai-msg 一段的注释。 -->
-          <div class="blocker">
-            <div class="bt">⚠ 并发采集会互相干扰</div>
-            <div class="bl">sub-1 与 sub-3 都要跑 <b>perf</b> 采样。同机同时采集会互相抢 CPU 与 PMU 计数器，采出来的性能数据是失真的 —— 所以我把 <b>profiler 类工具串起来跑</b>，其余工具照常并行。</div>
-          </div>
+              <div class="sa-note">3 个子 Agent 并行开发中</div>
 
           <div class="sa done collapsed lv2">
             <div class="sa-head" role="button" tabindex="0" aria-expanded="false">
@@ -1982,7 +1937,8 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
               <span class="sa-badge">SUB-3</span>
               <span class="sa-nm">reconcile.c</span>
               <span class="sa-role">第 3 处在验证</span>
-              <span class="sa-sum">进行中 · 3/5 步 · 11.3s</span>
+              <span class="sa-prog"><span class="bar"><i style="width:56%"></i></span><span class="tx">3/5 步</span></span>
+              <span class="sa-sum">进行中 · 11.3s</span>
             </div>
             <div class="sa-body">
               <div class="sa-todo">
@@ -2014,19 +1970,10 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
               </div>
             </div>
           </div>
+              <div class="ai-msg">3 个域的改动文件<b class="hl-metric">互不重叠</b>，worktree 合入零冲突：<b class="hl-code">settlement_kernel.c</b>（342ms → 96ms）、<b class="hl-code">risk_score.c</b>（+6.2%）已合入主干；<b class="hl-code">reconcile.c</b> 还在跑，完成后自动并入并向你汇报。</div>
+              <div class="sa-rune"><span class="stq done" role="img" aria-label="已完成"></span>本轮结束 · 14.1s · pangu2.5-72b</div>
             </div>
           </div>
-
-          <div class="sub-h">主 Agent 收口</div>
-          <div class="rpt-banner">3 个子 Agent 中 2 个已完成并合入主干 · sub-3 仍在运行，不阻塞其余交付</div>
-          <div class="stat3">
-            <div class="stat-card"><div class="sc-lb">子 Agent</div><div class="sc-big">3</div><div class="sc-sub">2 完成 · 1 进行中</div></div>
-            <div class="stat-card"><div class="sc-lb">工具调用</div><div class="sc-big">14</div><div class="sc-sub">峰值并发 3</div></div>
-            <div class="stat-card"><div class="sc-lb">合并冲突</div><div class="sc-big">0</div><div class="sc-sub">worktree 隔离 · 文件无重叠</div></div>
-          </div>
-          <div class="chk"><span class="ic ok" role="img" aria-label="通过"></span><span class="lb">已合并</span><span class="v">sub-1 settlement_kernel.c · sub-2 risk_score.c</span></div>
-          <div class="chk"><span class="ic warn" role="img" aria-label="需要注意"></span><span class="lb">待合并</span><span class="v">sub-3 reconcile.c（进行中，完成后自动合入）</span></div>
-          <div class="ai-msg">3 个域的改动文件<b class="hl-metric">没有重叠</b>，worktree 合入零冲突。sub-3 跑完会自动并入并向你汇报。</div>
         </div>
       </section>
     </div>

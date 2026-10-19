@@ -344,7 +344,7 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 <td class="nw">7 工具调用并发 草图</td>
 <td><code>agent-workspace.html</code> · <code>develop:subagent</code> 内 sub-3 卡片的展开区</td>
 <td>Concurrent Tool Row（Tool Call Line 的并发变体）· Status Square</td>
-<td>同一子 Agent 内并行的工具各自一行、左端对齐；行首是主 agent 同一个<strong>状态方块</strong>（进行中 / 已完成），右端只给耗时——<strong>不放行内进度条</strong>，并发交给上方泳道按同一时间轴表达</td>
+<td>同一子 Agent 内并行的工具各自一行、左端对齐；行首是主 agent 同一个<strong>状态方块</strong>（进行中 / 已完成），右端只给耗时——<strong>不放行内进度条</strong>，并发只体现在多条行同时处于进行中</td>
 <td>sub-3 展开后同时看到 3 条「进行中」的方块行 + 2 条已完成的耗时行，画法与主 agent 的步骤行一致</td>
 <td class="nw"><span class="st ok">设计已交付</span></td>
 </tr>
@@ -353,7 +353,7 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 <td><code>index.html#convo</code> · Concurrent Tool Row 台账行 + 编排类表第 3 行<br>本文档 §4B</td>
 <td>Concurrent Tool Row</td>
 <td>入口形状不变（仍是紧凑单行），并发只体现在「多行同时处于进行中」：方块同为进行中色、右端 meta 同时写着「进行中」</td>
-<td>并发与串行的行形态一致，不引入第二种行的画法；峰值并发数在收口区可读（「峰值并发 3」）</td>
+<td>并发与串行的行形态一致，不引入第二种行的画法；峰值并发不必另给数字——同一时刻处于「进行中」的行数就是它（上限 4）</td>
 <td class="nw"><span class="st ok">设计已交付</span></td>
 </tr>
 <tr>
@@ -387,10 +387,10 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 <tr><th>表单要求</th><th>落点</th><th>对应基元</th><th>交互规格摘要</th><th>验收条件</th><th>状态</th></tr>
 <tr>
 <td class="nw">12 子 Agent 并发 草图</td>
-<td><code>agent-workspace.html</code> · <code>develop:subagent</code>（主 Agent 卡片 + 3 个子 Agent 并行 + 收口，唯一的子 Agent 场景）</td>
-<td>Orchestration Lane · Sub-Agent Block · Concurrency Slot Gauge · Token Badge</td>
-<td>泳道同屏并置对齐同一时间轴；每张子 Agent 卡有独立内部排版；<strong>收起态就是头部那一行</strong>：<strong>状态方块在最前</strong>，接着是子 Agent 的名字与一条事实（文件名 · 结果或当前位置），行尾是「已完成 · 6.2s」这类<strong>状态词 + 运行时长</strong>，进行中再补「3/5 步」进度；<strong>不写自动生成的一句话短摘要</strong>——模型目前给不出来，写了就是假信息。<strong>主 Agent 用同一张卡</strong>（MAIN），头部是一条可折叠的<strong>执行进度</strong>（细条 + 「4/6 步 · 正在等待回收」），子卡挂在它的 body 里，深度只有这一层；主 Agent 的<strong>总时长与所用模型只在 run 结束后</strong>出现在行尾（运行中藏起来）。展开体依次是：<strong>简化待办</strong>（一行一步，标出「← 当前」，让用户知道跑到哪了，不给描述与耗时）、<strong>思考链</strong>（左侧细线 + 降一档颜色）、<strong>模型</strong>与<strong>Shell 命令</strong>与<strong>编辑文件</strong>三个带标题的内容块（命令块给命令 + 输出；编辑块给路径 + 加减行，审阅仍走右侧代码区）、以及<strong>工具行</strong>（状态方块 + 工具名 + 目标 + 右对齐耗时）；展开体沿用主 agent 的步骤行与工具行基元</td>
-<td>泳道 4 行（main + 3 子）+ 时间刻度；收口区给出「14 次工具调用 · 峰值并发 3 · 0 合并冲突」；把任一卡片收起后，头部仍写着状态 + 时长 + 工具数</td>
+<td><code>agent-workspace.html</code> · <code>develop:subagent</code>（主 Agent 卡片 + 3 个子 Agent 并行，唯一的子 Agent 场景）</td>
+<td>Sub-Agent Block · Concurrent Tool Row · Concurrency Slot Gauge · Token Badge · Run End Marker</td>
+<td>每张子 Agent 卡有独立内部排版；<strong>收起态就是头部那一行</strong>：<strong>状态方块在最前</strong>，接着是子 Agent 的名字与一条事实（文件名 · 结果或当前位置），行尾是「已完成 · 6.2s」这类<strong>状态词 + 运行时长</strong>，进行中的卡再给<strong>可选进度</strong>（细条 + 「3/5 步」，步数来自 <code>write_todos</code>，没有就不放）。头行的状态词只有三档：<strong>进行中 / 完成 / 中止</strong>——受阻、已收住、失败、用户叫停在这一层都读作「中止」，原因写在事实句里（内部六态矩阵见 §4C6），卡头不该为六种内部状态长出六个词。<strong>不写自动生成的一句话短摘要</strong>——模型目前给不出来，写了就是假信息。<strong>主 Agent 用同一张卡</strong>（MAIN），子卡挂在它的 body 里，深度只有这一层；<strong>主 Agent 的头部不做折叠开关</strong>——子 Agent 区域常驻、只上下滚动，开合只发生在子卡上。子卡之前只给一句分组提示（「3 个子 Agent 并行开发中」），<strong>不再画泳道时间轴</strong>（理由见 §4C3），<strong>也不再另起「收口区」</strong>：收口就是主 Agent 自己写的一段普通 AI 文本，不给统计格、不给横幅。run 结束时卡片 body 末尾给<strong>结束标志</strong>：「本轮结束 · 14.1s · pangu2.5-72b」，运行中不出现（连总时长都还不知道）。展开体依次是：<strong>简化待办</strong>（一行一步，标出「← 当前」，不给描述与耗时）、<strong>思考链</strong>（左侧细线 + 降一档颜色）、<strong>模型</strong>与<strong>Shell 命令</strong>与<strong>编辑文件</strong>三个带标题的内容块（命令块给命令 + 输出；编辑块给路径 + 加减行，审阅仍走右侧代码区）、以及<strong>工具行</strong>（状态方块 + 工具名 + 参数 + 右对齐耗时）</td>
+<td>主 Agent 卡片常驻、子卡同时在屏（2 收起 + 1 展开）；卡片开合前后头行逐字相同；子卡头行能读到状态词 + 耗时（进行中另有进度）；run 结束后卡片末尾出现「本轮结束 · 耗时 · 模型」，运行中不出现；卡片里<strong>没有</strong>泳道时间轴、没有统计格，收口是一段普通 AI 文本</td>
 <td class="nw"><span class="st ok">设计已交付</span></td>
 </tr>
 <tr>
@@ -403,7 +403,7 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 </tr>
 <tr>
 <td class="nw">14 子 Agent 并发 前端支持</td>
-<td><code>agent-workspace.html</code>（<code>.sa</code> 卡片、<code>.lanes</code> 泳道、<code>.slots</code> 槽位）</td>
+<td><code>agent-workspace.html</code>（<code>.sa</code> 卡片、<code>.sa-prog</code> 进度、<code>.sa-rune</code> run 结束标志、<code>.slots</code> 槽位）</td>
 <td>同 12/13</td>
 <td>折叠用 <code>aria-expanded</code>，键盘可达；头部摘要行开合之间一字不变</td>
 <td>收起态与展开态的头部文字逐字相同（demo 中可直接对照）</td>
@@ -613,14 +613,9 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 <tr><td class="nw">单 Agent 内工具并发上限</td><td>4</td><td>与子 Agent 并发上限同量级，避免一个子 Agent 把整机吃满</td></tr>
 <tr><td class="nw">资源独占工具全局串行</td><td><code>profiler</code> 类（<code>perf_record</code> 等）<strong>不并发</strong></td><td>同机同时采集会互相抢 CPU 与 PMU 计数器，采出来的性能数据<b>是失真的</b>——这是刻意的取舍：并行度换吞吐，但不拿性能数据的可信度去换。<strong>这句话只写在这里</strong>（规范），不进会话流：换个项目它依然成立，属产品的价值取向；会话里只说这次发生了什么事，见下方受阻说明块</td></tr>
 <tr><td class="nw">串行时其余工具</td><td>照常并发</td><td>串行是<strong>按工具类别</strong>打的标记，不是整条流水停下来</td></tr>
-<tr><td class="nw">峰值并发要可读</td><td>收口区给「14 次工具调用 · 峰值并发 3」</td><td>并发度是这次编排的成本与收益的解释项，不能只在动画里表现</td></tr>
+<tr><td class="nw">峰值并发要可读</td><td>不另立数字：同一时刻处于「进行中」的工具行数就是峰值并发（上限 4）</td><td>并发度是这次编排的成本与收益的解释项，而它本来就在屏幕上——再单列一个统计数字，是把同一件事说第二遍</td></tr>
 </table>
-<div class="blocker">
-<div class="bt">⚠ 并发采集会互相干扰</div>
-<div class="bl">sub-1 与 sub-3 都要跑 <b>perf</b> 采样。同机同时采集会互相抢 CPU 与 PMU 计数器，采出来的性能数据是失真的 —— 所以我把 <b>profiler 类工具串起来跑</b>，其余工具照常并行。</div>
-</div>
-<div class="rule"><b>说明行只写这次任务的因果，不写产品的价值取向：</b>这一块原来还有第二行「宁可这一轮少一点并行度，也不拿性能数据的可信度去换」，已删——它换个项目依然成立，属规范（上面 B2 那条「资源独占工具全局串行」就是它的落点），在会话里复述一遍等于把规范读给用户听。会话里的受阻块只答「谁在抢什么、我因此改了什么、接下来怎么办」，到了 1–3 行封顶。</div>
-<div class="rule"><b>为什么用「受阻说明块」而不是折叠日志：</b>这不是错误，也不是日志——它是<b>一条会被用户追问「为什么不能一起跑」的规则</b>。说明块回答「为什么、后果是什么」，日志回答「刚才发生了什么」，两者的读者和寿命都不同。放在编排区顶部，是因为它影响的是整屏的解读（看到两条 profiler 行为什么不并行，答案就在上面一行）。</div>
+<div class="rule"><b>这条规则只留在规范里，不进会话流：</b>profiler 类工具全局串行属调度规则（上表第 2 行），它对这一次任务不需要用户裁决，写进会话就是「把规范读给用户听」，还挡住了下面的子卡。所以 <code>develop:subagent</code> 里原来那块「⚠ 并发采集会互相干扰」已整块删除，只保留一句分组提示「3 个子 Agent 并行开发中」。<b>受阻说明块本身不废</b>——它只在真卡住、真要人裁决时出现（§4C6 的「受阻待裁决」那一行，以及 <code>develop:subagent-tree</code> 里 L4 那处验证未通过）。</div>
 
 <div class="sublabel">B3 数据字段（对接用）</div>
 <table>
@@ -649,8 +644,8 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 <li><span class="id">AC-B1</span><span>同一 Agent 内出现 ≥2 个 running 工具时，行形态与串行时完全一致（不新增列、不加边框）。</span></li>
 <li><span class="id">AC-B2</span><span>任何 done 状态的行<strong>不显示进度条</strong>，只显示耗时。</span></li>
 <li><span class="id">AC-B3</span><span><code>progress</code> 为 null 时显示「进行中」而非 0% 或满格假进度。</span></li>
-<li><span class="id">AC-B4</span><span>profiler 类工具与其它工具同时在跑时，受阻说明块出现在能解释该现象的位置（编排区顶部），且文案给出规则名与后果。</span></li>
-<li><span class="id">AC-B5</span><span>收口区能读到「工具调用次数」与「峰值并发」两个数。</span></li>
+<li><span class="id">AC-B4</span><span>profiler 类工具与其它工具同时在跑时，会话流里<strong>不出现</strong>说明块；这条串行规则只写在 §4B2 表里，只有真卡住且要人裁决时才用受阻说明块。</span></li>
+<li><span class="id">AC-B5</span><span>峰值并发不必另立统计：同一时刻「进行中」的工具行数即它，且不超过上限 4。</span></li>
 <li><span class="id">AC-B6</span><span>16 色 / <code>NO_COLOR</code> 下三种前缀字形仍可区分（字形本身不依赖颜色）。</span></li>
 <li><span class="id">AC-B7</span><span>进行中的工具行<strong>不闪烁</strong>：任一静态瞬间都能读出「这一行在跑、跑到哪了」（条长 + 文字），动画不是唯一信号源。</span></li>
 </ul>
@@ -693,10 +688,10 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 <div class="rule"><b>为什么判据不写成「按深度收起」：</b>如果按深度收，最深的那个<b>受阻项会被父级一起藏掉</b>——而它恰恰是唯一需要人看的东西。反过来，一个已经跑到第 4 层的进行中分支，藏起来也没意义。<strong>收不收，只由「还需不需要你看」决定。</strong><br>
 <b>可收起 ≠ 只收嵌套的那些：</b>所有卡片都可收起（头部即开关），而不是只给多层嵌套的卡片加收起——同一屏里两种卡片行为不同，用户会先花时间判断「这张能不能点」。</div>
 
-<div class="sublabel">C3 编排泳道 · 槽位 · 隔离</div>
+<div class="sublabel">C3 编排并发 · 槽位 · 隔离（时间轴泳道转储备）</div>
 <table>
 <tr><th>要素</th><th>规格</th><th>理由</th></tr>
-<tr><td class="nw">泳道（Orchestration Lane）</td><td>同屏并置、对齐同一条时间轴，右端给耗时与状态；main 在最上</td><td><strong>并发不靠动效表达「同时」</strong>——静态帧、SSH、截图里都要读得出来</td></tr>
+<tr><td class="nw">泳道（Orchestration Lane）</td><td><strong>储备，本期不进会话流</strong>；设计保留：同屏并置、对齐同一条时间轴，右端给耗时与状态，main 在最上</td><td>它要占掉近半屏，而它读得出的三件事（谁在跑、跑到哪、跑了多久）在子卡头行里本来就各有一份；留给后续<strong>可观测性需求的单独页面</strong>——那一页的用户是在排查调度问题，要的是「一把 profiler 卡住了谁」这种跨任务长视图，密度与目的都跟会话流不同</td></tr>
 <tr><td class="nw">并发上限</td><td>4 子 Agent（16 逻辑核）</td><td>与「单子 Agent 内工具并发上限 4」同源，避免两级并发相乘把机器打满</td></tr>
 <tr><td class="nw">槽位（Concurrency Slot Gauge）</td><td>给「还剩几个」而不是「现在几个」；<code>■■■□ 3 / 4</code></td><td>会耗尽的是槽位，不是并发数；<strong>子级继承父级剩余槽位，不单独开池</strong>（否则嵌套会绕过全局上限）</td></tr>
 <tr><td class="nw">隔离方式</td><td>每个子 Agent 独立 git worktree，完成后由主 Agent 合并</td><td>并行的前提是改动不互相踩；合并冲突为 0 是这套编排的验收指标之一</td></tr>
@@ -713,13 +708,14 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 <tr><td class="nw">并发成本提示</td><td>「子 Agent 占比 63.7% —— 并行度越高，token 放大越明显，这是并发编排的真实成本」</td><td>并发不是免费的，成本要显式说出来，而不是藏在总数里</td></tr>
 </table>
 
-<div class="sublabel">C5 收口（主 Agent 合并）</div>
-<pre class="frame"><span class="fw">主</span> Agent <span class="fw">收口</span>
-  3 <span class="fw">个子</span> Agent <span class="fw">中</span> 2 <span class="fw">个已完成并合入主干</span> · sub-3 <span class="fw">仍在运行</span><span class="fw2">，</span><span class="fw">不阻塞其余交付</span>        ← <span class="fw">收口横幅</span><span class="fw2">（</span>Report Card <span class="fw">横幅段</span><span class="fw2">）</span>
-  <span class="fw">统计格</span>   <span class="fw">子</span> Agent 3<span class="fw2">（</span>2 <span class="fw">完成</span> · 1 <span class="fw">进行中</span><span class="fw2">）</span> · <span class="fw">工具调用</span> 14<span class="fw2">（</span><span class="fw">峰值并发</span> 3<span class="fw2">）</span> · <span class="fw">合并冲突</span> 0<span class="fw2">（</span>worktree <span class="fw">隔离</span><span class="fw2">）</span>
-  ■ <span class="fw">已合并</span>   sub-1 settlement_kernel.c · sub-2 risk_score.c
-  ■ <span class="fw">待合并</span>   sub-3 reconcile.c<span class="fw2">（</span><span class="fw">进行中</span><span class="fw2">，</span><span class="fw">完成后自动合入</span><span class="fw2">）</span></pre>
-<div class="rule"><b>部分完成也要有收口横幅：</b>多子 Agent 并行时，最常见的状态是「一部分好了、一部分还在跑」——这正是最需要一句话说清「现在能交付什么、什么不阻塞」的时刻。横幅不写「完成」，写<strong>完成几个 / 合入几个 / 是否阻塞</strong>。</div>
+<div class="sublabel">C5 一轮的结束 —— 主 Agent 自己总结 + 一条结束标志</div>
+<table>
+<tr><th>要素</th><th>规格</th><th>理由</th></tr>
+<tr><td class="nw">收口总结</td><td><strong>就是主 Agent 的一段普通 AI 文本</strong>：说清哪些已合入、哪些还在跑、什么时候回报。<strong>不做统计格、不做收口横幅</strong></td><td>统计图表是「模型说不清」时的兜底；模型本来就会写一段 markdown 总结，再画三张卡是把同一件事换一种排版说第二遍，还占掉半屏——原来那块横幅 + 统计格本轮已删</td></tr>
+<tr><td class="nw">run 结束标志</td><td>卡片 body 末尾一道细分隔线 + 「■ 本轮结束 · 14.1s · pangu2.5-72b」</td><td>run 是用户眼里的最小结算单位。子卡各报自己那支多久，主 Agent 报这一轮总共多久、用的哪个模型——下次要不要换模型，用户看的就是这一行；没有它，「这一轮结束了」只能靠流里不再出现新内容去猜</td></tr>
+<tr><td class="nw">出现时机</td><td><strong>只在 run 结束后出现</strong>；运行中连总时长都不知道，写出来就是假的</td><td>用状态选择器藏（<code>.sa.main:not(.done) .sa-sum{display:none}</code>），不靠「记得别放」</td></tr>
+</table>
+<div class="rule"><b>部分完成也要说清「现在能交付什么」：</b>但这句话写在总结里，不另立横幅——「3 个子 Agent 中 2 个已合入主干 · sub-3 还在跑，不阻塞其余交付」是一句话的事，模型自己会说；给一句话配一张横幅卡，等于为一句结论造一个元件。</div>
 
 <div class="sublabel">C6 状态矩阵</div>
 <table>
@@ -739,13 +735,13 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 <li><span class="id">AC-C3</span><span>进行中与受阻的卡片默认展开；已完成与已收住的默认收起。</span></li>
 <li><span class="id">AC-C4</span><span>槽位显示的是「还剩几个」，父子共享同一个池，嵌套不新开池。</span></li>
 <li><span class="id">AC-C5</span><span>token 徽标之和与父级汇总额一致（按 §4C4 算例可逐项核对，无重复计数）。</span></li>
-<li><span class="id">AC-C6</span><span>收口区在「部分完成」时仍给出横幅，且明确写「不阻塞其余交付」。</span></li>
-<li><span class="id">AC-C7</span><span>窄屏（58 格）下泳道不横向滚动，时间轴刻度可降级为起止两个刻度。</span></li>
-<li><span class="id">AC-C8</span><span><strong>进行中的状态不靠闪烁表达</strong>：方块、进度条、泳道条三者静止时都能读出「在跑」（颜色 + 位置 + 条长），动效只作补充。</span></li>
+<li><span class="id">AC-C6</span><span>一轮结束时卡片末尾给出「本轮结束 · 耗时 · 模型」，且运行中不出现这三项；部分完成由总结那段文字说清，不另立横幅。</span></li>
+<li><span class="id">AC-C7</span><span>窄屏（58 格）下子卡头行不折行错位：名字可省略，状态词 + 耗时（进行中另有进度）必须留着。</span></li>
+<li><span class="id">AC-C8</span><span><strong>进行中的状态不靠闪烁表达</strong>：方块、进度条、状态词三者静止时都能读出「在跑」（颜色 + 条长 + 文字），动效只作补充。</span></li>
 <li><span class="id">AC-C9</span><span><strong>卡内不套卡</strong>：子 Agent 卡内的说明文字无底色、无金线（卡外 AI 文本才有中性面）；卡内受阻块只留金左线、不收底色与圆角。金左线在整条流里只出现在受阻块上，别的单元一律没有。</span></li>
 <li><span class="id">AC-C10</span><span>受阻块说明行 ≤ 3 行，且只写这次任务的因果与取舍；不出现「宁可…也不…」这类换个项目依然成立的价值宣言（那属规范）。</span></li>
 </ul>
-<div class="rule"><b>状态与进度不靠闪烁（本轮明确的一条纪律）：</b>「进行中」这个信息已经有三个静态通道——<strong>颜色</strong>（实心蓝方块）· <strong>位置</strong>（泳道条落在时间轴上，左端对齐读「同时开始」，长度差读「谁快谁慢」）· <strong>文字</strong>（状态词）。闪烁是第四个通道，<strong>它说的和前三个是同一件事，但代价是静态帧读不出来</strong>（截图、SSH、录屏、导出报告里全是一个瞬间）。所以子 Agent 方块用常亮外发光而非脉冲、进度条不闪、输入框光标用常亮实心方块——整个项目已删除 <code>@keyframes</code> 闪烁动效（仅保留 Loading 的旋进字形 <code>⠋⠙⠹</code>，那是逐帧换字符，不是透明度闪烁）。</div>
+<div class="rule"><b>状态与进度不靠闪烁（本轮明确的一条纪律）：</b>「进行中」这个信息已有两个静态通道——<strong>颜色</strong>（实心蓝方块）· <strong>文字</strong>（状态词 + 「3/5 步」进度）。闪烁是第三个通道，<strong>它说的和前两个是同一件事，但代价是静态帧读不出来</strong>（截图、SSH、录屏、导出报告里全是一个瞬间）。所以子 Agent 方块用常亮外发光而非脉冲、进度条不闪、输入框光标用常亮实心方块——整个项目已删除 <code>@keyframes</code> 闪烁动效（仅保留 Loading 的旋进字形 <code>⠋⠙⠹</code>，那是逐帧换字符，不是透明度闪烁）。</div>
 </section>
 
 <!-- ══════ ④D 多级嵌套 ══════ -->
@@ -1083,12 +1079,13 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <tr><td class="nw">卡内并发的工具行</td><td>Concurrent Tool Row</td><td>已有</td></tr>
 <tr><td class="nw">卡片 / 嵌套层收起</td><td>P18 折叠外壳</td><td>复用——摘要行折叠后仍可见</td></tr>
 <tr><td class="nw">层级编号 + 缩进 / 层级总览 / <code>…</code> 节点</td><td>Depth Badge + 缩进 · Hierarchy Tree</td><td>已有</td></tr>
-<tr><td class="nw">槽位 / token 徽标 / 泳道</td><td>Concurrency Slot Gauge · Token Badge · Orchestration Lane</td><td>已有</td></tr>
+<tr><td class="nw">槽位 / token 徽标</td><td>Concurrency Slot Gauge · Token Badge</td><td>已有</td></tr>
 <tr><td class="nw">流内模型切换 / 额度条 / 底栏三项</td><td>Model Switcher · Quota Bar · Status Bar Metrics</td><td>已有</td></tr>
-<tr><td class="nw">收口总结</td><td>Report Card 的横幅段 + 统计格 + Checklist Row</td><td>复用——不新造「总结条」</td></tr>
+<tr><td class="nw">一轮的收口与结束</td><td>普通 AI 文本（主 Agent 自动总结）+ <strong>Run End Marker</strong>（细分隔线 + 耗时 + 模型）</td><td><span class="st ask">新增登记</span>——收口不再借 Report Card 的横幅段与统计格</td></tr>
 <tr><td class="nw">「为什么卡住、要不要人裁决」</td><td>Blocker Note</td><td><span class="st ask">新增</span>（金左线 + <code>⚠</code>/<code>?</code> 标题 + 1–3 行）</td></tr>
 <tr><td class="nw">正文里的六色关键词强调</td><td>Inline Highlight</td><td><span class="st ask">新增</span>（六个 <code>--hl-*</code> token）</td></tr>
 <tr><td class="nw">输入框上方的曲线区</td><td>Tune Chart Container</td><td><span class="st ask">新增</span>（可收起 · 双视图 · 收起即暂停）</td></tr>
+<tr><td class="nw">编排泳道（时间轴）</td><td>Orchestration Lane</td><td>已有，<strong>转储备</strong>——不进会话流，留给后续可观测性页面（§4C3）</td></tr>
 <tr><td class="nw">（本轮 F · 管理配置页）整页管理配置界面</td><td><strong>Settings Page（页面级组件，不属于对话流基元）</strong></td><td><span class="st ask">新增登记</span>——它不在流里，不该塞进对话流基元表；登记口径见 <a href="./index.html#convo">index.html#convo</a></td></tr>
 <tr><td class="nw">F · 页头的分类 tab（模型 / Agent / Skill）</td><td><strong>Settings Tabs（页面级，不属于对话流基元）</strong></td><td><span class="st ask">新增登记</span>——<code>role="tablist"</code> + <code>aria-selected</code>；<strong>未交付的分类用 <code>aria-disabled</code> 留在 tablist 里</strong>，不删不隐藏（读屏用户要能听见「以后会有 Agent / Skill」）。<strong>选中态只靠「文字提亮 + 一条 2px 底部划线」</strong>——分类是页内导航，不是一排按钮，所以<strong>不用列表行那档「选中」（淡蓝底），也不用常驻定位那档「当前」（实心蓝）</strong>；划线压住页头那条 1px 分隔线，未交付分类压暗且无划线。三档语汇见 <a href="./index.html#cheat">设计文档「选中 / 当前 / 分类 三档」</a></td></tr>
 <tr><td class="nw">F · 表单的一行（标签 + 控件 + 说明）</td><td>Setting Row</td><td><span class="st ask">新增登记</span>（含 error 态：<code>aria-invalid</code> + 说明转红换成原因）</td></tr>
@@ -1136,9 +1133,8 @@ MAX_SUBAGENT_TOKENS = "300k"     <span class="cmt"># <span class="fw">单个子<
 <b>已执行的改动：</b>命令与配置去掉 <code>供应商/</code> 前缀（只写别名 / 模型 ID，重名靠别名消歧）；<code>PROVIDER_QUOTA</code> → <code>EP_QUOTA</code>（键 = 端点主机名）；流内模型卡的分组头那一列改成<strong>端点主机名</strong>；浮层本身保留为快路径。§4A 的 A2 / A5 / A6 / 回执示例与 §4C / §4E 的配置写法、以及两组的验收条件均已同步改写。<br>
 <b>保留未动的一件事：</b>额度条与「未配密钥可见不可选」按原样保留，只换载体（供应商账号 → 端点账号）——PRD 没有额度概念，因此它不构成冲突；自建端点读不到额度时说明「无额度信息」，不算配置错误。</div>
 
-<div class="note warn"><b>待裁决 6 · 「并发采集会互相干扰」该不该是受阻说明块（上一轮遗留）</b><br>
-<code>develop:subagent</code> 场景里 sub-3 卡片内的 <code>⚠ 并发采集会互相干扰</code> 用的是<strong>受阻说明块</strong>的形状（金左线）。但严格按定义，受阻块只用于「卡住 / 要人裁决」，而这里是 Agent 解释自己为什么把并发度降下来（工具级串行），并没有停下来等人。<br>
-<b>A</b> · 改成卡内说明（无底色、无线）；<b>B（倾向）</b> · 保留形状，但在 §4B 把受阻块的适用范围扩写为「受阻 + 主动降级，都必须解释因果」。<strong>未裁决前</strong>保留现状，已在 §4B 标注。</div>
+<div class="note"><b>已裁决 6 · 「并发采集会互相干扰」不再进会话流（本轮）</b><br>
+上一轮遗留的问题是「它该不该是受阻说明块」。这一轮换了个更前面的答案：<strong>它根本不需要出现在会话里</strong>——profiler 串行属调度规则（§4B2），这一次任务不需要用户裁决，写进流里既讲的是规范、又挡住下面的子卡。所以 <code>develop:subagent</code> 里那块 <code>⚠ 并发采集会互相干扰</code> <b>已整块删除</b>，只留一句分组提示「3 个子 Agent 并行开发中」；受阻说明块只留给真卡住、要人裁决的地方（<code>develop:subagent-tree</code> 的 L4 那处仍在用，形状不变）。</div>
 
 <div class="note"><b>已修正 · 引用错位</b><br>
 demo 的受阻说明块原文引用「按 P29『资源提示』规则」，但 <code>index.html</code> 的 P29 是「多任务管理」——引用错位已改为「按『资源独占工具』规则」。仅此一处，其余 pattern 引用未见错位。</div>
@@ -1184,8 +1180,8 @@ demo 的受阻说明块原文引用「按 P29『资源提示』规则」，但 <
 <li><span class="id">AC-B1</span><span>并发与串行行形态一致</span></li>
 <li><span class="id">AC-B2</span><span>done 的行不画进度条</span></li>
 <li><span class="id">AC-B3</span><span>进度不可知时不给假进度条</span></li>
-<li><span class="id">AC-B4</span><span>profiler 串行有受阻说明块解释</span></li>
-<li><span class="id">AC-B5</span><span>收口可读「工具调用次数 + 峰值并发」</span></li>
+<li><span class="id">AC-B4</span><span>profiler 串行只在 §4B2 表里说明，会话流不画说明块</span></li>
+<li><span class="id">AC-B5</span><span>峰值并发 = 同时「进行中」的行数，不另立统计</span></li>
 <li><span class="id">AC-B6</span><span>16 色 / <code>NO_COLOR</code> 下三种前缀仍可辨</span></li>
 <li><span class="id">AC-B7</span><span>进行中的行不闪烁，静态帧可读</span></li>
 </ul>
@@ -1196,8 +1192,8 @@ demo 的受阻说明块原文引用「按 P29『资源提示』规则」，但 <
 <li><span class="id">AC-C3</span><span>默认开合按「还需不需要你看」</span></li>
 <li><span class="id">AC-C4</span><span>槽位给「还剩几个」，子级继承不新开池</span></li>
 <li><span class="id">AC-C5</span><span>token 父子不双算，可逐项核对</span></li>
-<li><span class="id">AC-C6</span><span>部分完成也有收口横幅</span></li>
-<li><span class="id">AC-C7</span><span>窄屏泳道不横向滚动</span></li>
+<li><span class="id">AC-C6</span><span>run 结束给出「耗时 · 模型」，运行中不出现</span></li>
+<li><span class="id">AC-C7</span><span>窄屏下卡头不折行错位，状态词与耗时留着</span></li>
 <li><span class="id">AC-C8</span><span>状态与进度不靠闪烁表达（静态帧可读）</span></li>
 <li><span class="id">AC-C9</span><span>卡内不套卡：卡内说明无底色无线，卡内受阻块只留金线；金线只属于受阻块</span></li>
 <li><span class="id">AC-C10</span><span>受阻块说明只写这次的因果，不写价值宣言</span></li>
