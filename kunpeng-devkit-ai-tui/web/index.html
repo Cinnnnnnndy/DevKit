@@ -489,6 +489,34 @@ td.mono,th.mono{font-family:var(--font-mono)}
 /* 状态不再占 stat 的第一项：head 最前面有状态方块，行尾只留时长 / 工具数 / token，
    三项都是中性数字，不按状态染色 */
 .cv-sa-head>.stq{flex:none;margin-top:1px}
+/* 主 Agent 头部的执行进度条 */
+.cv-sa-prog{display:flex;align-items:center;gap:8px;flex:none;min-width:0}
+.cv-sa-prog .bar{width:92px;height:5px;border-radius:3px;background:var(--surface-3);overflow:hidden;flex:none}
+.cv-sa-prog .bar i{display:block;height:100%;border-radius:3px;background:var(--primary)}
+.cv-sa.done .cv-sa-prog .bar i{background:var(--success)}
+.cv-sa-prog .tx{font-family:var(--font-mono);font-size:11px;color:var(--foreground-muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 卡内简化待办：一行一步，不给描述 / 耗时 / 依赖 */
+.cv-sa-todo{margin:4px 0 2px;display:flex;flex-direction:column;gap:1px}
+.cv-sa-todo .r{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--foreground-secondary);padding:1px 0}
+.cv-sa-todo .r .stq{flex:none;margin-top:1px}
+.cv-sa-todo .r.todo{color:var(--foreground-muted)}
+.cv-sa-todo .r .now{font-family:var(--font-mono);font-size:11px;color:var(--primary-hover);flex:none}
+/* 卡内思考链：左细线 + 降一档颜色，不做引用块 */
+.cv-sa-think{margin:6px 0 0;padding:1px 0 1px 10px;border-left:2px solid var(--border-strong);
+  font-size:13px;color:var(--foreground-secondary);line-height:1.7}
+.cv-sa-think .lb{display:block;font-family:var(--font-mono);font-size:11px;
+  color:var(--foreground-muted);letter-spacing:.08em;margin-bottom:2px}
+/* 卡内带标题的内容块：模型 / Shell 命令 / 编辑文件 */
+.cv-sa-blk{margin:6px 0 0;border-radius:var(--radius-md);background:var(--surface-1);overflow:hidden}
+.cv-sa-blk>.bt{padding:4px 10px;font-family:var(--font-mono);font-size:11px;
+  color:var(--foreground-muted);letter-spacing:.06em;border-bottom:1px solid var(--border-default)}
+.cv-sa-blk>.bb{padding:6px 10px;font-size:13px;color:var(--foreground-secondary);line-height:1.7}
+.cv-sa-blk>.bb.mono{font-family:var(--font-mono);font-size:11px;color:var(--foreground-secondary);
+  white-space:pre;overflow-x:auto;line-height:1.65}
+/* 主 Agent 的时长与模型只在 run 结束后出现 */
+.cv-sa-sum{font-family:var(--font-mono);font-size:12px;color:var(--foreground-muted);flex:none;white-space:nowrap}
+.cv-sa.main:not(.done) .cv-sa-sum{display:none}
 
 /* 深度徽标保留但降为纯文本：去掉底色后它不再是一个「层」，只剩两个字符，用来在滚到长流
    中部、看不到顶部树概览时兜底回答「这是第几层」 */

@@ -389,7 +389,7 @@ pre.frame .ul{color:var(--primary-hover);text-decoration:underline;
 <td class="nw">12 子 Agent 并发 草图</td>
 <td><code>agent-workspace.html</code> · <code>develop:subagent</code>（主 Agent 卡片 + 3 个子 Agent 并行 + 收口，唯一的子 Agent 场景）</td>
 <td>Orchestration Lane · Sub-Agent Block · Concurrency Slot Gauge · Token Badge</td>
-<td>泳道同屏并置对齐同一时间轴；每张子 Agent 卡有独立内部排版；<strong>收起态就是头部那一行</strong>，且<strong>状态方块在最前</strong>（与对话流的行同一条指示列），行尾依次是 已运行时间（6.2s 这类）、工具调用数（4 工具这类，并发时补「· 并发 3」）、token 徽标；<strong>主 Agent 也用同一张卡</strong>（MAIN），子卡挂在它的 body 里，深度只有这一层；展开体按主 Agent 的基元排四类内容——<strong>模型回复</strong>（ai-msg 正文）、<strong>工具行</strong>（状态方块 + 工具名 + 目标 + 右对齐耗时）、<strong>命令输出</strong>（工具行下方的折叠输出，Console Block 已退场，不另开日志盒）、<strong>文件编辑</strong>（路径 + 加/减变动行的简化 Diff，审阅仍走右侧代码区）；展开体沿用主 agent 的步骤行与工具行基元</td>
+<td>泳道同屏并置对齐同一时间轴；每张子 Agent 卡有独立内部排版；<strong>收起态就是头部那一行</strong>：<strong>状态方块在最前</strong>，接着是子 Agent 的名字与一条事实（文件名 · 结果或当前位置），行尾是「已完成 · 6.2s」这类<strong>状态词 + 运行时长</strong>，进行中再补「3/5 步」进度；<strong>不写自动生成的一句话短摘要</strong>——模型目前给不出来，写了就是假信息。<strong>主 Agent 用同一张卡</strong>（MAIN），头部是一条可折叠的<strong>执行进度</strong>（细条 + 「4/6 步 · 正在等待回收」），子卡挂在它的 body 里，深度只有这一层；主 Agent 的<strong>总时长与所用模型只在 run 结束后</strong>出现在行尾（运行中藏起来）。展开体依次是：<strong>简化待办</strong>（一行一步，标出「← 当前」，让用户知道跑到哪了，不给描述与耗时）、<strong>思考链</strong>（左侧细线 + 降一档颜色）、<strong>模型</strong>与<strong>Shell 命令</strong>与<strong>编辑文件</strong>三个带标题的内容块（命令块给命令 + 输出；编辑块给路径 + 加减行，审阅仍走右侧代码区）、以及<strong>工具行</strong>（状态方块 + 工具名 + 目标 + 右对齐耗时）；展开体沿用主 agent 的步骤行与工具行基元</td>
 <td>泳道 4 行（main + 3 子）+ 时间刻度；收口区给出「14 次工具调用 · 峰值并发 3 · 0 合并冲突」；把任一卡片收起后，头部仍写着状态 + 时长 + 工具数</td>
 <td class="nw"><span class="st ok">设计已交付</span></td>
 </tr>
