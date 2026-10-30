@@ -1247,6 +1247,114 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
      分隔符跟着它分开的那一项一起走，否则行首会剩一个孤立的 · */
   .bi-hintbar .it.model,.bi-hintbar .sep{display:none}
 }
+
+/* ══ 后台运行（develop · bg-run）：后台任务卡 / 关闭确认 / 重连加载 ══
+   这一屏复刻四条需求对应的界面状态：
+   ① 后台任务卡：前台流式切后台异步后，任务以「头行信息 + 时间轴」卡片常驻
+      （ID + 执行进度 42% + 正在：当前动作，整行可点击收起）；
+   ② 关闭确认：有任务在跑时关 TUI，弹出「后台执行 / 取消任务」二选一；
+   ③ 重连加载：重启后先选可重连任务（会话行），再带加载提示重连；
+   ④ 多终端：不再单列区块——同一任务可被 TUI / GUI / Web 同时打开这层事实，
+      由对话流文案承担（首条 ai-msg 已写明），界面不再重复铺一张表。
+   全部沿用既有 token（surf/bd/pri/ok/warn/dgr），不新造颜色。 */
+.bg-task{margin:14px 0;border-radius:8px;overflow:hidden;background:var(--surf-4);border:1px solid var(--panel-bd2)}
+.bg-t-h{display:flex;align-items:center;gap:8px;width:100%;padding:7px 12px;background:var(--surf-2);
+  border:0;text-align:left;cursor:pointer;font-family:var(--mono);font-size:12px;color:var(--fg2)}
+.bg-t-h:hover{background:var(--surf-3)}
+.bg-t-h .bg-id{color:var(--pri-h);font-weight:700}
+.bg-t-h .bg-st{color:var(--fg3)}
+.bg-t-h .bg-pct{color:var(--pri-h);font-weight:700}
+.bg-t-h .bg-now{color:var(--fg3)}
+.bg-t-h .bg-now b{color:var(--pri-h);font-weight:700}
+.bg-t-h .rbadge{margin-left:auto}
+.rbadge.doing{color:#fff;background:var(--pri)}
+.bg-chev{flex:none;width:7px;height:7px;border-right:2px solid var(--fg3);border-bottom:2px solid var(--fg3);
+  transform:rotate(45deg);transition:transform .18s ease}
+.bg-task.collapsed .bg-chev{transform:rotate(-135deg)}
+.bg-task.collapsed .bg-prog{display:none}
+
+/* 关闭 TUI 确认：比 blocker 高一层（要人做决定），但仍是卡片不是模态——
+   它回答「关还是留」这一个问题，模态要留给打断正在做的操作 */
+.bg-close{margin:14px 0;border-radius:8px;background:var(--elev);border:1px solid var(--panel-bd2);
+  box-shadow:0 10px 28px rgba(0,0,0,.35)}
+.bg-close .bc-title{display:flex;align-items:center;gap:7px;padding:9px 12px;
+  font-size:13.5px;font-weight:700;color:var(--warn);border-bottom:1px solid var(--bd1)}
+.bg-close .bc-body{padding:9px 12px;font-size:13px;color:var(--fg2);line-height:1.7}
+.bg-close .bc-body b{color:var(--fg);font-weight:600}
+.bg-close .bc-body code{font-family:var(--mono);background:var(--surf-1);padding:0 5px;color:var(--pri-h)}
+.bg-close .bc-actions{display:flex;gap:8px;justify-content:flex-end;padding:0 12px 11px}
+.bc-btn{height:28px;padding:0 14px;font-size:12.5px;font-family:var(--sans);color:var(--fg2);
+  background:var(--s3);border:1px solid var(--bd2);border-radius:5px;cursor:pointer}
+.bc-btn:hover{color:var(--fg);background:var(--s4)}
+.bc-btn.pri{color:var(--sel-fg);background:rgba(0,119,255,.42);border-color:rgba(0,119,255,.55)}
+.bc-btn.pri:hover{background:rgba(0,119,255,.58)}
+.bg-close.done .bc-title{color:var(--ok)}
+.bg-close.cancel .bc-title{color:var(--dgr)}
+.bg-close .bc-foot{display:none;align-items:center;gap:7px;padding:8px 12px;border-top:1px solid var(--bd1);
+  font-size:12.5px;color:var(--fg3)}
+.bg-close.done .bc-foot,.bg-close.cancel .bc-foot{display:flex}
+.bg-close .bc-foot .stq{flex:none}
+.bg-close .bc-btn:disabled{opacity:.42;cursor:not-allowed}
+
+/* 重连加载：转圈 + 进度条脉冲，模拟「正在同步断线期间增量事件」 */
+.bg-reconnect{margin:14px 0;border-radius:8px;background:var(--surf-4);border:1px solid var(--panel-bd2);
+  display:flex;align-items:center;gap:12px;padding:10px 12px}
+.br-spin{width:20px;height:20px;flex:none;border-radius:50%;border:2px solid var(--s4);
+  border-top-color:var(--pri);animation:bg-spin .9s linear infinite}
+@keyframes bg-spin{to{transform:rotate(360deg)}}
+.br-body{flex:1;min-width:0}
+.br-t{font-size:13px;color:var(--fg2);display:flex;align-items:center;gap:6px}
+.br-t b{font-family:var(--mono);color:var(--pri-h);font-weight:700}
+.br-s{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12.5px;color:var(--fg4)}
+.br-bar{height:5px;border-radius:3px;background:var(--s4);overflow:hidden;flex:1;max-width:220px}
+.br-bar i{display:block;height:100%;border-radius:3px;background:var(--pri);width:42%;animation:bg-pulse 1.4s ease-in-out infinite}
+@keyframes bg-pulse{0%,100%{opacity:.55}50%{opacity:1}}
+
+/* ══ 细化：对齐两份参考的「方案1」语汇 ══
+   ① 呼吸灯状态点（草图①）：运行中任务用品牌蓝呼吸光晕，不闪动不吵闹；
+   ② 进度卡（草图①详情 + 多agent①主卡）：水平进度条 + 百分比 + 当前动作；
+   ③ 时间轴 + 头行（信息上移，卡片可收起）：任务头行带 42% + 「正在：」+ 折叠箭头，
+      下方纯时间轴：6 个阶段点，fill 蓝条=42%，运行段点呼吸，阶段名 6 等宽格与点位对齐；
+   ④ 可重连任务列表（草图①侧栏行）：呼吸点 + 标题 + 当前动作 + 细进度条 + 重连按钮。 */
+.bg-dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--pri);
+  box-shadow:0 0 0 0 rgba(0,119,255,.42);animation:bg-breath 1.5s ease-in-out infinite}
+@keyframes bg-breath{0%,100%{box-shadow:0 0 0 0 rgba(0,119,255,.42);opacity:1}
+  50%{box-shadow:0 0 0 5px rgba(0,119,255,0);opacity:.72}}
+/* 进行中 = 呼吸灯：状态方块（.stq.doing）加 .breath 即获得同一套呼吸光晕 */
+.stq.doing.breath{box-shadow:0 0 0 0 rgba(0,119,255,.45);animation:bg-breath 1.5s ease-in-out infinite}
+/* ══ 下方纯时间轴：轨（内嵌 6 个阶段点：done 蓝点 / run 呼吸点 / todo 灰点，
+   fill 蓝条=42%）+ 阶段名 6 等宽格，与点位对齐、过长自动换行；
+   「执行进度 42%」「正在：」等信息已上移到任务头行。 */
+.bg-prog{padding:8px 12px;border-top:1px solid var(--bd1)}
+.bg-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.bg-track{position:relative;height:6px;border-radius:3px;background:var(--s4)}
+.bg-fill{position:absolute;left:0;top:0;bottom:0;width:42%;border-radius:3px;background:var(--pri)}
+.bg-pin{position:absolute;top:50%;transform:translate(-50%,-50%);width:11px;height:11px;
+  border-radius:50%;border:2px solid var(--surf-4);background:var(--s4);box-sizing:border-box}
+.bg-pin.done{background:var(--pri);border-color:var(--surf-4)}
+.bg-pin.run{background:var(--pri);border-color:var(--surf-4);
+  box-shadow:0 0 0 0 rgba(0,119,255,.5);animation:bg-breath 1.5s ease-in-out infinite}
+.bg-pin.todo{background:var(--s4);border-color:var(--bd3)}
+/* 阶段名 = 6 个等宽格（与轨道同宽）：文字在格内居中，过长自动换行，不再互相重叠 */
+.bg-leg{display:grid;grid-template-columns:repeat(6,1fr)}
+.bg-leg span{font-size:10px;line-height:12px;color:var(--fg3);text-align:center;padding:0 1px}
+.bg-leg .cur{color:var(--pri-h);font-weight:700}
+
+/* 可重连任务列表：会话行（草图①侧栏行语汇） */
+.bg-rejobs{margin:14px 0 0;border-radius:8px;overflow:hidden;background:var(--surf-4);border:1px solid var(--panel-bd2)}
+.brj{display:flex;align-items:center;gap:9px;padding:7px 12px}
+.brj+.brj{border-top:1px solid var(--bd1)}
+.brj-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.brj-t{font-size:13px;font-weight:700;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brj-s{font-size:12px;color:var(--fg3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.brj-bar{width:64px;height:4px;border-radius:2px;background:var(--s4);overflow:hidden;flex:none}
+.brj-bar span{display:block;height:100%;border-radius:2px;background:var(--pri)}
+.brj-meta{font-family:var(--mono);font-size:11px;color:var(--fg3);flex:none;width:34px;text-align:right}
+.brj-go{height:24px;padding:0 10px;font-size:11.5px;font-family:var(--sans);color:var(--sel-fg);
+  background:rgba(0,119,255,.42);border:1px solid rgba(0,119,255,.55);border-radius:5px;cursor:pointer;flex:none}
+.brj-go:hover{background:rgba(0,119,255,.58)}
+.brj.reconnecting{background:rgba(0,119,255,.08)}
+.brj.reconnecting .brj-go{opacity:.5;cursor:default}
 </style>
 </head>
 <body>
@@ -2263,6 +2371,97 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
       </section>
     </div>
 
+    <!-- ═══ 开发 Agent · 后台运行 ═══
+         这一屏把四条需求讲成一条真实使用路径，不是功能清单：
+         ① 切后台：前台流式任务适配为后台异步（事件通道换事件总线，断线不中断）；
+         ② 关 TUI：有任务在跑时提示「后台执行 / 取消任务」，选择后台执行任务继续；
+         ③ 重启重连：重新打开 TUI 选择重连运行中的任务，带加载提示，断线增量补发；
+         ④ 多终端：同一任务可被 TUI / GUI / Web 同时打开，共享同一份状态与更新。
+         视觉细化参考两份方案体验台各自的「方案1」：
+         · agent后台运行草图.html ① 呼吸灯侧栏——侧栏会话行（呼吸灯点+当前动作+细进度条
+           +行内控制）与详情进度卡（水平进度条+百分比+当前动作+stepper 步骤条+日志区）；
+         · 多agent进度.html ① 主Overlay·子页内嵌——主任务用进度条+当前步骤的强掌控语汇，
+           后台执行/只读项用「细进度条+状态+当前动作」的极简语汇。
+         本屏据此落地：后台任务卡 = 任务头行（呼吸点 + ID + 「执行进度 42%」+「正在：」+
+         折叠箭头，整行可点击收起）+ 下方纯时间轴（6 个阶段点，fill 蓝条=42%，
+         运行段点呼吸，阶段名 6 等宽格与点位对齐）；重连区块 = 会话行列表
+         （可选择要重连哪个任务）→ 加载提示。多终端这层事实不再铺一张表，
+         由对话流文案承担（首条 ai-msg 已写明）。关闭确认仍是可点选的两态卡片，不引入新颜色。 -->
+    <div class="scene" data-agent="develop" data-scenario="bg-run">
+      <section class="right-panel">
+        <div class="panel-body">
+          <div class="usr-msg"><span class="p">&gt;</span> 把 order-center 的端到端迁移切到后台跑，我要关掉终端去开会</div>
+          <div class="ai-msg">好的。迁移工程 <b class="hl-proj">order-center-e2emig</b> 已切换为<b class="hl-metric">后台异步执行</b>，任务 ID <b class="hl-code">bg-8f3c2a</b>。事件通道从前台流式换成后台事件总线——<b class="hl-metric">断线不中断</b>，重连后增量补发，TUI / GUI / Web 任意终端打开都是同一份状态。关闭 TUI 之前确认一下：</div>
+
+          <div class="bg-task" id="bgTask">
+            <button class="bg-t-h" type="button" aria-expanded="true" aria-controls="bgProg"><span class="bg-dot" role="img" aria-label="运行中"></span>后台任务 <span class="bg-id">bg-8f3c2a</span><span class="bg-st">执行进度 <b class="bg-pct">42%</b></span><span class="bg-now">正在：<b>中间件迁移</b></span><span class="rbadge doing">后台运行中</span><span class="bg-chev" aria-hidden="true"></span></button>
+            <div class="bg-prog" id="bgProg">
+              <div class="bg-main">
+                <div class="bg-track" role="img" aria-label="六阶段进度：已完成 2 段，当前第 3 段 · 中间件迁移">
+                  <span class="bg-fill"></span>
+                  <span class="bg-pin done" title="预检解析" style="left:8.33%"></span>
+                  <span class="bg-pin done" title="源端扫描" style="left:25%"></span>
+                  <span class="bg-pin run" title="中间件迁移" style="left:41.67%"></span>
+                  <span class="bg-pin todo" title="数据库" style="left:58.33%"></span>
+                  <span class="bg-pin todo" title="应用重打包" style="left:75%"></span>
+                  <span class="bg-pin todo" title="部署验证" style="left:91.67%"></span>
+                </div>
+                <div class="bg-leg" aria-hidden="true">
+                  <span>预检解析</span>
+                  <span>源端扫描</span>
+                  <span class="cur">中间件迁移</span>
+                  <span>数据库</span>
+                  <span>应用重打包</span>
+                  <span>部署验证</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-h">关闭 TUI <span class="cm">有任务在跑时的确认 · 二选一</span></div>
+          <div class="bg-close" id="bgClose">
+            <div class="bc-title">⚠ 有任务正在后台执行</div>
+            <div class="bc-body">
+              迁移工程 <b>order-center-e2emig</b> 正在后台运行（42%）。关闭 TUI 后任务继续执行，
+              重新打开时选择「重连任务」即可回到同一份进度。<b>取消任务</b>会中断当前执行，
+              已产生的改动回退基线，需重新发起。
+            </div>
+            <div class="bc-actions">
+              <button class="bc-btn pri" type="button" data-bg="keep">后台执行（推荐）</button>
+              <button class="bc-btn" type="button" data-bg="cancel">取消任务</button>
+            </div>
+            <div class="bc-foot"><span class="stq done" role="img" aria-label="已完成"></span><span class="bc-msg">已选择后台执行。任务继续运行，TUI 可安全关闭；重新打开后选择「重连任务」回到同一份进度。</span></div>
+          </div>
+
+          <div class="sub-h">重新打开 TUI <span class="cm">选择重连运行中的任务 · 加载提示</span></div>
+          <div class="bg-rejobs">
+            <div class="brj" data-task="bg-8f3c2a">
+              <span class="bg-dot" role="img" aria-label="运行中"></span>
+              <span class="brj-main"><span class="brj-t">order-center-e2emig</span><span class="brj-s">正在：阶段 3 · 中间件迁移</span></span>
+              <span class="brj-bar"><span style="width:42%"></span></span>
+              <span class="brj-meta">42%</span>
+              <button class="brj-go" type="button">重连</button>
+            </div>
+            <div class="brj" data-task="bg-5a91d7">
+              <span class="bg-dot" role="img" aria-label="运行中"></span>
+              <span class="brj-main"><span class="brj-t">rocksdb 参数调优</span><span class="brj-s">正在：合并 patch · LRU 预取实验</span></span>
+              <span class="brj-bar"><span style="width:12%"></span></span>
+              <span class="brj-meta">12%</span>
+              <button class="brj-go" type="button">重连</button>
+            </div>
+          </div>
+          <div class="bg-reconnect" id="bgReconnect">
+            <div class="br-spin" role="img" aria-label="正在加载"></div>
+            <div class="br-body">
+              <div class="br-t">正在重连后台任务 <b>bg-8f3c2a</b> …</div>
+              <div class="br-s"><span class="stq doing breath" role="img" aria-label="进行中"></span>同步进度与断线期间增量事件 <span class="br-bar"><i></i></span></div>
+            </div>
+          </div>
+          <div class="ai-msg">已重连。任务在后台持续推进，断线期间补发增量事件：<b class="hl-metric">阶段 2 · 依赖扫描完成</b>（32 个库全部 ARM 兼容）、<b class="hl-metric">阶段 3 · 中间件迁移中</b>（TongWeb license 待补充）。当前仍停在 42%，状态恢复实时更新。</div>
+        </div>
+      </section>
+    </div>
+
     <!-- ═══ 调优 Agent ═══ -->
     <div class="scene" data-agent="tune" data-scenario="diagnose">
       <section class="right-panel">
@@ -2823,6 +3022,30 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
         <div class="cline"><span class="no">15</span><span class="pfx"></span><span class="cmt">// ✕ main &gt; sub-2 &gt; sub-2.3 · L3 · 触顶收住，已回退基线</span></div>
       </div>
     </div>
+    <!-- 后台运行这一屏的右侧：写的就是「前台流式 → 后台异步」那次接口适配。
+         改成后台后任务不再占会话连接，runTask 返回 taskId + 可订阅的状态流；
+         多终端通过同一 taskId 挂到事件总线，谁产生的增量都广播给所有订阅者 -->
+    <div class="code-scene" data-agent="develop" data-scenario="bg-run">
+      <div class="panel-head"><span class="crumb"><span class="m">[M]</span> run_task.ts &gt; src/agent &gt; <span class="fn">IT1 前台流式 → 后台异步</span></span></div>
+      <div class="panel-body">
+        <div class="cline"><span class="no">1</span><span class="pfx"></span><span class="cmt">// IT1 前台流式 → 后台异步接口适配</span></div>
+        <div class="cline"><span class="no">2</span><span class="pfx"></span><span class="cmt">// 前台版本：executeAndStream 边跑边往回调推事件，调用方必须一直在线</span></div>
+        <div class="cline del"><span class="no">3</span><span class="pfx del">-</span><span class="kw">interface</span> <span class="ty">RunParams</span>&lt;T&gt; { <span class="tk d">onEvent: (e: T) =&gt; void</span> }</div>
+        <div class="cline del"><span class="no">4</span><span class="pfx del">-</span><span class="kw">async function</span> <span class="fn">runTask</span>(plan, p: <span class="ty">RunParams</span>&lt;unknown&gt;) {</div>
+        <div class="cline del"><span class="no">5</span><span class="pfx del">-</span>&nbsp;&nbsp;<span class="kw">for await</span> (<span class="kw">const</span> e <span class="kw">of</span> <span class="tk d">plan.execute()</span>) p.onEvent(e);</div>
+        <div class="cline del"><span class="no">6</span><span class="pfx del">-</span>}</div>
+        <div class="cline"><span class="no">7</span><span class="pfx"></span></div>
+        <div class="cline add hl"><span class="no">8</span><span class="pfx add">+</span><span class="kw">interface</span> <span class="ty">RunParams</span> { <span class="tk a">mode: 'background'</span> }</div>
+        <div class="cline add hl"><span class="no">9</span><span class="pfx add">+</span><span class="kw">async function</span> <span class="fn">runTaskBackground</span>(plan, p: <span class="ty">RunParams</span>) {</div>
+        <div class="cline add hl"><span class="no">10</span><span class="pfx add">+</span>&nbsp;&nbsp;<span class="kw">const</span> taskId = <span class="kw">await</span> <span class="fn">queue.dispatch</span>(plan, p); <span class="cmt">// 入队即返回，不占会话连接</span></div>
+        <div class="cline add hl"><span class="no">11</span><span class="pfx add">+</span>&nbsp;&nbsp;<span class="kw">return</span> { taskId, <span class="fn">status</span>: <span class="fn">bus.subscribe</span>(taskId) }; <span class="cmt">// 状态走事件总线</span></div>
+        <div class="cline add hl"><span class="no">12</span><span class="pfx add">+</span>}</div>
+        <div class="cline"><span class="no">13</span><span class="pfx"></span></div>
+        <div class="cline"><span class="no">14</span><span class="pfx"></span><span class="cmt">// 多终端：同一 taskId 可被 TUI / GUI / Web 同时订阅，</span></div>
+        <div class="cline"><span class="no">15</span><span class="pfx"></span><span class="cmt">// 任一终端产生的增量事件都广播给所有订阅者；断线重连后补发漏掉的增量</span></div>
+        <div class="cline add hl"><span class="no">16</span><span class="pfx add">+</span><span class="kw">function</span> <span class="fn">subscribe</span>(taskId, sink) { <span class="kw">return</span> <span class="fn">bus.attach</span>(taskId, sink); }</div>
+      </div>
+    </div>
     <div class="code-scene" data-agent="tune" data-scenario="diagnose">
       <div class="panel-head"><span class="crumb">kspect &gt; <span class="fn">domain scan</span></span></div>
       <div class="panel-body">
@@ -2925,6 +3148,13 @@ const SCENARIOS={
     {key:'no-model',label:'未配置模型',status:'wait',file:null,code:false,disabled:true,
      goal:'缺省态：还没有可用的模型配置，Agent 拿不到 LLM，发不出第一条回复',
      plan:[]},
+    {key:'bg-run',label:'后台运行',status:'doing',file:'run_task.ts',code:true,
+     goal:'前台流式适配为后台异步：关 TUI 提示后台执行/取消任务；重启后可重连运行中的任务（带加载提示）；同一任务支持 TUI/GUI/Web 多终端共享状态',
+     plan:[{t:'切后台异步',d:'事件通道换事件总线 · 断线不中断',s:'done'},
+       {t:'关闭确认',d:'后台执行 / 取消任务 · 二选一',s:'done'},
+       {t:'重启重连',d:'带加载提示 · 增量补发',s:'doing'},
+       {t:'多终端同步',d:'TUI · GUI · Web 共享一份状态',s:'doing'}],
+     sugg:['重连运行任务','模拟关闭重连','切到 GUI 端']},
     {key:'subagent',label:'子 Agent 并发编排',status:'doing',file:'kernel',code:true,
      goal:'按热点域拆成 3 个子 Agent 并行推进，主 Agent 只做编排、冲突检测与收口；子 Agent 各自跑工具并发',
      plan:[{t:'拆分热点域',d:'3 域 · 互不依赖',s:'done'},{t:'派发子 Agent',d:'sub-1/2/3 · 独立 worktree',s:'done'},
@@ -2981,7 +3211,7 @@ const SCENARIOS={
 };
 /* develop 的默认场景跟着列表首项走（本轮把新增的三屏排到了最前）——
    按 2 进开发 Agent 时，第一眼看到的就是重点在打磨的那几条能力，而不是旧场景 */
-const lastScenario={migrate:'src-migrate',develop:'subagent',tune:'diagnose'};
+const lastScenario={migrate:'src-migrate',develop:'bg-run',tune:'diagnose'};
 let curAgent='develop';
 
 /* ══ 底栏常驻计量（模型 / 上下文水位 / token）══
@@ -2996,6 +3226,7 @@ const METRICS={
   'develop:subagent':{tok:'1.24M',ctx:38},
   /* 未配置模型这一屏没有会话，也就没有 token 与水位——给 0 而不是编一个数 */
   'develop:no-model':{tok:'—',ctx:0},
+  'develop:bg-run':{tok:'512k',ctx:35},
   /* 「模型与 Token」这一屏同时承担看现状和改配置（原来是两屏）：
      看和改用的是同一个会话、同一个输入框、同一个文件，拆成两屏反而要求两屏数字强行一致，
      索性并成一屏——所以这里只剩一行，不存在"两屏要对齐"的问题了 */
@@ -4195,6 +4426,69 @@ document.querySelectorAll('.sa-head').forEach(head=>{
   head.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
 });
 
+/* ══ 后台运行 · 关闭确认二选一 ══
+   关闭这一下由用户做决定：点「后台执行」卡内就地变绿（done）、点「取消任务」变红（cancel）；
+   选完两个按钮一起禁用，避免反悔再点一次。只改卡内状态，不往对话流里追加内容——
+   对话流里该有的一句结论已经写死在场景里，卡内只回答「这一次选了哪个」。
+   切走再切回时 selectScenario 不重建卡，这里用 sessionStorage 记一次选择，
+   评审者重开页面或切回本屏时仍能看到自己上次的选法（不用重新点）。 */
+const bgClose=document.getElementById('bgClose');
+if(bgClose){
+  const applyBgChoice=(choice)=>{
+    const keep=choice==='keep';
+    bgClose.classList.toggle('done',keep);
+    bgClose.classList.toggle('cancel',!keep);
+    const msg=bgClose.querySelector('.bc-msg');
+    msg.textContent=keep
+      ? '已选择后台执行。任务继续运行，TUI 可安全关闭；重新打开后选择「重连任务」回到同一份进度。'
+      : '已选择取消任务。任务已停止，已产生的改动回退基线；需要时重新发起端到端迁移。';
+    bgClose.querySelectorAll('.bc-btn').forEach(b=>b.disabled=true);
+    try{ sessionStorage.setItem('bg-close-choice',choice); }catch(_){}
+  };
+  bgClose.querySelectorAll('.bc-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>applyBgChoice(btn.dataset.bg));
+  });
+  try{
+    const last=sessionStorage.getItem('bg-close-choice');
+    if(last==='keep'||last==='cancel') applyBgChoice(last);
+  }catch(_){}
+}
+
+/* ══ 后台运行 · 后台任务卡 收起/展开 ══
+   点任务头行整行折叠：收起只留头行（ID + 42% + 正在 + 徽标），再点展开下方时间轴。
+   aria-expanded 与按钮同步，读屏器可感知状态。 */
+const bgTask=document.getElementById('bgTask');
+const bgToggle=bgTask&&bgTask.querySelector('.bg-t-h');
+if(bgToggle){
+  bgToggle.addEventListener('click',()=>{
+    const collapsed=bgTask.classList.toggle('collapsed');
+    bgToggle.setAttribute('aria-expanded',String(!collapsed));
+  });
+}
+
+/* ══ 后台运行 · 可重连任务列表 ══
+   重连这一下也是用户做选择：点某行的「重连」，该行就地标为重连中（高亮 + 按钮变灰），
+   下方加载块的 task ID 跟着切换成所选任务，并把加载块滚进视野。
+   其余行不做任何处理——模拟「还没选它」的自然停顿。 */
+const brjGo=document.querySelectorAll('.brj-go');
+const bgReconnect=document.getElementById('bgReconnect');
+if(brjGo.length&&bgReconnect){
+  const taskIdEl=bgReconnect.querySelector('.br-t b');
+  brjGo.forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const row=btn.closest('.brj');
+      document.querySelectorAll('.brj.reconnecting').forEach(r=>{
+        r.classList.remove('reconnecting');
+        const b=r.querySelector('.brj-go'); if(b) b.textContent='重连';
+      });
+      row.classList.add('reconnecting');
+      btn.textContent='重连中';
+      if(taskIdEl&&row.dataset.task) taskIdEl.textContent=row.dataset.task;
+      bgReconnect.scrollIntoView({behavior:'smooth',block:'nearest'});
+    });
+  });
+}
+
 /* ══ 输入框里执行命令 ══
    演示的是"这一屏能改的东西，在对话框里就能改"，不是把命令真的接到后端。
    只认 /model 与 /tokens 两条；其余输入原样留着，交给未来的 Agent 任务解析。
@@ -4324,10 +4618,10 @@ renderQuota();
    函数（renderMetrics 等）都只能读那些已经声明完的变量，新加的模型配置一读就撞 TDZ。
    初始化统一挪到最后之后，"所有定义都已就绪"变成一条可以直接依赖的前提，
    不用再逐个给函数记"它能在什么时候调"。 */
-/* 打开即落「子 Agent 并发编排」：这一屏是当前唯一的迭代目标，也是评审最先要看的一屏。
+/* 打开即落「后台运行」：这一屏是当前唯一的迭代目标，也是评审最先要看的一屏。
    其它屏（源码迁移 / 端到端迁移 / 调优 …）仍在侧栏里，切过去即可；深链 ?scene= 依然优先。 */
-renderSessionList('develop','subagent');
-selectScenario('develop','subagent');
+renderSessionList('develop','bg-run');
+selectScenario('develop','bg-run');
 /* 默认收起右侧源码区，即便初始场景带 code，也要用户手动展开 */
 document.getElementById('workspace').classList.add('foldcode');
 document.getElementById('cfoldBtn').classList.remove('on');
