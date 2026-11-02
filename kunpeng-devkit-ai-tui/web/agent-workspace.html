@@ -1274,32 +1274,47 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
 .bg-task.collapsed .bg-chev{transform:rotate(-135deg)}
 .bg-task.collapsed .bg-prog{display:none}
 
-/* 关闭 TUI 确认：比 blocker 高一层（要人做决定），但仍是卡片不是模态——
-   它回答「关还是留」这一个问题，模态要留给打断正在做的操作 */
-.bg-close{margin:14px 0;border-radius:8px;background:var(--elev);border:1px solid var(--panel-bd2);
-  box-shadow:0 10px 28px rgba(0,0,0,.35)}
-.bg-close .bc-title{display:flex;align-items:center;gap:7px;padding:9px 12px;
-  font-size:13.5px;font-weight:700;color:var(--warn);border-bottom:1px solid var(--bd1)}
-.bg-close .bc-body{padding:9px 12px;font-size:13px;color:var(--fg2);line-height:1.7}
-.bg-close .bc-body b{color:var(--fg);font-weight:600}
-.bg-close .bc-body code{font-family:var(--mono);background:var(--surf-1);padding:0 5px;color:var(--pri-h)}
-.bg-close .bc-actions{display:flex;gap:8px;justify-content:flex-end;padding:0 12px 11px}
+/* ══ 全局提示（右下角 · IDE 小脚通知）══
+   关闭 TUI 的确认、重连后的同步结果，都以固定右下角的通知弹出，
+   不再铺在对话流里（参考 IDE 底部小脚的全局提示）。
+   与模态（打断操作、盖全屏）和随流卡片区分开：toast 是可顺带读的全局提示，
+   点动作即收。层叠：z 25 高于正文、低于命令浮层(30)与扫描效果(99)。 */
+.toast-layer{position:fixed;right:14px;bottom:14px;z-index:25;
+  display:flex;flex-direction:column;align-items:flex-end;gap:10px;
+  max-width:calc(100vw - 28px)}
+.toast{display:none;width:384px;max-width:100%;background:var(--elev);
+  border:1px solid var(--panel-bd2);border-radius:10px;
+  box-shadow:0 10px 30px rgba(0,0,0,.42),0 2px 10px rgba(0,0,0,.26);overflow:hidden}
+.toast.show{display:block;animation:toast-in .26s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes toast-in{from{transform:translateX(120%) translateY(8px);opacity:0}
+  to{transform:translateX(0) translateY(0);opacity:1}}
+.toast-head{display:flex;align-items:center;gap:8px;padding:10px 12px 6px}
+.toast-ic{width:17px;height:17px;flex:none;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:10px;line-height:1;color:#fff;
+  background:var(--warn);border:1px solid rgba(224,175,104,.65)}
+.toast.done .toast-ic,.toast-ic.ok{background:var(--ok);border-color:rgba(45,178,122,.65)}
+.toast.cancel .toast-ic{background:var(--dgr);border-color:rgba(221,76,76,.65)}
+.toast-title{flex:1;font-size:13px;font-weight:700;color:var(--fg)}
+.toast-x{flex:none;width:22px;height:22px;border:0;border-radius:5px;background:none;
+  color:var(--fg4);cursor:pointer;font-size:15px;line-height:1;
+  display:flex;align-items:center;justify-content:center}
+.toast-x:hover{color:var(--fg);background:var(--s4)}
+.toast-body{padding:0 12px 10px;font-size:12.5px;color:var(--fg2);line-height:1.7}
+.toast-body b{color:var(--fg);font-weight:600}
+.toast-actions{display:flex;gap:8px;justify-content:flex-end;padding:0 12px 12px}
+.toast-note{font-size:11px;color:var(--fg4);padding:0 12px 10px;line-height:1.6}
+.toast-note b{color:var(--fg3);font-weight:600}
+.toast.done .toast-note{color:var(--ok)}
+.toast.cancel .toast-note{color:var(--dgr)}
+.toast .bc-btn:disabled{opacity:.42;cursor:not-allowed}
 .bc-btn{height:28px;padding:0 14px;font-size:12.5px;font-family:var(--sans);color:var(--fg2);
   background:var(--s3);border:1px solid var(--bd2);border-radius:5px;cursor:pointer}
 .bc-btn:hover{color:var(--fg);background:var(--s4)}
 .bc-btn.pri{color:var(--sel-fg);background:rgba(0,119,255,.42);border-color:rgba(0,119,255,.55)}
 .bc-btn.pri:hover{background:rgba(0,119,255,.58)}
-.bg-close.done .bc-title{color:var(--ok)}
-.bg-close.cancel .bc-title{color:var(--dgr)}
-.bg-close .bc-foot{display:none;align-items:center;gap:7px;padding:8px 12px;border-top:1px solid var(--bd1);
-  font-size:12.5px;color:var(--fg3)}
-.bg-close.done .bc-foot,.bg-close.cancel .bc-foot{display:flex}
-.bg-close .bc-foot .stq{flex:none}
-.bg-close .bc-btn:disabled{opacity:.42;cursor:not-allowed}
 
-/* 重连提示（极简，红色标注3）：重连中在某处转圈即可，连上后照常渲染、无「已重连」字样 */
-#reconnectMsg{display:none}
-#reconnectMsg.on{display:block}
+/* 重连（极简，红色标注3）：重连中在某处转圈即可，连上后照常渲染；
+   同步结果以右下角 toast 弹出（见「全局提示」一节） */
 .bg-rejobs.hidden{display:none}
 @keyframes bg-spin{to{transform:rotate(360deg)}}
 
@@ -1352,9 +1367,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
 .brj-go .sp{display:inline-block;width:11px;height:11px;vertical-align:-1px;margin-right:5px;
   border-radius:50%;border:2px solid var(--bd3);border-top-color:var(--pri);animation:bg-spin .8s linear infinite}
 
-/* 关闭确认兜底（需求3）：未做选择直接关闭 → 默认后台执行，任务不中断 */
-.bc-note{font-size:11.5px;color:var(--fg4);padding:0 12px 11px;line-height:1.6}
-.bc-note b{color:var(--fg3);font-weight:600}
+/* 兜底说明已并入 toast 的 .toast-note（见「全局提示」一节）：未做选择直接关闭 → 默认后台执行 */
 
 /* 会话状态由左侧状态点颜色表达（蓝呼吸=运行中 · 红=中断 · 绿=已完成 · 黄=等待操作），
    不铺文字徽标 */
@@ -1390,6 +1403,34 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
       <button class="ss-btn" data-color="light">浅色</button>
     </div>
     <span class="ss-toggle on" id="radiusToggle" title="圆角 / 直角"><span class="ss-tl">圆角</span><span class="ss-track"></span></span>
+  </div>
+</div>
+
+<!-- ══ 全局提示（右下角 · IDE 小脚通知）══
+    关闭 TUI 的确认 / 重连后的同步结果，都不再铺在对话流里，
+    以固定右下角的通知形式弹出（参考 IDE 底部小脚的全局提示）。
+    进 bg-run 场景自动弹「关闭确认」；点「重连」连上后弹「同步结果」。 -->
+<div class="toast-layer" id="toastLayer">
+  <div class="toast" id="bgToast" role="alert" aria-live="assertive">
+    <div class="toast-head">
+      <span class="toast-ic" aria-hidden="true">⚠</span>
+      <span class="toast-title">有任务正在后台执行</span>
+      <button class="toast-x" type="button" aria-label="关闭通知">×</button>
+    </div>
+    <div class="toast-body">迁移工程 <b>order-center-e2emig</b> 正在后台运行（42%）。关闭 TUI 后任务继续执行，重新打开时选择「重连任务」即可回到同一份进度。<b>取消任务</b>会中断当前执行，已产生的改动回退基线，需重新发起。</div>
+    <div class="toast-actions">
+      <button class="bc-btn pri" type="button" data-bg="keep">后台执行（推荐）</button>
+      <button class="bc-btn" type="button" data-bg="cancel">取消任务</button>
+    </div>
+    <div class="toast-note">未做选择直接关闭 TUI → <b>默认后台执行</b>，任务不中断；「取消任务」会回退改动，需重新发起。</div>
+  </div>
+  <div class="toast" id="reToast" role="status" aria-live="polite">
+    <div class="toast-head">
+      <span class="toast-ic ok" aria-hidden="true">✓</span>
+      <span class="toast-title">任务已恢复同步</span>
+      <button class="toast-x" type="button" aria-label="关闭通知">×</button>
+    </div>
+    <div class="toast-body">任务在后台持续推进。断线期间补发增量事件：<b>阶段 2 · 依赖扫描完成</b>（32 个库全部 ARM 兼容）、<b>阶段 3 · 中间件迁移中</b>（TongWeb license 待补充）。当前 42%，状态实时更新。</div>
   </div>
 </div>
 
@@ -2394,9 +2435,10 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
          折叠箭头，整行可点击收起）+ 下方纯时间轴（6 个阶段点，fill 蓝条=42%，
          运行段点呼吸，阶段名 6 等宽格与点位对齐）；重连区块 = 会话行列表
          （可选择要重连哪个任务），点「重连」按钮就地转圈「连接中…」，
-         连上后列表收掉、按普通消息照常渲染——无「已重连」字样、无渲染特殊性（红色标注3）。
-         多终端这层事实不再铺一张表，由对话流文案承担（首条 ai-msg 已写明）。
-         关闭确认仍是可点选的两态卡片；未选择直接关闭 → 默认后台执行。不引入新颜色。 -->
+         连上后列表收掉、按普通消息照常渲染——无「已重连」字样、无渲染特殊性（红色标注3），
+         同步结果走右下角全局提示。多终端这层事实不再铺一张表，由对话流文案承担（首条 ai-msg 已写明）。
+         关闭确认不再铺在对话流里，改为右下角全局提示（IDE 小脚通知，进本屏自动弹出）；
+         未选择直接关闭 → 默认后台执行。不引入新颜色。 -->
     <div class="scene" data-agent="develop" data-scenario="bg-run">
       <section class="right-panel">
         <div class="panel-body">
@@ -2428,21 +2470,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
             </div>
           </div>
 
-          <div class="sub-h">关闭 TUI <span class="cm">有任务在跑时的确认 · 二选一</span></div>
-          <div class="bg-close" id="bgClose">
-            <div class="bc-title">⚠ 有任务正在后台执行</div>
-            <div class="bc-body">
-              迁移工程 <b>order-center-e2emig</b> 正在后台运行（42%）。关闭 TUI 后任务继续执行，
-              重新打开时选择「重连任务」即可回到同一份进度。<b>取消任务</b>会中断当前执行，
-              已产生的改动回退基线，需重新发起。
-            </div>
-            <div class="bc-actions">
-              <button class="bc-btn pri" type="button" data-bg="keep">后台执行（推荐）</button>
-              <button class="bc-btn" type="button" data-bg="cancel">取消任务</button>
-            </div>
-            <div class="bc-note">未做选择直接关闭 TUI → <b>默认后台执行</b>，任务不中断；「取消任务」会回退改动，需重新发起。</div>
-            <div class="bc-foot"><span class="stq done" role="img" aria-label="已完成"></span><span class="bc-msg">已选择后台执行。任务继续运行，TUI 可安全关闭；重新打开后选择「重连任务」回到同一份进度。</span></div>
-          </div>
+          <div class="sub-h">关闭 TUI <span class="cm">确认已移到右下角全局提示 · 后台执行 / 取消任务</span></div>
 
           <div class="sub-h">重新打开 TUI <span class="cm">选择重连运行中的任务 · 加载提示</span></div>
           <div class="bg-rejobs">
@@ -2461,7 +2489,6 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
               <button class="brj-go" type="button">重连</button>
             </div>
           </div>
-          <div class="ai-msg" id="reconnectMsg">任务在后台持续推进。断线期间补发增量事件：<b class="hl-metric">阶段 2 · 依赖扫描完成</b>（32 个库全部 ARM 兼容）、<b class="hl-metric">阶段 3 · 中间件迁移中</b>（TongWeb license 待补充）。当前 42%，状态实时更新。</div>
         </div>
       </section>
     </div>
@@ -3467,6 +3494,8 @@ function selectScenario(agentKey,scenarioKey){
      原来这里是「有 code 的场景自动展开」，等于让场景替用户做这个决定。 */
   document.getElementById('workspace').classList.add('foldcode');
   document.getElementById('cfoldBtn').classList.remove('on');
+  /* 全局提示跟随场景：进 bg-run 弹「关闭 TUI 确认」，离开收起（见 toast 一节） */
+  syncToastForScene(agentKey,scenarioKey);
   setTimeout(checkScrollBottom,50);
   if(agentKey==='tune' && scenarioKey==='bottleneck') initHotspot();
 }
@@ -4201,6 +4230,7 @@ function mmOpenModelPage(){
   renderModelList();
   mmSetStat(mmDirty?'dirty':'',mmDirty?'未保存':'');
   mmEl('mmPage').classList.add('on');
+  hideToasts();   // 配置页盖全屏时，右下角全局提示一起收掉，不让 toast 抢注意力
   mmEl('mmPage').setAttribute('aria-hidden','false');
   closeSlashMenu();
   /* 焦点先进列表的当前项：键盘用户不必先 Tab 过整张表单才能换一个模型看 */
@@ -4445,32 +4475,42 @@ document.querySelectorAll('.sa-head').forEach(head=>{
   head.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
 });
 
-/* ══ 后台运行 · 关闭确认二选一 ══
-   关闭这一下由用户做决定：点「后台执行」卡内就地变绿（done）、点「取消任务」变红（cancel）；
-   选完两个按钮一起禁用，避免反悔再点一次。只改卡内状态，不往对话流里追加内容——
-   对话流里该有的一句结论已经写死在场景里，卡内只回答「这一次选了哪个」。
-   切走再切回时 selectScenario 不重建卡，这里用 sessionStorage 记一次选择，
-   评审者重开页面或切回本屏时仍能看到自己上次的选法（不用重新点）。 */
-const bgClose=document.getElementById('bgClose');
-if(bgClose){
+/* ══ 后台运行 · 关闭确认（右下角全局提示）══
+   关闭 TUI 的确认不再铺在对话流里，改为固定右下角的全局通知（参考 IDE 小脚提示）：
+   进 bg-run 场景自动弹出；点「后台执行 / 取消任务」= 这一次的选择，
+   toast 就地反映结果（绿/红）并自动收起，选完按钮禁用避免反悔再点一次。
+   sessionStorage 记「已处理过」，评审重进本屏不再重复打扰；切走场景自动收起。 */
+const bgToast=document.getElementById('bgToast');
+if(bgToast){
+  const bgGone=()=>{ try{ sessionStorage.setItem('bg-close-gone','1'); }catch(_){} };
   const applyBgChoice=(choice)=>{
     const keep=choice==='keep';
-    bgClose.classList.toggle('done',keep);
-    bgClose.classList.toggle('cancel',!keep);
-    const msg=bgClose.querySelector('.bc-msg');
-    msg.textContent=keep
+    bgToast.classList.toggle('done',keep);
+    bgToast.classList.toggle('cancel',!keep);
+    const note=bgToast.querySelector('.toast-note');
+    note.textContent=keep
       ? '已选择后台执行。任务继续运行，TUI 可安全关闭；重新打开后选择「重连任务」回到同一份进度。'
       : '已选择取消任务。任务已停止，已产生的改动回退基线；需要时重新发起端到端迁移。';
-    bgClose.querySelectorAll('.bc-btn').forEach(b=>b.disabled=true);
-    try{ sessionStorage.setItem('bg-close-choice',choice); }catch(_){}
+    bgToast.querySelectorAll('.bc-btn').forEach(b=>b.disabled=true);
+    bgGone();
+    setTimeout(()=>bgToast.classList.remove('show'),2600);
   };
-  bgClose.querySelectorAll('.bc-btn').forEach(btn=>{
+  bgToast.querySelectorAll('.bc-btn').forEach(btn=>{
     btn.addEventListener('click',()=>applyBgChoice(btn.dataset.bg));
   });
-  try{
-    const last=sessionStorage.getItem('bg-close-choice');
-    if(last==='keep'||last==='cancel') applyBgChoice(last);
-  }catch(_){}
+  bgToast.querySelector('.toast-x').addEventListener('click',()=>{ bgGone(); bgToast.classList.remove('show'); });
+}
+
+/* 全局提示显隐：进 bg-run 弹「关闭确认」、离开收起；管理配置页打开时一起收掉 */
+function hideToasts(){
+  document.querySelectorAll('#toastLayer .toast').forEach(t=>t.classList.remove('show'));
+}
+function syncToastForScene(agentKey,scenarioKey){
+  if(agentKey!=='develop'||scenarioKey!=='bg-run'){ hideToasts(); return; }
+  const bgToast=document.getElementById('bgToast');
+  if(!bgToast) return;
+  let gone=false; try{ gone=!!sessionStorage.getItem('bg-close-gone'); }catch(_){}
+  if(!gone) bgToast.classList.add('show');
 }
 
 /* ══ 后台运行 · 后台任务卡 收起/展开 ══
@@ -4487,10 +4527,11 @@ if(bgToggle){
 
 /* ══ 后台运行 · 重连（极简，红色标注3）══
    点某行「重连」→ 该行按钮就地转圈「连接中…」（需求4的加载提示，不铺一块加载区）；
-   连上后任务列表收掉，按普通前台消息渲染——不用「已重连」字样、无任何渲染特殊性。 */
+   连上后任务列表收掉，同步结果以右下角全局提示（toast）弹出并自动收起，
+   对话流不做特殊渲染——无「已重连」字样、无任何渲染特殊性。 */
 const brjGo=document.querySelectorAll('.brj-go');
 const bgRejobs=document.querySelector('.bg-rejobs');
-const reconnectMsg=document.getElementById('reconnectMsg');
+const reToast=document.getElementById('reToast');
 if(brjGo.length){
   brjGo.forEach(btn=>{
     btn.addEventListener('click',()=>{
@@ -4505,11 +4546,15 @@ if(brjGo.length){
       btn.disabled=true;
       setTimeout(()=>{
         if(bgRejobs) bgRejobs.classList.add('hidden');
-        if(reconnectMsg) reconnectMsg.classList.add('on');
+        if(reToast){
+          reToast.classList.add('show');
+          setTimeout(()=>reToast.classList.remove('show'),4200);
+        }
       },700);
     });
   });
 }
+if(reToast) reToast.querySelector('.toast-x').addEventListener('click',()=>reToast.classList.remove('show'));
 
 /* ══ 输入框里执行命令 ══
    演示的是"这一屏能改的东西，在对话框里就能改"，不是把命令真的接到后端。
