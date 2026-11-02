@@ -1304,7 +1304,6 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
 .toast-actions{display:flex;gap:8px;justify-content:flex-end;padding:0 12px 12px}
 .toast-note{font-size:11px;color:var(--fg4);padding:0 12px 10px;line-height:1.6}
 .toast-note b{color:var(--fg3);font-weight:600}
-.toast.done .toast-note{color:var(--ok)}
 .toast.cancel .toast-note{color:var(--dgr)}
 .toast .bc-btn:disabled{opacity:.42;cursor:not-allowed}
 .bc-btn{height:28px;padding:0 14px;font-size:12.5px;font-family:var(--sans);color:var(--fg2);
@@ -1367,7 +1366,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
 .brj-go .sp{display:inline-block;width:11px;height:11px;vertical-align:-1px;margin-right:5px;
   border-radius:50%;border:2px solid var(--bd3);border-top-color:var(--pri);animation:bg-spin .8s linear infinite}
 
-/* 兜底说明已并入 toast 的 .toast-note（见「全局提示」一节）：未做选择直接关闭 → 默认后台执行 */
+/* toast 结果行（.toast-note）按需创建：选完才显示「已选择…」结论，初始不再铺兜底提示 */
 
 /* 会话状态由左侧状态点颜色表达（蓝呼吸=运行中 · 红=中断 · 绿=已完成 · 黄=等待操作），
    不铺文字徽标 */
@@ -1422,7 +1421,6 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
       <button class="bc-btn pri" type="button" data-bg="keep">后台执行（推荐）</button>
       <button class="bc-btn" type="button" data-bg="cancel">取消任务</button>
     </div>
-    <div class="toast-note">未做选择直接关闭 TUI → <b>默认后台执行</b>，任务不中断；「取消任务」会回退改动，需重新发起。</div>
   </div>
   <div class="toast" id="reToast" role="status" aria-live="polite">
     <div class="toast-head">
@@ -3888,14 +3886,8 @@ function mmSyncConfigured(){
   sq.setAttribute('aria-label',on?'模型已配置':'未配置模型');
   sq.setAttribute('title',on?'模型已配置':'未配置模型');
   renderMetrics(curAgent,lastScenario[curAgent]);
-  /* 缺省态那一屏是"什么都干不了"，配好之后不该还停在那儿：
-     落到「模型与 Token」这一屏（刚配的东西在哪儿看、怎么改），并把那一屏的演示预填清掉——
-     用户是自己配过来的，不该接手一段他自己没敲的字 */
-  if(on&&mmSceneDisabled()){
-    selectScenario('develop','model-token');
-    biInput.value='';
-    closeSlashMenu();
-  }
+  /* 旧缺省态（no-model）已删除，这里不再有「配好模型后自动落到模型与Token」的跳转——
+     否则 disabled 场景（如 sync-load 加载态）也会被劫持到 model-token（修 bug） */
 }
 
 /* ── 左栏：已保存的模型 ──
@@ -4487,10 +4479,15 @@ if(bgToast){
     const keep=choice==='keep';
     bgToast.classList.toggle('done',keep);
     bgToast.classList.toggle('cancel',!keep);
+    /* 结果行按需创建：选「取消任务」才显示结论；选「后台执行」不铺任何文字——
+       后台执行的结果句已按需求删除，toast 就地变绿、按钮禁用、自动收起即可 */
     const note=bgToast.querySelector('.toast-note');
-    note.textContent=keep
-      ? '已选择后台执行。任务继续运行，TUI 可安全关闭；重新打开后选择「重连任务」回到同一份进度。'
-      : '已选择取消任务。任务已停止，已产生的改动回退基线；需要时重新发起端到端迁移。';
+    if(keep){
+      if(note) note.remove();
+    }else{
+      if(!note){ bgToast.appendChild(Object.assign(document.createElement('div'),{className:'toast-note'})); }
+      bgToast.querySelector('.toast-note').textContent='已选择取消任务。任务已停止，已产生的改动回退基线；需要时重新发起端到端迁移。';
+    }
     bgToast.querySelectorAll('.bc-btn').forEach(b=>b.disabled=true);
     bgGone();
     setTimeout(()=>bgToast.classList.remove('show'),2600);
@@ -4501,16 +4498,28 @@ if(bgToast){
   bgToast.querySelector('.toast-x').addEventListener('click',()=>{ bgGone(); bgToast.classList.remove('show'); });
 }
 
-/* 全局提示显隐：进 bg-run 弹「关闭确认」、离开收起；管理配置页打开时一起收掉 */
+/* 全局提示显隐：进 bg-run 弹「关闭确认」，同步结果随后在下边补一条——
+   两条 toast 上下堆叠（参考 IDE 小脚通知的排列），评审一进来就能看到这个排布；
+   离开收起；管理配置页打开时一起收掉 */
 function hideToasts(){
   document.querySelectorAll('#toastLayer .toast').forEach(t=>t.classList.remove('show'));
 }
 function syncToastForScene(agentKey,scenarioKey){
   if(agentKey!=='develop'||scenarioKey!=='bg-run'){ hideToasts(); return; }
   const bgToast=document.getElementById('bgToast');
+  const reToast=document.getElementById('reToast');
   if(!bgToast) return;
   let gone=false; try{ gone=!!sessionStorage.getItem('bg-close-gone'); }catch(_){}
-  if(!gone) bgToast.classList.add('show');
+  if(gone) return;
+  bgToast.classList.add('show');
+  /* 同步结果通知约 1.2s 后在下边补一条，形成上下并排的两条通知 */
+  if(reToast){
+    window.clearTimeout(window.__reToastT);
+    window.__reToastT=window.setTimeout(()=>{
+      reToast.classList.add('show');
+      window.setTimeout(()=>reToast.classList.remove('show'),4200);
+    },1200);
+  }
 }
 
 /* ══ 后台运行 · 后台任务卡 收起/展开 ══
