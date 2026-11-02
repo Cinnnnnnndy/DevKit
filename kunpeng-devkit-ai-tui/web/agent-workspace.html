@@ -1277,17 +1277,16 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
 /* ══ 全局提示（右下角 · IDE 小脚通知）══
    关闭 TUI 的确认、重连后的同步结果，都以固定右下角的通知弹出，
    不再铺在对话流里（参考 IDE 底部小脚的全局提示）。
-   与模态（打断操作、盖全屏）和随流卡片区分开：toast 是可顺带读的全局提示，
-   点动作即收。层叠：z 25 高于正文、低于命令浮层(30)与扫描效果(99)。 */
+   与模态（打断操作、盖全屏）和随流卡片区分开：toast 是可顺带读的全局提示。
+   评审态下两条 toast 常驻：不自动关闭、无弹跳动画（直落显示）。
+   层叠：z 25 高于正文、低于命令浮层(30)与扫描效果(99)。 */
 .toast-layer{position:fixed;right:14px;bottom:14px;z-index:25;
   display:flex;flex-direction:column;align-items:flex-end;gap:10px;
   max-width:calc(100vw - 28px)}
 .toast{display:none;width:384px;max-width:100%;background:var(--elev);
   border:1px solid var(--panel-bd2);border-radius:10px;
   box-shadow:0 10px 30px rgba(0,0,0,.42),0 2px 10px rgba(0,0,0,.26);overflow:hidden}
-.toast.show{display:block;animation:toast-in .26s cubic-bezier(.2,.9,.3,1.15)}
-@keyframes toast-in{from{transform:translateX(120%) translateY(8px);opacity:0}
-  to{transform:translateX(0) translateY(0);opacity:1}}
+.toast.show{display:block}
 .toast-head{display:flex;align-items:center;gap:8px;padding:10px 12px 6px}
 .toast-ic{width:17px;height:17px;flex:none;border-radius:50%;display:flex;align-items:center;
   justify-content:center;font-size:10px;line-height:1;color:#fff;
@@ -4470,7 +4469,7 @@ document.querySelectorAll('.sa-head').forEach(head=>{
 /* ══ 后台运行 · 关闭确认（右下角全局提示）══
    关闭 TUI 的确认不再铺在对话流里，改为固定右下角的全局通知（参考 IDE 小脚提示）：
    进 bg-run 场景自动弹出；点「后台执行 / 取消任务」= 这一次的选择，
-   toast 就地反映结果（绿/红）并自动收起，选完按钮禁用避免反悔再点一次。
+   toast 就地反映结果（绿/红）并常驻展示（不自动收起、无弹跳动画），选完按钮禁用避免反悔再点一次。
    sessionStorage 记「已处理过」，评审重进本屏不再重复打扰；切走场景自动收起。 */
 const bgToast=document.getElementById('bgToast');
 if(bgToast){
@@ -4480,7 +4479,7 @@ if(bgToast){
     bgToast.classList.toggle('done',keep);
     bgToast.classList.toggle('cancel',!keep);
     /* 结果行按需创建：选「取消任务」才显示结论；选「后台执行」不铺任何文字——
-       后台执行的结果句已按需求删除，toast 就地变绿、按钮禁用、自动收起即可 */
+       后台执行的结果句已按需求删除，toast 就地变绿、按钮禁用、常驻展示（不自动收起） */
     const note=bgToast.querySelector('.toast-note');
     if(keep){
       if(note) note.remove();
@@ -4490,7 +4489,6 @@ if(bgToast){
     }
     bgToast.querySelectorAll('.bc-btn').forEach(b=>b.disabled=true);
     bgGone();
-    setTimeout(()=>bgToast.classList.remove('show'),2600);
   };
   bgToast.querySelectorAll('.bc-btn').forEach(btn=>{
     btn.addEventListener('click',()=>applyBgChoice(btn.dataset.bg));
@@ -4512,13 +4510,10 @@ function syncToastForScene(agentKey,scenarioKey){
   let gone=false; try{ gone=!!sessionStorage.getItem('bg-close-gone'); }catch(_){}
   if(gone) return;
   bgToast.classList.add('show');
-  /* 同步结果通知约 1.2s 后在下边补一条，形成上下并排的两条通知 */
+  /* 同步结果通知约 1.2s 后在下边补一条，形成上下并排的两条通知；常驻不自动收起 */
   if(reToast){
     window.clearTimeout(window.__reToastT);
-    window.__reToastT=window.setTimeout(()=>{
-      reToast.classList.add('show');
-      window.setTimeout(()=>reToast.classList.remove('show'),4200);
-    },1200);
+    window.__reToastT=window.setTimeout(()=>{ reToast.classList.add('show'); },1200);
   }
 }
 
@@ -4555,10 +4550,7 @@ if(brjGo.length){
       btn.disabled=true;
       setTimeout(()=>{
         if(bgRejobs) bgRejobs.classList.add('hidden');
-        if(reToast){
-          reToast.classList.add('show');
-          setTimeout(()=>reToast.classList.remove('show'),4200);
-        }
+        if(reToast){ reToast.classList.add('show'); }   // 常驻，不自动收起
       },700);
     });
   });
