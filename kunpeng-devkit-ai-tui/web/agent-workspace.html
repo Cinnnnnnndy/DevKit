@@ -1248,12 +1248,14 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
   .bi-hintbar .it.model,.bi-hintbar .sep{display:none}
 }
 
-/* ══ 后台运行（develop · bg-run）：后台任务卡 / 关闭确认 / 重连加载 ══
+/* ══ 后台运行（develop · bg-run）：后台任务卡 / 关闭确认 / 重连 ══
    这一屏复刻四条需求对应的界面状态：
    ① 后台任务卡：前台流式切后台异步后，任务以「头行信息 + 时间轴」卡片常驻
       （ID + 执行进度 42% + 正在：当前动作，整行可点击收起）；
    ② 关闭确认：有任务在跑时关 TUI，弹出「后台执行 / 取消任务」二选一；
-   ③ 重连加载：重启后先选可重连任务（会话行），再带加载提示重连；
+      未做选择直接关闭 → 默认后台执行，任务不中断（需求3 的兜底策略）；
+   ③ 重连：重启后先选可重连任务（会话行），点「重连」按钮就地转圈「连接中…」，
+      连上后按普通前台消息照常渲染——无「已重连」字样、无渲染特殊性（红色标注3）；
    ④ 多终端：不再单列区块——同一任务可被 TUI / GUI / Web 同时打开这层事实，
       由对话流文案承担（首条 ai-msg 已写明），界面不再重复铺一张表。
    全部沿用既有 token（surf/bd/pri/ok/warn/dgr），不新造颜色。 */
@@ -1296,26 +1298,19 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
 .bg-close .bc-foot .stq{flex:none}
 .bg-close .bc-btn:disabled{opacity:.42;cursor:not-allowed}
 
-/* 重连加载：转圈 + 进度条脉冲，模拟「正在同步断线期间增量事件」 */
-.bg-reconnect{margin:14px 0;border-radius:8px;background:var(--surf-4);border:1px solid var(--panel-bd2);
-  display:flex;align-items:center;gap:12px;padding:10px 12px}
-.br-spin{width:20px;height:20px;flex:none;border-radius:50%;border:2px solid var(--s4);
-  border-top-color:var(--pri);animation:bg-spin .9s linear infinite}
+/* 重连提示（极简，红色标注3）：重连中在某处转圈即可，连上后照常渲染、无「已重连」字样 */
+#reconnectMsg{display:none}
+#reconnectMsg.on{display:block}
+.bg-rejobs.hidden{display:none}
 @keyframes bg-spin{to{transform:rotate(360deg)}}
-.br-body{flex:1;min-width:0}
-.br-t{font-size:13px;color:var(--fg2);display:flex;align-items:center;gap:6px}
-.br-t b{font-family:var(--mono);color:var(--pri-h);font-weight:700}
-.br-s{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12.5px;color:var(--fg4)}
-.br-bar{height:5px;border-radius:3px;background:var(--s4);overflow:hidden;flex:1;max-width:220px}
-.br-bar i{display:block;height:100%;border-radius:3px;background:var(--pri);width:42%;animation:bg-pulse 1.4s ease-in-out infinite}
-@keyframes bg-pulse{0%,100%{opacity:.55}50%{opacity:1}}
 
 /* ══ 细化：对齐两份参考的「方案1」语汇 ══
    ① 呼吸灯状态点（草图①）：运行中任务用品牌蓝呼吸光晕，不闪动不吵闹；
    ② 进度卡（草图①详情 + 多agent①主卡）：水平进度条 + 百分比 + 当前动作；
    ③ 时间轴 + 头行（信息上移，卡片可收起）：任务头行带 42% + 「正在：」+ 折叠箭头，
       下方纯时间轴：6 个阶段点，fill 蓝条=42%，运行段点呼吸，阶段名 6 等宽格与点位对齐；
-   ④ 可重连任务列表（草图①侧栏行）：呼吸点 + 标题 + 当前动作 + 细进度条 + 重连按钮。 */
+   ④ 可重连任务列表（草图①侧栏行）：呼吸点 + 标题 + 当前动作 + 细进度条 + 重连按钮；
+      点重连 → 按钮就地转圈「连接中…」，连上后列表收掉、照常渲染（红色标注3 极简）。 */
 .bg-dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--pri);
   box-shadow:0 0 0 0 rgba(0,119,255,.42);animation:bg-breath 1.5s ease-in-out infinite}
 @keyframes bg-breath{0%,100%{box-shadow:0 0 0 0 rgba(0,119,255,.42);opacity:1}
@@ -1354,7 +1349,37 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
   background:rgba(0,119,255,.42);border:1px solid rgba(0,119,255,.55);border-radius:5px;cursor:pointer;flex:none}
 .brj-go:hover{background:rgba(0,119,255,.58)}
 .brj.reconnecting{background:rgba(0,119,255,.08)}
-.brj.reconnecting .brj-go{opacity:.5;cursor:default}
+.brj.reconnecting .brj-go{opacity:1;cursor:default;pointer-events:none}
+.brj-go .sp{display:inline-block;width:11px;height:11px;vertical-align:-1px;margin-right:5px;
+  border-radius:50%;border:2px solid var(--bd3);border-top-color:var(--pri);animation:bg-spin .8s linear infinite}
+
+/* 关闭确认兜底（需求3）：未做选择直接关闭 → 默认后台执行，任务不中断 */
+.bc-note{font-size:11.5px;color:var(--fg4);padding:0 12px 11px;line-height:1.6}
+.bc-note b{color:var(--fg3);font-weight:600}
+
+/* 侧栏会话状态徽标（需求2）：运行中 / 中断 / 已完成 / 等待用户操作 */
+.sd-badge{flex:none;font-size:10px;line-height:1;padding:3px 5px;border-radius:3px;
+  font-family:var(--mono);letter-spacing:.2px}
+.sd-badge.doing{color:var(--pri-h);background:rgba(0,119,255,.12)}
+.sd-badge.interrupted{color:var(--dgr);background:rgba(221,76,76,.14)}
+.sd-badge.done{color:var(--ok);background:rgba(45,178,122,.13)}
+.sd-badge.wait{color:var(--warn);background:rgba(217,161,59,.14)}
+.sd-node.active .sd-badge{background:rgba(255,255,255,.2)}
+/* 会话状态方块：中断 = 红（.stq 既有颜色缺这个态） */
+.stq.interrupted{background:var(--dgr);border-color:var(--dgr)}
+
+/* 新建会话（需求1）：Sessions 标题右侧 + 按钮 */
+.sd-new{margin-left:auto;width:20px;height:20px;border:1px solid var(--bd2);border-radius:4px;
+  background:var(--s3);color:var(--fg2);font-size:13px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0}
+.sd-new:hover{color:var(--fg);background:var(--s4);border-color:var(--bd3)}
+/* 重启会话（需求5）：中断 / 已完成的会话行 hover 露出 */
+.sd-re{flex:none;width:22px;height:20px;border:1px solid transparent;border-radius:4px;background:none;
+  color:var(--fg4);font-size:12px;cursor:pointer;opacity:0;transition:opacity .12s;
+  display:flex;align-items:center;justify-content:center;padding:0;font-family:var(--sans)}
+.sd-node:hover .sd-re{opacity:1}
+.sd-re:hover{color:var(--fg);background:var(--s3);border-color:var(--bd2)}
+.sd-node.active .sd-re{color:rgba(255,255,255,.75)}
 </style>
 </head>
 <body>
@@ -1380,7 +1405,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
   <aside class="sidebar" id="sidebar">
    <div class="sd-scroll" id="sdScroll">
     <div class="sd-sec">
-      <div class="h">Sessions</div>
+      <div class="h">Sessions<button class="sd-new" type="button" title="新建会话（/new）">+</button></div>
       <div class="sess-scroll" id="sessScroll"></div>
     </div>
     <div class="sd-sec">
@@ -2385,8 +2410,10 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
          本屏据此落地：后台任务卡 = 任务头行（呼吸点 + ID + 「执行进度 42%」+「正在：」+
          折叠箭头，整行可点击收起）+ 下方纯时间轴（6 个阶段点，fill 蓝条=42%，
          运行段点呼吸，阶段名 6 等宽格与点位对齐）；重连区块 = 会话行列表
-         （可选择要重连哪个任务）→ 加载提示。多终端这层事实不再铺一张表，
-         由对话流文案承担（首条 ai-msg 已写明）。关闭确认仍是可点选的两态卡片，不引入新颜色。 -->
+         （可选择要重连哪个任务），点「重连」按钮就地转圈「连接中…」，
+         连上后列表收掉、按普通消息照常渲染——无「已重连」字样、无渲染特殊性（红色标注3）。
+         多终端这层事实不再铺一张表，由对话流文案承担（首条 ai-msg 已写明）。
+         关闭确认仍是可点选的两态卡片；未选择直接关闭 → 默认后台执行。不引入新颜色。 -->
     <div class="scene" data-agent="develop" data-scenario="bg-run">
       <section class="right-panel">
         <div class="panel-body">
@@ -2430,6 +2457,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
               <button class="bc-btn pri" type="button" data-bg="keep">后台执行（推荐）</button>
               <button class="bc-btn" type="button" data-bg="cancel">取消任务</button>
             </div>
+            <div class="bc-note">未做选择直接关闭 TUI → <b>默认后台执行</b>，任务不中断；「取消任务」会回退改动，需重新发起。</div>
             <div class="bc-foot"><span class="stq done" role="img" aria-label="已完成"></span><span class="bc-msg">已选择后台执行。任务继续运行，TUI 可安全关闭；重新打开后选择「重连任务」回到同一份进度。</span></div>
           </div>
 
@@ -2450,14 +2478,7 @@ html[data-theme="light"] .bi-btn.secondary{color:var(--fg2)}
               <button class="brj-go" type="button">重连</button>
             </div>
           </div>
-          <div class="bg-reconnect" id="bgReconnect">
-            <div class="br-spin" role="img" aria-label="正在加载"></div>
-            <div class="br-body">
-              <div class="br-t">正在重连后台任务 <b>bg-8f3c2a</b> …</div>
-              <div class="br-s"><span class="stq doing breath" role="img" aria-label="进行中"></span>同步进度与断线期间增量事件 <span class="br-bar"><i></i></span></div>
-            </div>
-          </div>
-          <div class="ai-msg">已重连。任务在后台持续推进，断线期间补发增量事件：<b class="hl-metric">阶段 2 · 依赖扫描完成</b>（32 个库全部 ARM 兼容）、<b class="hl-metric">阶段 3 · 中间件迁移中</b>（TongWeb license 待补充）。当前仍停在 42%，状态恢复实时更新。</div>
+          <div class="ai-msg" id="reconnectMsg">任务在后台持续推进。断线期间补发增量事件：<b class="hl-metric">阶段 2 · 依赖扫描完成</b>（32 个库全部 ARM 兼容）、<b class="hl-metric">阶段 3 · 中间件迁移中</b>（TongWeb license 待补充）。当前 42%，状态实时更新。</div>
         </div>
       </section>
     </div>
@@ -3148,11 +3169,11 @@ const SCENARIOS={
     {key:'no-model',label:'未配置模型',status:'wait',file:null,code:false,disabled:true,
      goal:'缺省态：还没有可用的模型配置，Agent 拿不到 LLM，发不出第一条回复',
      plan:[]},
-    {key:'bg-run',label:'后台运行',status:'doing',file:'run_task.ts',code:true,
+    {key:'bg-run',label:'端到端迁移',status:'doing',file:'run_task.ts',code:true,flat:true,
      goal:'前台流式适配为后台异步：关 TUI 提示后台执行/取消任务；重启后可重连运行中的任务（带加载提示）；同一任务支持 TUI/GUI/Web 多终端共享状态',
      plan:[{t:'切后台异步',d:'事件通道换事件总线 · 断线不中断',s:'done'},
        {t:'关闭确认',d:'后台执行 / 取消任务 · 二选一',s:'done'},
-       {t:'重启重连',d:'带加载提示 · 增量补发',s:'doing'},
+       {t:'重启重连',d:'重连转圈提示 · 连上照常渲染',s:'doing'},
        {t:'多终端同步',d:'TUI · GUI · Web 共享一份状态',s:'doing'}],
      sugg:['重连运行任务','模拟关闭重连','切到 GUI 端']},
     {key:'subagent',label:'子 Agent 并发编排',status:'doing',file:'kernel',code:true,
@@ -3280,13 +3301,32 @@ function renderMetrics(agentKey,scenarioKey){
   const bp=document.getElementById('biProv'); if(bp) bp.textContent=ae?mmEndpoint(ae):'';
 }
 
+/* 会话级状态（需求2）：运行中 / 中断 / 已完成 / 等待用户操作。
+   与场景内部状态点解耦——侧栏展示的是「会话此刻处于什么阶段」，
+   场景内容里的进度点属于该会话的业务进度。 */
+const SESSION_STATE={
+  'migrate:src-migrate':'done','migrate:e2e-migrate':'wait','migrate:container-migrate':'wait',
+  'develop:no-model':'wait','develop:bg-run':'doing','develop:subagent':'doing',
+  'develop:model-token':'wait','develop:subagent-tree':'doing','develop:vectorize':'interrupted',
+  'develop:op-gen':'done',
+  'tune:diagnose':'wait','tune:bottleneck':'doing','tune:auto-param':'doing','tune:redis-tune':'done'
+};
+const SESSION_STATE_LABEL={done:'已完成',doing:'运行中',wait:'等待操作',interrupted:'中断'};
 function renderSessionList(activeAgent,activeScenario){
   const el=document.getElementById('sessScroll');
   el.innerHTML=Object.keys(SCENARIOS).map(agentKey=>
-    SCENARIOS[agentKey].filter(s=>!s.hidden).map(s=>
-      `<div class="sd-node ${agentKey===activeAgent&&s.key===activeScenario?'active':''}"
+    SCENARIOS[agentKey].filter(s=>!s.hidden).map(s=>{
+      const st=SESSION_STATE[agentKey+':'+s.key]||s.status||'done';
+      const lbl=SESSION_STATE_LABEL[st]||st;
+      const badge=`<span class="sd-badge ${st}">${lbl}</span>`;
+      /* 需求5：重启已结束 / 中断的会话——hover 露出 ↻ 小按钮（点它 = 打开该会话） */
+      const re=(st==='interrupted'||st==='done')
+        ?`<button class="sd-re" type="button" title="重启会话（重跑该任务）">↻</button>`:'';
+      return `<div class="sd-node ${agentKey===activeAgent&&s.key===activeScenario?'active':''}"
         data-agent="${agentKey}" data-scenario="${s.key}">
-        <span class="stq ${s.status}" role="img" aria-label="${STATUS_LABEL[s.status]}"></span><span class="lb">${s.label}</span></div>`).join('')
+        <span class="stq ${st}" role="img" aria-label="${lbl}"></span>
+        <span class="lb">${s.label}</span>${badge}${re}</div>`;
+    }).join('')
   ).join('');
 }
 
@@ -3299,11 +3339,13 @@ function renderAIPlan(agentKey,scenarioKey){
       <span class="lb">${p.t}</span>${p.d?`<span class="d">${p.d}</span>`:''}</div>`).join('');
 }
 
-/* 建议操作：根据当前对话/场景内容变化，而不是固定不变 */
+/* 建议操作：根据当前对话/场景内容变化，而不是固定不变。
+   flat 场景（如 bg-run 的调试按钮组）不突出首个——红色标注4：这些按钮
+   不用和其他按钮作区分。 */
 function renderSuggestions(agentKey,scenarioKey){
   const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
   document.getElementById('biActions').innerHTML=(meta&&meta.sugg||[]).map((s,i)=>
-    `<button class="bi-btn${i===0?'':' secondary'}">${s}</button>`).join('');
+    `<button class="bi-btn${i===0&&!meta.flat?'':' secondary'}">${s}</button>`).join('');
 }
 
 /* 调优曲线：输入框上方固定可收起区域，逐轮回放 HPO 迭代曲线，播完暂停后从头继续，模拟"实时跑动"；
@@ -3602,6 +3644,13 @@ const STATUS_LABEL={done:'已完成',doing:'进行中',wait:'待处理'};
 const biInput=document.getElementById('biInput');
 const slashMenu=document.getElementById('slashMenu');
 let smMatches=[],smSel=-1,smMode='cmd';
+
+/* 需求1：新建会话——侧栏 Sessions 标题「+」等价于 /new，点击后在输入框预置命令 */
+document.querySelector('.sd-new').addEventListener('click',()=>{
+  biInput.value='/new';
+  biInput.focus();
+  biInput.setSelectionRange(biInput.value.length,biInput.value.length);
+});
 
 function flatSessions(){
   const out=[];
@@ -4466,25 +4515,28 @@ if(bgToggle){
   });
 }
 
-/* ══ 后台运行 · 可重连任务列表 ══
-   重连这一下也是用户做选择：点某行的「重连」，该行就地标为重连中（高亮 + 按钮变灰），
-   下方加载块的 task ID 跟着切换成所选任务，并把加载块滚进视野。
-   其余行不做任何处理——模拟「还没选它」的自然停顿。 */
+/* ══ 后台运行 · 重连（极简，红色标注3）══
+   点某行「重连」→ 该行按钮就地转圈「连接中…」（需求4的加载提示，不铺一块加载区）；
+   连上后任务列表收掉，按普通前台消息渲染——不用「已重连」字样、无任何渲染特殊性。 */
 const brjGo=document.querySelectorAll('.brj-go');
-const bgReconnect=document.getElementById('bgReconnect');
-if(brjGo.length&&bgReconnect){
-  const taskIdEl=bgReconnect.querySelector('.br-t b');
+const bgRejobs=document.querySelector('.bg-rejobs');
+const reconnectMsg=document.getElementById('reconnectMsg');
+if(brjGo.length){
   brjGo.forEach(btn=>{
     btn.addEventListener('click',()=>{
       const row=btn.closest('.brj');
       document.querySelectorAll('.brj.reconnecting').forEach(r=>{
         r.classList.remove('reconnecting');
-        const b=r.querySelector('.brj-go'); if(b) b.textContent='重连';
+        const b=r.querySelector('.brj-go');
+        if(b){ b.innerHTML='重连'; b.disabled=false; }
       });
       row.classList.add('reconnecting');
-      btn.textContent='重连中';
-      if(taskIdEl&&row.dataset.task) taskIdEl.textContent=row.dataset.task;
-      bgReconnect.scrollIntoView({behavior:'smooth',block:'nearest'});
+      btn.innerHTML='<span class="sp" aria-hidden="true"></span>连接中…';
+      btn.disabled=true;
+      setTimeout(()=>{
+        if(bgRejobs) bgRejobs.classList.add('hidden');
+        if(reconnectMsg) reconnectMsg.classList.add('on');
+      },700);
     });
   });
 }
