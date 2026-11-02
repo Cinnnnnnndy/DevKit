@@ -1045,6 +1045,10 @@ html[data-theme="light"] .mm-page{border:1px solid var(--bd1)}
 .mm-warn:hover{background:rgba(224,175,104,.18)}
 .mm-warn:focus-visible{outline:0;box-shadow:0 0 0 3px var(--focus-ring)}
 .sync-load{margin:auto;max-width:560px;padding:0 22px;text-align:center}
+/* 加载卡纵向居中：panel-body 默认靠顶排布，sync-load 场景单独开 flex，
+   让转圈 + 两行文案落在面板中央（约 2 秒的等待不显得空） */
+.scene[data-scenario="sync-load"] .panel-body{display:flex;flex-direction:column;
+  align-items:center;justify-content:center}
 .sl-spin{width:42px;height:42px;margin:0 auto 15px;border-radius:50%;border:3px solid var(--s4);
   border-top-color:var(--pri);animation:bg-spin .9s linear infinite}
 .sl-t{font-size:15px;font-weight:700;color:var(--fg)}
@@ -3418,6 +3422,10 @@ function selectScenario(agentKey,scenarioKey){
     el.classList.toggle('on',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
   document.querySelectorAll('.code-scene').forEach(el=>
     el.classList.toggle('on',el.dataset.agent===agentKey && el.dataset.scenario===scenarioKey));
+  /* 切换场景先回顶：从长场景（bg-run 内容高）切到加载态（内容很矮）时，
+     面板 scrollTop 会超界被浏览器钳住，视觉上像「跳动」——重置后点击是稳的 */
+  const activePb=document.querySelector('.scene.on .panel-body');
+  if(activePb) activePb.scrollTop=0;
   const meta=SCENARIOS[agentKey].find(s=>s.key===scenarioKey);
   if(meta) document.getElementById('convTitle').textContent=meta.label;
   document.querySelectorAll('#sidebar .sd-node[data-file]').forEach(el=>
